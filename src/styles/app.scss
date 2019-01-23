@@ -1,0 +1,126 @@
+.oh-page {
+  .oh-content {
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+
+    .breadcrumb {
+      margin-left: 40px;
+      margin-top: 10px;
+    }
+  }
+
+  @media (min-width: 1281px) {
+    margin: 0 80px;
+  }
+
+  @media (min-width: 1441px) {
+    margin: 0 320px;
+  }
+}
+
+.oh-header {
+  display: flex;
+  border: 1px solid $color-pf-black-300;
+  height: 85px;
+  padding: 20px 30px;
+}
+
+.oh-footer {
+  display: flex;
+  border: 1px solid $color-pf-black-300;
+  height: 185px;
+  padding: 20px 30px;
+}
+
+.oh-tile-view {
+  background: transparent;
+  display: flex;
+  padding: ($grid-gutter-width / 2) 0 0;
+
+  &__content {
+    flex: 1 1 auto;
+  }
+
+  &__heading {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 0 0 20px;
+  }
+
+  &__num-items {
+    border-bottom: 1px solid $color-pf-black-300;
+    font-weight: 400;
+    margin: 0 15px ($grid-gutter-width / 2) 0;
+    padding: 0 0 20px;
+  }
+
+  &__filters {
+    flex: 0 0 170px;
+    margin: 0 ($grid-gutter-width / 2) 0 0;
+  }
+
+  &__no-filter-results {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+
+    &-title {
+      color: $color-pf-black-700;
+      font-size: 18px;
+    }
+  }
+}
+
+.oh-details-view {
+  background-color: $pf-color-white;
+  box-shadow: 0 0.0625rem 0.125rem 0 rgba(3,3,3,.2);
+  display: flex;
+  flex-direction: row;
+  padding: 10px 15px 30px;
+
+  &__side-panel {
+    background-color: $pf-color-black-100;
+    margin-top: 20px;
+    padding: 10px 30px 30px 10px;
+
+    .properties-side-panel-pf {
+      width: 100%;
+    }
+
+    .oh-external-link {
+      display: block;
+    }
+
+    .dropdown-menu {
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    &__version-dropdown {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      font-size: inherit;
+      font-weight: inherit;
+    }
+  }
+}
+
+.oh-external-link {
+  display: inline-block;
+  padding-right: 15px;
+
+  &::after {
+    content: "\f08e";
+    display:inline-block;
+    font-family: 'FontAwesome';
+    font-size: 75%;
+    height: 16px;
+    position:relative;
+    margin-left: 3px;
+    margin-right: -15px;
+    top:0;
+    width: 12px;
+  }
+}
