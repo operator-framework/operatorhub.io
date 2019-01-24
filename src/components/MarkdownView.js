@@ -80,7 +80,7 @@ export class MarkdownView extends React.Component {
           color: ${this.props.content ? '#333' : '#999'};
           background-color: transparent !important;
           min-width: auto !important;
-          font-family: var(--pf-global--FontFamily--sans-serif);
+          font-family: "Lato", var(--pf-global--FontFamily--sans-serif);
       }
       </style>
       <body><div>${markdownConvert(this.props.content || 'Not available')}</div></body>`;

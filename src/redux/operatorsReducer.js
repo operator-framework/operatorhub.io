@@ -12,10 +12,11 @@ const initialState = {
 const operatorsReducer = (state = initialState, action) => {
   switch (action.type) {
     case helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS):
+      console.dir(action);
       return Object.assign({}, state, {
         pending: false,
-        error: action.error,
-        errorMessage: helpers.getErrorMessageFromResults(action.payload)
+        error: true,
+        errorMessage: helpers.getErrorMessageFromResults(action.error)
       });
 
     case helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS):

@@ -21,32 +21,47 @@ const fetchOperators = operatorName => dispatch => {
     ? `${gitHubURL}/search/code?q='displayName: ${operatorName}'+repo:${operatorsRepo}+filename:${operatorFileQuery}`
     : allOperatorsRequest;
 
-  axios.get(request).then(response => {
-    const operatorFiles = response.data.items;
-    const operatorRequests = [];
+  axios
+    .get(request)
+    .then(response => {
+      const operatorFiles = response.data.items;
+      const operatorRequests = [];
 
-    _.forEach(operatorFiles, operatorFile => {
-      operatorRequests.push(axios.get(`${operatorContentsURL}/${operatorFile.path}`));
-    });
-
-    return axios.all(operatorRequests).then(({ ...allResults }) => {
-      const operators = [];
-      _.forEach(allResults, operatorResult => {
-        try {
-          const operator = yaml.safeLoad(Base64.decode(operatorResult.data.content));
-          operators.push(operator);
-        } catch (e) {
-          console.log(`Error Parsing ${_.get(operatorResult, 'data.name', 'Unknown Operator')}`);
-          console.dir(e);
-        }
+      _.forEach(operatorFiles, operatorFile => {
+        operatorRequests.push(axios.get(`${operatorContentsURL}/${operatorFile.path}`));
       });
+
+      return axios
+        .all(operatorRequests)
+        .then(({ ...allResults }) => {
+          const operators = [];
+          _.forEach(allResults, operatorResult => {
+            try {
+              const operator = yaml.safeLoad(Base64.decode(operatorResult.data.content));
+              operators.push(operator);
+            } catch (e) {
+              console.log(`Error Parsing ${_.get(operatorResult, 'data.name', 'Unknown Operator')}`);
+              console.dir(e);
+            }
+          });
+          dispatch({
+            type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
+            payload: operators
+          });
+        })
+        .catch(error => {
+          dispatch({
+            type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
+            error
+          });
+        });
+    })
+    .catch(error => {
       dispatch({
-        type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-        payload: operators
+        type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
+        error
       });
-      return operators;
     });
-  });
 };
 
 const operatorsService = {

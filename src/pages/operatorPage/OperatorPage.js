@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as _ from 'lodash-es';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
-import { Alert, Breadcrumb, DropdownButton, EmptyState, Grid, MenuItem, Modal } from 'patternfly-react';
+import { Alert, Breadcrumb, DropdownButton, EmptyState, Grid, MenuItem } from 'patternfly-react';
 import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 
 import Footer from '../../components/Footer';
@@ -43,36 +43,28 @@ class OperatorPage extends React.Component {
     this.setState({ operator });
   };
 
-  renderPendingMessage = () => {
-    const { pending } = this.props;
-    if (pending) {
-      return (
-        <Modal bsSize="lg" backdrop={false} show animation={false}>
-          <Modal.Body>
-            <div className="spinner spinner-xl" />
-            <div className="text-center">Loading available operators...</div>
-          </Modal.Body>
-        </Modal>
-      );
-    }
-
-    return null;
-  };
+  renderPendingMessage = () => (
+    <EmptyState className="blank-slate-content-pf">
+      <div className="loading-state-pf loading-state-pf-lg">
+        <div className="spinner spinner-lg" />
+        Loading operator
+      </div>
+    </EmptyState>
+  );
 
   renderError = () => {
     const { errorMessage } = this.props;
 
     return (
-      <EmptyState>
+      <EmptyState className="blank-slate-content-pf">
         <Alert type="error">
           <span>Error retrieving operators: {errorMessage}</span>
         </Alert>
-        {this.renderPendingMessage()}
       </EmptyState>
     );
   };
 
-  render() {
+  renderDetails() {
     const { error, pending } = this.props;
     const { operator } = this.state;
 
@@ -135,39 +127,47 @@ class OperatorPage extends React.Component {
       notAvailable
     );
 
+    const createdString = createdAt && `${createdAt}`;
+
+    return (
+      <React.Fragment>
+        <Breadcrumb>
+          <Breadcrumb.Item onClick={e => this.onHome(e)} href="#">
+            Home
+          </Breadcrumb.Item>
+          <Breadcrumb.Item active>{name}</Breadcrumb.Item>
+        </Breadcrumb>
+        <div className="oh-details-view">
+          <Grid fluid={false}>
+            <Grid.Row className="oh-details-view__content">
+              <Grid.Col xs={12} sm={3} smPush={9} className="oh-details-view__side-panel">
+                <PropertiesSidePanel>
+                  <PropertyItem label="Operator Version" value={versionComponent} />
+                  <PropertyItem label="Operator Maturity" value={maturity || notAvailable} />
+                  <PropertyItem label="Provider" value={provider || notAvailable} />
+                  <PropertyItem label="Links" value={linksComponent} />
+                  <PropertyItem label="Repository" value={repository || notAvailable} />
+                  <PropertyItem label="Container Image" value={containerImage || notAvailable} />
+                  <PropertyItem label="Created At" value={createdString || notAvailable} />
+                  <PropertyItem label="Maintainers" value={maintainersComponent} />
+                </PropertiesSidePanel>
+              </Grid.Col>
+              <Grid.Col xs={12} sm={9} smPull={3}>
+                <h1>{name}</h1>
+                {longDescription && <MarkdownView content={longDescription} outerScroll />}
+              </Grid.Col>
+            </Grid.Row>
+          </Grid>
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  render() {
     return (
       <div className="oh-page">
         <Header />
-        <div className="oh-content">
-          <Breadcrumb>
-            <Breadcrumb.Item onClick={e => this.onHome(e)} href="#">
-              Home
-            </Breadcrumb.Item>
-            <Breadcrumb.Item active>{name}</Breadcrumb.Item>
-          </Breadcrumb>
-          <div className="oh-details-view">
-            <Grid fluid={false}>
-              <Grid.Row className="oh-details-view__content">
-                <Grid.Col xs={12} sm={3} smPush={9} className="oh-details-view__side-panel">
-                  <PropertiesSidePanel>
-                    <PropertyItem label="Operator Version" value={versionComponent} />
-                    <PropertyItem label="Operator Maturity" value={maturity || notAvailable} />
-                    <PropertyItem label="Provider" value={provider || notAvailable} />
-                    <PropertyItem label="Links" value={linksComponent} />
-                    <PropertyItem label="Repository" value={repository || notAvailable} />
-                    <PropertyItem label="Container Image" value={containerImage || notAvailable} />
-                    <PropertyItem label="Created At" value={createdAt || notAvailable} />
-                    <PropertyItem label="Maintainers" value={maintainersComponent} />
-                  </PropertiesSidePanel>
-                </Grid.Col>
-                <Grid.Col xs={12} sm={9} smPull={3}>
-                  <h1>{name}</h1>
-                  {longDescription && <MarkdownView content={longDescription} outerScroll />}
-                </Grid.Col>
-              </Grid.Row>
-            </Grid>
-          </div>
-        </div>
+        <div className="oh-content">{this.renderDetails()}</div>
         <Footer />
       </div>
     );
