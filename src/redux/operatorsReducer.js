@@ -6,13 +6,13 @@ const initialState = {
   errorMessage: '',
   pending: false,
   fulfilled: false,
-  operators: []
+  operators: [],
+  operator: {}
 };
 
 const operatorsReducer = (state = initialState, action) => {
   switch (action.type) {
     case helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS):
-      console.dir(action);
       return Object.assign({}, state, {
         pending: false,
         error: true,
@@ -29,6 +29,14 @@ const operatorsReducer = (state = initialState, action) => {
     case helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS):
       return Object.assign({}, state, {
         operators: action.payload,
+        error: false,
+        pending: false,
+        fulfilled: true
+      });
+
+    case helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR):
+      return Object.assign({}, state, {
+        operator: action.payload,
         error: false,
         pending: false,
         fulfilled: true

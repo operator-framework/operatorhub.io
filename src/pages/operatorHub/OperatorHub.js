@@ -11,7 +11,6 @@ import { helpers } from '../../common/helpers';
 
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
-import { normalizeOperators } from '../../utils/operatorUtils';
 
 /**
  * Filter property white list
@@ -191,44 +190,50 @@ class OperatorHub extends React.Component {
   };
 
   componentDidMount() {
+    this.updateNewOperators(this.props.operators);
     this.refresh();
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { operators } = this.props;
+
     if (!_.isEqual(this.props.operators, prevProps.operators)) {
-      const { activeFilters } = this.state;
-      const newOperators = normalizeOperators(this.props.operators);
-      const availableFilters = determineAvailableFilters(defaultFilters, newOperators, operatorHubFilterGroups);
-
-      const newActiveFilters = _.reduce(
-        availableFilters,
-        (updatedFilters, filterGroup, filterGroupName) => {
-          _.each(filterGroup, (filterItem, filterItemName) => {
-            updatedFilters[filterGroupName][filterItemName].active = _.get(
-              activeFilters,
-              [filterGroupName, filterItemName, 'active'],
-              false
-            );
-          });
-
-          return updatedFilters;
-        },
-        availableFilters
-      );
-
-      const filterCounts = getFilterGroupCounts(newOperators, newActiveFilters);
-      const filteredItems = this.sortItems(filterItems(newOperators, newActiveFilters));
-      this.setState({
-        operators: newOperators,
-        filteredItems,
-        activeFilters: newActiveFilters,
-        filterCounts
-      });
+      this.updateNewOperators(operators);
     }
     if (this.state.sortType !== prevState.sortType) {
       this.setState({ filteredItems: _.reverse(this.state.filteredItems) });
     }
   }
+
+  updateNewOperators = operators => {
+    const { activeFilters } = this.state;
+    const availableFilters = determineAvailableFilters(defaultFilters, operators, operatorHubFilterGroups);
+
+    const newActiveFilters = _.reduce(
+      availableFilters,
+      (updatedFilters, filterGroup, filterGroupName) => {
+        _.each(filterGroup, (filterItem, filterItemName) => {
+          updatedFilters[filterGroupName][filterItemName].active = _.get(
+            activeFilters,
+            [filterGroupName, filterItemName, 'active'],
+            false
+          );
+        });
+
+        return updatedFilters;
+      },
+      availableFilters
+    );
+
+    const filterCounts = getFilterGroupCounts(operators, newActiveFilters);
+    const filteredItems = this.sortItems(filterItems(operators, newActiveFilters));
+    this.setState({
+      operators,
+      filteredItems,
+      activeFilters: newActiveFilters,
+      filterCounts
+    });
+  };
 
   refresh() {
     this.props.fetchOperators();
@@ -310,7 +315,7 @@ class OperatorHub extends React.Component {
     );
   };
 
-  renderEmptyState() {
+  renderFilteredEmptyState() {
     return (
       <EmptyState className="blank-slate-content-pf">
         <EmptyState.Title className="oh-no-filter-results-title" aria-level="2">
@@ -366,7 +371,7 @@ class OperatorHub extends React.Component {
     const { filteredItems } = this.state;
 
     if (!_.size(filteredItems)) {
-      return this.renderEmptyState();
+      return this.renderFilteredEmptyState();
     }
 
     return (
@@ -421,7 +426,7 @@ class OperatorHub extends React.Component {
 
   renderView = () => {
     const { error, pending } = this.props;
-    const { filteredItems, viewType, sortType } = this.state;
+    const { operators, filteredItems, viewType, sortType } = this.state;
 
     if (error) {
       return this.renderError();
@@ -429,6 +434,19 @@ class OperatorHub extends React.Component {
 
     if (pending) {
       return this.renderPendingMessage();
+    }
+
+    if (!_.size(operators)) {
+      return (
+        <EmptyState className="blank-slate-content-pf">
+          <EmptyState.Title className="oh-no-filter-results-title" aria-level="2">
+            No Community Operators Exist
+          </EmptyState.Title>
+          <EmptyState.Info className="text-secondary">
+            No community operators were found, refresh the page to try again.
+          </EmptyState.Info>
+        </EmptyState>
+      );
     }
 
     return (

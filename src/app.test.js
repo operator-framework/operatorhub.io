@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import { baseName } from './routes';
 import App from './App';
 
 const store = createStore((state = []) => state);
@@ -14,7 +13,7 @@ it('renders without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <Provider store={store}>
-      <Router basename={baseName}>
+      <Router>
         <App />
       </Router>
     </Provider>,

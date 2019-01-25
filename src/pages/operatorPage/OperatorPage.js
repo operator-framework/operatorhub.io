@@ -7,7 +7,6 @@ import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
-import { normalizeOperators } from '../../utils/operatorUtils';
 import { helpers } from '../../common/helpers';
 import { fetchOperators } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
@@ -19,13 +18,19 @@ class OperatorPage extends React.Component {
   };
 
   componentDidMount() {
+    this.setState({ operator: this.props.operator });
     this.refresh();
   }
 
   componentDidUpdate(prevProps) {
-    if (_.size(this.props.operators) && !_.isEqual(this.props.operators, prevProps.operators)) {
-      const newOperators = normalizeOperators(this.props.operators);
-      this.setState({ operator: newOperators[0] });
+    const { operator } = this.props;
+
+    if (operator && !_.isEqual(operator, prevProps.operator)) {
+      let stateOperator = operator;
+      if (this.state.operator) {
+        stateOperator = _.find(operator.version, { version: this.state.operator.version }) || operator;
+      }
+      this.setState({ operator: stateOperator });
     }
   }
 
@@ -175,7 +180,7 @@ class OperatorPage extends React.Component {
 }
 
 OperatorPage.propTypes = {
-  operators: PropTypes.array,
+  operator: PropTypes.object,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
@@ -187,7 +192,7 @@ OperatorPage.propTypes = {
 };
 
 OperatorPage.defaultProps = {
-  operators: [],
+  operator: {},
   error: false,
   errorMessage: '',
   pending: false,
