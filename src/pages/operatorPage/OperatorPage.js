@@ -1,0 +1,214 @@
+import * as React from 'react';
+import * as _ from 'lodash-es';
+import PropTypes from 'prop-types';
+import connect from 'react-redux/es/connect/connect';
+import { Alert, Breadcrumb, DropdownButton, EmptyState, Grid, MenuItem } from 'patternfly-react';
+import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
+
+import Footer from '../../components/Footer';
+import Header from '../../components/Header';
+import { helpers } from '../../common/helpers';
+import { fetchOperators } from '../../services/operatorsService';
+import { MarkdownView } from '../../components/MarkdownView';
+import { ExternalLink } from '../../components/ExternalLink';
+
+class OperatorPage extends React.Component {
+  state = {
+    operator: {}
+  };
+
+  componentDidMount() {
+    this.setState({ operator: this.props.operator });
+    this.refresh();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { operator } = this.props;
+
+    if (operator && !_.isEqual(operator, prevProps.operator)) {
+      let stateOperator = operator;
+      if (this.state.operator) {
+        stateOperator = _.find(operator.version, { version: this.state.operator.version }) || operator;
+      }
+      this.setState({ operator: stateOperator });
+    }
+  }
+
+  refresh() {
+    const { match } = this.props;
+    this.props.fetchOperators(_.get(match, 'params.operatorId'));
+  }
+
+  onHome(e) {
+    e.preventDefault();
+    this.props.history.push('/');
+  }
+
+  updateVersion = operator => {
+    this.setState({ operator });
+  };
+
+  renderPendingMessage = () => (
+    <EmptyState className="blank-slate-content-pf">
+      <div className="loading-state-pf loading-state-pf-lg">
+        <div className="spinner spinner-lg" />
+        Loading operator
+      </div>
+    </EmptyState>
+  );
+
+  renderError = () => {
+    const { errorMessage } = this.props;
+
+    return (
+      <EmptyState className="blank-slate-content-pf">
+        <Alert type="error">
+          <span>Error retrieving operators: {errorMessage}</span>
+        </Alert>
+      </EmptyState>
+    );
+  };
+
+  renderDetails() {
+    const { error, pending } = this.props;
+    const { operator } = this.state;
+
+    if (error) {
+      return this.renderError();
+    }
+
+    if (pending || !operator) {
+      return this.renderPendingMessage();
+    }
+
+    const {
+      name,
+      provider,
+      maturity,
+      longDescription,
+      links,
+      version,
+      versions,
+      repository,
+      containerImage,
+      createdAt,
+      maintainers
+    } = operator;
+    const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
+
+    const versionComponent =
+      _.size(versions) > 1 ? (
+        <DropdownButton className="oh-details-view__side-panel__version-dropdown" title={version} id="version-dropdown">
+          {_.map(versions, (nextVersion, index) => (
+            <MenuItem key={nextVersion.version} eventKey={index} onClick={() => this.updateVersion(nextVersion)}>
+              {nextVersion.version}
+            </MenuItem>
+          ))}
+        </DropdownButton>
+      ) : (
+        <React.Fragment>{version}</React.Fragment>
+      );
+
+    const linksComponent = _.size(links) ? (
+      <React.Fragment>
+        {_.map(links, link => (
+          <ExternalLink key={link.name} href={link.url} text={link.name} />
+        ))}
+      </React.Fragment>
+    ) : (
+      notAvailable
+    );
+
+    const maintainersComponent = _.size(maintainers) ? (
+      <React.Fragment>
+        {_.map(maintainers, maintainer => (
+          <React.Fragment key={maintainer.name}>
+            <div>{maintainer.name}</div>
+            <a href={`mailto:${maintainer.email}`}>{maintainer.email}</a>
+          </React.Fragment>
+        ))}
+      </React.Fragment>
+    ) : (
+      notAvailable
+    );
+
+    const createdString = createdAt && `${createdAt}`;
+
+    return (
+      <React.Fragment>
+        <Breadcrumb>
+          <Breadcrumb.Item onClick={e => this.onHome(e)} href="#">
+            Home
+          </Breadcrumb.Item>
+          <Breadcrumb.Item active>{name}</Breadcrumb.Item>
+        </Breadcrumb>
+        <div className="oh-details-view">
+          <Grid fluid={false}>
+            <Grid.Row className="oh-details-view__content">
+              <Grid.Col xs={12} sm={3} smPush={9} className="oh-details-view__side-panel">
+                <PropertiesSidePanel>
+                  <PropertyItem label="Operator Version" value={versionComponent} />
+                  <PropertyItem label="Operator Maturity" value={maturity || notAvailable} />
+                  <PropertyItem label="Provider" value={provider || notAvailable} />
+                  <PropertyItem label="Links" value={linksComponent} />
+                  <PropertyItem label="Repository" value={repository || notAvailable} />
+                  <PropertyItem label="Container Image" value={containerImage || notAvailable} />
+                  <PropertyItem label="Created At" value={createdString || notAvailable} />
+                  <PropertyItem label="Maintainers" value={maintainersComponent} />
+                </PropertiesSidePanel>
+              </Grid.Col>
+              <Grid.Col xs={12} sm={9} smPull={3}>
+                <h1>{name}</h1>
+                {longDescription && <MarkdownView content={longDescription} outerScroll />}
+              </Grid.Col>
+            </Grid.Row>
+          </Grid>
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  render() {
+    return (
+      <div className="oh-page">
+        <Header />
+        <div className="oh-content">{this.renderDetails()}</div>
+        <Footer />
+      </div>
+    );
+  }
+}
+
+OperatorPage.propTypes = {
+  operator: PropTypes.object,
+  error: PropTypes.bool,
+  errorMessage: PropTypes.string,
+  pending: PropTypes.bool,
+  match: PropTypes.object,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }).isRequired,
+  fetchOperators: PropTypes.func
+};
+
+OperatorPage.defaultProps = {
+  operator: {},
+  error: false,
+  errorMessage: '',
+  pending: false,
+  match: {},
+  fetchOperators: helpers.noop
+};
+
+const mapDispatchToProps = dispatch => ({
+  fetchOperators: name => dispatch(fetchOperators(name))
+});
+
+const mapStateToProps = state => ({
+  ...state.operatorsState
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(OperatorPage);
