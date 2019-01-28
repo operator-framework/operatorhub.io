@@ -1,0 +1,30 @@
+body {
+  background-color: $page-bg-color;
+  color: #363636;
+  font-family: "Lato", var(--pf-global--FontFamily--sans-serif);
+  font-size: $font-size-base;
+  line-height: 1.66667;
+  margin: 0;
+}
+
+a:hover,
+a:focus {
+  text-decoration: none;
+}
+
+h1, .h1 {
+  font-size: 26px;
+}
+h2, .h2 {
+  font-size: 22px;
+}
+h3, .h3 {
+  font-size: 18px;
+}
+h4, .h4 {
+  font-size: 16px;
+}
+h5, .h5 {
+  font-size: 15px;
+}
+

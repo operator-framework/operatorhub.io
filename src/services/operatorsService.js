@@ -10,7 +10,7 @@ const gitHubURL = 'https://api.github.com';
 const operatorsRepo = `operator-framework/community-operators`;
 const operatorFileQuery = `*.clusterserviceversion.yaml`;
 
-const allOperatorsRequest = `${gitHubURL}/search/code?q=repo:${operatorsRepo}+filename:${operatorFileQuery}`;
+const allOperatorsRequest = `${gitHubURL}/search/code?q=repo:${operatorsRepo}+path:community-operators+filename:${operatorFileQuery}`;
 const operatorContentsURL = `${gitHubURL}/repos/${operatorsRepo}/contents`;
 
 // Refresh data after 20 minutes

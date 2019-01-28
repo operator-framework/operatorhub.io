@@ -1,7 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import * as _ from 'lodash-es';
+import { ResizeSensor } from 'css-element-queries';
+import Break from 'breakjs';
 
 import { Alert, DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { CatalogTile, FilterSidePanel } from 'patternfly-react-extensions';
@@ -10,7 +13,12 @@ import { fetchOperators } from '../../services/operatorsService';
 import { helpers } from '../../common/helpers';
 
 import Footer from '../../components/Footer';
-import Header from '../../components/Header';
+import { HubHeader } from './HubHeader';
+
+const layout =
+  window && typeof window.matchMedia === 'function' ? Break({ medium: 1281, large: 1441 }) : { atLeast: () => false };
+
+const CARD_WIDTH = 235;
 
 /**
  * Filter property white list
@@ -185,13 +193,25 @@ class OperatorHub extends React.Component {
     activeFilters: defaultFilters,
     filteredItems: [],
     filterCounts: null,
-    viewType: 'tile',
+    viewType: 'card',
     sortType: 'ascending'
   };
+  _resizeSensors = [];
 
   componentDidMount() {
     this.updateNewOperators(this.props.operators);
     this.refresh();
+
+    // Watch for resizes and recompute the number shown when it does
+    this._isMounted = true;
+    this._resizeSensors.push(new ResizeSensor([this.scrollRef], helpers.debounce(this.computePageMargin, 100)));
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+    _.forEach(this._resizeSensors, sensor => {
+      sensor.detach();
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -233,6 +253,7 @@ class OperatorHub extends React.Component {
       activeFilters: newActiveFilters,
       filterCounts
     });
+    setTimeout(this.computePageMargin(), 100);
   };
 
   refresh() {
@@ -261,6 +282,81 @@ class OperatorHub extends React.Component {
     const filteredItems = this.sortItems(filterItems(operators, activeFilters));
 
     this.setState({ filteredItems, activeFilters: updatedFilters });
+  };
+
+  contentScrolled = scrollEvent => {
+    const scroller = scrollEvent.currentTarget;
+    this.setState({ fixedHeader: scroller.scrollTop > 150, scrollTop: scroller.scrollTop });
+  };
+
+  onHeaderWheel = wheelEvent => {
+    this.scrollRef.scrollTop -= _.get(wheelEvent, 'nativeEvent.wheelDelta', 0);
+  };
+
+  getMargin = (maxMargin, minMargin) => {
+    const { pageMargin } = this.state;
+
+    let itemsContainerWidth = this.itemsContainerRef.clientWidth;
+    if (pageMargin) {
+      itemsContainerWidth -= (maxMargin - pageMargin) * 2;
+    }
+
+    const extraViewSpace = itemsContainerWidth % CARD_WIDTH;
+    const moreSpace = CARD_WIDTH - extraViewSpace;
+    const margin = Math.floor(maxMargin - moreSpace / 2) - 1;
+
+    if (margin > minMargin) {
+      return margin;
+    }
+
+    return maxMargin;
+  };
+
+  computePageMargin = () => {
+    if (!this._isMounted || !this.itemsContainerRef) {
+      return;
+    }
+
+    if (this.itemsContainerRef && layout) {
+      const { pageMargin } = this.state;
+      let newMargin = 0;
+
+      if (layout.atLeast('large')) {
+        newMargin = this.getMargin(320, 100);
+      } else if (layout.atLeast('medium')) {
+        newMargin = this.getMargin(80, 20);
+      }
+
+      if (newMargin !== pageMargin) {
+        this.setState({ pageMargin: newMargin });
+      }
+    }
+  };
+
+  setItemsContainerRef = ref => {
+    this.itemsContainerRef = ref;
+    this.computePageMargin();
+  };
+
+  setPageRef = ref => {
+    this.pageRef = ref;
+  };
+
+  setScrollRef = ref => {
+    this.scrollRef = ref;
+  };
+
+  openDetails = (event, operator) => {
+    event.preventDefault();
+    this.props.history.push(`/operator/${operator.name}`);
+  };
+
+  updateViewType = viewType => {
+    this.setState({ viewType });
+  };
+
+  updateSort = sortType => {
+    this.setState({ sortType });
   };
 
   renderFilterGroup = (filterGroup, groupName, activeFilters, filterCounts) => (
@@ -333,20 +429,7 @@ class OperatorHub extends React.Component {
     );
   }
 
-  openDetails = (event, operator) => {
-    event.preventDefault();
-    this.props.history.push(`/operator/${operator.name}`);
-  };
-
-  updateViewType = viewType => {
-    this.setState({ viewType });
-  };
-
-  updateSort = sortType => {
-    this.setState({ sortType });
-  };
-
-  renderTile = item => {
+  renderCard = item => {
     if (!item) {
       return null;
     }
@@ -367,7 +450,7 @@ class OperatorHub extends React.Component {
     );
   };
 
-  renderTiles() {
+  renderCards() {
     const { filteredItems } = this.state;
 
     if (!_.size(filteredItems)) {
@@ -375,8 +458,8 @@ class OperatorHub extends React.Component {
     }
 
     return (
-      <div className="catalog-tile-view-pf catalog-tile-view-pf-no-categories">
-        {_.map(filteredItems, item => this.renderTile(item))}
+      <div className="catalog-tile-view-pf catalog-tile-view-pf-no-categories" ref={this.setItemsContainerRef}>
+        {_.map(filteredItems, item => this.renderCard(item))}
       </div>
     );
   }
@@ -409,15 +492,19 @@ class OperatorHub extends React.Component {
     const { filteredItems } = this.state;
 
     if (!_.size(filteredItems)) {
-      return this.renderEmptyState();
+      return this.renderFilteredEmptyState();
     }
 
-    return <div className="oh-list-view">{_.map(filteredItems, item => this.renderListItem(item))}</div>;
+    return (
+      <div className="oh-list-view" ref={this.setItemsContainerRef}>
+        {_.map(filteredItems, item => this.renderListItem(item))}
+      </div>
+    );
   }
 
   getViewItem = viewType => (
     <span>
-      <Icon type="fa" name={viewType === 'tile' ? 'th' : 'list'} />
+      <Icon type="fa" name={viewType === 'card' ? 'th-large' : 'list'} />
       {viewType}
     </span>
   );
@@ -464,11 +551,12 @@ class OperatorHub extends React.Component {
                 className="oh-hub-page__toolbar__dropdown"
                 title={this.getViewItem(viewType)}
                 id="view-type-dropdown"
+                pullRight
               >
-                <MenuItem eventKey={0} onClick={() => this.updateViewType('tile')}>
-                  {this.getViewItem('tile')}
+                <MenuItem eventKey={0} active={viewType === 'card'} onClick={() => this.updateViewType('card')}>
+                  {this.getViewItem('card')}
                 </MenuItem>
-                <MenuItem eventKey={0} onClick={() => this.updateViewType('list')}>
+                <MenuItem eventKey={0} active={viewType === 'list'} onClick={() => this.updateViewType('list')}>
                   {this.getViewItem('list')}
                 </MenuItem>
               </DropdownButton>
@@ -479,29 +567,42 @@ class OperatorHub extends React.Component {
                 className="oh-hub-page__toolbar__dropdown"
                 title={this.getSortItem(sortType)}
                 id="view-type-dropdown"
+                pullRight
               >
-                <MenuItem eventKey={0} onClick={() => this.updateSort('ascending')}>
+                <MenuItem eventKey={0} active={sortType === 'ascending'} onClick={() => this.updateSort('ascending')}>
                   {this.getSortItem('ascending')}
                 </MenuItem>
-                <MenuItem eventKey={0} onClick={() => this.updateSort('descending')}>
+                <MenuItem eventKey={0} active={sortType === 'descending'} onClick={() => this.updateSort('descending')}>
                   {this.getSortItem('descending')}
                 </MenuItem>
               </DropdownButton>
             </div>
           </div>
-          {viewType === 'tile' && this.renderTiles()}
-          {viewType !== 'tile' && this.renderListItems()}
+          {viewType === 'card' && this.renderCards()}
+          {viewType !== 'card' && this.renderListItems()}
         </div>
       </div>
     );
   };
 
   render() {
+    const { pageMargin, fixedHeader, scrollTop } = this.state;
+    const pageStyle = pageMargin ? { marginLeft: pageMargin, marginRight: pageMargin } : null;
+    const headStyle = fixedHeader ? { top: scrollTop || 0, ...pageStyle } : null;
+    const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
+
     return (
-      <div className="oh-page">
-        <Header />
-        <div className="oh-content">{this.renderView()}</div>
-        <Footer />
+      <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
+        <div className={pageClasses} ref={this.setPageRef} style={pageStyle}>
+          <HubHeader
+            style={headStyle}
+            onWheel={e => {
+              this.onHeaderWheel(e);
+            }}
+          />
+          <div className="oh-content oh-content-hub ">{this.renderView()}</div>
+          <Footer />
+        </div>
       </div>
     );
   }

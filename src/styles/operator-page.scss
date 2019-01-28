@@ -1,0 +1,74 @@
+.oh-page-fixed-header .oh-content-operator {
+  margin-top: 166px;
+}
+
+.oh-operator-page {
+  background-color: $color-pf-white;
+  box-shadow: 0 0.0625rem 0.125rem 0 rgba(3,3,3,.2);
+  display: flex;
+  flex-direction: row;
+  padding: 10px 15px 30px;
+
+  &__toolbar {
+    display: flex;
+    flex-direction: row;
+    margin: 10px 35px 10px 15px;
+    .breadcrumb {
+      margin-top: 4px;
+      flex: 1;
+    }
+    &__button {
+      background-color: $color-pf-black-300;
+      border-radius: 4px;
+      color: $color-pf-black;
+      margin-right: 10px;
+      padding: 5px 15px 8px;
+      .fa, .pficon {
+        margin-right: 5px;
+      }
+
+      &:last-of-type {
+        margin-right: 0px;
+      }
+
+      &-primary {
+        background-color: $oh-color-primary;
+        color: $color-pf-white;
+        &:hover {
+          color: $color-pf-white;
+        }
+      }
+    }
+  }
+
+  &__content {
+    width: 100%;
+  }
+
+  &__side-panel {
+    background-color: $page-bg-color;
+    margin-top: 20px;
+    padding: 10px 30px 30px 10px;
+
+    .properties-side-panel-pf {
+      width: 100%;
+    }
+
+    .oh-external-link {
+      display: block;
+    }
+
+    .dropdown-menu {
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    &__version-dropdown {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      font-size: inherit;
+      font-weight: inherit;
+    }
+  }
+}
