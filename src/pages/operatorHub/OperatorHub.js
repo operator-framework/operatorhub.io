@@ -584,7 +584,7 @@ class OperatorHub extends React.Component {
           <div className="oh-hub-page__toolbar">
             <div className="oh-hub-page__toolbar__item oh-hub-page__toolbar__item-left">
               {filteredItems.length}
-              <span className="oh-hub-page__toolbar__label"> items</span>
+              <span className="oh-hub-page__toolbar__label">items</span>
             </div>
             <div className="oh-hub-page__toolbar__item">
               <span className="oh-hub-page__toolbar__label">VIEW:</span>

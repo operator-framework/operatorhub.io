@@ -62,7 +62,7 @@ class HeaderTopBar extends React.Component {
               />
               <a
                 href="#"
-                className={classNames('fa fa-close oh-hub-header__top-bar__clear-icon', {
+                className={classNames('fa fa-times-circle oh-hub-header__top-bar__clear-icon', {
                   disabled: !this.state.searchValue
                 })}
                 onClick={this.clearSearch}

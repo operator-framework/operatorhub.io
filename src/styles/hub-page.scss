@@ -33,6 +33,7 @@
     .oh-hub-page__toolbar__label {
       color: $color-pf-black-400;
       font-size: 12px;
+      padding-left: 5px;
     }
 
     .oh-hub-page__toolbar__dropdown {
@@ -87,7 +88,10 @@
     &:hover, &:focus {
       margin: -5px 5px 5px -5px;
       width: 235px;
-      height: 245px
+      height: 245px;
+      .catalog-tile-pf-body {
+        padding-right: 15px;
+      }
     }
   }
 }

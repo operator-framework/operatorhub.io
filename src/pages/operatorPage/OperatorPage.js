@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import connect from 'react-redux/es/connect/connect';
-import { Alert, Breadcrumb, DropdownButton, EmptyState, Icon, Grid, MenuItem } from 'patternfly-react';
+import { Alert, Breadcrumb, DropdownButton, EmptyState, Grid, MenuItem } from 'patternfly-react';
 import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 
 import Footer from '../../components/Footer';
@@ -176,27 +176,19 @@ class OperatorPage extends React.Component {
             </Breadcrumb.Item>
             <Breadcrumb.Item active>{name}</Breadcrumb.Item>
           </Breadcrumb>
-          <a
-            className="oh-operator-page__toolbar__button oh-operator-page__toolbar__button-primary"
-            href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Get Started
-          </a>
-          <a
-            className="oh-operator-page__toolbar__button oh-operator-page__toolbar__button"
-            href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Icon type="fa" name="arrow-circle-down" />
-            Show Pull Command
-          </a>
         </div>
         <div className="oh-operator-page">
           <div className="oh-operator-page__content row">
             <Grid.Col xs={12} sm={3} smPush={9} className="oh-operator-page__side-panel">
+              <a
+                className="oh-operator-page__side-panel__button oh-operator-page__side-panel__button-primary"
+                href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get Started
+              </a>
+              <div className="oh-operator-page__side-panel__separator" />
               <PropertiesSidePanel>
                 <PropertyItem label="Operator Version" value={versionComponent} />
                 <PropertyItem label="Operator Maturity" value={maturity || notAvailable} />
