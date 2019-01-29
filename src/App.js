@@ -14,13 +14,11 @@ class App extends React.Component {
 
   render() {
     return (
-      <div id="content-scrollable">
-        <Switch>
-          <Route path="/" exact component={OperatorHub} />
-          <Route path="/operator/:operatorId" component={OperatorPage} />
-          <Redirect from="*" to="/" key="default-route" />
-        </Switch>
-      </div>
+      <Switch>
+        <Route path="/:operatorId" component={OperatorPage} />
+        <Route path="/" exact component={OperatorHub} />
+        <Redirect from="*" to="/" key="default-route" />
+      </Switch>
     );
   }
 }

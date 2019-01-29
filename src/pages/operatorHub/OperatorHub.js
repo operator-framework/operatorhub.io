@@ -1,7 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import * as _ from 'lodash-es';
+import { ResizeSensor } from 'css-element-queries';
+import Break from 'breakjs';
 
 import { Alert, DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { CatalogTile, FilterSidePanel } from 'patternfly-react-extensions';
@@ -10,16 +13,20 @@ import { fetchOperators } from '../../services/operatorsService';
 import { helpers } from '../../common/helpers';
 
 import Footer from '../../components/Footer';
-import Header from '../../components/Header';
+import { HubHeader } from './HubHeader';
+
+const layout =
+  window && typeof window.matchMedia === 'function' ? Break({ medium: 1281, large: 1441 }) : { atLeast: () => false };
+
+const CARD_WIDTH = 235;
 
 /**
  * Filter property white list
  */
-const operatorHubFilterGroups = ['providerType', 'provider', 'installState'];
+const operatorHubFilterGroups = ['provider', 'maturity'];
 
 const operatorHubFilterMap = {
-  providerType: 'Provider Type',
-  installState: 'Install State'
+  maturity: 'Operator Maturity'
 };
 
 const ignoredProviderTails = [', Inc.', ', Inc', ' Inc.', ' Inc', ', LLC', ' LLC'];
@@ -44,30 +51,11 @@ const providerSort = provider => {
   return provider.value;
 };
 
-const providerTypeSort = provider => {
-  switch (provider.value) {
-    case 'Red Hat':
-      return 0;
-    case 'Certified':
-      return 1;
-    case 'Community':
-      return 2;
-    case 'Custom':
-      return 4;
-    default:
-      return 5;
-  }
-};
-
 const sortFilterValues = (values, field) => {
   let sorter = ['value'];
 
   if (field === 'provider') {
     sorter = providerSort;
-  }
-
-  if (field === 'providerType') {
-    sorter = providerTypeSort;
   }
 
   return _.sortBy(values, sorter);
@@ -98,9 +86,41 @@ const filterByGroup = (items, filters) =>
     {}
   );
 
-const filterItems = (items, filters) => {
-  if (_.isEmpty(filters)) {
+const keywordCompare = (filterString, item) => {
+  if (!filterString) {
+    return true;
+  }
+  if (!item) {
+    return false;
+  }
+
+  return (
+    _.get(item, 'obj.metadata.name', '')
+      .toLowerCase()
+      .includes(filterString) ||
+    _.get(item, 'displayName', '')
+      .toLowerCase()
+      .includes(filterString) ||
+    _.get(item, 'categories', '')
+      .toLowerCase()
+      .includes(filterString)
+  );
+};
+
+const filterByKeyword = (items, keyword) => {
+  if (!keyword) {
     return items;
+  }
+
+  const filterString = keyword.toLowerCase();
+  return _.filter(items, item => keywordCompare(filterString, item));
+};
+
+const filterItems = (items, keyword, filters) => {
+  const filteredByKeyword = filterByKeyword(items, keyword);
+
+  if (_.isEmpty(filters)) {
+    return filteredByKeyword;
   }
 
   // Apply each filter property individually. Example:
@@ -108,9 +128,11 @@ const filterItems = (items, filters) => {
   //    provider: [/*array of items filtered by provider*/],
   //    healthIndex: [/*array of items filtered by healthIndex*/],
   //  };
-  const filteredByGroup = filterByGroup(items, filters);
+  const filteredByGroup = filterByGroup(filteredByKeyword, filters);
 
-  return [..._.values(filteredByGroup), items].reduce((a, b) => a.filter(c => b.includes(c)));
+  // Intersection of individually applied filters is all filters
+  // In the case no filters are active, returns items filteredByKeyword
+  return [..._.values(filteredByGroup), filteredByKeyword].reduce((a, b) => a.filter(c => b.includes(c)));
 };
 
 const determineAvailableFilters = (initialFilters, items, filterGroups) => {
@@ -149,15 +171,6 @@ export const updateActiveFilters = (activeFilters, filterType, id, value) => {
   return activeFilters;
 };
 
-const clearActiveFilters = activeFilters => {
-  // Clear the group filters
-  _.each(operatorHubFilterGroups, field => {
-    _.each(_.keys(activeFilters[field]), key => _.set(activeFilters, [field, key, 'active'], false));
-  });
-
-  return activeFilters;
-};
-
 const getFilterGroupCounts = (items, filters) => {
   const newFilterCounts = {};
 
@@ -185,19 +198,37 @@ class OperatorHub extends React.Component {
     activeFilters: defaultFilters,
     filteredItems: [],
     filterCounts: null,
-    viewType: 'tile',
-    sortType: 'ascending'
+    viewType: 'card',
+    sortType: 'ascending',
+    keywordFilter: ''
   };
+  _resizeSensors = [];
 
   componentDidMount() {
     this.updateNewOperators(this.props.operators);
     this.refresh();
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const keywordSearch = searchParams.get('search') || '';
+    console.log(`seardh: ${keywordSearch}`);
+    this.setState({ keywordFilter: keywordSearch });
+
+    // Watch for resizes and recompute the number shown when it does
+    this._isMounted = true;
+    this._resizeSensors.push(new ResizeSensor([this.scrollRef], helpers.debounce(this.computePageMargin, 100)));
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+    _.forEach(this._resizeSensors, sensor => {
+      sensor.detach();
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { operators } = this.props;
 
-    if (!_.isEqual(this.props.operators, prevProps.operators)) {
+    if (this.state.keywordFilter !== prevState.keywordFilter || !_.isEqual(operators, prevProps.operators)) {
       this.updateNewOperators(operators);
     }
     if (this.state.sortType !== prevState.sortType) {
@@ -206,7 +237,7 @@ class OperatorHub extends React.Component {
   }
 
   updateNewOperators = operators => {
-    const { activeFilters } = this.state;
+    const { activeFilters, keywordFilter } = this.state;
     const availableFilters = determineAvailableFilters(defaultFilters, operators, operatorHubFilterGroups);
 
     const newActiveFilters = _.reduce(
@@ -226,13 +257,14 @@ class OperatorHub extends React.Component {
     );
 
     const filterCounts = getFilterGroupCounts(operators, newActiveFilters);
-    const filteredItems = this.sortItems(filterItems(operators, newActiveFilters));
+    const filteredItems = this.sortItems(filterItems(operators, keywordFilter, newActiveFilters));
     this.setState({
       operators,
       filteredItems,
       activeFilters: newActiveFilters,
       filterCounts
     });
+    setTimeout(this.computePageMargin(), 100);
   };
 
   refresh() {
@@ -245,22 +277,127 @@ class OperatorHub extends React.Component {
     return sortType === 'ascending' ? sortedItems : _.reverse(sortedItems);
   };
 
+  clearActiveFilters = activeFilters => {
+    this.clearSearch();
+    // Clear the group filters
+    _.each(operatorHubFilterGroups, field => {
+      _.each(_.keys(activeFilters[field]), key => _.set(activeFilters, [field, key, 'active'], false));
+    });
+
+    return activeFilters;
+  };
+
   clearFilters() {
     const { operators, activeFilters } = this.state;
 
-    const clearedFilters = clearActiveFilters(activeFilters);
-    const filteredItems = this.sortItems(filterItems(operators, activeFilters));
+    const clearedFilters = this.clearActiveFilters(activeFilters);
+    const filteredItems = this.sortItems(filterItems(operators, '', activeFilters));
 
     this.setState({ filteredItems, activeFilters: clearedFilters });
   }
 
   onFilterChange = (filterType, id, value) => {
-    const { operators, activeFilters } = this.state;
+    const { operators, activeFilters, keywordFilter } = this.state;
 
     const updatedFilters = updateActiveFilters(activeFilters, filterType, id, value);
-    const filteredItems = this.sortItems(filterItems(operators, activeFilters));
+    const filteredItems = this.sortItems(filterItems(operators, keywordFilter, activeFilters));
 
     this.setState({ filteredItems, activeFilters: updatedFilters });
+  };
+
+  contentScrolled = scrollEvent => {
+    const scroller = scrollEvent.currentTarget;
+    this.setState({ fixedHeader: scroller.scrollTop > 150, scrollTop: scroller.scrollTop });
+  };
+
+  onHeaderWheel = wheelEvent => {
+    this.scrollRef.scrollTop -= _.get(wheelEvent, 'nativeEvent.wheelDelta', 0);
+  };
+
+  getMargin = (maxMargin, minMargin) => {
+    const { pageMargin } = this.state;
+
+    let itemsContainerWidth = this.itemsContainerRef.clientWidth;
+    if (pageMargin) {
+      itemsContainerWidth -= (maxMargin - pageMargin) * 2;
+    }
+
+    const extraViewSpace = itemsContainerWidth % CARD_WIDTH;
+    const moreSpace = CARD_WIDTH - extraViewSpace;
+    const margin = Math.floor(maxMargin - moreSpace / 2) - 1;
+
+    if (margin > minMargin) {
+      return margin;
+    }
+
+    return maxMargin;
+  };
+
+  computePageMargin = () => {
+    if (!this._isMounted || !this.itemsContainerRef) {
+      return;
+    }
+
+    if (this.itemsContainerRef && layout) {
+      const { pageMargin } = this.state;
+      let newMargin = 0;
+
+      if (layout.atLeast('large')) {
+        newMargin = this.getMargin(320, 100);
+      } else if (layout.atLeast('medium')) {
+        newMargin = this.getMargin(80, 20);
+      }
+
+      if (newMargin !== pageMargin) {
+        this.setState({ pageMargin: newMargin });
+      }
+    }
+  };
+
+  setItemsContainerRef = ref => {
+    this.itemsContainerRef = ref;
+    this.computePageMargin();
+  };
+
+  setPageRef = ref => {
+    this.pageRef = ref;
+  };
+
+  setScrollRef = ref => {
+    this.scrollRef = ref;
+  };
+
+  openDetails = (event, operator) => {
+    event.preventDefault();
+    this.props.history.push(`/${operator.name}`);
+  };
+
+  updateViewType = viewType => {
+    this.setState({ viewType });
+  };
+
+  updateSort = sortType => {
+    this.setState({ sortType });
+  };
+
+  onSearch = searchValue => {
+    const { history } = this.props;
+    const { location } = window;
+    const url = new URL(location);
+    const params = new URLSearchParams();
+
+    if (searchValue) {
+      params.set('search', searchValue);
+    }
+
+    const searchParams = `?${params.toString()}${url.hash}`;
+    history.replace(`${url.pathname}${searchParams}`);
+
+    this.setState({ keywordFilter: searchValue });
+  };
+
+  clearSearch = () => {
+    this.onSearch('');
   };
 
   renderFilterGroup = (filterGroup, groupName, activeFilters, filterCounts) => (
@@ -333,20 +470,7 @@ class OperatorHub extends React.Component {
     );
   }
 
-  openDetails = (event, operator) => {
-    event.preventDefault();
-    this.props.history.push(`/operator/${operator.name}`);
-  };
-
-  updateViewType = viewType => {
-    this.setState({ viewType });
-  };
-
-  updateSort = sortType => {
-    this.setState({ sortType });
-  };
-
-  renderTile = item => {
+  renderCard = item => {
     if (!item) {
       return null;
     }
@@ -367,7 +491,7 @@ class OperatorHub extends React.Component {
     );
   };
 
-  renderTiles() {
+  renderCards() {
     const { filteredItems } = this.state;
 
     if (!_.size(filteredItems)) {
@@ -375,8 +499,8 @@ class OperatorHub extends React.Component {
     }
 
     return (
-      <div className="catalog-tile-view-pf catalog-tile-view-pf-no-categories">
-        {_.map(filteredItems, item => this.renderTile(item))}
+      <div className="catalog-tile-view-pf catalog-tile-view-pf-no-categories" ref={this.setItemsContainerRef}>
+        {_.map(filteredItems, item => this.renderCard(item))}
       </div>
     );
   }
@@ -409,15 +533,19 @@ class OperatorHub extends React.Component {
     const { filteredItems } = this.state;
 
     if (!_.size(filteredItems)) {
-      return this.renderEmptyState();
+      return this.renderFilteredEmptyState();
     }
 
-    return <div className="oh-list-view">{_.map(filteredItems, item => this.renderListItem(item))}</div>;
+    return (
+      <div className="oh-list-view" ref={this.setItemsContainerRef}>
+        {_.map(filteredItems, item => this.renderListItem(item))}
+      </div>
+    );
   }
 
   getViewItem = viewType => (
     <span>
-      <Icon type="fa" name={viewType === 'tile' ? 'th' : 'list'} />
+      <Icon type="fa" name={viewType === 'card' ? 'th-large' : 'list'} />
       {viewType}
     </span>
   );
@@ -456,7 +584,7 @@ class OperatorHub extends React.Component {
           <div className="oh-hub-page__toolbar">
             <div className="oh-hub-page__toolbar__item oh-hub-page__toolbar__item-left">
               {filteredItems.length}
-              <span className="oh-hub-page__toolbar__label"> items</span>
+              <span className="oh-hub-page__toolbar__label">items</span>
             </div>
             <div className="oh-hub-page__toolbar__item">
               <span className="oh-hub-page__toolbar__label">VIEW:</span>
@@ -464,11 +592,12 @@ class OperatorHub extends React.Component {
                 className="oh-hub-page__toolbar__dropdown"
                 title={this.getViewItem(viewType)}
                 id="view-type-dropdown"
+                pullRight
               >
-                <MenuItem eventKey={0} onClick={() => this.updateViewType('tile')}>
-                  {this.getViewItem('tile')}
+                <MenuItem eventKey={0} active={viewType === 'card'} onClick={() => this.updateViewType('card')}>
+                  {this.getViewItem('card')}
                 </MenuItem>
-                <MenuItem eventKey={0} onClick={() => this.updateViewType('list')}>
+                <MenuItem eventKey={0} active={viewType === 'list'} onClick={() => this.updateViewType('list')}>
                   {this.getViewItem('list')}
                 </MenuItem>
               </DropdownButton>
@@ -479,29 +608,45 @@ class OperatorHub extends React.Component {
                 className="oh-hub-page__toolbar__dropdown"
                 title={this.getSortItem(sortType)}
                 id="view-type-dropdown"
+                pullRight
               >
-                <MenuItem eventKey={0} onClick={() => this.updateSort('ascending')}>
+                <MenuItem eventKey={0} active={sortType === 'ascending'} onClick={() => this.updateSort('ascending')}>
                   {this.getSortItem('ascending')}
                 </MenuItem>
-                <MenuItem eventKey={0} onClick={() => this.updateSort('descending')}>
+                <MenuItem eventKey={0} active={sortType === 'descending'} onClick={() => this.updateSort('descending')}>
                   {this.getSortItem('descending')}
                 </MenuItem>
               </DropdownButton>
             </div>
           </div>
-          {viewType === 'tile' && this.renderTiles()}
-          {viewType !== 'tile' && this.renderListItems()}
+          {viewType === 'card' && this.renderCards()}
+          {viewType !== 'card' && this.renderListItems()}
         </div>
       </div>
     );
   };
 
   render() {
+    const { pageMargin, fixedHeader, scrollTop, keywordFilter } = this.state;
+    const pageStyle = pageMargin ? { marginLeft: pageMargin, marginRight: pageMargin } : null;
+    const headStyle = fixedHeader ? { top: scrollTop || 0, ...pageStyle } : null;
+    const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
+
     return (
-      <div className="oh-page">
-        <Header />
-        <div className="oh-content">{this.renderView()}</div>
-        <Footer />
+      <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
+        <div className={pageClasses} ref={this.setPageRef} style={pageStyle}>
+          <HubHeader
+            style={headStyle}
+            onWheel={e => {
+              this.onHeaderWheel(e);
+            }}
+            searchCallback={this.onSearch}
+            clearSearch={this.clearSearch}
+            searchValue={keywordFilter}
+          />
+          <div className="oh-content oh-content-hub ">{this.renderView()}</div>
+          <Footer />
+        </div>
       </div>
     );
   }
@@ -513,7 +658,8 @@ OperatorHub.propTypes = {
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
   history: PropTypes.shape({
-    push: PropTypes.func.isRequired
+    push: PropTypes.func.isRequired,
+    replace: PropTypes.func.isRequired
   }).isRequired,
   fetchOperators: PropTypes.func
 };

@@ -4,6 +4,7 @@ import { reduxConstants } from './index';
 const initialState = {
   error: false,
   errorMessage: '',
+  errorResults: {},
   pending: false,
   fulfilled: false,
   operators: [],
@@ -16,13 +17,15 @@ const operatorsReducer = (state = initialState, action) => {
       return Object.assign({}, state, {
         pending: false,
         error: true,
-        errorMessage: helpers.getErrorMessageFromResults(action.error)
+        errorMessage: helpers.getErrorMessageFromResults(action.error),
+        errorResults: action.error
       });
 
     case helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS):
       return Object.assign({}, state, {
         pending: true,
         error: false,
+        errorResults: {},
         operators: []
       });
 
@@ -30,6 +33,7 @@ const operatorsReducer = (state = initialState, action) => {
       return Object.assign({}, state, {
         operators: action.payload,
         error: false,
+        errorResults: {},
         pending: false,
         fulfilled: true
       });
@@ -38,6 +42,7 @@ const operatorsReducer = (state = initialState, action) => {
       return Object.assign({}, state, {
         operator: action.payload,
         error: false,
+        errorResults: {},
         pending: false,
         fulfilled: true
       });
