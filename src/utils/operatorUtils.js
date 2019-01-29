@@ -42,20 +42,21 @@ const normalizeOperator = operator => {
   };
 };
 
-const normalizeOperators = operators => {
-  const allOperators = _.reduce(
+const normalizeOperators = operators => _.map(operators, operator => normalizeOperator(operator));
+
+const getVersionedOperators = operators => {
+  const uniqueOperators = _.reduce(
     operators,
-    (normalizedOperators, operator) => {
-      const nextOperator = normalizeOperator(operator);
-      if (!addVersionedOperator(normalizedOperators, nextOperator)) {
-        normalizedOperators.push(nextOperator);
+    (versionedOperators, operator) => {
+      if (!addVersionedOperator(versionedOperators, operator)) {
+        versionedOperators.push(operator);
       }
-      return normalizedOperators;
+      return versionedOperators;
     },
     []
   );
 
-  return _.map(allOperators, operator => {
+  return _.map(uniqueOperators, operator => {
     if (!operator.versions) {
       return operator;
     }
@@ -73,4 +74,4 @@ const normalizeOperators = operators => {
   });
 };
 
-export { normalizeOperator, normalizeOperators };
+export { normalizeOperator, normalizeOperators, getVersionedOperators };

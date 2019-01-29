@@ -4,7 +4,8 @@ import { Base64 } from 'js-base64';
 import yaml from 'js-yaml';
 import { helpers } from '../common/helpers';
 import { reduxConstants } from '../redux';
-import { normalizeOperators } from '../utils/operatorUtils';
+import { normalizeOperators, getVersionedOperators } from '../utils/operatorUtils';
+import { mockOperators } from '../__mock__/operators';
 
 const gitHubURL = 'https://api.github.com';
 const operatorsRepo = `operator-framework/community-operators`;
@@ -34,6 +35,16 @@ const parseContentsResults = results => {
 };
 
 const fetchOperator = (operatorName, dispatch) => {
+  if (process.env.MOCK_MODE) {
+    const operators = getVersionedOperators(mockOperators);
+    const operator = _.find(operators, { name: operatorName });
+    dispatch({
+      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
+      payload: operator
+    });
+    return;
+  }
+
   const request = `${gitHubURL}/search/code?q='displayName: ${operatorName}'+repo:${operatorsRepo}+filename:${operatorFileQuery}`;
 
   axios
@@ -49,7 +60,8 @@ const fetchOperator = (operatorName, dispatch) => {
       return axios
         .all(operatorRequests)
         .then(({ ...allResults }) => {
-          const operators = parseContentsResults(allResults);
+          const normalizedOperators = parseContentsResults(allResults);
+          const operators = getVersionedOperators(normalizedOperators);
           const operator = _.find(operators, { name: operatorName });
           if (operator) {
             dispatch({
@@ -84,6 +96,11 @@ const fetchOperators = operatorName => dispatch => {
   });
 
   const currentTime = new Date().getTime();
+
+  if (process.env.MOCK_MODE) {
+    latestOperators = getVersionedOperators(mockOperators);
+    lastUpdateTime = currentTime;
+  }
 
   if (currentTime - lastUpdateTime < REFRESH_DATA_THRESHOLD) {
     if (operatorName) {
@@ -120,7 +137,8 @@ const fetchOperators = operatorName => dispatch => {
       return axios
         .all(operatorRequests)
         .then(({ ...allResults }) => {
-          latestOperators = parseContentsResults(allResults);
+          const normalizedOperators = parseContentsResults(allResults);
+          latestOperators = getVersionedOperators(normalizedOperators);
           lastUpdateTime = new Date().getTime();
 
           dispatch({
