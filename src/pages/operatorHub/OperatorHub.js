@@ -23,11 +23,10 @@ const CARD_WIDTH = 235;
 /**
  * Filter property white list
  */
-const operatorHubFilterGroups = ['providerType', 'provider', 'installState'];
+const operatorHubFilterGroups = ['provider', 'maturity'];
 
 const operatorHubFilterMap = {
-  providerType: 'Provider Type',
-  installState: 'Install State'
+  maturity: 'Operator Maturity'
 };
 
 const ignoredProviderTails = [', Inc.', ', Inc', ' Inc.', ' Inc', ', LLC', ' LLC'];
@@ -52,30 +51,11 @@ const providerSort = provider => {
   return provider.value;
 };
 
-const providerTypeSort = provider => {
-  switch (provider.value) {
-    case 'Red Hat':
-      return 0;
-    case 'Certified':
-      return 1;
-    case 'Community':
-      return 2;
-    case 'Custom':
-      return 4;
-    default:
-      return 5;
-  }
-};
-
 const sortFilterValues = (values, field) => {
   let sorter = ['value'];
 
   if (field === 'provider') {
     sorter = providerSort;
-  }
-
-  if (field === 'providerType') {
-    sorter = providerTypeSort;
   }
 
   return _.sortBy(values, sorter);
@@ -106,9 +86,41 @@ const filterByGroup = (items, filters) =>
     {}
   );
 
-const filterItems = (items, filters) => {
-  if (_.isEmpty(filters)) {
+const keywordCompare = (filterString, item) => {
+  if (!filterString) {
+    return true;
+  }
+  if (!item) {
+    return false;
+  }
+
+  return (
+    _.get(item, 'obj.metadata.name', '')
+      .toLowerCase()
+      .includes(filterString) ||
+    _.get(item, 'displayName', '')
+      .toLowerCase()
+      .includes(filterString) ||
+    _.get(item, 'categories', '')
+      .toLowerCase()
+      .includes(filterString)
+  );
+};
+
+const filterByKeyword = (items, keyword) => {
+  if (!keyword) {
     return items;
+  }
+
+  const filterString = keyword.toLowerCase();
+  return _.filter(items, item => keywordCompare(filterString, item));
+};
+
+const filterItems = (items, keyword, filters) => {
+  const filteredByKeyword = filterByKeyword(items, keyword);
+
+  if (_.isEmpty(filters)) {
+    return filteredByKeyword;
   }
 
   // Apply each filter property individually. Example:
@@ -116,9 +128,11 @@ const filterItems = (items, filters) => {
   //    provider: [/*array of items filtered by provider*/],
   //    healthIndex: [/*array of items filtered by healthIndex*/],
   //  };
-  const filteredByGroup = filterByGroup(items, filters);
+  const filteredByGroup = filterByGroup(filteredByKeyword, filters);
 
-  return [..._.values(filteredByGroup), items].reduce((a, b) => a.filter(c => b.includes(c)));
+  // Intersection of individually applied filters is all filters
+  // In the case no filters are active, returns items filteredByKeyword
+  return [..._.values(filteredByGroup), filteredByKeyword].reduce((a, b) => a.filter(c => b.includes(c)));
 };
 
 const determineAvailableFilters = (initialFilters, items, filterGroups) => {
@@ -157,15 +171,6 @@ export const updateActiveFilters = (activeFilters, filterType, id, value) => {
   return activeFilters;
 };
 
-const clearActiveFilters = activeFilters => {
-  // Clear the group filters
-  _.each(operatorHubFilterGroups, field => {
-    _.each(_.keys(activeFilters[field]), key => _.set(activeFilters, [field, key, 'active'], false));
-  });
-
-  return activeFilters;
-};
-
 const getFilterGroupCounts = (items, filters) => {
   const newFilterCounts = {};
 
@@ -194,13 +199,19 @@ class OperatorHub extends React.Component {
     filteredItems: [],
     filterCounts: null,
     viewType: 'card',
-    sortType: 'ascending'
+    sortType: 'ascending',
+    keywordFilter: ''
   };
   _resizeSensors = [];
 
   componentDidMount() {
     this.updateNewOperators(this.props.operators);
     this.refresh();
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const keywordSearch = searchParams.get('search') || '';
+    console.log(`seardh: ${keywordSearch}`);
+    this.setState({ keywordFilter: keywordSearch });
 
     // Watch for resizes and recompute the number shown when it does
     this._isMounted = true;
@@ -217,7 +228,7 @@ class OperatorHub extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const { operators } = this.props;
 
-    if (!_.isEqual(this.props.operators, prevProps.operators)) {
+    if (this.state.keywordFilter !== prevState.keywordFilter || !_.isEqual(operators, prevProps.operators)) {
       this.updateNewOperators(operators);
     }
     if (this.state.sortType !== prevState.sortType) {
@@ -226,7 +237,7 @@ class OperatorHub extends React.Component {
   }
 
   updateNewOperators = operators => {
-    const { activeFilters } = this.state;
+    const { activeFilters, keywordFilter } = this.state;
     const availableFilters = determineAvailableFilters(defaultFilters, operators, operatorHubFilterGroups);
 
     const newActiveFilters = _.reduce(
@@ -246,7 +257,7 @@ class OperatorHub extends React.Component {
     );
 
     const filterCounts = getFilterGroupCounts(operators, newActiveFilters);
-    const filteredItems = this.sortItems(filterItems(operators, newActiveFilters));
+    const filteredItems = this.sortItems(filterItems(operators, keywordFilter, newActiveFilters));
     this.setState({
       operators,
       filteredItems,
@@ -266,20 +277,30 @@ class OperatorHub extends React.Component {
     return sortType === 'ascending' ? sortedItems : _.reverse(sortedItems);
   };
 
+  clearActiveFilters = activeFilters => {
+    this.clearSearch();
+    // Clear the group filters
+    _.each(operatorHubFilterGroups, field => {
+      _.each(_.keys(activeFilters[field]), key => _.set(activeFilters, [field, key, 'active'], false));
+    });
+
+    return activeFilters;
+  };
+
   clearFilters() {
     const { operators, activeFilters } = this.state;
 
-    const clearedFilters = clearActiveFilters(activeFilters);
-    const filteredItems = this.sortItems(filterItems(operators, activeFilters));
+    const clearedFilters = this.clearActiveFilters(activeFilters);
+    const filteredItems = this.sortItems(filterItems(operators, '', activeFilters));
 
     this.setState({ filteredItems, activeFilters: clearedFilters });
   }
 
   onFilterChange = (filterType, id, value) => {
-    const { operators, activeFilters } = this.state;
+    const { operators, activeFilters, keywordFilter } = this.state;
 
     const updatedFilters = updateActiveFilters(activeFilters, filterType, id, value);
-    const filteredItems = this.sortItems(filterItems(operators, activeFilters));
+    const filteredItems = this.sortItems(filterItems(operators, keywordFilter, activeFilters));
 
     this.setState({ filteredItems, activeFilters: updatedFilters });
   };
@@ -348,7 +369,7 @@ class OperatorHub extends React.Component {
 
   openDetails = (event, operator) => {
     event.preventDefault();
-    this.props.history.push(`/operator/${operator.name}`);
+    this.props.history.push(`/${operator.name}`);
   };
 
   updateViewType = viewType => {
@@ -357,6 +378,26 @@ class OperatorHub extends React.Component {
 
   updateSort = sortType => {
     this.setState({ sortType });
+  };
+
+  onSearch = searchValue => {
+    const { history } = this.props;
+    const { location } = window;
+    const url = new URL(location);
+    const params = new URLSearchParams();
+
+    if (searchValue) {
+      params.set('search', searchValue);
+    }
+
+    const searchParams = `?${params.toString()}${url.hash}`;
+    history.replace(`${url.pathname}${searchParams}`);
+
+    this.setState({ keywordFilter: searchValue });
+  };
+
+  clearSearch = () => {
+    this.onSearch('');
   };
 
   renderFilterGroup = (filterGroup, groupName, activeFilters, filterCounts) => (
@@ -586,7 +627,7 @@ class OperatorHub extends React.Component {
   };
 
   render() {
-    const { pageMargin, fixedHeader, scrollTop } = this.state;
+    const { pageMargin, fixedHeader, scrollTop, keywordFilter } = this.state;
     const pageStyle = pageMargin ? { marginLeft: pageMargin, marginRight: pageMargin } : null;
     const headStyle = fixedHeader ? { top: scrollTop || 0, ...pageStyle } : null;
     const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
@@ -599,6 +640,9 @@ class OperatorHub extends React.Component {
             onWheel={e => {
               this.onHeaderWheel(e);
             }}
+            searchCallback={this.onSearch}
+            clearSearch={this.clearSearch}
+            searchValue={keywordFilter}
           />
           <div className="oh-content oh-content-hub ">{this.renderView()}</div>
           <Footer />
@@ -614,7 +658,8 @@ OperatorHub.propTypes = {
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
   history: PropTypes.shape({
-    push: PropTypes.func.isRequired
+    push: PropTypes.func.isRequired,
+    replace: PropTypes.func.isRequired
   }).isRequired,
   fetchOperators: PropTypes.func
 };

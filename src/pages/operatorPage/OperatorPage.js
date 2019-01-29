@@ -15,7 +15,8 @@ import { OperatorHeader } from './OperatorHeader';
 
 class OperatorPage extends React.Component {
   state = {
-    operator: {}
+    operator: {},
+    searchValue: ''
   };
 
   componentDidMount() {
@@ -44,6 +45,19 @@ class OperatorPage extends React.Component {
     e.preventDefault();
     this.props.history.push('/');
   }
+
+  onSearch = searchValue => {
+    if (searchValue) {
+      this.props.history.push(`/?search=${searchValue}`);
+      return;
+    }
+
+    this.setState({ searchValue });
+  };
+
+  clearSearch = () => {
+    this.onSearch('');
+  };
 
   updateVersion = operator => {
     this.setState({ operator });
@@ -113,7 +127,11 @@ class OperatorPage extends React.Component {
 
     const versionComponent =
       _.size(versions) > 1 ? (
-        <DropdownButton className="oh-operator-page__side-panel__version-dropdown" title={version} id="version-dropdown">
+        <DropdownButton
+          className="oh-operator-page__side-panel__version-dropdown"
+          title={version}
+          id="version-dropdown"
+        >
           {_.map(versions, (nextVersion, index) => (
             <MenuItem key={nextVersion.version} eventKey={index} onClick={() => this.updateVersion(nextVersion)}>
               {nextVersion.version}
@@ -202,7 +220,7 @@ class OperatorPage extends React.Component {
 
   render() {
     const { operator } = this.props;
-    const { fixedHeader, scrollTop } = this.state;
+    const { fixedHeader, scrollTop, searchValue } = this.state;
     const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
     const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
     return (
@@ -211,6 +229,9 @@ class OperatorPage extends React.Component {
           <OperatorHeader
             operator={operator}
             style={headStyle}
+            searchCallback={this.onSearch}
+            clearSearch={this.clearSearch}
+            searchValue={searchValue}
             onWheel={e => {
               this.onHeaderWheel(e);
             }}

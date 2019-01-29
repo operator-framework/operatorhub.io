@@ -42,17 +42,26 @@
 
     &__search-icon {
       color: $color-pf-white;
-      right: 5px;
-      top: 4px;
-      font-size: 16px;
+      left: 5px;
+      top: 6px;
       position: absolute;
+    }
+    &__clear-icon {
+      color: $color-pf-white;
+      right: 5px;
+      top: 6px;
+      position: absolute;
+      &.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
     }
     &__search--input {
       background-color: #00659c;
       border: none;
       border-radius: 4px;
       color: $color-pf-white;
-      padding-left: 10px;
+      padding-left: 30px;
     }
     &__dropdown {
       background: transparent;

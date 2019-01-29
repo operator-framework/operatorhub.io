@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { HeaderTopBar } from '../../components/HeaderTopBar';
 
-const HubHeader = ({ ...props }) => (
+const HubHeader = ({ searchCallback, clearSearch, searchValue, ...props }) => (
   <div className="oh-header oh-hub-header" {...props}>
-    <HeaderTopBar />
+    <HeaderTopBar searchCallback={searchCallback} clearSearch={clearSearch} searchValue={searchValue} />
     <div className="oh-header__content">
       <h1 className="oh-hub-header__content__title">
         Welcome to
@@ -21,5 +22,15 @@ const HubHeader = ({ ...props }) => (
     </div>
   </div>
 );
+
+HubHeader.propTypes = {
+  searchCallback: PropTypes.func.isRequired,
+  clearSearch: PropTypes.func.isRequired,
+  searchValue: PropTypes.string
+};
+
+HubHeader.defaultProps = {
+  searchValue: ''
+};
 
 export { HubHeader };

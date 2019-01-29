@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 import { HeaderTopBar } from '../../components/HeaderTopBar';
 
-const OperatorHeader = ({ operator, ...props }) => (
+const OperatorHeader = ({ operator, searchValue, searchCallback, clearSearch, ...props }) => (
   <div className="oh-header oh-operator-header" {...props}>
-    <HeaderTopBar />
+    <HeaderTopBar searchCallback={searchCallback} clearSearch={clearSearch} searchValue={searchValue} />
     <div className="oh-header__content">
       <img className="oh-operator-header__content__image" src={operator.imgUrl} alt="" />
       <div className="oh-operator-header__content__info">
@@ -17,11 +17,15 @@ const OperatorHeader = ({ operator, ...props }) => (
 );
 
 OperatorHeader.propTypes = {
-  operator: PropTypes.object
+  operator: PropTypes.object,
+  searchValue: PropTypes.string,
+  searchCallback: PropTypes.func.isRequired,
+  clearSearch: PropTypes.func.isRequired
 };
 
 OperatorHeader.defaultProps = {
-  operator: {}
+  operator: {},
+  searchValue: ''
 };
 
 export { OperatorHeader };
