@@ -15,3 +15,5 @@ $oh-header-height: 85px;
 $oh-footer-height: 185px;
 $oh-header-footer-height: calc(#{$oh-header-height} + #{$oh-footer-height});
 $oh-list-item-height: 100px;
+$oh-filters-width: 220px;
+$oh-card-width: calc(#{$catalog-tile-pf-width} + 15px);
