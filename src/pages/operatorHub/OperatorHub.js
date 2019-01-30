@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import * as _ from 'lodash-es';
-import { ResizeSensor } from 'css-element-queries';
-import Break from 'breakjs';
 
 import { Alert, DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { CatalogTile, FilterSidePanel } from 'patternfly-react-extensions';
@@ -14,11 +12,6 @@ import { helpers } from '../../common/helpers';
 
 import Footer from '../../components/Footer';
 import { HubHeader } from './HubHeader';
-
-const layout =
-  window && typeof window.matchMedia === 'function' ? Break({ medium: 1281, large: 1441 }) : { atLeast: () => false };
-
-const CARD_WIDTH = 235;
 
 /**
  * Filter property white list
@@ -210,19 +203,14 @@ class OperatorHub extends React.Component {
 
     const searchParams = new URLSearchParams(window.location.search);
     const keywordSearch = searchParams.get('search') || '';
-    console.log(`seardh: ${keywordSearch}`);
     this.setState({ keywordFilter: keywordSearch });
 
     // Watch for resizes and recompute the number shown when it does
     this._isMounted = true;
-    this._resizeSensors.push(new ResizeSensor([this.scrollRef], helpers.debounce(this.computePageMargin, 100)));
   }
 
   componentWillUnmount() {
     this._isMounted = false;
-    _.forEach(this._resizeSensors, sensor => {
-      sensor.detach();
-    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -264,7 +252,6 @@ class OperatorHub extends React.Component {
       activeFilters: newActiveFilters,
       filterCounts
     });
-    setTimeout(this.computePageMargin(), 100);
   };
 
   refresh() {
@@ -312,59 +299,6 @@ class OperatorHub extends React.Component {
 
   onHeaderWheel = wheelEvent => {
     this.scrollRef.scrollTop -= _.get(wheelEvent, 'nativeEvent.wheelDelta', 0);
-  };
-
-  getMargin = (maxMargin, minMargin) => {
-    const { pageMargin } = this.state;
-
-    let itemsContainerWidth = this.itemsContainerRef.clientWidth;
-    if (pageMargin) {
-      itemsContainerWidth -= (maxMargin - pageMargin) * 2;
-    }
-
-    const extraViewSpace = itemsContainerWidth % CARD_WIDTH;
-    const moreSpace = CARD_WIDTH - extraViewSpace;
-    const margin = Math.floor(maxMargin - moreSpace / 2) - 1;
-
-    if (margin > minMargin) {
-      return margin;
-    }
-
-    return maxMargin;
-  };
-
-  computePageMargin = () => {
-    if (!this._isMounted || !this.itemsContainerRef) {
-      return;
-    }
-
-    if (this.itemsContainerRef && layout) {
-      const { pageMargin } = this.state;
-      let newMargin = 0;
-
-      if (layout.atLeast('large')) {
-        newMargin = this.getMargin(320, 100);
-      } else if (layout.atLeast('medium')) {
-        newMargin = this.getMargin(80, 20);
-      }
-
-      if (newMargin !== pageMargin) {
-        this.setState({ pageMargin: newMargin });
-      }
-    }
-  };
-
-  setItemsContainerRef = ref => {
-    this.itemsContainerRef = ref;
-    this.computePageMargin();
-  };
-
-  setPageRef = ref => {
-    this.pageRef = ref;
-  };
-
-  setScrollRef = ref => {
-    this.scrollRef = ref;
   };
 
   openDetails = (event, operator) => {
@@ -475,7 +409,7 @@ class OperatorHub extends React.Component {
       return null;
     }
 
-    const { name, imgUrl, provider, description } = item;
+    const { name, imgUrl, provider, description, longDescription } = item;
     const vendor = provider ? `provided by ${provider}` : null;
 
     return (
@@ -485,7 +419,7 @@ class OperatorHub extends React.Component {
         title={name}
         iconImg={imgUrl}
         vendor={vendor}
-        description={description}
+        description={description || longDescription}
         onClick={e => this.openDetails(e, item)}
       />
     );
@@ -499,7 +433,7 @@ class OperatorHub extends React.Component {
     }
 
     return (
-      <div className="catalog-tile-view-pf catalog-tile-view-pf-no-categories" ref={this.setItemsContainerRef}>
+      <div className="catalog-tile-view-pf catalog-tile-view-pf-no-categories">
         {_.map(filteredItems, item => this.renderCard(item))}
       </div>
     );
@@ -522,7 +456,7 @@ class OperatorHub extends React.Component {
             <div className="catalog-tile-pf-subtitle">{vendor}</div>
           </span>
         </div>
-        <div className="catalog-tile-pf-description" ref={this.handleDescriptionRef}>
+        <div className="catalog-tile-pf-description">
           <span>{description}</span>
         </div>
       </a>
@@ -536,11 +470,7 @@ class OperatorHub extends React.Component {
       return this.renderFilteredEmptyState();
     }
 
-    return (
-      <div className="oh-list-view" ref={this.setItemsContainerRef}>
-        {_.map(filteredItems, item => this.renderListItem(item))}
-      </div>
-    );
+    return <div className="oh-list-view">{_.map(filteredItems, item => this.renderListItem(item))}</div>;
   }
 
   getViewItem = viewType => (
@@ -627,25 +557,28 @@ class OperatorHub extends React.Component {
   };
 
   render() {
-    const { pageMargin, fixedHeader, scrollTop, keywordFilter } = this.state;
-    const pageStyle = pageMargin ? { marginLeft: pageMargin, marginRight: pageMargin } : null;
-    const headStyle = fixedHeader ? { top: scrollTop || 0, ...pageStyle } : null;
+    const { fixedHeader, scrollTop, keywordFilter } = this.state;
+    const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
     const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
 
     return (
       <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
-        <div className={pageClasses} ref={this.setPageRef} style={pageStyle}>
-          <HubHeader
-            style={headStyle}
-            onWheel={e => {
-              this.onHeaderWheel(e);
-            }}
-            searchCallback={this.onSearch}
-            clearSearch={this.clearSearch}
-            searchValue={keywordFilter}
-          />
-          <div className="oh-content oh-content-hub ">{this.renderView()}</div>
-          <Footer />
+        <div className={pageClasses}>
+          <div className="oh-page__spacer" />
+          <div className="oh-page__content">
+            <HubHeader
+              style={headStyle}
+              onWheel={e => {
+                this.onHeaderWheel(e);
+              }}
+              searchCallback={this.onSearch}
+              clearSearch={this.clearSearch}
+              searchValue={keywordFilter}
+            />
+            <div className="oh-content oh-content-hub ">{this.renderView()}</div>
+            <Footer />
+          </div>
+          <div className="oh-page__spacer" />
         </div>
       </div>
     );

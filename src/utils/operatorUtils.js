@@ -36,7 +36,7 @@ const normalizeOperator = operator => {
     maturity: spec.maturity,
     links: spec.links,
     maintainers: spec.maintainers,
-    description: _.get(annotations, 'description', spec.description),
+    description: _.get(annotations, 'description'),
     createdAt: annotations.createdAt,
     containerImage: annotations.containerImage
   };

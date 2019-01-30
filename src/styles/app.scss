@@ -5,12 +5,22 @@
 }
 
 .oh-page {
-  @media (min-width: 1281px) {
-    margin: 0 80px;
+  display: flex;
+  flex-direction: row;
+  .oh-page__spacer {
+    flex: 1;
   }
-
-  @media (min-width: 1441px) {
-    margin: 0 320px;
+  .oh-page__content {
+    width: 100%;
+    @media (min-width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+      width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    }
+    @media (min-width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+      width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    }
+    @media (min-width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+      width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    }
   }
 
   .oh-content {

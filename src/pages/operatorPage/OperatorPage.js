@@ -179,7 +179,7 @@ class OperatorPage extends React.Component {
         </div>
         <div className="oh-operator-page">
           <div className="oh-operator-page__content row">
-            <Grid.Col xs={12} sm={3} smPush={9} className="oh-operator-page__side-panel">
+            <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9} className="oh-operator-page__side-panel">
               <a
                 className="oh-operator-page__side-panel__button oh-operator-page__side-panel__button-primary"
                 href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
@@ -200,7 +200,7 @@ class OperatorPage extends React.Component {
                 <PropertyItem label="Maintainers" value={maintainersComponent} />
               </PropertiesSidePanel>
             </Grid.Col>
-            <Grid.Col xs={12} sm={9} smPull={3}>
+            <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
               <h1>{name}</h1>
               {longDescription && <MarkdownView content={longDescription} outerScroll />}
             </Grid.Col>
@@ -218,18 +218,22 @@ class OperatorPage extends React.Component {
     return (
       <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
         <div className={pageClasses}>
-          <OperatorHeader
-            operator={operator}
-            style={headStyle}
-            searchCallback={this.onSearch}
-            clearSearch={this.clearSearch}
-            searchValue={searchValue}
-            onWheel={e => {
-              this.onHeaderWheel(e);
-            }}
-          />
-          <div className="oh-content oh-content-operator">{this.renderDetails()}</div>
-          <Footer />
+          <div className="oh-page__spacer" />
+          <div className="oh-page__content">
+            <OperatorHeader
+              operator={operator}
+              style={headStyle}
+              searchCallback={this.onSearch}
+              clearSearch={this.clearSearch}
+              searchValue={searchValue}
+              onWheel={e => {
+                this.onHeaderWheel(e);
+              }}
+            />
+            <div className="oh-content oh-content-operator">{this.renderDetails()}</div>
+            <Footer />
+          </div>
+          <div className="oh-page__spacer" />
         </div>
       </div>
     );

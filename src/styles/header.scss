@@ -14,7 +14,12 @@
 .oh-header {
   background-image: linear-gradient(to right, #004368,  #0088ce);
   color: $color-pf-white;
-  padding: 15px 30px 0;
+  padding: 15px 15px 0;
+
+  @media (min-width: $screen-xs-min) {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
 
   .oh-page-fixed-header & {
     @media (min-width: 1281px) {
@@ -150,11 +155,6 @@
         padding-left: 8px;
       }
 
-    }
-    .oh-operator-header__content__description {
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
   }
 }

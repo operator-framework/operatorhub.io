@@ -20,7 +20,8 @@
   }
 
   &__content {
-    width: 100%;
+    flex: 1;
+    max-width: 100%;
   }
 
   &__side-panel {
@@ -55,19 +56,19 @@
       .oh-external-link {
         display: block;
       }
+    }
 
-      .dropdown-menu {
-        font-size: inherit;
-        font-weight: inherit;
-      }
+    .dropdown-menu {
+      font-size: inherit;
+      font-weight: inherit;
+    }
 
-      &__version-dropdown {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        font-size: inherit;
-        font-weight: inherit;
-      }
+    &__version-dropdown {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      font-size: inherit;
+      font-weight: inherit;
     }
   }
 }
