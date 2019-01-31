@@ -64,9 +64,20 @@ class OperatorPage extends React.Component {
   };
 
   contentScrolled = scrollEvent => {
-    const scroller = scrollEvent.currentTarget;
-    this.setState({ scrollTop: scroller.scrollTop });
-    this.setState({ fixedHeader: scroller.scrollTop > 110, scrollTop: scroller.scrollTop });
+    const { scrollTop, scrollHeight, clientHeight } = scrollEvent.currentTarget;
+    const scrollSpace = scrollHeight - clientHeight;
+    const headerHeight = this.headerRef.clientHeight;
+
+    if (scrollSpace > headerHeight) {
+      const topBarHeight = this.topBarRef.clientHeight;
+      const top = scrollTop - headerHeight + topBarHeight;
+      const fixedHeightThreshold = headerHeight - this.topBarRef.clientHeight;
+
+      this.setState({ fixedHeader: scrollTop > fixedHeightThreshold, scrollTop: top, headerHeight });
+      return;
+    }
+
+    this.setState({ fixedHeader: false });
   };
 
   onHeaderWheel = wheelEvent => {
@@ -75,6 +86,14 @@ class OperatorPage extends React.Component {
 
   setScrollRef = ref => {
     this.scrollRef = ref;
+  };
+
+  setHeaderRef = ref => {
+    this.headerRef = ref;
+  };
+
+  setTopBarRef = ref => {
+    this.topBarRef = ref;
   };
 
   renderPendingMessage = () => (
@@ -212,13 +231,13 @@ class OperatorPage extends React.Component {
 
   render() {
     const { operator } = this.props;
-    const { fixedHeader, scrollTop, searchValue } = this.state;
+    const { fixedHeader, scrollTop, searchValue, headerHeight } = this.state;
     const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
+    const contentStyle = fixedHeader ? { marginTop: headerHeight || 0 } : null;
     const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
     return (
       <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
         <div className={pageClasses}>
-          <div className="oh-page__spacer" />
           <div className="oh-page__content">
             <OperatorHeader
               operator={operator}
@@ -229,11 +248,14 @@ class OperatorPage extends React.Component {
               onWheel={e => {
                 this.onHeaderWheel(e);
               }}
+              headerRef={this.setHeaderRef}
+              topBarRef={this.setTopBarRef}
             />
-            <div className="oh-content oh-content-operator">{this.renderDetails()}</div>
+            <div className="oh-content oh-content-operator" style={contentStyle}>
+              {this.renderDetails()}
+            </div>
             <Footer />
           </div>
-          <div className="oh-page__spacer" />
         </div>
       </div>
     );

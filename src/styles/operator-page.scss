@@ -1,5 +1,5 @@
-.oh-page-fixed-header .oh-content-operator {
-  margin-top: 166px;
+.oh-content-operator {
+  overflow-x: hidden;
 }
 
 .oh-operator-page {
@@ -21,7 +21,6 @@
 
   &__content {
     flex: 1;
-    max-width: 100%;
   }
 
   &__side-panel {
