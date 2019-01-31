@@ -195,7 +195,6 @@ class OperatorHub extends React.Component {
     sortType: 'ascending',
     keywordFilter: ''
   };
-  _resizeSensors = [];
 
   componentDidMount() {
     this.updateNewOperators(this.props.operators);
@@ -204,13 +203,6 @@ class OperatorHub extends React.Component {
     const searchParams = new URLSearchParams(window.location.search);
     const keywordSearch = searchParams.get('search') || '';
     this.setState({ keywordFilter: keywordSearch });
-
-    // Watch for resizes and recompute the number shown when it does
-    this._isMounted = true;
-  }
-
-  componentWillUnmount() {
-    this._isMounted = false;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -293,12 +285,36 @@ class OperatorHub extends React.Component {
   };
 
   contentScrolled = scrollEvent => {
-    const scroller = scrollEvent.currentTarget;
-    this.setState({ fixedHeader: scroller.scrollTop > 150, scrollTop: scroller.scrollTop });
+    const { scrollTop, scrollHeight, clientHeight } = scrollEvent.currentTarget;
+    const scrollSpace = scrollHeight - clientHeight;
+    const headerHeight = this.headerRef.clientHeight;
+
+    if (scrollSpace > headerHeight) {
+      const topBarHeight = this.topBarRef.clientHeight;
+      const top = scrollTop - headerHeight + topBarHeight;
+      const fixedHeightThreshold = headerHeight - this.topBarRef.clientHeight;
+
+      this.setState({ fixedHeader: scrollTop > fixedHeightThreshold, scrollTop: top, headerHeight });
+      return;
+    }
+
+    this.setState({ fixedHeader: false });
   };
 
   onHeaderWheel = wheelEvent => {
     this.scrollRef.scrollTop -= _.get(wheelEvent, 'nativeEvent.wheelDelta', 0);
+  };
+
+  setScrollRef = ref => {
+    this.scrollRef = ref;
+  };
+
+  setHeaderRef = ref => {
+    this.headerRef = ref;
+  };
+
+  setTopBarRef = ref => {
+    this.topBarRef = ref;
   };
 
   openDetails = (event, operator) => {
@@ -333,6 +349,15 @@ class OperatorHub extends React.Component {
   clearSearch = () => {
     this.onSearch('');
   };
+
+  getViewItem = viewType => (
+    <span>
+      <Icon type="fa" name={viewType === 'card' ? 'th-large' : 'list'} />
+      {viewType}
+    </span>
+  );
+
+  getSortItem = sortType => <span>{sortType === 'ascending' ? 'A-Z' : 'Z-A'}</span>;
 
   renderFilterGroup = (filterGroup, groupName, activeFilters, filterCounts) => (
     <FilterSidePanel.Category key={groupName} title={operatorHubFilterMap[groupName] || groupName}>
@@ -473,15 +498,6 @@ class OperatorHub extends React.Component {
     return <div className="oh-list-view">{_.map(filteredItems, item => this.renderListItem(item))}</div>;
   }
 
-  getViewItem = viewType => (
-    <span>
-      <Icon type="fa" name={viewType === 'card' ? 'th-large' : 'list'} />
-      {viewType}
-    </span>
-  );
-
-  getSortItem = sortType => <span>{sortType === 'ascending' ? 'A-Z' : 'Z-A'}</span>;
-
   renderView = () => {
     const { error, pending } = this.props;
     const { operators, filteredItems, viewType, sortType } = this.state;
@@ -557,14 +573,14 @@ class OperatorHub extends React.Component {
   };
 
   render() {
-    const { fixedHeader, scrollTop, keywordFilter } = this.state;
+    const { fixedHeader, scrollTop, headerHeight, keywordFilter } = this.state;
     const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
+    const contentStyle = fixedHeader ? { marginTop: headerHeight || 0 } : null;
     const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
 
     return (
       <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
         <div className={pageClasses}>
-          <div className="oh-page__spacer" />
           <div className="oh-page__content">
             <HubHeader
               style={headStyle}
@@ -574,11 +590,14 @@ class OperatorHub extends React.Component {
               searchCallback={this.onSearch}
               clearSearch={this.clearSearch}
               searchValue={keywordFilter}
+              headerRef={this.setHeaderRef}
+              topBarRef={this.setTopBarRef}
             />
-            <div className="oh-content oh-content-hub ">{this.renderView()}</div>
+            <div className="oh-content oh-content-hub" style={contentStyle}>
+              {this.renderView()}
+            </div>
             <Footer />
           </div>
-          <div className="oh-page__spacer" />
         </div>
       </div>
     );

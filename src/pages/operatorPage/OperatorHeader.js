@@ -1,11 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { helpers } from '../../common/helpers';
 import { HeaderTopBar } from '../../components/HeaderTopBar';
 
-const OperatorHeader = ({ operator, searchValue, searchCallback, clearSearch, ...props }) => (
-  <div className="oh-header oh-operator-header" {...props}>
-    <HeaderTopBar searchCallback={searchCallback} clearSearch={clearSearch} searchValue={searchValue} />
+const OperatorHeader = ({ operator, searchValue, searchCallback, clearSearch, headerRef, topBarRef, ...props }) => (
+  <div className="oh-header oh-operator-header" ref={headerRef} {...props}>
+    <HeaderTopBar
+      searchCallback={searchCallback}
+      clearSearch={clearSearch}
+      searchValue={searchValue}
+      barRef={topBarRef}
+    />
     <div className="oh-header__content">
       <img className="oh-operator-header__content__image" src={operator.imgUrl} alt="" />
       <div className="oh-operator-header__content__info">
@@ -20,12 +26,16 @@ OperatorHeader.propTypes = {
   operator: PropTypes.object,
   searchValue: PropTypes.string,
   searchCallback: PropTypes.func.isRequired,
-  clearSearch: PropTypes.func.isRequired
+  clearSearch: PropTypes.func.isRequired,
+  headerRef: PropTypes.func,
+  topBarRef: PropTypes.func
 };
 
 OperatorHeader.defaultProps = {
   operator: {},
-  searchValue: ''
+  searchValue: '',
+  headerRef: helpers.noop,
+  topBarRef: helpers.noop
 };
 
 export { OperatorHeader };

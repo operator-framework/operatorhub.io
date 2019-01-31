@@ -1,16 +1,15 @@
 .content-scrollable {
   height: 100vh;
   overflow: auto;
-  position: relative;
 }
 
 .oh-page {
   display: flex;
   flex-direction: row;
-  .oh-page__spacer {
-    flex: 1;
-  }
+  justify-content: center;
+
   .oh-page__content {
+    position: relative;
     width: 100%;
     @media (min-width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
       width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);

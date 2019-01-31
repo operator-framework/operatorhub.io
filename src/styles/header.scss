@@ -14,37 +14,34 @@
 .oh-header {
   background-image: linear-gradient(to right, #004368,  #0088ce);
   color: $color-pf-white;
-  padding: 15px 15px 0;
-
-  @media (min-width: $screen-xs-min) {
-    padding-left: 30px;
-    padding-right: 30px;
-  }
-
-  .oh-page-fixed-header & {
-    @media (min-width: 1281px) {
-      margin: 0 80px;
-    }
-
-    @media (min-width: 1441px) {
-      margin: 0 320px;
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  padding: 0 15px;
 
   .oh-hub-header__top-bar {
-    display: flex;
-    flex-direction: row;
-
+    padding-top: 15px;
     &__title {
-      flex: 1;
       font-family: $oh-code-font-family;
       letter-spacing: 4px;
     }
 
     &__search-form {
-      width: 300px;
-    }
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      float: right;
 
+      @media (min-width: $screen-xs-min) {
+        justify-content: flex-end;
+      }
+      @media (min-width: $screen-sm-min) {
+        margin-top: 0;
+        margin-right: -20px;
+        display: block;
+        width: 100%;
+      }
+    }
     &__search-icon {
       color: $color-pf-white;
       left: 5px;
@@ -66,6 +63,13 @@
       border-radius: 4px;
       color: $color-pf-white;
       padding-left: 30px;
+      width: 300px;
+      @media (min-width: $screen-sm-min) {
+        width: 100%;
+      }
+    }
+    .dropdown {
+      float: right;
     }
     &__dropdown {
       background: transparent;
@@ -89,8 +93,8 @@
   }
 }
 
-.oh-page-fixed-header .oh-header__content {
-  display: none;
+.oh-page-fixed-header .oh-header {
+  flex-direction: column-reverse;
 }
 
 .oh-hub-header {
@@ -107,9 +111,7 @@
     }
     .oh-hub-header__content__sub-title {
       display: flex;
-      > .spacer {
-        flex: 1;
-      }
+      justify-content: center;
       p {
         text-align: center;
         word-break: break-word;
@@ -119,14 +121,6 @@
     .oh-hub-header__content__description {
       overflow-x: hidden;
       white-space: nowrap;
-    }
-  }
-}
-
-.oh-page-fixed-header {
-  .oh-operator-header {
-    .oh-operator-header__content {
-      display: none;
     }
   }
 }
@@ -154,7 +148,6 @@
         letter-spacing: 5px;
         padding-left: 8px;
       }
-
     }
   }
 }
