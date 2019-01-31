@@ -36,7 +36,7 @@ const parseContentsResults = results => {
 
 const fetchOperator = (operatorName, dispatch) => {
   if (process.env.MOCK_MODE) {
-    const operators = getVersionedOperators(mockOperators);
+    const operators = getVersionedOperators(_.cloneDeep(mockOperators));
     const operator = _.find(operators, { name: operatorName });
     dispatch({
       type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
@@ -97,11 +97,6 @@ const fetchOperators = operatorName => dispatch => {
 
   const currentTime = new Date().getTime();
 
-  if (process.env.MOCK_MODE) {
-    latestOperators = getVersionedOperators(mockOperators);
-    lastUpdateTime = currentTime;
-  }
-
   if (currentTime - lastUpdateTime < REFRESH_DATA_THRESHOLD) {
     if (operatorName) {
       const operator = _.find(latestOperators, { name: operatorName });
@@ -122,6 +117,11 @@ const fetchOperators = operatorName => dispatch => {
       payload: latestOperators
     });
     return;
+  }
+
+  if (process.env.MOCK_MODE) {
+    latestOperators = getVersionedOperators(_.cloneDeep(mockOperators));
+    lastUpdateTime = currentTime;
   }
 
   axios
