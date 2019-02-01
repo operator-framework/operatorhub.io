@@ -13,16 +13,13 @@ const HubHeader = ({ searchCallback, clearSearch, searchValue, headerRef, topBar
       barRef={topBarRef}
     />
     <div className="oh-header__content">
-      <h1 className="oh-hub-header__content__title">
-        Welcome to
-        <span className="title">OperatorHub</span>
+      <h1 className="oh-hub-header__content__title oh-hero">
+        Welcome to OperatorHub
       </h1>
-      <div className="oh-hub-header__content__sub-title">
-        <p>
-          Operators deliver the automation advantages of cloud services like provisioning, scaling, and backup/restore
-          while being able to run anywhere that Kubernetes can run.
-        </p>
-      </div>
+      <p className="oh-hub-header__content__sub-title">
+        Operators deliver the automation advantages of cloud services like provisioning, scaling, and backup/restore
+        while being able to run anywhere that Kubernetes can run.
+      </p>
     </div>
   </div>
 );

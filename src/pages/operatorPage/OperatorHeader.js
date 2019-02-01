@@ -13,9 +13,11 @@ const OperatorHeader = ({ operator, searchValue, searchCallback, clearSearch, he
       barRef={topBarRef}
     />
     <div className="oh-header__content">
-      <img className="oh-operator-header__content__image" src={operator.imgUrl} alt="" />
+      <div className="oh-operator-header__content__image-container">
+        <img className="oh-operator-header__content__image" src={operator.imgUrl} alt="" />
+      </div>
       <div className="oh-operator-header__content__info">
-        <h1 className="oh-operator-header__content__title">{operator.name}</h1>
+        <h1 className="oh-operator-header__content__title oh-hero">{operator.name}</h1>
         <div className="oh-operator-header__content__description">{operator.description}</div>
       </div>
     </div>

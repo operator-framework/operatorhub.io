@@ -1,6 +1,5 @@
 ::placeholder {
-  color: $color-pf-black-400 !important;
-  opacity: 1 !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .oh-page-fixed-header .oh-header {
@@ -12,7 +11,10 @@
 }
 
 .oh-header {
-  background-image: linear-gradient(to right, #004368,  #0088ce);
+  background-image: url("../imgs/header-bg.png");
+  background-image: url("../imgs/header-bg.png"), linear-gradient(to right, #134F77, #2C95B5);
+  background-repeat: repeat;
+  background-position: center;
   color: $color-pf-white;
   display: flex;
   flex-direction: column;
@@ -20,34 +22,54 @@
   padding: 0 15px;
 
   .oh-hub-header__top-bar {
-    padding-top: 15px;
-    &__title {
-      font-family: $oh-code-font-family;
-      letter-spacing: 4px;
+
+    display: flex;
+    flex-direction: column;
+
+    &__content {
+      display: flex;
+      flex-direction: row;
+      padding-top: 15px;
     }
 
-    &__search-form {
-      margin-top: 10px;
+    &__xs-search {
+      width: 100%;
       display: flex;
-      justify-content: center;
-      float: right;
+      flex-direction: column;
+      align-items: center;
 
-      @media (min-width: $screen-xs-min) {
-        justify-content: flex-end;
-      }
       @media (min-width: $screen-sm-min) {
-        margin-top: 0;
-        margin-right: -20px;
-        display: block;
+        display: none;
+      }
+
+      .oh-hub-header__top-bar__search-form {
+        padding-top: 10px;
         width: 100%;
       }
     }
+
+    &__logo {
+      font-family: $oh-code-font-family;
+      height: 14px;
+      margin-top: 7px;
+    }
+
+    &__spacer {
+      flex: 1;
+    }
+
+    &__search-form {
+      width: 300px;
+    }
+
     &__search-icon {
       color: $color-pf-white;
+      font-size: 12px;
       left: 5px;
-      top: 6px;
+      top: 7px;
       position: absolute;
     }
+
     &__clear-icon {
       color: $color-pf-white;
       right: 5px;
@@ -57,20 +79,19 @@
         display: none;
       }
     }
+
     &__search--input {
-      background-color: #00659c;
+      background-color: rgba(255, 255, 255, 0.2);
       border: none;
       border-radius: 4px;
       color: $color-pf-white;
       padding-left: 30px;
-      width: 300px;
+      padding-bottom: 3px;
       @media (min-width: $screen-sm-min) {
         width: 100%;
       }
     }
-    .dropdown {
-      float: right;
-    }
+
     &__dropdown {
       background: transparent;
       border: none;
@@ -78,8 +99,9 @@
       color: $color-pf-white;
       font-size: inherit;
       font-weight: inherit;
-      margin-left: 20px !important;
+      margin-left: 30px !important;
     }
+
     .dropdown-menu {
       font-size: inherit;
       font-weight: inherit;
@@ -90,6 +112,7 @@
     padding-bottom: 30px;
     display: flex;
     flex-direction: column;
+    align-items: center;
   }
 }
 
@@ -100,27 +123,19 @@
 .oh-hub-header {
   .oh-header__content {
     h1 {
-      font-size: 32px;
       text-align: center;
       .title {
         font-family: $oh-code-font-family;
-        letter-spacing: 5px;
         padding-left: 8px;
+        width: fit-content;
       }
 
     }
     .oh-hub-header__content__sub-title {
-      display: flex;
-      justify-content: center;
-      p {
+        color: $color-pf-white;
         text-align: center;
         word-break: break-word;
         max-width: 575px;
-      }
-    }
-    .oh-hub-header__content__description {
-      overflow-x: hidden;
-      white-space: nowrap;
     }
   }
 }
@@ -128,24 +143,38 @@
 .oh-operator-header {
   .oh-header__content {
     flex-direction: row;
+    align-items: flex-start;
     overflow: hidden;
+  }
 
-    .oh-operator-header__content__image {
-      height: 80px;
-      max-width: 160px;
-      min-width: 80px;
+  &__content {
+    &__image-container {
+      background: $color-pf-white;
+      border-radius: 50px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      height: 100px;
+      width: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    .oh-operator-header__content__info {
+
+    &__image {
+      max-height: 60px;
+      max-width: 60px;
+    }
+
+    &__info {
       flex: 1;
       margin-left: 20px;
       overflow: hidden;
     }
+
     h1 {
       margin-top: 10px;
       font-size: 32px;
       .title {
         font-family: $oh-code-font-family;
-        letter-spacing: 5px;
         padding-left: 8px;
       }
     }
