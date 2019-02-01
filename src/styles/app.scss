@@ -3,6 +3,26 @@
   overflow: auto;
 }
 
+.oh-small {
+  color: $oh-color-text-light;
+  font-size: 12px;
+}
+
+.oh-tiny {
+  color: $oh-color-text-metadata;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.oh-hero {
+  color: $color-pf-white;;
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .oh-page {
   display: flex;
   flex-direction: row;
