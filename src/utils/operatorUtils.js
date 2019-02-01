@@ -33,7 +33,7 @@ const normalizeOperator = operator => {
     provider: _.get(spec, 'provider.name'),
     version: spec.version,
     versionForCompare: normalizeVersion(spec.version),
-    maturity: spec.maturity,
+    maturity: spec.maturity || '',
     links: spec.links,
     maintainers: spec.maintainers,
     description: _.get(annotations, 'description'),
