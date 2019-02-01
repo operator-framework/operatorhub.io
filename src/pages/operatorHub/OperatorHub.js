@@ -374,7 +374,7 @@ class OperatorHub extends React.Component {
   sortItems = items => {
     const { sortType } = this.props;
     const sortedItems = _.sortBy(items, item => item.name.toLowerCase());
-    return sortType === 'ascending' ? sortedItems : _.reverse(sortedItems);
+    return sortType === 'descending' ? _.reverse(sortedItems) : sortedItems;
   };
 
   clearActiveFilters = activeFilters => {
