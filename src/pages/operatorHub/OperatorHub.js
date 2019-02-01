@@ -12,6 +12,11 @@ import { helpers } from '../../common/helpers';
 
 import Footer from '../../components/Footer';
 import { HubHeader } from './HubHeader';
+import { reduxConstants } from '../../redux';
+
+const KEYWORD_URL_PARAM = 'keyword';
+const VIEW_TYPE_URL_PARAM = 'view';
+const SORT_TYPE_URL_PARAM = 'sort';
 
 /**
  * Filter property white list
@@ -38,20 +43,11 @@ export const getProviderValue = value => {
 };
 
 const providerSort = provider => {
-  if (provider.value.toLowerCase() === 'red hat') {
+  const value = provider.value || provider;
+  if (value.toLowerCase() === 'red hat') {
     return '';
   }
-  return provider.value;
-};
-
-const sortFilterValues = (values, field) => {
-  let sorter = ['value'];
-
-  if (field === 'provider') {
-    sorter = providerSort;
-  }
-
-  return _.sortBy(values, sorter);
+  return value;
 };
 
 const filterByGroup = (items, filters) =>
@@ -143,7 +139,7 @@ const determineAvailableFilters = (initialFilters, items, filterGroups) => {
       if (value !== undefined) {
         if (!_.some(values, { value })) {
           values.push({
-            label: value,
+            label: value || 'N/A',
             synonyms,
             value,
             active: false
@@ -152,16 +148,29 @@ const determineAvailableFilters = (initialFilters, items, filterGroups) => {
       }
     });
 
-    _.forEach(sortFilterValues(values, field), nextValue => _.set(filters, [field, nextValue.value], nextValue));
+    _.forEach(values, nextValue => {
+      _.set(filters, [field, nextValue.value], nextValue);
+    });
   });
 
   return filters;
 };
 
-export const updateActiveFilters = (activeFilters, filterType, id, value) => {
-  _.set(activeFilters, [filterType, id, 'active'], value);
+const getActiveFilters = (groupFilters, activeFilters) => {
+  _.forOwn(groupFilters, (filterValues, filterType) => {
+    _.each(filterValues, filterValue => {
+      _.set(activeFilters, [filterType, filterValue, 'active'], true);
+    });
+  });
 
   return activeFilters;
+};
+
+const updateActiveFilters = (activeFilters, filterType, id, value) => {
+  const newFilters = _.cloneDeep(activeFilters);
+  _.set(newFilters, [filterType, id, 'active'], value);
+
+  return newFilters;
 };
 
 const getFilterGroupCounts = (items, filters) => {
@@ -185,39 +194,80 @@ const getFilterGroupCounts = (items, filters) => {
 
 const defaultFilters = {};
 
+export const getFilterSearchParam = groupFilter => {
+  const activeValues = _.reduce(
+    _.keys(groupFilter),
+    (result, typeKey) => (groupFilter[typeKey].active ? result.concat(typeKey) : result),
+    []
+  );
+
+  return _.isEmpty(activeValues) ? '' : JSON.stringify(activeValues);
+};
+
 class OperatorHub extends React.Component {
   state = {
-    operators: [],
-    activeFilters: defaultFilters,
     filteredItems: [],
-    filterCounts: null,
-    viewType: 'card',
-    sortType: 'ascending',
-    keywordFilter: ''
+    filterCounts: null
   };
 
   componentDidMount() {
-    this.updateNewOperators(this.props.operators);
+    const {
+      storeActiveFilters,
+      storeKeywordSearch,
+      storeViewType,
+      storeSortType,
+      activeFilters,
+      keywordSearch,
+      viewType,
+      sortType
+    } = this.props;
     this.refresh();
 
     const searchParams = new URLSearchParams(window.location.search);
-    const keywordSearch = searchParams.get('search') || '';
-    this.setState({ keywordFilter: keywordSearch });
+
+    if (!_.isEmpty(activeFilters) || !_.isEmpty(keywordSearch)) {
+      this.updateFiltersURL();
+    } else {
+      storeActiveFilters(this.getActiveValuesFromURL(defaultFilters, operatorHubFilterGroups));
+      storeKeywordSearch(searchParams.get(KEYWORD_URL_PARAM) || '');
+    }
+
+    if (!_.isEmpty(viewType)) {
+      this.updateURLParams(VIEW_TYPE_URL_PARAM, viewType);
+    } else {
+      storeViewType(searchParams.get(VIEW_TYPE_URL_PARAM) || '');
+    }
+
+    if (!_.isEmpty(sortType)) {
+      this.updateURLParams(SORT_TYPE_URL_PARAM, sortType);
+    } else {
+      storeSortType(searchParams.get(SORT_TYPE_URL_PARAM) || '');
+    }
+
+    this.updateFilteredItems();
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { operators } = this.props;
+  componentDidUpdate(prevProps) {
+    const { keywordSearch, operators, activeFilters, sortType } = this.props;
 
-    if (this.state.keywordFilter !== prevState.keywordFilter || !_.isEqual(operators, prevProps.operators)) {
-      this.updateNewOperators(operators);
+    if (!_.isEqual(activeFilters, prevProps.activeFilters) || keywordSearch !== prevProps.keywordSearch) {
+      this.updateFilteredItems();
+      this.updateFiltersURL();
     }
-    if (this.state.sortType !== prevState.sortType) {
-      this.setState({ filteredItems: _.reverse(this.state.filteredItems) });
+
+    if (!_.isEqual(operators, prevProps.operators)) {
+      this.updateCurrentFilters(operators);
+      this.updateFilteredItems();
+    }
+
+    if (sortType !== prevProps.sortType) {
+      this.setState({ filteredItems: this.sortItems(this.state.filteredItems) });
     }
   }
 
-  updateNewOperators = operators => {
-    const { activeFilters, keywordFilter } = this.state;
+  updateCurrentFilters = () => {
+    const { operators, activeFilters, storeActiveFilters } = this.props;
+
     const availableFilters = determineAvailableFilters(defaultFilters, operators, operatorHubFilterGroups);
 
     const newActiveFilters = _.reduce(
@@ -236,22 +286,93 @@ class OperatorHub extends React.Component {
       availableFilters
     );
 
-    const filterCounts = getFilterGroupCounts(operators, newActiveFilters);
-    const filteredItems = this.sortItems(filterItems(operators, keywordFilter, newActiveFilters));
-    this.setState({
-      operators,
-      filteredItems,
-      activeFilters: newActiveFilters,
-      filterCounts
-    });
+    storeActiveFilters(_.cloneDeep(newActiveFilters));
+  };
+
+  updateFilteredItems = () => {
+    const { operators, activeFilters, keywordSearch } = this.props;
+
+    const filterCounts = getFilterGroupCounts(operators, activeFilters);
+    const filteredItems = this.sortItems(filterItems(operators, keywordSearch, activeFilters));
+
+    this.setState({ filteredItems, filterCounts });
   };
 
   refresh() {
     this.props.fetchOperators();
   }
 
+  setURLParams = params => {
+    const url = new URL(window.location);
+    const searchParams = `?${params.toString()}${url.hash}`;
+
+    this.props.history.replace(`${url.pathname}${searchParams}`);
+  };
+
+  updateURLParams = (filterName, value) => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (value) {
+      params.set(filterName, Array.isArray(value) ? JSON.stringify(value) : value);
+    } else {
+      params.delete(filterName);
+    }
+    this.setURLParams(params);
+  };
+
+  clearFilterURLParams = () => {
+    const params = new URLSearchParams();
+    this.setURLParams(params);
+  };
+
+  updateFiltersURL = () => {
+    const { keywordSearch, activeFilters } = this.props;
+    const params = new URLSearchParams(window.location.search);
+
+    _.each(_.keys(activeFilters), filterType => {
+      const groupFilter = activeFilters[filterType];
+      const value = getFilterSearchParam(groupFilter);
+
+      if (value) {
+        params.set(filterType, Array.isArray(value) ? JSON.stringify(value) : value);
+      } else {
+        params.delete(filterType);
+      }
+      this.updateURLParams(filterType, getFilterSearchParam(groupFilter));
+    });
+
+    if (keywordSearch) {
+      params.set(KEYWORD_URL_PARAM, keywordSearch);
+    } else {
+      params.delete(KEYWORD_URL_PARAM);
+    }
+
+    this.setURLParams(params);
+  };
+
+  getActiveValuesFromURL = (availableFilters, filterGroups) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const groupFilters = {};
+
+    _.each(filterGroups, filterGroup => {
+      const groupFilterParam = searchParams.get(filterGroup);
+      if (!groupFilterParam) {
+        return;
+      }
+
+      try {
+        _.set(groupFilters, filterGroup, JSON.parse(groupFilterParam));
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('could not update filters from url params: could not parse search params', e);
+      }
+    });
+
+    return getActiveFilters(groupFilters, availableFilters);
+  };
+
   sortItems = items => {
-    const { sortType } = this.state;
+    const { sortType } = this.props;
     const sortedItems = _.sortBy(items, item => item.name.toLowerCase());
     return sortType === 'ascending' ? sortedItems : _.reverse(sortedItems);
   };
@@ -267,21 +388,19 @@ class OperatorHub extends React.Component {
   };
 
   clearFilters() {
-    const { operators, activeFilters } = this.state;
+    const { activeFilters } = this.props;
 
     const clearedFilters = this.clearActiveFilters(activeFilters);
-    const filteredItems = this.sortItems(filterItems(operators, '', activeFilters));
+    this.clearFilterURLParams();
 
-    this.setState({ filteredItems, activeFilters: clearedFilters });
+    this.props.storeActiveFilters(clearedFilters);
   }
 
   onFilterChange = (filterType, id, value) => {
-    const { operators, activeFilters, keywordFilter } = this.state;
+    const { activeFilters } = this.props;
 
     const updatedFilters = updateActiveFilters(activeFilters, filterType, id, value);
-    const filteredItems = this.sortItems(filterItems(operators, keywordFilter, activeFilters));
-
-    this.setState({ filteredItems, activeFilters: updatedFilters });
+    this.props.storeActiveFilters(updatedFilters);
   };
 
   contentScrolled = scrollEvent => {
@@ -323,11 +442,13 @@ class OperatorHub extends React.Component {
   };
 
   updateViewType = viewType => {
-    this.setState({ viewType });
+    this.updateURLParams(VIEW_TYPE_URL_PARAM, viewType);
+    this.props.storeViewType(viewType);
   };
 
   updateSort = sortType => {
-    this.setState({ sortType });
+    this.updateURLParams(SORT_TYPE_URL_PARAM, sortType);
+    this.props.storeSortType(sortType);
   };
 
   onSearch = searchValue => {
@@ -337,13 +458,13 @@ class OperatorHub extends React.Component {
     const params = new URLSearchParams();
 
     if (searchValue) {
-      params.set('search', searchValue);
+      params.set(KEYWORD_URL_PARAM, searchValue);
     }
 
     const searchParams = `?${params.toString()}${url.hash}`;
     history.replace(`${url.pathname}${searchParams}`);
 
-    this.setState({ keywordFilter: searchValue });
+    this.props.storeKeywordSearch(searchValue);
   };
 
   clearSearch = () => {
@@ -352,40 +473,43 @@ class OperatorHub extends React.Component {
 
   getViewItem = viewType => (
     <span>
-      <Icon type="fa" name={viewType === 'card' ? 'th-large' : 'list'} />
+      <Icon type="fa" name={viewType === 'list' ? 'list' : 'th-large'} />
       {viewType}
     </span>
   );
 
-  getSortItem = sortType => <span>{sortType === 'ascending' ? 'A-Z' : 'Z-A'}</span>;
+  getSortItem = sortType => <span>{sortType === 'descending' ? 'Z-A' : 'A-Z'}</span>;
 
-  renderFilterGroup = (filterGroup, groupName, activeFilters, filterCounts) => (
+  renderFilterGroup = (groupName, activeFilters, filterCounts) => (
     <FilterSidePanel.Category key={groupName} title={operatorHubFilterMap[groupName] || groupName}>
-      {_.map(filterGroup, (filter, filterName) => {
-        const { label, active } = filter;
-        return (
-          <FilterSidePanel.CategoryItem
-            key={filterName}
-            count={_.get(filterCounts, [groupName, filterName], 0)}
-            checked={active}
-            onChange={e => this.onFilterChange(groupName, filterName, e.target.checked)}
-            title={label}
-          >
-            {label}
-          </FilterSidePanel.CategoryItem>
-        );
-      })}
+      {_.map(
+        _.sortBy(_.keys(activeFilters[groupName]), groupName === 'provider' ? providerSort : ['value']),
+        filterName => {
+          const filter = activeFilters[groupName][filterName];
+          const { label, active } = filter;
+          return (
+            <FilterSidePanel.CategoryItem
+              key={filterName}
+              count={_.get(filterCounts, [groupName, filterName], 0)}
+              checked={active}
+              onChange={e => this.onFilterChange(groupName, filterName, e.target.checked)}
+              title={label}
+            >
+              {label}
+            </FilterSidePanel.CategoryItem>
+          );
+        }
+      )}
     </FilterSidePanel.Category>
   );
 
   renderFilters() {
-    const { activeFilters, filterCounts } = this.state;
+    const { activeFilters } = this.props;
+    const { filterCounts } = this.state;
 
     return (
       <FilterSidePanel>
-        {_.map(activeFilters, (filterGroup, groupName) =>
-          this.renderFilterGroup(filterGroup, groupName, activeFilters, filterCounts)
-        )}
+        {_.map(operatorHubFilterGroups, groupName => this.renderFilterGroup(groupName, activeFilters, filterCounts))}
       </FilterSidePanel>
     );
   }
@@ -500,7 +624,8 @@ class OperatorHub extends React.Component {
 
   renderView = () => {
     const { error, pending } = this.props;
-    const { operators, filteredItems, viewType, sortType } = this.state;
+    const { operators, viewType, sortType } = this.props;
+    const { filteredItems } = this.state;
 
     if (error) {
       return this.renderError();
@@ -540,7 +665,7 @@ class OperatorHub extends React.Component {
                 id="view-type-dropdown"
                 pullRight
               >
-                <MenuItem eventKey={0} active={viewType === 'card'} onClick={() => this.updateViewType('card')}>
+                <MenuItem eventKey={0} active={viewType !== 'list'} onClick={() => this.updateViewType('card')}>
                   {this.getViewItem('card')}
                 </MenuItem>
                 <MenuItem eventKey={0} active={viewType === 'list'} onClick={() => this.updateViewType('list')}>
@@ -556,7 +681,7 @@ class OperatorHub extends React.Component {
                 id="view-type-dropdown"
                 pullRight
               >
-                <MenuItem eventKey={0} active={sortType === 'ascending'} onClick={() => this.updateSort('ascending')}>
+                <MenuItem eventKey={0} active={sortType !== 'descending'} onClick={() => this.updateSort('ascending')}>
                   {this.getSortItem('ascending')}
                 </MenuItem>
                 <MenuItem eventKey={0} active={sortType === 'descending'} onClick={() => this.updateSort('descending')}>
@@ -565,15 +690,16 @@ class OperatorHub extends React.Component {
               </DropdownButton>
             </div>
           </div>
-          {viewType === 'card' && this.renderCards()}
-          {viewType !== 'card' && this.renderListItems()}
+          {viewType !== 'list' && this.renderCards()}
+          {viewType === 'list' && this.renderListItems()}
         </div>
       </div>
     );
   };
 
   render() {
-    const { fixedHeader, scrollTop, headerHeight, keywordFilter } = this.state;
+    const { keywordSearch } = this.props;
+    const { fixedHeader, scrollTop, headerHeight } = this.state;
     const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
     const contentStyle = fixedHeader ? { marginTop: headerHeight || 0 } : null;
     const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
@@ -589,7 +715,7 @@ class OperatorHub extends React.Component {
               }}
               searchCallback={this.onSearch}
               clearSearch={this.clearSearch}
-              searchValue={keywordFilter}
+              searchValue={keywordSearch}
               headerRef={this.setHeaderRef}
               topBarRef={this.setTopBarRef}
             />
@@ -613,7 +739,15 @@ OperatorHub.propTypes = {
     push: PropTypes.func.isRequired,
     replace: PropTypes.func.isRequired
   }).isRequired,
-  fetchOperators: PropTypes.func
+  fetchOperators: PropTypes.func,
+  viewType: PropTypes.string,
+  activeFilters: PropTypes.object,
+  keywordSearch: PropTypes.string,
+  sortType: PropTypes.string,
+  storeActiveFilters: PropTypes.func,
+  storeKeywordSearch: PropTypes.func,
+  storeSortType: PropTypes.func,
+  storeViewType: PropTypes.func
 };
 
 OperatorHub.defaultProps = {
@@ -621,15 +755,44 @@ OperatorHub.defaultProps = {
   error: false,
   errorMessage: '',
   pending: false,
-  fetchOperators: helpers.noop
+  fetchOperators: helpers.noop,
+  activeFilters: [],
+  keywordSearch: '',
+  viewType: '',
+  sortType: '',
+  storeActiveFilters: helpers.noop,
+  storeKeywordSearch: helpers.noop,
+  storeSortType: helpers.noop,
+  storeViewType: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
-  fetchOperators: () => dispatch(fetchOperators())
+  fetchOperators: () => dispatch(fetchOperators()),
+  storeActiveFilters: activeFilters =>
+    dispatch({
+      type: reduxConstants.SET_ACTIVE_FILTERS,
+      activeFilters
+    }),
+  storeKeywordSearch: keywordSearch =>
+    dispatch({
+      type: reduxConstants.SET_KEYWORD_SEARCH,
+      keywordSearch
+    }),
+  storeSortType: sortType =>
+    dispatch({
+      type: reduxConstants.SET_SORT_TYPE,
+      sortType
+    }),
+  storeViewType: viewType =>
+    dispatch({
+      type: reduxConstants.SET_VIEW_TYPE,
+      viewType
+    })
 });
 
 const mapStateToProps = state => ({
-  ...state.operatorsState
+  ...state.operatorsState,
+  ...state.viewState
 });
 
 export default connect(
