@@ -2,19 +2,23 @@
   overflow-x: hidden;
 }
 
-.oh-operator-page {
+.oh-page.oh-page-operator {
   background-color: $color-pf-white;
-  box-shadow: 0 0.0625rem 0.125rem 0 rgba(3,3,3,.2);
+}
+
+.oh-operator-page {
   display: flex;
   flex-direction: row;
-  padding: 30px 15px;
+  padding: 30px 15px 0;
 
   &__toolbar {
     display: flex;
+    border-bottom: 1px solid $oh-color-rule;
+    background-color: $page-bg-color;
     flex-direction: row;
-    margin: 10px 35px 10px 15px;
+    padding: 10px 35px 10px 15px;
     .breadcrumb {
-      margin-top: 4px;
+      margin: 0 15px;
       flex: 1;
     }
   }

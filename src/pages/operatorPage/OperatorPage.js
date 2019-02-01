@@ -234,11 +234,11 @@ class OperatorPage extends React.Component {
     const { fixedHeader, scrollTop, searchValue, headerHeight } = this.state;
     const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
     const contentStyle = fixedHeader ? { marginTop: headerHeight || 0 } : null;
-    const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
+    const pageClasses = classNames('oh-page oh-page-operator', { 'oh-page-fixed-header': fixedHeader });
     return (
       <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
         <div className={pageClasses}>
-          <div className="oh-page__content">
+          <div className="oh-page__content oh-page__content-operator">
             <OperatorHeader
               operator={operator}
               style={headStyle}

@@ -1,0 +1,85 @@
+.oh-footer {
+
+  &__top-bar {
+    border-top: 1px solid $oh-color-rule;
+    margin-top: 60px;
+    padding: 18px 0;
+    background-color: $color-pf-white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    > h3 {
+      margin: 0;
+      padding-right: 30px;
+    }
+  }
+
+  &__contents {
+    background-color: #333f52;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 60px;
+    &-left {
+      width: 380px;
+      &__logo {
+        height: 60px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+      }
+      &__text {
+        color: $color-pf-white;
+        margin-bottom: 30px;
+      }
+    }
+    &-right {
+
+      &__logo {
+        height: 26px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+      }
+
+      &__links {
+        display: flex;
+        flex-direction: row;
+
+        &__list {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          padding-right: 60px;
+
+          &__header {
+            color: $color-pf-white;
+          }
+
+          > a {
+            white-space: nowrap;
+            margin-bottom: 5px;
+          }
+
+          &__social {
+            > a {
+              margin-right: 20px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &__button {
+    border: 2px solid $color-pf-white;
+    border-radius: 4px;
+    color: $color-pf-white;
+    padding: 5px 20px 8px;
+    &:hover, &:focus {
+      border-color: $color-pf-black-100;
+      color: $color-pf-black-100;
+      border: 2px solid $color-pf-white;
+
+    }
+  }
+}

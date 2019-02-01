@@ -87,10 +87,8 @@ class HeaderTopBar extends React.Component {
             id="header-contribute-dropdown"
             pullRight
           >
-            <MenuItem eventKey={0}>Contribute Item 1</MenuItem>
-            <MenuItem eventKey={1}>Contribute Item 2</MenuItem>
-            <MenuItem eventKey={2}>Contribute Item 3</MenuItem>
-            <MenuItem eventKey={3}>Contribute Item 4</MenuItem>
+            <MenuItem eventKey={0}>Submit your Operator</MenuItem>
+            <MenuItem eventKey={1}>Create an Operator with the SDK</MenuItem>
           </DropdownButton>
         </div>
         <div className="oh-hub-header__top-bar__xs-search">

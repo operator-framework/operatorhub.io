@@ -108,7 +108,7 @@ const fetchOperators = operatorName => dispatch => {
         return;
       }
 
-      fetchOperator(operatorName);
+      fetchOperator(operatorName, dispatch);
       return;
     }
 
@@ -156,7 +156,7 @@ const fetchOperators = operatorName => dispatch => {
               return;
             }
 
-            fetchOperator(operatorName);
+            fetchOperator(operatorName, dispatch);
           }
         })
         .catch(error => {
