@@ -569,6 +569,7 @@ class OperatorHub extends React.Component {
         iconImg={imgUrl}
         vendor={vendor}
         description={description || longDescription}
+        href={`${window.location.origin}/${name}`}
         onClick={e => this.openDetails(e, item)}
       />
     );
@@ -707,23 +708,23 @@ class OperatorHub extends React.Component {
     return (
       <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
         <div className={pageClasses}>
+          <HubHeader
+            style={headStyle}
+            onWheel={e => {
+              this.onHeaderWheel(e);
+            }}
+            onSearchChange={this.onSearch}
+            clearSearch={this.clearSearch}
+            searchValue={keywordSearch}
+            headerRef={this.setHeaderRef}
+            topBarRef={this.setTopBarRef}
+          />
           <div className="oh-page__content">
-            <HubHeader
-              style={headStyle}
-              onWheel={e => {
-                this.onHeaderWheel(e);
-              }}
-              onSearchChange={this.onSearch}
-              clearSearch={this.clearSearch}
-              searchValue={keywordSearch}
-              headerRef={this.setHeaderRef}
-              topBarRef={this.setTopBarRef}
-            />
             <div className="oh-content oh-content-hub" style={contentStyle}>
               {this.renderView()}
             </div>
-            <Footer />
           </div>
+          <Footer />
         </div>
       </div>
     );

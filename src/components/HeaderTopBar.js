@@ -21,6 +21,11 @@ class HeaderTopBar extends React.Component {
     }
   }
 
+  onLogoClick = e => {
+    e.preventDefault();
+    this.props.onHome(e);
+  };
+
   onSearchKeyPress = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -78,7 +83,9 @@ class HeaderTopBar extends React.Component {
     return (
       <div className="oh-hub-header__top-bar" ref={this.props.barRef}>
         <div className="oh-hub-header__top-bar__content">
-          <img className="oh-hub-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />
+          <a href={window.location.origin} onClick={e => this.onLogoClick(e)}>
+            <img className="oh-hub-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />
+          </a>
           <span className="oh-hub-header__top-bar__spacer" />
           <form className="oh-hub-header__top-bar__search-form search-pf hidden-xs">{this.renderSearchForm()}</form>
           <DropdownButton
@@ -100,6 +107,7 @@ class HeaderTopBar extends React.Component {
 }
 
 HeaderTopBar.propTypes = {
+  onHome: PropTypes.func,
   searchValue: PropTypes.string,
   onSearchChange: PropTypes.func,
   searchCallback: PropTypes.func,
@@ -108,6 +116,7 @@ HeaderTopBar.propTypes = {
 };
 
 HeaderTopBar.defaultProps = {
+  onHome: helpers.noop,
   searchValue: '',
   onSearchChange: helpers.noop,
   searchCallback: helpers.noop,

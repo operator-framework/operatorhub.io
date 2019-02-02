@@ -4,21 +4,33 @@ import PropTypes from 'prop-types';
 import { helpers } from '../../common/helpers';
 import { HeaderTopBar } from '../../components/HeaderTopBar';
 
-const OperatorHeader = ({ operator, searchValue, searchCallback, clearSearch, headerRef, topBarRef, ...props }) => (
+const OperatorHeader = ({
+  operator,
+  onHome,
+  searchValue,
+  searchCallback,
+  clearSearch,
+  headerRef,
+  topBarRef,
+  ...props
+}) => (
   <div className="oh-header oh-operator-header" ref={headerRef} {...props}>
-    <HeaderTopBar
-      searchCallback={searchCallback}
-      clearSearch={clearSearch}
-      searchValue={searchValue}
-      barRef={topBarRef}
-    />
-    <div className="oh-header__content">
-      <div className="oh-operator-header__content__image-container">
-        <img className="oh-operator-header__content__image" src={operator.imgUrl} alt="" />
-      </div>
-      <div className="oh-operator-header__content__info">
-        <h1 className="oh-operator-header__content__title oh-hero">{operator.name}</h1>
-        <div className="oh-operator-header__content__description">{operator.description}</div>
+    <div className="oh-header__inner">
+      <HeaderTopBar
+        onHome={onHome}
+        searchCallback={searchCallback}
+        clearSearch={clearSearch}
+        searchValue={searchValue}
+        barRef={topBarRef}
+      />
+      <div className="oh-header__content">
+        <div className="oh-operator-header__content__image-container">
+          <img className="oh-operator-header__content__image" src={operator.imgUrl} alt="" />
+        </div>
+        <div className="oh-operator-header__content__info">
+          <h1 className="oh-operator-header__content__title oh-hero">{operator.name}</h1>
+          <div className="oh-operator-header__content__description">{operator.description}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -26,6 +38,7 @@ const OperatorHeader = ({ operator, searchValue, searchCallback, clearSearch, he
 
 OperatorHeader.propTypes = {
   operator: PropTypes.object,
+  onHome: PropTypes.func,
   searchValue: PropTypes.string,
   searchCallback: PropTypes.func.isRequired,
   clearSearch: PropTypes.func.isRequired,
@@ -35,6 +48,7 @@ OperatorHeader.propTypes = {
 
 OperatorHeader.defaultProps = {
   operator: {},
+  onHome: helpers.noop,
   searchValue: '',
   headerRef: helpers.noop,
   topBarRef: helpers.noop

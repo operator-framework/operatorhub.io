@@ -1,4 +1,8 @@
 .oh-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 
   &__top-bar {
     border-top: 1px solid $oh-color-rule;
@@ -7,8 +11,8 @@
     background-color: $color-pf-white;
     display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: center;
+    width: 100%;
     > h3 {
       margin: 0;
       padding-right: 30px;
@@ -18,11 +22,40 @@
   &__contents {
     background-color: #333f52;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 60px;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+
+    &__inner {
+      display: flex;
+      flex-direction: column;
+      padding: 60px 30px;
+      width: 100%;
+
+      @media (min-width: $screen-sm-min) {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      @media (min-width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+        width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+      }
+      @media (min-width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+        width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+      }
+      @media (min-width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+        width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+      }
+    }
+
     &-left {
-      width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      @media (min-width: $screen-sm-min) {
+        align-items: flex-start;
+      };
+
       &__logo {
         height: 60px;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -31,9 +64,19 @@
       &__text {
         color: $color-pf-white;
         margin-bottom: 30px;
+        max-width: 380px;
       }
     }
     &-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 60px;
+
+      @media (min-width: $screen-sm-min) {
+        align-items: flex-start;
+        margin-top: 0;
+      }
 
       &__logo {
         height: 26px;
@@ -49,7 +92,10 @@
           display: flex;
           flex: 1;
           flex-direction: column;
-          padding-right: 60px;
+          padding-right: 80px;
+          &:last-of-type {
+            padding-right: 0;
+          }
 
           &__header {
             color: $color-pf-white;
