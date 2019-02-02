@@ -101,12 +101,7 @@
     border-radius: 5px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
     &:hover, &:focus {
-      margin: -5px 5px 5px -5px;
-      width: 235px;
-      height: 245px;
-      .catalog-tile-pf-body {
-        padding-right: 15px;
-      }
+      box-shadow: 0 6px 12px rgba(0,0,0,0.12)
     }
   }
 }
@@ -164,6 +159,10 @@
     &:visited {
       color: inherit;
       text-decoration: none;
+    }
+
+    &:hover, &:focus {
+      box-shadow: 0 6px 12px rgba(0,0,0,0.12)
     }
   }
 }
