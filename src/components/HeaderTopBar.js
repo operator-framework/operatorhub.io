@@ -29,6 +29,7 @@ class HeaderTopBar extends React.Component {
   };
 
   onSearchChange = e => {
+    this.props.onSearchChange(e.target.value);
     this.setState({ searchValue: e.target.value });
   };
 
@@ -102,13 +103,16 @@ class HeaderTopBar extends React.Component {
 
 HeaderTopBar.propTypes = {
   searchValue: PropTypes.string,
-  searchCallback: PropTypes.func.isRequired,
+  onSearchChange: PropTypes.func,
+  searchCallback: PropTypes.func,
   clearSearch: PropTypes.func.isRequired,
   barRef: PropTypes.func
 };
 
 HeaderTopBar.defaultProps = {
   searchValue: '',
+  onSearchChange: helpers.noop,
+  searchCallback: helpers.noop,
   barRef: helpers.noop
 };
 
