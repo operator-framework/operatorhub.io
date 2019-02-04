@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { HeaderTopBar } from '../../components/HeaderTopBar';
 import { helpers } from '../../common/helpers';
 
-const HubHeader = ({ searchCallback, clearSearch, searchValue, headerRef, topBarRef, ...props }) => (
+const HubHeader = ({ onSearchChange, clearSearch, searchValue, headerRef, topBarRef, ...props }) => (
   <div className="oh-header oh-hub-header" ref={headerRef} {...props}>
     <HeaderTopBar
-      searchCallback={searchCallback}
+      onSearchChange={onSearchChange}
       clearSearch={clearSearch}
       searchValue={searchValue}
       barRef={topBarRef}
@@ -25,7 +25,7 @@ const HubHeader = ({ searchCallback, clearSearch, searchValue, headerRef, topBar
 );
 
 HubHeader.propTypes = {
-  searchCallback: PropTypes.func.isRequired,
+  onSearchChange: PropTypes.func.isRequired,
   clearSearch: PropTypes.func.isRequired,
   searchValue: PropTypes.string,
   headerRef: PropTypes.func,

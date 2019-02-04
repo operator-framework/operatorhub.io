@@ -713,7 +713,7 @@ class OperatorHub extends React.Component {
               onWheel={e => {
                 this.onHeaderWheel(e);
               }}
-              searchCallback={this.onSearch}
+              onSearchChange={this.onSearch}
               clearSearch={this.clearSearch}
               searchValue={keywordSearch}
               headerRef={this.setHeaderRef}
