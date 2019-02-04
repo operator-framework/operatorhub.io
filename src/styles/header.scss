@@ -20,7 +20,8 @@
   background-image: url("../imgs/header-bg.png");
   background-image: url("../imgs/header-bg.png"), linear-gradient(to right, #134F77, #2C95B5);
   background-repeat: repeat;
-  background-position: center;
+  background-position-x: left;
+  background-position-y : top;
   color: $color-pf-white;
   display: flex;
   flex-direction: column;
