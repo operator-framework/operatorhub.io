@@ -14,9 +14,7 @@ const HubHeader = ({ onSearchChange, clearSearch, searchValue, headerRef, topBar
         barRef={topBarRef}
       />
       <div className="oh-header__content">
-        <h1 className="oh-hub-header__content__title oh-hero">
-          Welcome to OperatorHub
-        </h1>
+        <h1 className="oh-hub-header__content__title oh-hero">Welcome to OperatorHub</h1>
         <p className="oh-hub-header__content__sub-title">
           Operators deliver the automation advantages of cloud services like provisioning, scaling, and backup/restore
           while being able to run anywhere that Kubernetes can run.

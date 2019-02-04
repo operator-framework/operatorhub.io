@@ -31,14 +31,14 @@
 
   .oh-page__content {
     width: 100%;
-    @media (min-width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-      width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    @media (min-width: $oh-width-3-tile-min) {
+      width: $oh-content-width-3-tiles;
     }
-    @media (min-width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-      width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    @media (min-width: $oh-width-4-tile-min) {
+      width: $oh-content-width-4-tiles;
     }
-    @media (min-width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-      width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    @media (min-width: $oh-width-5-tile-min) {
+      width: $oh-content-width-5-tiles;
     }
   }
 

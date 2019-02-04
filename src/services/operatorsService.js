@@ -8,10 +8,13 @@ import { normalizeOperators, getVersionedOperators } from '../utils/operatorUtil
 import { mockOperators } from '../__mock__/operators';
 
 const gitHubURL = 'https://api.github.com';
-const operatorsRepo = `operator-framework/community-operators`;
+const operatorsRepoOwner = `operator-framework`;
+const operatorsRepoProject = `community-operators`;
+const operatorsRepo = `${operatorsRepoOwner}/${operatorsRepoProject}`;
+const operatorsDirectory = `community-operators`;
 const operatorFileQuery = `*.clusterserviceversion.yaml`;
 
-const allOperatorsRequest = `${gitHubURL}/search/code?q=repo:${operatorsRepo}+path:community-operators+filename:${operatorFileQuery}`;
+const allOperatorsRequest = `${gitHubURL}/search/code?q=repo:${operatorsRepo}+path:${operatorsDirectory}+filename:${operatorFileQuery}`;
 const operatorContentsURL = `${gitHubURL}/repos/${operatorsRepo}/contents`;
 
 // Refresh data after 20 minutes
