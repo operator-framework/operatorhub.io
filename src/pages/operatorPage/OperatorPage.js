@@ -41,10 +41,10 @@ class OperatorPage extends React.Component {
     this.props.fetchOperators(_.get(match, 'params.operatorId'));
   }
 
-  onHome(e) {
+  onHome = e => {
     e.preventDefault();
     this.props.history.push('/');
-  }
+  };
 
   onSearch = searchValue => {
     if (searchValue) {
@@ -117,6 +117,22 @@ class OperatorPage extends React.Component {
     );
   };
 
+  renderToolbar() {
+    const { operator } = this.state;
+    return (
+      <div className="oh-operator-page__toolbar">
+        <div className="oh-operator-page__toolbar__inner">
+          <Breadcrumb>
+            <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
+              Home
+            </Breadcrumb.Item>
+            <Breadcrumb.Item active>{operator.name}</Breadcrumb.Item>
+          </Breadcrumb>
+        </div>
+      </div>
+    );
+  }
+
   renderDetails() {
     const { error, pending } = this.props;
     const { operator } = this.state;
@@ -187,45 +203,35 @@ class OperatorPage extends React.Component {
     const createdString = createdAt && `${createdAt}`;
 
     return (
-      <React.Fragment>
-        <div className="oh-operator-page__toolbar">
-          <Breadcrumb>
-            <Breadcrumb.Item onClick={e => this.onHome(e)} href="#">
-              Home
-            </Breadcrumb.Item>
-            <Breadcrumb.Item active>{name}</Breadcrumb.Item>
-          </Breadcrumb>
+      <div className="oh-operator-page">
+        <div className="oh-operator-page__content row">
+          <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9} className="oh-operator-page__side-panel">
+            <a
+              className="oh-operator-page__side-panel__button oh-operator-page__side-panel__button-primary"
+              href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get Started
+            </a>
+            <div className="oh-operator-page__side-panel__separator" />
+            <PropertiesSidePanel>
+              <PropertyItem label="Operator Version" value={versionComponent} />
+              <PropertyItem label="Operator Maturity" value={maturity || notAvailable} />
+              <PropertyItem label="Provider" value={provider || notAvailable} />
+              <PropertyItem label="Links" value={linksComponent} />
+              <PropertyItem label="Repository" value={repository || notAvailable} />
+              <PropertyItem label="Container Image" value={containerImage || notAvailable} />
+              <PropertyItem label="Created At" value={createdString || notAvailable} />
+              <PropertyItem label="Maintainers" value={maintainersComponent} />
+            </PropertiesSidePanel>
+          </Grid.Col>
+          <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
+            <h1>{name}</h1>
+            {longDescription && <MarkdownView content={longDescription} outerScroll />}
+          </Grid.Col>
         </div>
-        <div className="oh-operator-page">
-          <div className="oh-operator-page__content row">
-            <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9} className="oh-operator-page__side-panel">
-              <a
-                className="oh-operator-page__side-panel__button oh-operator-page__side-panel__button-primary"
-                href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Get Started
-              </a>
-              <div className="oh-operator-page__side-panel__separator" />
-              <PropertiesSidePanel>
-                <PropertyItem label="Operator Version" value={versionComponent} />
-                <PropertyItem label="Operator Maturity" value={maturity || notAvailable} />
-                <PropertyItem label="Provider" value={provider || notAvailable} />
-                <PropertyItem label="Links" value={linksComponent} />
-                <PropertyItem label="Repository" value={repository || notAvailable} />
-                <PropertyItem label="Container Image" value={containerImage || notAvailable} />
-                <PropertyItem label="Created At" value={createdString || notAvailable} />
-                <PropertyItem label="Maintainers" value={maintainersComponent} />
-              </PropertiesSidePanel>
-            </Grid.Col>
-            <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
-              <h1>{name}</h1>
-              {longDescription && <MarkdownView content={longDescription} outerScroll />}
-            </Grid.Col>
-          </div>
-        </div>
-      </React.Fragment>
+      </div>
     );
   }
 
@@ -234,28 +240,30 @@ class OperatorPage extends React.Component {
     const { fixedHeader, scrollTop, searchValue, headerHeight } = this.state;
     const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
     const contentStyle = fixedHeader ? { marginTop: headerHeight || 0 } : null;
-    const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
+    const pageClasses = classNames('oh-page oh-page-operator', { 'oh-page-fixed-header': fixedHeader });
     return (
       <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
         <div className={pageClasses}>
-          <div className="oh-page__content">
-            <OperatorHeader
-              operator={operator}
-              style={headStyle}
-              searchCallback={this.onSearch}
-              clearSearch={this.clearSearch}
-              searchValue={searchValue}
-              onWheel={e => {
-                this.onHeaderWheel(e);
-              }}
-              headerRef={this.setHeaderRef}
-              topBarRef={this.setTopBarRef}
-            />
+          <OperatorHeader
+            operator={operator}
+            style={headStyle}
+            onHome={this.onHome}
+            searchCallback={this.onSearch}
+            clearSearch={this.clearSearch}
+            searchValue={searchValue}
+            onWheel={e => {
+              this.onHeaderWheel(e);
+            }}
+            headerRef={this.setHeaderRef}
+            topBarRef={this.setTopBarRef}
+          />
+          {this.renderToolbar()}
+          <div className="oh-page__content oh-page__content-operator">
             <div className="oh-content oh-content-operator" style={contentStyle}>
               {this.renderDetails()}
             </div>
-            <Footer />
           </div>
+          <Footer />
         </div>
       </div>
     );

@@ -8,6 +8,12 @@
   left: 0;
   right: 0;
   z-index: 1000;
+
+  .oh-hub-header__top-bar__content .dropdown-menu {
+    position: fixed;
+    right: 49px;
+    top: 55px;
+  }
 }
 
 .oh-header {
@@ -18,13 +24,32 @@
   color: $color-pf-white;
   display: flex;
   flex-direction: column;
+  align-items: center;
   overflow-x: hidden;
   padding: 0 15px;
+  width: 100%;
 
-  .oh-hub-header__top-bar {
-
+  &__inner {
     display: flex;
     flex-direction: column;
+    padding: 0 15px;
+    position: relative;
+    width: 100%;
+    @media (min-width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+      width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    }
+    @media (min-width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+      width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    }
+    @media (min-width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
+      width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    }
+  }
+
+  .oh-hub-header__top-bar {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 
     &__content {
       display: flex;
@@ -116,12 +141,13 @@
   }
 }
 
-.oh-page-fixed-header .oh-header {
+.oh-page-fixed-header .oh-header__inner {
   flex-direction: column-reverse;
 }
 
 .oh-hub-header {
   .oh-header__content {
+    width: 100%;
     h1 {
       text-align: center;
       .title {
