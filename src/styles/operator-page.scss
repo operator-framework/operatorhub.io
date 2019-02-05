@@ -4,7 +4,17 @@
 
 .oh-page.oh-page-operator {
   background-color: $color-pf-white;
+  &.oh-page-fixed-header {
+    .oh-operator-page__toolbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+  }
 }
+
 
 .oh-operator-page {
   display: flex;
@@ -19,17 +29,20 @@
     background-color: $page-bg-color;
     padding: 10px 35px 10px 15px;
     width: 100%;
+
     &__inner {
       display: flex;
       flex-direction: row;
-      @media (min-width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-        width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+      width: 100%;
+
+      @media (min-width: $oh-width-3-tile-min) {
+        width: $oh-content-width-3-tiles;
       }
-      @media (min-width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-        width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+      @media (min-width: $oh-width-4-tile-min) {
+        width: $oh-content-width-4-tiles;
       }
-      @media (min-width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-        width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+      @media (min-width: $oh-width-5-tile-min) {
+        width: $oh-content-width-5-tiles;
       }
     }
     .breadcrumb {

@@ -11,8 +11,24 @@
 
   .oh-hub-header__top-bar__content .dropdown-menu {
     position: fixed;
-    right: 49px;
-    top: 55px;
+    right: 45px;
+    top: 42px;
+
+    @media (min-width: $screen-sm-min) {
+      top: 55px;
+    }
+
+    @media (min-width: $oh-width-3-tile-min) {
+      right: calc(((100% - #{$oh-content-width-3-tiles}) / 2) + 23px);
+    }
+    @media (min-width: $oh-width-4-tile-min) {
+      right: calc(100% - #{$oh-content-width-4-tiles});
+      right: calc(((100% - #{$oh-content-width-4-tiles}) / 2) + 23px);
+    }
+    @media (min-width: $oh-width-5-tile-min) {
+      right: calc(100% - #{$oh-content-width-5-tiles});
+      right: calc(((100% - #{$oh-content-width-5-tiles}) / 2) + 23px);
+    }
   }
 }
 
@@ -36,14 +52,14 @@
     padding: 0 15px;
     position: relative;
     width: 100%;
-    @media (min-width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-      width: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    @media (min-width: $oh-width-3-tile-min) {
+      width: $oh-content-width-3-tiles;
     }
-    @media (min-width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-      width: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    @media (min-width: $oh-width-4-tile-min) {
+      width: $oh-content-width-4-tiles;
     }
-    @media (min-width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 35px)) {
-      width: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+    @media (min-width: $oh-width-5-tile-min) {
+      width: $oh-content-width-5-tiles;
     }
   }
 
@@ -131,7 +147,10 @@
     .dropdown-menu {
       font-size: inherit;
       font-weight: inherit;
-      margin-top: -13px;
+
+      @media (min-width: $screen-sm-min) {
+        margin-top: -14px;
+      }
     }
   }
   .oh-header__content {

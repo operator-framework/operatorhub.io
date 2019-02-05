@@ -67,13 +67,14 @@ class OperatorPage extends React.Component {
     const { scrollTop, scrollHeight, clientHeight } = scrollEvent.currentTarget;
     const scrollSpace = scrollHeight - clientHeight;
     const headerHeight = this.headerRef.clientHeight;
+    const toolbarHeight = this.toolbarRef.clientHeight;
 
     if (scrollSpace > headerHeight) {
       const topBarHeight = this.topBarRef.clientHeight;
       const top = scrollTop - headerHeight + topBarHeight;
       const fixedHeightThreshold = headerHeight - this.topBarRef.clientHeight;
 
-      this.setState({ fixedHeader: scrollTop > fixedHeightThreshold, scrollTop: top, headerHeight });
+      this.setState({ fixedHeader: scrollTop > fixedHeightThreshold, scrollTop: top, headerHeight, toolbarHeight });
       return;
     }
 
@@ -94,6 +95,10 @@ class OperatorPage extends React.Component {
 
   setTopBarRef = ref => {
     this.topBarRef = ref;
+  };
+
+  setToolbarRef = ref => {
+    this.toolbarRef = ref;
   };
 
   renderPendingMessage = () => (
@@ -118,9 +123,11 @@ class OperatorPage extends React.Component {
   };
 
   renderToolbar() {
-    const { operator } = this.state;
+    const { fixedHeader, scrollTop, headerHeight, operator } = this.state;
+    const toolbarStyle = fixedHeader ? { top: scrollTop || 0, marginTop: headerHeight || 0 } : null;
+
     return (
-      <div className="oh-operator-page__toolbar">
+      <div className="oh-operator-page__toolbar" style={toolbarStyle} ref={this.setToolbarRef}>
         <div className="oh-operator-page__toolbar__inner">
           <Breadcrumb>
             <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
@@ -237,9 +244,9 @@ class OperatorPage extends React.Component {
 
   render() {
     const { operator } = this.props;
-    const { fixedHeader, scrollTop, searchValue, headerHeight } = this.state;
+    const { fixedHeader, scrollTop, searchValue, headerHeight, toolbarHeight } = this.state;
     const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
-    const contentStyle = fixedHeader ? { marginTop: headerHeight || 0 } : null;
+    const contentStyle = fixedHeader ? { marginTop: headerHeight + toolbarHeight || 0 } : null;
     const pageClasses = classNames('oh-page oh-page-operator', { 'oh-page-fixed-header': fixedHeader });
     return (
       <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
