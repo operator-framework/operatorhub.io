@@ -224,24 +224,27 @@ class OperatorHub extends React.Component {
     this.refresh();
 
     const searchParams = new URLSearchParams(window.location.search);
+    const urlKeyword = searchParams.get(KEYWORD_URL_PARAM);
+    const urlViewType = searchParams.get(VIEW_TYPE_URL_PARAM);
+    const urlVSortType = searchParams.get(SORT_TYPE_URL_PARAM);
 
-    if (!_.isEmpty(activeFilters) || !_.isEmpty(keywordSearch)) {
-      this.updateFiltersURL();
-    } else {
+    if (urlKeyword || this.filtersInURL()) {
       storeActiveFilters(this.getActiveValuesFromURL(defaultFilters, operatorHubFilterGroups));
-      storeKeywordSearch(searchParams.get(KEYWORD_URL_PARAM) || '');
+      storeKeywordSearch(urlKeyword || '');
+    } else {
+      this.updateFiltersURL(keywordSearch, activeFilters);
     }
 
-    if (!_.isEmpty(viewType)) {
+    if (urlViewType) {
+      storeViewType(urlViewType);
+    } else if (viewType) {
       this.updateURLParams(VIEW_TYPE_URL_PARAM, viewType);
-    } else {
-      storeViewType(searchParams.get(VIEW_TYPE_URL_PARAM) || '');
     }
 
-    if (!_.isEmpty(sortType)) {
+    if (urlVSortType) {
+      storeSortType(urlVSortType);
+    } else if (sortType) {
       this.updateURLParams(SORT_TYPE_URL_PARAM, sortType);
-    } else {
-      storeSortType(searchParams.get(SORT_TYPE_URL_PARAM) || '');
     }
 
     this.updateFilteredItems();
@@ -252,7 +255,7 @@ class OperatorHub extends React.Component {
 
     if (!_.isEqual(activeFilters, prevProps.activeFilters) || keywordSearch !== prevProps.keywordSearch) {
       this.updateFilteredItems();
-      this.updateFiltersURL();
+      this.updateFiltersURL(keywordSearch, activeFilters);
     }
 
     if (!_.isEqual(operators, prevProps.operators)) {
@@ -320,13 +323,12 @@ class OperatorHub extends React.Component {
     this.setURLParams(params);
   };
 
-  clearFilterURLParams = () => {
-    const params = new URLSearchParams();
-    this.setURLParams(params);
+  filtersInURL = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    _.some(operatorHubFilterGroups, filterGroup => searchParams.get(filterGroup));
   };
 
-  updateFiltersURL = () => {
-    const { keywordSearch, activeFilters } = this.props;
+  updateFiltersURL = (keywordSearch, activeFilters) => {
     const params = new URLSearchParams(window.location.search);
 
     _.each(_.keys(activeFilters), filterType => {
@@ -377,23 +379,18 @@ class OperatorHub extends React.Component {
     return sortType === 'descending' ? _.reverse(sortedItems) : sortedItems;
   };
 
-  clearActiveFilters = activeFilters => {
-    this.clearSearch();
+  clearFilters() {
+    const { activeFilters } = this.props;
+
     // Clear the group filters
     _.each(operatorHubFilterGroups, field => {
       _.each(_.keys(activeFilters[field]), key => _.set(activeFilters, [field, key, 'active'], false));
     });
 
-    return activeFilters;
-  };
+    this.updateFiltersURL('', activeFilters);
 
-  clearFilters() {
-    const { activeFilters } = this.props;
-
-    const clearedFilters = this.clearActiveFilters(activeFilters);
-    this.clearFilterURLParams();
-
-    this.props.storeActiveFilters(clearedFilters);
+    this.props.storeActiveFilters(activeFilters);
+    this.props.storeKeywordSearch('');
   }
 
   onFilterChange = (filterType, id, value) => {
@@ -452,17 +449,14 @@ class OperatorHub extends React.Component {
   };
 
   onSearch = searchValue => {
-    const { history } = this.props;
-    const { location } = window;
-    const url = new URL(location);
     const params = new URLSearchParams();
 
     if (searchValue) {
       params.set(KEYWORD_URL_PARAM, searchValue);
+    } else {
+      params.delete(KEYWORD_URL_PARAM);
     }
-
-    const searchParams = `?${params.toString()}${url.hash}`;
-    history.replace(`${url.pathname}${searchParams}`);
+    this.setURLParams(params);
 
     this.props.storeKeywordSearch(searchValue);
   };

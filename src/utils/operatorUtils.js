@@ -38,7 +38,8 @@ const normalizeOperator = operator => {
     maintainers: spec.maintainers,
     description: _.get(annotations, 'description'),
     createdAt: annotations.createdAt,
-    containerImage: annotations.containerImage
+    containerImage: annotations.containerImage,
+    categories: annotations.categories
   };
 };
 

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 export const ExternalLink = ({ href, text, className, ...otherProps }) => (
   <a
     className={classNames('oh-external-link', className)}
-    href={href}
+    href={href.startsWith('http') ? href : `http://${href}`}
     target="_blank"
     rel="noopener noreferrer"
     {...otherProps}

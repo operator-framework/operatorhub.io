@@ -13,6 +13,8 @@ import { MarkdownView } from '../../components/MarkdownView';
 import { ExternalLink } from '../../components/ExternalLink';
 import { OperatorHeader } from './OperatorHeader';
 
+const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
+
 class OperatorPage extends React.Component {
   state = {
     operator: {},
@@ -48,7 +50,7 @@ class OperatorPage extends React.Component {
 
   onSearch = searchValue => {
     if (searchValue) {
-      this.props.history.push(`/?search=${searchValue}`);
+      this.props.history.push(`/?keyword=${searchValue}`);
       return;
     }
 
@@ -140,6 +142,9 @@ class OperatorPage extends React.Component {
     );
   }
 
+  renderPropertyItem = (label, value) =>
+    value ? <PropertyItem label={label} value={value} /> : <PropertyItem label={label} value={notAvailable} />;
+
   renderDetails() {
     const { error, pending } = this.props;
     const { operator } = this.state;
@@ -163,9 +168,9 @@ class OperatorPage extends React.Component {
       repository,
       containerImage,
       createdAt,
-      maintainers
+      maintainers,
+      categories
     } = operator;
-    const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
 
     const versionComponent =
       _.size(versions) > 1 ? (
@@ -181,20 +186,18 @@ class OperatorPage extends React.Component {
           ))}
         </DropdownButton>
       ) : (
-        <React.Fragment>{version}</React.Fragment>
+        version
       );
 
-    const linksComponent = _.size(links) ? (
+    const linksComponent = _.size(links) && (
       <React.Fragment>
         {_.map(links, link => (
           <ExternalLink key={link.name} href={link.url} text={link.name} />
         ))}
       </React.Fragment>
-    ) : (
-      notAvailable
     );
 
-    const maintainersComponent = _.size(maintainers) ? (
+    const maintainersComponent = _.size(maintainers) && (
       <React.Fragment>
         {_.map(maintainers, maintainer => (
           <React.Fragment key={maintainer.name}>
@@ -203,11 +206,11 @@ class OperatorPage extends React.Component {
           </React.Fragment>
         ))}
       </React.Fragment>
-    ) : (
-      notAvailable
     );
 
     const createdString = createdAt && `${createdAt}`;
+
+    const containerImageLink = containerImage && <ExternalLink href={containerImage} text={containerImage} />;
 
     return (
       <div className="oh-operator-page">
@@ -223,14 +226,15 @@ class OperatorPage extends React.Component {
             </a>
             <div className="oh-operator-page__side-panel__separator" />
             <PropertiesSidePanel>
-              <PropertyItem label="Operator Version" value={versionComponent} />
-              <PropertyItem label="Operator Maturity" value={maturity || notAvailable} />
-              <PropertyItem label="Provider" value={provider || notAvailable} />
-              <PropertyItem label="Links" value={linksComponent} />
-              <PropertyItem label="Repository" value={repository || notAvailable} />
-              <PropertyItem label="Container Image" value={containerImage || notAvailable} />
-              <PropertyItem label="Created At" value={createdString || notAvailable} />
-              <PropertyItem label="Maintainers" value={maintainersComponent} />
+              {this.renderPropertyItem('Operator Version', versionComponent)}
+              {this.renderPropertyItem('Operator Maturity', maturity)}
+              {this.renderPropertyItem('Provider', provider)}
+              {this.renderPropertyItem('Links', linksComponent)}
+              {this.renderPropertyItem('Repository', repository)}
+              {this.renderPropertyItem('Container Image', containerImageLink)}
+              {this.renderPropertyItem('Created At', createdString)}
+              {this.renderPropertyItem('Maintainers', maintainersComponent)}
+              {this.renderPropertyItem('Categories', categories)}
             </PropertiesSidePanel>
           </Grid.Col>
           <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
