@@ -50,7 +50,7 @@ const fetchOperator = (serverRequest, serverResponse) => {
     });
 };
 
-const fetchOperators = (serverRequest, serverResponse, next) => {
+const fetchOperators = (serverRequest, serverResponse) => {
   console.log('fetch operators');
   axios
     .get(allOperatorsRequest)

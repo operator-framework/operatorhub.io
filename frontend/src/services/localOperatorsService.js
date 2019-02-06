@@ -4,6 +4,7 @@ import { helpers } from '../common/helpers';
 import { reduxConstants } from '../redux';
 import { normalizeOperators, getVersionedOperators } from '../utils/operatorUtils';
 import { mockOperators } from '../__mock__/operators';
+import { operatorsService } from './operatorsService';
 
 const allOperatorsRequest = `/api/operators`;
 
@@ -11,6 +12,11 @@ const fetchOperators = operatorName => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
+
+  if (process.env.DEV_MODE) {
+    dispatch(operatorsService.fetchOperators(operatorName));
+    return;
+  }
 
   if (process.env.MOCK_MODE) {
     dispatch({

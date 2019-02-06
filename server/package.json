@@ -8,8 +8,8 @@
   "dependencies": {
     "Base64": "^1.0.1",
     "axios": "^0.18.0",
-    "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
+    "child_process": "^1.0.2",
     "cookie-parser": "^1.4.3",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
@@ -20,12 +20,7 @@
     "https": "^1.0.0",
     "js-base64": "^2.5.1",
     "js-yaml": "^3.12.1",
-    "log4js": "^4.0.2",
     "method-override": "^3.0.0",
-    "mongodb": "^3.1.13",
-    "mongoose": "^5.4.9",
-    "passport": "^0.4.0",
-    "passport-local-mongoose": "^5.0.1",
     "path": "^0.12.7",
     "sqlite": "^3.0.1",
     "sqlite3": "^4.0.6"

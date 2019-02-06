@@ -69,7 +69,7 @@
   "scripts": {
     "prebuild": "yarn clean",
     "build": "webpack --config webpack.prod.js",
-    "start": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js",
+    "start": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.DEV_MODE='\"true\"'",
     "mock": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.MOCK_MODE='\"true\"'",
     "lint": "eslint ./src/",
     "build:bundle-profile": "webpack --profile --json > stats.json",
