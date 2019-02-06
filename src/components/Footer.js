@@ -29,7 +29,7 @@ const Footer = ({ ...props }) => (
             target="_blank"
             rel="noopener noreferrer"
           >
-            Jump-start with our SDK
+            Jump-start with the SDK
           </a>
         </div>
         <div className="oh-footer__contents-right">
