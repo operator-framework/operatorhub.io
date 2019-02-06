@@ -8,7 +8,7 @@ import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 
 import Footer from '../../components/Footer';
 import { helpers } from '../../common/helpers';
-import { fetchOperators } from '../../services/operatorsService';
+import { fetchOperators } from '../../services/localOperatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import { ExternalLink } from '../../components/ExternalLink';
 import { OperatorHeader } from './OperatorHeader';

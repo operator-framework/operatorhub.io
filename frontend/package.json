@@ -1,10 +1,9 @@
 {
-  "name": "catalog-test-app",
+  "name": "OperatorHub.io",
   "version": "0.0.1",
-  "description": "A demo application of the patternfly react catalog components and test features.",
+  "description": "OperatorHub.io showcases community operators and provides information on operators and how to contribute.",
   "main": "index.js",
-  "repository": "https://github.com/jeff-phillips-18/catalog-test-app.git",
-  "author": "Jeff Phillips",
+  "repository": "https://github.com/operator-framework/operatorhub.io.git",
   "private": true,
   "dependencies": {
     "@patternfly/patternfly-next": "^1.0.109",

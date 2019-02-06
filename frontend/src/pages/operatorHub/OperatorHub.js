@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 import { Alert, DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { CatalogTile, FilterSidePanel } from 'patternfly-react-extensions';
 
-import { fetchOperators } from '../../services/operatorsService';
+import { fetchOperators } from '../../services/localOperatorsService';
 import { helpers } from '../../common/helpers';
 
 import Footer from '../../components/Footer';
@@ -307,7 +307,7 @@ class OperatorHub extends React.Component {
 
   setURLParams = params => {
     const url = new URL(window.location);
-    const searchParams = `?${params.toString()}${url.hash}`;
+    const searchParams = `?${params.toString()}`;
 
     this.props.history.replace(`${url.pathname}${searchParams}`);
   };
@@ -435,7 +435,7 @@ class OperatorHub extends React.Component {
 
   openDetails = (event, operator) => {
     event.preventDefault();
-    this.props.history.push(`/${operator.name}`);
+    this.props.history.push(`/operator/${operator.name}`);
   };
 
   updateViewType = viewType => {
