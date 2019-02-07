@@ -2,6 +2,7 @@ const fs = require('fs');
 const express = require('express');
 const http = require('http');
 const https = require('https');
+const selfSignedHttps = require('self-signed-https');
 const forceSSL = require('express-force-ssl');
 const _ = require('lodash');
 
@@ -29,27 +30,29 @@ const serverStart = err => {
   if (err) {
     console.error(`Error loading operators: ${_.get(err, 'response.data.message', err)}`);
   }
-  server.listen(app.get('port'), () => {
+
+  app.listen(app.get('port'), () => {
     console.log(`Express server listening on port ${app.get('port')}`);
   });
 
-  // secureServer.listen(app.get('secureport'), () => {
-  //   console.log(`Express secure server listening on port ${app.get('secureport')}`);
-  // });
+  selfSignedHttps(app).listen(app.get('secureport'), () => {
+    console.log(`Express secure server listening on port ${app.get('secureport')}`);
+  });
+
+  app.use(forceSSL);
+};
+
+// TO be used when we have a valid signed certificate
+const setupSSL = () => {
+  const secureOptions = {
+    key: fs.readFileSync(`${keysDirectory}/operatorhub.key`),
+    cert: fs.readFileSync(`${keysDirectory}/operatorhub.crt`)
+  };
+
+  const secureServer = https.createServer(secureOptions, app);
 };
 
 setupApp();
-
-// const secureOptions = {
-//   key: fs.readFileSync(`${keysDirectory}/operator-hub-key.pem`),
-//   cert: fs.readFileSync(`${keysDirectory}/operator-hub-cert.pem`)
-// };
-
-// Create HTTP server and listen on port 8000 for requests
-// const secureServer = https.createServer(secureOptions, app);
-const server = http.createServer(app);
-
-// app.use(forceSSL);
 
 const populateDBMock = () => {
   persistentStore.setOperators(mockOperators);

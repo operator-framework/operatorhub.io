@@ -23,6 +23,7 @@
     "lodash": "^4.17.11",
     "method-override": "^3.0.0",
     "path": "^0.12.7",
+    "self-signed-https": "^1.0.5",
     "sqlite": "^3.0.1",
     "sqlite3": "^4.0.6"
   },

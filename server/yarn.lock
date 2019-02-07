@@ -921,6 +921,10 @@ sax@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
 
+self-signed-https@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/self-signed-https/-/self-signed-https-1.0.5.tgz#1c02b6f01219fe81cd53dfb7cbe2118c3bfd1935"
+
 semver@^5.3.0:
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.6.0.tgz#7e74256fbaa49c75aa7c7a205cc22799cac80004"
