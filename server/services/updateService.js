@@ -1,3 +1,5 @@
+const loadService = require('./loadService');
+
 const { exec } = require('child_process');
 
 const updateLocalOperators = (serverRequest, serverResponse) => {
@@ -12,6 +14,14 @@ const updateLocalOperators = (serverRequest, serverResponse) => {
     console.log(`stdout: ${stdout}`);
     console.log(`stderr: ${stderr}`);
     serverResponse.send(stdout);
+
+    loadService.loadOperators(loadError => {
+      if (loadError) {
+        console.dir(loadError);
+      } else {
+        console.log('Operators have been updated');
+      }
+    });
   });
 };
 

@@ -12,8 +12,6 @@
     "classnames": "^2.2.5",
     "connected-react-router": "^4.3.0",
     "history": "^4.7.2",
-    "js-base64": "^2.4.5",
-    "js-yaml": "3.x",
     "lodash-es": "4.x",
     "numeral": "^2.0.6",
     "patternfly": "^3.59.0",

@@ -1,184 +1,69 @@
 import axios from 'axios';
 import * as _ from 'lodash-es';
-import { Base64 } from 'js-base64';
-import yaml from 'js-yaml';
 import { helpers } from '../common/helpers';
 import { reduxConstants } from '../redux';
-import { normalizeOperators, getVersionedOperators } from '../utils/operatorUtils';
+import { getVersionedOperators } from '../utils/operatorUtils';
 import { mockOperators } from '../__mock__/operators';
 
-const gitHubURL = 'https://api.github.com';
-const operatorsRepoOwner = `operator-framework`;
-const operatorsRepoProject = `community-operators`;
-const operatorsRepo = `${operatorsRepoOwner}/${operatorsRepoProject}`;
-const operatorsDirectory = `community-operators`;
-const operatorFileQuery = `*.clusterserviceversion.yaml`;
+const serverHost = process.env.DEV_HOST || 'localhost';
+const serverPort = process.env.DEV_PORT || 9443;
+const serverURL = `https://${serverHost}:${serverPort}`;
 
-const allOperatorsRequest = `${gitHubURL}/search/code?q=repo:${operatorsRepo}+path:${operatorsDirectory}+filename:${operatorFileQuery}`;
-const operatorContentsURL = `${gitHubURL}/repos/${operatorsRepo}/contents`;
+const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/api/operators` : `/api/operators`;
+const operatorRequest = process.env.DEV_MODE ? `${serverURL}/api/operator` : `/api/operator`;
 
-// Refresh data after 20 minutes
-const REFRESH_DATA_THRESHOLD = 20 * 60 * 1000;
-
-let lastUpdateTime = 0;
-let latestOperators = [];
-
-const parseContentsResults = results => {
-  const operators = [];
-  _.forEach(results, operatorResult => {
-    try {
-      const operator = yaml.safeLoad(Base64.decode(operatorResult.data.content));
-      operators.push(operator);
-    } catch (e) {
-      console.log(`Error Parsing ${_.get(operatorResult, 'data.name', 'Unknown Operator')}`);
-      console.dir(e);
-    }
-  });
-  return normalizeOperators(operators);
-};
-
-const fetchOperator = (operatorName, dispatch) => {
-  if (process.env.MOCK_MODE) {
-    const operators = getVersionedOperators(_.cloneDeep(mockOperators));
-    const operator = _.find(operators, { name: operatorName });
-    dispatch({
-      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-      payload: operator
-    });
-    return;
-  }
-
-  const request = `${gitHubURL}/search/code?q='displayName: ${operatorName}'+repo:${operatorsRepo}+filename:${operatorFileQuery}`;
-
-  axios
-    .get(request)
-    .then(response => {
-      const operatorFiles = response.data.items;
-      const operatorRequests = [];
-
-      _.forEach(operatorFiles, operatorFile => {
-        operatorRequests.push(axios.get(`${operatorContentsURL}/${operatorFile.path}`));
-      });
-
-      return axios
-        .all(operatorRequests)
-        .then(({ ...allResults }) => {
-          const normalizedOperators = parseContentsResults(allResults);
-          const operators = getVersionedOperators(normalizedOperators);
-          const operator = _.find(operators, { name: operatorName });
-          if (operator) {
-            dispatch({
-              type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-              payload: operator
-            });
-            return;
-          }
-          dispatch({
-            type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
-            payload: { message: `Unable to find operator details for ${operatorName}` }
-          });
-        })
-        .catch(error => {
-          dispatch({
-            type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
-            error
-          });
-        });
-    })
-    .catch(error => {
-      dispatch({
-        type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
-        error
-      });
-    });
-};
-
-const fetchOperators = operatorName => dispatch => {
+const fetchOperator = operatorName => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
 
-  const currentTime = new Date().getTime();
-
-  if (currentTime - lastUpdateTime < REFRESH_DATA_THRESHOLD) {
-    if (operatorName) {
-      const operator = _.find(latestOperators, { name: operatorName });
-      if (operator) {
-        dispatch({
-          type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-          payload: operator
-        });
-        return;
-      }
-
-      fetchOperator(operatorName, dispatch);
-      return;
-    }
-
+  if (process.env.MOCK_MODE) {
     dispatch({
-      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-      payload: latestOperators
+      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
+      payload: getVersionedOperators(_.cloneDeep(_.filter(mockOperators, { name: operatorName })))
     });
     return;
   }
 
+  const config = { params: { name: operatorName } };
+  axios.get(operatorRequest, config).then(response => {
+    const responseOperators = response.data.operators;
+    const operators = getVersionedOperators(responseOperators);
+
+    dispatch({
+      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
+      payload: operators[0]
+    });
+  });
+};
+
+const fetchOperators = () => dispatch => {
+  dispatch({
+    type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
+  });
+
   if (process.env.MOCK_MODE) {
-    latestOperators = getVersionedOperators(_.cloneDeep(mockOperators));
-    lastUpdateTime = currentTime;
+    dispatch({
+      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
+      payload: getVersionedOperators(_.cloneDeep(mockOperators))
+    });
+    return;
   }
 
-  axios
-    .get(allOperatorsRequest)
-    .then(response => {
-      const operatorFiles = response.data.items;
-      const operatorRequests = [];
+  axios.get(allOperatorsRequest).then(response => {
+    const responseOperators = response.data.operators;
+    const operators = getVersionedOperators(responseOperators);
 
-      _.forEach(operatorFiles, operatorFile => {
-        operatorRequests.push(axios.get(`${operatorContentsURL}/${operatorFile.path}`));
-      });
-
-      return axios
-        .all(operatorRequests)
-        .then(({ ...allResults }) => {
-          const normalizedOperators = parseContentsResults(allResults);
-          latestOperators = getVersionedOperators(normalizedOperators);
-          lastUpdateTime = new Date().getTime();
-
-          dispatch({
-            type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-            payload: latestOperators
-          });
-
-          if (operatorName) {
-            const operator = _.find(latestOperators, { name: operatorName });
-            if (operator) {
-              dispatch({
-                type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-                payload: operator
-              });
-              return;
-            }
-
-            fetchOperator(operatorName, dispatch);
-          }
-        })
-        .catch(error => {
-          dispatch({
-            type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
-            error
-          });
-        });
-    })
-    .catch(error => {
-      dispatch({
-        type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
-        error
-      });
+    dispatch({
+      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
+      payload: operators
     });
+  });
 };
 
 const operatorsService = {
+  fetchOperator,
   fetchOperators
 };
 
-export { operatorsService, fetchOperators };
+export { operatorsService, fetchOperator, fetchOperators };

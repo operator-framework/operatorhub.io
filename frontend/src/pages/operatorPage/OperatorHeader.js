@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { helpers } from '../../common/helpers';
 import { HeaderTopBar } from '../../components/HeaderTopBar';
+import * as operatorImg from '../../imgs/operator.svg';
 
 const OperatorHeader = ({
   operator,
@@ -25,7 +26,7 @@ const OperatorHeader = ({
       />
       <div className="oh-header__content">
         <div className="oh-operator-header__content__image-container">
-          <img className="oh-operator-header__content__image" src={operator.imgUrl} alt="" />
+          <img className="oh-operator-header__content__image" src={operator.imgUrl || operatorImg} alt="" />
         </div>
         <div className="oh-operator-header__content__info">
           <h1 className="oh-operator-header__content__title oh-hero">{operator.name}</h1>
