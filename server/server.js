@@ -10,7 +10,7 @@ const persistentStore = require('./store/persistentStore');
 const routes = require('./routes/routes');
 const mockOperators = require('./__mock__/operators');
 
-const useSSL = !(process.env.USESSL === 'false');
+// const useSSL = !(process.env.USESSL === 'false');
 
 const mockMode = false;
 const keysDirectory = process.env.KEYDIR || '';
@@ -19,9 +19,7 @@ const app = express();
 
 const setupApp = () => {
   app.set('port', process.env.PORT || 8080);
-  if (useSSL) {
-    app.set('secureport', process.env.SECUREPORT || 9443);
-  }
+  // app.set('secureport', process.env.SECUREPORT || 8080);
 
   // routes
   routes(app);
@@ -47,17 +45,14 @@ const serverStart = err => {
   }
 
   const server = http.createServer(app);
-
-  server.listen(app.get('port'), () => {
+  server.listen(app.get('port'), '0.0.0.0', () => {
     console.log(`Express server listening on port ${app.get('port')}`);
   });
 
-  if (useSSL) {
-    const secureServer = setupSSL();
-    secureServer.listen(app.get('secureport'), () => {
-      console.log(`Express secure server listening on port ${app.get('secureport')}`);
-    });
-  }
+  // const secureServer = setupSSL();
+  // secureServer.listen(app.get('secureport'), '0.0.0.0', () => {
+  //   console.log(`Express secure server listening on port ${app.get('secureport')}`);
+  // });
 };
 
 setupApp();
