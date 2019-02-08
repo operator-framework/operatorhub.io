@@ -6,7 +6,7 @@ import { getVersionedOperators } from '../utils/operatorUtils';
 import { mockOperators } from '../__mock__/operators';
 
 const serverHost = process.env.DEV_HOST || 'localhost';
-const serverPort = process.env.DEV_PORT || 9443;
+const serverPort = process.env.DEV_PORT || 8080;
 const serverURL = `https://${serverHost}:${serverPort}`;
 
 const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/api/operators` : `/api/operators`;

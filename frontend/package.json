@@ -7,7 +7,6 @@
   "private": true,
   "dependencies": {
     "@patternfly/patternfly-next": "^1.0.109",
-    "@patternfly/react-core": "^1.43.5",
     "axios": "^0.18.0",
     "classnames": "^2.2.5",
     "connected-react-router": "^4.3.0",

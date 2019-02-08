@@ -1,7 +1,8 @@
-// const passport = require('passport');
-// const http = require('http');
+const forceSSL = require('express-force-ssl');
 const operatorsService = require('../services/operatorsService');
 const updateService = require('../services/updateService');
+
+const useSSL = !(process.env.USESSL === 'false');
 
 const addCORSHeader = (request, response, next) => {
   const hasOrigin = request.headers.origin != null;
@@ -19,9 +20,18 @@ const addCORSHeader = (request, response, next) => {
   next();
 };
 
-module.exports = function(app) {
+const forceToSSL = (request, response, next) => {
+  if (useSSL) {
+    forceSSL(request, response, next);
+    return;
+  }
+
+  next();
+};
+
+module.exports = app => {
   app.get('/api/*', addCORSHeader);
-  app.post('/api/webhook', addCORSHeader);
+  app.post('/api/webhook', forceToSSL, addCORSHeader);
 
   app.get('/api/operators', operatorsService.fetchOperators);
   app.get('/api/operator', operatorsService.fetchOperator);

@@ -3,7 +3,6 @@ const express = require('express');
 const http = require('http');
 const https = require('https');
 const selfSignedHttps = require('self-signed-https');
-const forceSSL = require('express-force-ssl');
 const _ = require('lodash');
 
 const loadService = require('./services/loadService');
@@ -11,19 +10,35 @@ const persistentStore = require('./store/persistentStore');
 const routes = require('./routes/routes');
 const mockOperators = require('./__mock__/operators');
 
+const useSSL = !(process.env.USESSL === 'false');
+
 const mockMode = false;
-const keysDirectory = './keys';
+const keysDirectory = process.env.KEYDIR || '';
 
 const app = express();
 
 const setupApp = () => {
   app.set('port', process.env.PORT || 8080);
-  app.set('secureport', process.env.SECUREPORT || 9443);
-
-  app.use(express.static('../frontend/dist'));
+  if (useSSL) {
+    app.set('secureport', process.env.SECUREPORT || 9443);
+  }
 
   // routes
   routes(app);
+
+  app.use(express.static('../frontend/dist'));
+};
+
+const setupSSL = () => {
+  // TO be used when we have a valid signed certificate
+  if (keysDirectory) {
+    const secureOptions = {
+      key: fs.readFileSync(`${keysDirectory}/operatorhub.key`),
+      cert: fs.readFileSync(`${keysDirectory}/operatorhub.crt`)
+    };
+    return https.createServer(secureOptions, app);
+  }
+  return selfSignedHttps(app);
 };
 
 const serverStart = err => {
@@ -31,25 +46,18 @@ const serverStart = err => {
     console.error(`Error loading operators: ${_.get(err, 'response.data.message', err)}`);
   }
 
-  app.listen(app.get('port'), () => {
+  const server = http.createServer(app);
+
+  server.listen(app.get('port'), () => {
     console.log(`Express server listening on port ${app.get('port')}`);
   });
 
-  selfSignedHttps(app).listen(app.get('secureport'), () => {
-    console.log(`Express secure server listening on port ${app.get('secureport')}`);
-  });
-
-  app.use(forceSSL);
-};
-
-// TO be used when we have a valid signed certificate
-const setupSSL = () => {
-  const secureOptions = {
-    key: fs.readFileSync(`${keysDirectory}/operatorhub.key`),
-    cert: fs.readFileSync(`${keysDirectory}/operatorhub.crt`)
-  };
-
-  const secureServer = https.createServer(secureOptions, app);
+  if (useSSL) {
+    const secureServer = setupSSL();
+    secureServer.listen(app.get('secureport'), () => {
+      console.log(`Express secure server listening on port ${app.get('secureport')}`);
+    });
+  }
 };
 
 setupApp();
