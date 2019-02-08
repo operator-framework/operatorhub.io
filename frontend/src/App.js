@@ -15,7 +15,7 @@ class App extends React.Component {
   render() {
     return (
       <Switch>
-        <Route path="/:operatorId" component={OperatorPage} />
+        <Route path="/operator/:operatorId" component={OperatorPage} />
         <Route path="/" exact component={OperatorHub} />
         <Redirect from="*" to="/" key="default-route" />
       </Switch>

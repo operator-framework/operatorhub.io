@@ -13,6 +13,7 @@ import { helpers } from '../../common/helpers';
 import Footer from '../../components/Footer';
 import { HubHeader } from './HubHeader';
 import { reduxConstants } from '../../redux';
+import * as operatorImg from '../../imgs/operator.svg';
 
 const KEYWORD_URL_PARAM = 'keyword';
 const VIEW_TYPE_URL_PARAM = 'view';
@@ -307,7 +308,7 @@ class OperatorHub extends React.Component {
 
   setURLParams = params => {
     const url = new URL(window.location);
-    const searchParams = `?${params.toString()}${url.hash}`;
+    const searchParams = `?${params.toString()}`;
 
     this.props.history.replace(`${url.pathname}${searchParams}`);
   };
@@ -435,7 +436,7 @@ class OperatorHub extends React.Component {
 
   openDetails = (event, operator) => {
     event.preventDefault();
-    this.props.history.push(`/${operator.name}`);
+    this.props.history.push(`/operator/${operator.name}`);
   };
 
   updateViewType = viewType => {
@@ -560,7 +561,7 @@ class OperatorHub extends React.Component {
         id={name}
         key={name}
         title={name}
-        iconImg={imgUrl}
+        iconImg={imgUrl || operatorImg}
         vendor={vendor}
         description={description || longDescription}
         href={`${window.location.origin}/${name}`}

@@ -8,7 +8,7 @@ import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 
 import Footer from '../../components/Footer';
 import { helpers } from '../../common/helpers';
-import { fetchOperators } from '../../services/operatorsService';
+import { fetchOperator } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import { ExternalLink } from '../../components/ExternalLink';
 import { OperatorHeader } from './OperatorHeader';
@@ -17,30 +17,16 @@ const notAvailable = <span className="properties-side-panel-pf-property-label">N
 
 class OperatorPage extends React.Component {
   state = {
-    operator: {},
     searchValue: ''
   };
 
   componentDidMount() {
-    this.setState({ operator: this.props.operator });
     this.refresh();
-  }
-
-  componentDidUpdate(prevProps) {
-    const { operator } = this.props;
-
-    if (operator && !_.isEqual(operator, prevProps.operator)) {
-      let stateOperator = operator;
-      if (this.state.operator) {
-        stateOperator = _.find(operator.version, { version: this.state.operator.version }) || operator;
-      }
-      this.setState({ operator: stateOperator });
-    }
   }
 
   refresh() {
     const { match } = this.props;
-    this.props.fetchOperators(_.get(match, 'params.operatorId'));
+    this.props.fetchOperator(_.get(match, 'params.operatorId'));
   }
 
   onHome = e => {
@@ -125,7 +111,8 @@ class OperatorPage extends React.Component {
   };
 
   renderToolbar() {
-    const { fixedHeader, scrollTop, headerHeight, operator } = this.state;
+    const { operator } = this.props;
+    const { fixedHeader, scrollTop, headerHeight } = this.state;
     const toolbarStyle = fixedHeader ? { top: scrollTop || 0, marginTop: headerHeight || 0 } : null;
 
     return (
@@ -146,8 +133,7 @@ class OperatorPage extends React.Component {
     value ? <PropertyItem label={label} value={value} /> : <PropertyItem label={label} value={notAvailable} />;
 
   renderDetails() {
-    const { error, pending } = this.props;
-    const { operator } = this.state;
+    const { operator, error, pending } = this.props;
 
     if (error) {
       return this.renderError();
@@ -290,7 +276,7 @@ OperatorPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  fetchOperators: PropTypes.func
+  fetchOperator: PropTypes.func
 };
 
 OperatorPage.defaultProps = {
@@ -299,11 +285,11 @@ OperatorPage.defaultProps = {
   errorMessage: '',
   pending: false,
   match: {},
-  fetchOperators: helpers.noop
+  fetchOperator: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
-  fetchOperators: name => dispatch(fetchOperators(name))
+  fetchOperator: name => dispatch(fetchOperator(name))
 });
 
 const mapStateToProps = state => ({
