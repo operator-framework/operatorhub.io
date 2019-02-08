@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import * as _ from 'lodash-es';
 
@@ -10,8 +9,7 @@ import { CatalogTile, FilterSidePanel } from 'patternfly-react-extensions';
 import { fetchOperators } from '../../services/operatorsService';
 import { helpers } from '../../common/helpers';
 
-import Footer from '../../components/Footer';
-import { HubHeader } from './HubHeader';
+import Page from '../../components/Page';
 import { reduxConstants } from '../../redux';
 import * as operatorImg from '../../imgs/operator.svg';
 
@@ -85,7 +83,7 @@ const keywordCompare = (filterString, item) => {
   }
 
   return (
-    _.get(item, 'obj.metadata.name', '')
+    _.get(item, 'name', '')
       .toLowerCase()
       .includes(filterString) ||
     _.get(item, 'displayName', '')
@@ -376,7 +374,7 @@ class OperatorHub extends React.Component {
 
   sortItems = items => {
     const { sortType } = this.props;
-    const sortedItems = _.sortBy(items, item => item.name.toLowerCase());
+    const sortedItems = _.sortBy(items, item => item.displayName.toLowerCase());
     return sortType === 'descending' ? _.reverse(sortedItems) : sortedItems;
   };
 
@@ -401,42 +399,9 @@ class OperatorHub extends React.Component {
     this.props.storeActiveFilters(updatedFilters);
   };
 
-  contentScrolled = scrollEvent => {
-    const { scrollTop, scrollHeight, clientHeight } = scrollEvent.currentTarget;
-    const scrollSpace = scrollHeight - clientHeight;
-    const headerHeight = this.headerRef.clientHeight;
-
-    if (scrollSpace > headerHeight) {
-      const topBarHeight = this.topBarRef.clientHeight;
-      const top = scrollTop - headerHeight + topBarHeight;
-      const fixedHeightThreshold = headerHeight - this.topBarRef.clientHeight;
-
-      this.setState({ fixedHeader: scrollTop > fixedHeightThreshold, scrollTop: top, headerHeight });
-      return;
-    }
-
-    this.setState({ fixedHeader: false });
-  };
-
-  onHeaderWheel = wheelEvent => {
-    this.scrollRef.scrollTop -= _.get(wheelEvent, 'nativeEvent.wheelDelta', 0);
-  };
-
-  setScrollRef = ref => {
-    this.scrollRef = ref;
-  };
-
-  setHeaderRef = ref => {
-    this.headerRef = ref;
-  };
-
-  setTopBarRef = ref => {
-    this.topBarRef = ref;
-  };
-
   openDetails = (event, operator) => {
     event.preventDefault();
-    this.props.history.push(`/operator/${operator.name}`);
+    this.props.history.push(`/operator/${operator.displayName}`);
   };
 
   updateViewType = viewType => {
@@ -449,7 +414,7 @@ class OperatorHub extends React.Component {
     this.props.storeSortType(sortType);
   };
 
-  onSearch = searchValue => {
+  onSearchChange = searchValue => {
     const params = new URLSearchParams();
 
     if (searchValue) {
@@ -463,7 +428,7 @@ class OperatorHub extends React.Component {
   };
 
   clearSearch = () => {
-    this.onSearch('');
+    this.onSearchChange('');
   };
 
   getViewItem = viewType => (
@@ -553,18 +518,18 @@ class OperatorHub extends React.Component {
       return null;
     }
 
-    const { name, imgUrl, provider, description, longDescription } = item;
+    const { name, displayName, imgUrl, provider, description, longDescription } = item;
     const vendor = provider ? `provided by ${provider}` : null;
 
     return (
       <CatalogTile
         id={name}
         key={name}
-        title={name}
+        title={displayName}
         iconImg={imgUrl || operatorImg}
         vendor={vendor}
         description={description || longDescription}
-        href={`${window.location.origin}/${name}`}
+        href={`${window.location.origin}/operator/${name}`}
         onClick={e => this.openDetails(e, item)}
       />
     );
@@ -589,7 +554,7 @@ class OperatorHub extends React.Component {
       return null;
     }
 
-    const { name, imgUrl, provider, description } = item;
+    const { name, displayName, imgUrl, provider, description } = item;
     const vendor = provider ? `provided by ${provider}` : null;
 
     return (
@@ -597,7 +562,7 @@ class OperatorHub extends React.Component {
         <div className="catalog-tile-pf-header">
           <img className="catalog-tile-pf-icon" src={imgUrl} alt="" />
           <span>
-            <div className="catalog-tile-pf-title">{name}</div>
+            <div className="catalog-tile-pf-title">{displayName}</div>
             <div className="catalog-tile-pf-subtitle">{vendor}</div>
           </span>
         </div>
@@ -695,33 +660,29 @@ class OperatorHub extends React.Component {
 
   render() {
     const { keywordSearch } = this.props;
-    const { fixedHeader, scrollTop, headerHeight } = this.state;
-    const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
-    const contentStyle = fixedHeader ? { marginTop: headerHeight || 0 } : null;
-    const pageClasses = classNames('oh-page', { 'oh-page-fixed-header': fixedHeader });
+
+    const headerContent = (
+      <React.Fragment>
+        <h1 className="oh-header__content__title oh-hero">Welcome to OperatorHub</h1>
+        <p className="oh-header__content__sub-title">
+          Operators deliver the automation advantages of cloud services like provisioning, scaling, and backup/restore
+          while being able to run anywhere that Kubernetes can run.
+        </p>
+      </React.Fragment>
+    );
 
     return (
-      <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
-        <div className={pageClasses}>
-          <HubHeader
-            style={headStyle}
-            onWheel={e => {
-              this.onHeaderWheel(e);
-            }}
-            onSearchChange={this.onSearch}
-            clearSearch={this.clearSearch}
-            searchValue={keywordSearch}
-            headerRef={this.setHeaderRef}
-            topBarRef={this.setTopBarRef}
-          />
-          <div className="oh-page__content">
-            <div className="oh-content oh-content-hub" style={contentStyle}>
-              {this.renderView()}
-            </div>
-          </div>
-          <Footer />
-        </div>
-      </div>
+      <Page
+        pageClasses="oh-page-hub"
+        headerContent={headerContent}
+        onSearchChange={this.onSearchChange}
+        clearSearch={this.clearSearch}
+        searchValue={keywordSearch}
+        headerRef={this.setHeaderRef}
+        topBarRef={this.setTopBarRef}
+      >
+        {this.renderView()}
+      </Page>
     );
   }
 }

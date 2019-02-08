@@ -13,7 +13,8 @@ const normalizeOperator = operator => {
   const iconObj = _.get(spec, 'icon[0]');
 
   return {
-    name: _.get(spec, 'displayName', operator.metadata.name),
+    name: operator.metadata.name,
+    displayName: _.get(spec, 'displayName', operator.metadata.name),
     imgUrl: iconObj ? `data:${iconObj.mediatype};base64,${iconObj.base64data}` : '',
     longDescription: _.get(spec, 'description', annotations.description),
     provider: _.get(spec, 'provider.name'),
