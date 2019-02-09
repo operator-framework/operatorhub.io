@@ -4,6 +4,7 @@ let db;
 
 const OPERATOR_TABLE = 'operators';
 const NAME_FIELD = 'name TEXT';
+const DISPLAY_NAME_FIELD = 'displayName TEXT';
 const VERSION_FIELD = 'version TEXT';
 const VERSION_COMPARE_FIELD = 'versionForCompare TEXT';
 const PROVIDER_FIELD = 'provider TEXT';
@@ -27,6 +28,7 @@ exports.initialize = callback => {
     db.run(
       `CREATE TABLE ${OPERATOR_TABLE} (
         ${NAME_FIELD},
+        ${DISPLAY_NAME_FIELD},
         ${VERSION_FIELD},
         ${VERSION_COMPARE_FIELD},
         ${PROVIDER_FIELD},
@@ -49,7 +51,7 @@ exports.close = () => {
 };
 
 exports.getOperator = (operatorName, callback) => {
-  db.all(`SELECT * FROM ${OPERATOR_TABLE} where name = '${operatorName}'`, (err, rows) => {
+  db.all(`SELECT * FROM ${OPERATOR_TABLE} where displayName = '${operatorName}'`, (err, rows) => {
     if (err) {
       console.error(err.message);
     }
@@ -72,9 +74,9 @@ exports.clearOperators = callback => {
 
 exports.setOperators = (operators, callback) => {
   const sql = `INSERT OR IGNORE INTO ${OPERATOR_TABLE}
-    (name, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, maintainers, createdAt, containerImage)
+    (name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, maintainers, createdAt, containerImage)
     VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   exports.clearOperators(() =>
     db.serialize(
@@ -83,6 +85,7 @@ exports.setOperators = (operators, callback) => {
         operators.forEach(operator => {
           db.run(sql, [
             operator.name,
+            operator.displayName,
             operator.version,
             operator.versionForCompare,
             operator.provider,

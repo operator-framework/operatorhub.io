@@ -12,7 +12,6 @@ const fetchOperators = (serverRequest, serverResponse) => {
   });
 };
 
-
 const operatorsService = {
   fetchOperators,
   fetchOperator

@@ -48,7 +48,7 @@ class HeaderTopBar extends React.Component {
     return (
       <div className="form-group has-clear">
         <div className="search-pf-input-group">
-          <span className="fa fa-search oh-hub-header__top-bar__search-icon" aria-hidden="true" />
+          <span className="fa fa-search oh-header__top-bar__search-icon" aria-hidden="true" />
           <label htmlFor="search-input" className="sr-only">
             Search Operator Hub
           </label>
@@ -57,7 +57,7 @@ class HeaderTopBar extends React.Component {
             value={this.state.searchValue}
             type="search"
             autoComplete="off"
-            className="form-control oh-hub-header__top-bar__search--input"
+            className="form-control oh-header__top-bar__search--input"
             placeholder="Search OperatorHub..."
             autoCorrect="off"
             autoCapitalize="off"
@@ -67,7 +67,7 @@ class HeaderTopBar extends React.Component {
           />
           <a
             href="#"
-            className={classNames('fa fa-times-circle oh-hub-header__top-bar__clear-icon', {
+            className={classNames('fa fa-times-circle oh-header__top-bar__clear-icon', {
               disabled: !this.state.searchValue
             })}
             onClick={this.clearSearch}
@@ -81,15 +81,15 @@ class HeaderTopBar extends React.Component {
 
   render() {
     return (
-      <div className="oh-hub-header__top-bar" ref={this.props.barRef}>
-        <div className="oh-hub-header__top-bar__content">
+      <div className="oh-header__top-bar" ref={this.props.barRef}>
+        <div className="oh-header__top-bar__content">
           <a href={window.location.origin} onClick={e => this.onLogoClick(e)}>
-            <img className="oh-hub-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />
+            <img className="oh-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />
           </a>
-          <span className="oh-hub-header__top-bar__spacer" />
-          <form className="oh-hub-header__top-bar__search-form search-pf hidden-xs">{this.renderSearchForm()}</form>
+          <span className="oh-header__top-bar__spacer" />
+          <form className="oh-header__top-bar__search-form search-pf hidden-xs">{this.renderSearchForm()}</form>
           <DropdownButton
-            className="oh-hub-header__top-bar__dropdown"
+            className="oh-header__top-bar__dropdown"
             title="Contribute"
             id="header-contribute-dropdown"
             pullRight
@@ -98,8 +98,8 @@ class HeaderTopBar extends React.Component {
             <MenuItem eventKey={1}>Create an Operator with the SDK</MenuItem>
           </DropdownButton>
         </div>
-        <div className="oh-hub-header__top-bar__xs-search">
-          <form className="oh-hub-header__top-bar__search-form search-pf">{this.renderSearchForm()}</form>
+        <div className="oh-header__top-bar__xs-search">
+          <form className="oh-header__top-bar__search-form search-pf">{this.renderSearchForm()}</form>
         </div>
       </div>
     );

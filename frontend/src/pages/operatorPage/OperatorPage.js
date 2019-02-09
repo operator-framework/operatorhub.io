@@ -1,27 +1,40 @@
 import * as React from 'react';
-import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import connect from 'react-redux/es/connect/connect';
 import { Alert, Breadcrumb, DropdownButton, EmptyState, Grid, MenuItem } from 'patternfly-react';
 import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 
-import Footer from '../../components/Footer';
 import { helpers } from '../../common/helpers';
 import { fetchOperator } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import { ExternalLink } from '../../components/ExternalLink';
-import { OperatorHeader } from './OperatorHeader';
+import Page from '../../components/Page';
+import * as operatorImg from '../../imgs/operator.svg';
 
 const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
 
 class OperatorPage extends React.Component {
   state = {
+    operator: {},
     searchValue: ''
   };
 
   componentDidMount() {
+    this.setState({ operator: this.props.operator });
     this.refresh();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { operator } = this.props;
+
+    if (operator && !_.isEqual(operator, prevProps.operator)) {
+      let stateOperator = operator;
+      if (this.state.operator) {
+        stateOperator = _.find(operator.version, { version: this.state.operator.version }) || operator;
+      }
+      this.setState({ operator: stateOperator });
+    }
   }
 
   refresh() {
@@ -51,44 +64,6 @@ class OperatorPage extends React.Component {
     this.setState({ operator });
   };
 
-  contentScrolled = scrollEvent => {
-    const { scrollTop, scrollHeight, clientHeight } = scrollEvent.currentTarget;
-    const scrollSpace = scrollHeight - clientHeight;
-    const headerHeight = this.headerRef.clientHeight;
-    const toolbarHeight = this.toolbarRef.clientHeight;
-
-    if (scrollSpace > headerHeight) {
-      const topBarHeight = this.topBarRef.clientHeight;
-      const top = scrollTop - headerHeight + topBarHeight;
-      const fixedHeightThreshold = headerHeight - this.topBarRef.clientHeight;
-
-      this.setState({ fixedHeader: scrollTop > fixedHeightThreshold, scrollTop: top, headerHeight, toolbarHeight });
-      return;
-    }
-
-    this.setState({ fixedHeader: false });
-  };
-
-  onHeaderWheel = wheelEvent => {
-    this.scrollRef.scrollTop -= _.get(wheelEvent, 'nativeEvent.wheelDelta', 0);
-  };
-
-  setScrollRef = ref => {
-    this.scrollRef = ref;
-  };
-
-  setHeaderRef = ref => {
-    this.headerRef = ref;
-  };
-
-  setTopBarRef = ref => {
-    this.topBarRef = ref;
-  };
-
-  setToolbarRef = ref => {
-    this.toolbarRef = ref;
-  };
-
   renderPendingMessage = () => (
     <EmptyState className="blank-slate-content-pf">
       <div className="loading-state-pf loading-state-pf-lg">
@@ -110,30 +85,12 @@ class OperatorPage extends React.Component {
     );
   };
 
-  renderToolbar() {
-    const { operator } = this.props;
-    const { fixedHeader, scrollTop, headerHeight } = this.state;
-    const toolbarStyle = fixedHeader ? { top: scrollTop || 0, marginTop: headerHeight || 0 } : null;
-
-    return (
-      <div className="oh-operator-page__toolbar" style={toolbarStyle} ref={this.setToolbarRef}>
-        <div className="oh-operator-page__toolbar__inner">
-          <Breadcrumb>
-            <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
-              Home
-            </Breadcrumb.Item>
-            <Breadcrumb.Item active>{operator.name}</Breadcrumb.Item>
-          </Breadcrumb>
-        </div>
-      </div>
-    );
-  }
-
   renderPropertyItem = (label, value) =>
     value ? <PropertyItem label={label} value={value} /> : <PropertyItem label={label} value={notAvailable} />;
 
   renderDetails() {
-    const { operator, error, pending } = this.props;
+    const { error, pending } = this.props;
+    const { operator } = this.state;
 
     if (error) {
       return this.renderError();
@@ -144,7 +101,7 @@ class OperatorPage extends React.Component {
     }
 
     const {
-      name,
+      displayName,
       provider,
       maturity,
       longDescription,
@@ -224,7 +181,7 @@ class OperatorPage extends React.Component {
             </PropertiesSidePanel>
           </Grid.Col>
           <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
-            <h1>{name}</h1>
+            <h1>{displayName}</h1>
             {longDescription && <MarkdownView content={longDescription} outerScroll />}
           </Grid.Col>
         </div>
@@ -233,36 +190,43 @@ class OperatorPage extends React.Component {
   }
 
   render() {
-    const { operator } = this.props;
-    const { fixedHeader, scrollTop, searchValue, headerHeight, toolbarHeight } = this.state;
-    const headStyle = fixedHeader ? { top: scrollTop || 0 } : null;
-    const contentStyle = fixedHeader ? { marginTop: headerHeight + toolbarHeight || 0 } : null;
-    const pageClasses = classNames('oh-page oh-page-operator', { 'oh-page-fixed-header': fixedHeader });
-    return (
-      <div className="content-scrollable" onScroll={this.contentScrolled} ref={this.setScrollRef}>
-        <div className={pageClasses}>
-          <OperatorHeader
-            operator={operator}
-            style={headStyle}
-            onHome={this.onHome}
-            searchCallback={this.onSearch}
-            clearSearch={this.clearSearch}
-            searchValue={searchValue}
-            onWheel={e => {
-              this.onHeaderWheel(e);
-            }}
-            headerRef={this.setHeaderRef}
-            topBarRef={this.setTopBarRef}
-          />
-          {this.renderToolbar()}
-          <div className="oh-page__content oh-page__content-operator">
-            <div className="oh-content oh-content-operator" style={contentStyle}>
-              {this.renderDetails()}
-            </div>
-          </div>
-          <Footer />
+    const { operator, searchValue } = this.state;
+
+    const headerContent = (
+      <React.Fragment>
+        <div className="oh-header__content__image-container">
+          <img className="oh-header__content__image" src={operator.imgUrl || operatorImg} alt="" />
         </div>
-      </div>
+        <div className="oh-header__content__info">
+          <h1 className="oh-header__content__title oh-hero">{operator.displayName}</h1>
+          <div className="oh-header__content__description">{operator.description}</div>
+        </div>
+      </React.Fragment>
+    );
+
+    const toolbarContent = (
+      <Breadcrumb>
+        <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
+          Home
+        </Breadcrumb.Item>
+        <Breadcrumb.Item active>{operator.displayName}</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+
+    return (
+      <Page
+        pageClasses="oh-page-operator"
+        headerContent={headerContent}
+        toolbarContent={toolbarContent}
+        onHome={this.onHome}
+        onSearchChange={this.onSearchChange}
+        clearSearch={this.clearSearch}
+        searchValue={searchValue}
+        headerRef={this.setHeaderRef}
+        topBarRef={this.setTopBarRef}
+      >
+        {this.renderDetails()}
+      </Page>
     );
   }
 }
