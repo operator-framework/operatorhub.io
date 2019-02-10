@@ -28,7 +28,7 @@ const operatorHubFilterMap = {
 
 const ignoredProviderTails = [', Inc.', ', Inc', ' Inc.', ' Inc', ', LLC', ' LLC'];
 
-export const getProviderValue = value => {
+const getProviderValue = value => {
   if (!value) {
     return value;
   }
@@ -378,6 +378,25 @@ class OperatorHub extends React.Component {
     return sortType === 'descending' ? _.reverse(sortedItems) : sortedItems;
   };
 
+  sortFilters = (activeFilters, groupName) => {
+    let sortBy = ['value'];
+
+    if (groupName === 'provider') {
+      sortBy = providerSort;
+    } else if (groupName === 'maturity') {
+      return _.keys(activeFilters).sort((value1, value2) => {
+        if (value1 === 'null') {
+          return 1;
+        }
+        if (value1 === 'null') {
+          return -1;
+        }
+        return value1.localeCompare(value2);
+      });
+    }
+    return _.sortBy(_.keys(activeFilters), sortBy);
+  };
+
   clearFilters() {
     const { activeFilters } = this.props;
 
@@ -442,24 +461,21 @@ class OperatorHub extends React.Component {
 
   renderFilterGroup = (groupName, activeFilters, filterCounts) => (
     <FilterSidePanel.Category key={groupName} title={operatorHubFilterMap[groupName] || groupName}>
-      {_.map(
-        _.sortBy(_.keys(activeFilters[groupName]), groupName === 'provider' ? providerSort : ['value']),
-        filterName => {
-          const filter = activeFilters[groupName][filterName];
-          const { label, active } = filter;
-          return (
-            <FilterSidePanel.CategoryItem
-              key={filterName}
-              count={_.get(filterCounts, [groupName, filterName], 0)}
-              checked={active}
-              onChange={e => this.onFilterChange(groupName, filterName, e.target.checked)}
-              title={label}
-            >
-              {label}
-            </FilterSidePanel.CategoryItem>
-          );
-        }
-      )}
+      {_.map(this.sortFilters(activeFilters[groupName], groupName), filterName => {
+        const filter = activeFilters[groupName][filterName];
+        const { label, active } = filter;
+        return (
+          <FilterSidePanel.CategoryItem
+            key={filterName}
+            count={_.get(filterCounts, [groupName, filterName], 0)}
+            checked={active}
+            onChange={e => this.onFilterChange(groupName, filterName, e.target.checked)}
+            title={label}
+          >
+            {label}
+          </FilterSidePanel.CategoryItem>
+        );
+      })}
     </FilterSidePanel.Category>
   );
 
