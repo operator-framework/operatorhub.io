@@ -659,7 +659,7 @@ class OperatorHub extends React.Component {
   };
 
   render() {
-    const { keywordSearch } = this.props;
+    const { keywordSearch, history } = this.props;
 
     const headerContent = (
       <React.Fragment>
@@ -675,11 +675,11 @@ class OperatorHub extends React.Component {
       <Page
         pageClasses="oh-page-hub"
         headerContent={headerContent}
+        history={history}
         onSearchChange={this.onSearchChange}
         clearSearch={this.clearSearch}
         searchValue={keywordSearch}
-        headerRef={this.setHeaderRef}
-        topBarRef={this.setTopBarRef}
+        homePage
       >
         {this.renderView()}
       </Page>

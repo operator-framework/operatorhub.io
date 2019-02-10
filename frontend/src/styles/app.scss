@@ -3,6 +3,10 @@
   overflow: auto;
 }
 
+.oh-centered-text {
+  text-align: center;
+}
+
 .oh-small {
   color: $oh-color-text-light;
   font-size: 12px;
@@ -42,6 +46,36 @@
     }
   }
 
+  &__toolbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    border-bottom: 1px solid $oh-color-rule;
+    background-color: $page-bg-color;
+    padding: 10px 35px 10px 15px;
+    width: 100%;
+
+    &__inner {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+
+      @media (min-width: $oh-width-3-tile-min) {
+        width: $oh-content-width-3-tiles;
+      }
+      @media (min-width: $oh-width-4-tile-min) {
+        width: $oh-content-width-4-tiles;
+      }
+      @media (min-width: $oh-width-5-tile-min) {
+        width: $oh-content-width-5-tiles;
+      }
+    }
+    .breadcrumb {
+      margin: 0 25px;
+      flex: 1;
+    }
+  }
+
   .oh-content {
     background-color: transparent;
     display: flex;
@@ -68,18 +102,20 @@
 
 .oh-external-link {
   display: inline-block;
-  padding-right: 15px;
 
-  &::after {
-    content: "\f08e";
-    display:inline-block;
-    font-family: 'FontAwesome';
-    font-size: 75%;
-    height: 16px;
-    position:relative;
-    margin-left: 3px;
-    margin-right: -15px;
-    top:0;
-    width: 12px;
+  &.indicator {
+    padding-right: 15px;
+    &::after {
+      content: "\f08e";
+      display: inline-block;
+      font-family: 'FontAwesome';
+      font-size: 75%;
+      height: 16px;
+      position: relative;
+      margin-left: 3px;
+      margin-right: -15px;
+      top: 0;
+      width: 12px;
+    }
   }
 }
