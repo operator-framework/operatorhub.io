@@ -2,16 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { withRouter } from 'react-router';
+import { store } from './redux/store';
+import { reduxConstants } from './redux';
+
 import OperatorHub from './pages/operatorHub/OperatorHub';
 import OperatorPage from './pages/operatorPage/OperatorPage';
 import GettingStarted from './pages/gettingStarted/GettingStarted';
 
 class App extends React.Component {
-  navigateTo = path => {
-    const { history } = this.props;
+  constructor(props) {
+    super(props);
 
-    history.push(path);
-  };
+    store.dispatch({
+      type: reduxConstants.SET_URL_SEARCH_STRING,
+      urlSearchString: props.location.search
+    });
+  }
 
   render() {
     return (
@@ -26,7 +32,7 @@ class App extends React.Component {
 }
 
 App.propTypes = {
-  history: PropTypes.object.isRequired
+  location: PropTypes.object.isRequired,
 };
 
 export default withRouter(App);

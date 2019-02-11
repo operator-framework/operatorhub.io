@@ -3,6 +3,7 @@ import { reduxConstants } from './index';
 const initialState = {
   activeFilters: {},
   keywordSearch: '',
+  urlSearchString: '',
   sortType: '',
   viewType: ''
 };
@@ -20,6 +21,9 @@ const viewReducer = (state = initialState, action) => {
 
     case reduxConstants.SET_VIEW_TYPE:
       return Object.assign({}, state, { viewType: action.viewType });
+
+    case reduxConstants.SET_URL_SEARCH_STRING:
+      return Object.assign({}, state, { urlSearchString: action.urlSearchString });
 
     default:
       return state;
