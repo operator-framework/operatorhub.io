@@ -8,6 +8,8 @@ import Page from '../../components/Page';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 
+import maturityDetailsImg from '../../imgs/Operator-Maturity-Detailed.png';
+
 const introBlogRef = `https://coreos.com/blog/introducing-operators.html`;
 const sampleCodeRef = `https://github.com/operator-framework/operator-sdk-samples/blob/master/memcached-operator/pkg/controller/memcached/memcached_controller.go#L77`;
 const operatorSdkRef = `https://github.com/operator-framework/operator-sdk`;
@@ -191,7 +193,7 @@ const GettingStarted = ({ history, storeKeywordSearch, ...props }) => {
         {renderOperatorTypesTable()}
         <p>This results in different maturity models of Operators:</p>
         <p>
-          <span style={{ color: 'red' }}>Insert Maturity Model Image Here</span>
+          <img className="oh-page-getting-started__image" src={maturityDetailsImg} alt="" />
         </p>
         <p>
           <span style={{ color: 'red' }}>Insert Time Line Image Here</span>
