@@ -10,13 +10,7 @@ able to run anywhere that Kubernetes can run.
 ##### Frontend
 
 ```
-$ cd Frontend
-$ yarn
-$ yarn build
-
-#### Node Server
-cd server
-yarn
+npm run-script build
 ```
 
 ### Run
@@ -24,10 +18,7 @@ yarn
 ##### Production Mode
 
 ```
-$ cd server
-$ yarn server
-
-http://0.0.0.0:9065/
+npm start
 ```
 
 ##### Development Mode

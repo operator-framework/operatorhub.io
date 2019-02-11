@@ -1,10 +1,20 @@
 #!/bin/sh
+
+pushd ../data/
 if [ ! -d "community-operators" ]; then
-  git clone https://github.com/operator-framework/community-operators.git
-  exit 0
+  if [ ! $1 ]; then
+    echo "Please provide github URL to clone as command line argument"
+    exit 1
+  else
+    git clone $1 community-operators || exit 1
+    popd
+    exit 0
+  fi
 fi
- 
-cd community-operators
+
+pushd community-operators
 git fetch origin master
 git pull origin master
+popd
+popd
 exit 0

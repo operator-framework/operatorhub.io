@@ -5,7 +5,7 @@ const yaml = require('js-yaml');
 const { normalizeOperators } = require('../utils/operatorUtils');
 const persistentStore = require('../store/persistentStore');
 
-const operatorsFrameworkDirectory = './community-operators';
+const operatorsFrameworkDirectory = './data/community-operators';
 
 const loadOperators = callback => {
   const fileList = [];
