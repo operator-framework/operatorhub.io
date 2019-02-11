@@ -13,6 +13,6 @@ popd
 pushd server
 npm install
 pushd scripts
-./update-operators.sh https://github.com/galletti94/community-operators-demo || exit 1
+./update-operators.sh $COMMUNITY_REPO || exit 1
 popd
 popd
