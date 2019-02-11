@@ -22,7 +22,7 @@ frontend/coverage
 frontend/build
 frontend/dist
 
-server/community-operators
+server/data/community-operators
 
 # misc
 .DS_Store
