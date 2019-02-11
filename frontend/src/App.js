@@ -4,6 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { withRouter } from 'react-router';
 import OperatorHub from './pages/operatorHub/OperatorHub';
 import OperatorPage from './pages/operatorPage/OperatorPage';
+import GettingStarted from './pages/gettingStarted/GettingStarted';
 
 class App extends React.Component {
   navigateTo = path => {
@@ -16,7 +17,8 @@ class App extends React.Component {
     return (
       <Switch>
         <Route path="/operator/:operatorId" component={OperatorPage} />
-        <Route path="/" exact component={OperatorHub} />
+        <Route path="/getting-started-with-operators" component={GettingStarted} />
+        <Route path="/" component={OperatorHub} />
         <Redirect from="*" to="/" key="default-route" />
       </Switch>
     );

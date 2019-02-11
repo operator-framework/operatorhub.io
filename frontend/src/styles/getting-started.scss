@@ -1,0 +1,34 @@
+.oh-page.oh-page-getting-started {
+
+  .oh-page__content {
+    padding: 30px 15px 0;
+  }
+
+  .oh-operator-types-table {
+    margin: 15px 0 25px;
+
+    th, td {
+      border: 1px solid $oh-color-text-primary;
+      padding: 15px;
+      text-align: left;
+    }
+
+    th {
+      @media (min-width: $screen-sm-min) {
+        white-space: nowrap;
+      }
+    }
+
+    td {
+      vertical-align: top;
+
+      > ul {
+        padding-left: 15px;
+      }
+    }
+  }
+
+  .oh-page-getting-started__image {
+    width: 100%;
+  }
+}

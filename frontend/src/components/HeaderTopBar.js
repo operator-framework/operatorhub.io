@@ -12,11 +12,13 @@ class HeaderTopBar extends React.Component {
   };
 
   componentDidMount() {
-    this.setState({ searchValue: this.props.searchValue });
+    if (this.props.searchValue !== undefined) {
+      this.setState({ searchValue: this.props.searchValue });
+    }
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.searchValue !== prevProps.searchValue) {
+    if (this.props.searchValue !== undefined && this.props.searchValue !== prevProps.searchValue) {
       this.setState({ searchValue: this.props.searchValue });
     }
   }
@@ -111,15 +113,16 @@ HeaderTopBar.propTypes = {
   searchValue: PropTypes.string,
   onSearchChange: PropTypes.func,
   searchCallback: PropTypes.func,
-  clearSearch: PropTypes.func.isRequired,
+  clearSearch: PropTypes.func,
   barRef: PropTypes.func
 };
 
 HeaderTopBar.defaultProps = {
   onHome: helpers.noop,
-  searchValue: '',
+  searchValue: undefined,
   onSearchChange: helpers.noop,
   searchCallback: helpers.noop,
+  clearSearch: helpers.noop,
   barRef: helpers.noop
 };
 

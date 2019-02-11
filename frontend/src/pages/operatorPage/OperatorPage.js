@@ -11,13 +11,13 @@ import { MarkdownView } from '../../components/MarkdownView';
 import { ExternalLink } from '../../components/ExternalLink';
 import Page from '../../components/Page';
 import * as operatorImg from '../../imgs/operator.svg';
+import { reduxConstants } from '../../redux';
 
 const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
 
 class OperatorPage extends React.Component {
   state = {
-    operator: {},
-    searchValue: ''
+    operator: {}
   };
 
   componentDidMount() {
@@ -47,17 +47,11 @@ class OperatorPage extends React.Component {
     this.props.history.push('/');
   };
 
-  onSearch = searchValue => {
+  searchCallback = searchValue => {
     if (searchValue) {
+      this.props.storeKeywordSearch(searchValue);
       this.props.history.push(`/?keyword=${searchValue}`);
-      return;
     }
-
-    this.setState({ searchValue });
-  };
-
-  clearSearch = () => {
-    this.onSearch('');
   };
 
   updateVersion = operator => {
@@ -190,7 +184,7 @@ class OperatorPage extends React.Component {
   }
 
   render() {
-    const { operator, searchValue } = this.state;
+    const { operator } = this.state;
 
     const headerContent = (
       <React.Fragment>
@@ -218,10 +212,8 @@ class OperatorPage extends React.Component {
         pageClasses="oh-page-operator"
         headerContent={headerContent}
         toolbarContent={toolbarContent}
-        onHome={this.onHome}
-        onSearchChange={this.onSearchChange}
-        clearSearch={this.clearSearch}
-        searchValue={searchValue}
+        history={this.props.history}
+        searchCallback={this.searchCallback}
         headerRef={this.setHeaderRef}
         topBarRef={this.setTopBarRef}
       >
@@ -240,7 +232,8 @@ OperatorPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  fetchOperator: PropTypes.func
+  fetchOperator: PropTypes.func,
+  storeKeywordSearch: PropTypes.func
 };
 
 OperatorPage.defaultProps = {
@@ -249,11 +242,17 @@ OperatorPage.defaultProps = {
   errorMessage: '',
   pending: false,
   match: {},
-  fetchOperator: helpers.noop
+  fetchOperator: helpers.noop,
+  storeKeywordSearch: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
-  fetchOperator: name => dispatch(fetchOperator(name))
+  fetchOperator: name => dispatch(fetchOperator(name)),
+  storeKeywordSearch: keywordSearch =>
+    dispatch({
+      type: reduxConstants.SET_KEYWORD_SEARCH,
+      keywordSearch
+    })
 });
 
 const mapStateToProps = state => ({
