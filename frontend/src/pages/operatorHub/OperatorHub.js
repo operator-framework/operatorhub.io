@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import * as _ from 'lodash-es';
+import queryString from 'query-string';
 
 import { Alert, DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { CatalogTile, FilterSidePanel } from 'patternfly-react-extensions';
@@ -217,44 +218,49 @@ class OperatorHub extends React.Component {
       storeSortType,
       activeFilters,
       keywordSearch,
+      urlSearchString,
       viewType,
       sortType
     } = this.props;
     this.refresh();
 
-    const searchParams = new URLSearchParams(window.location.search);
-    const urlKeyword = searchParams.get(KEYWORD_URL_PARAM);
-    const urlViewType = searchParams.get(VIEW_TYPE_URL_PARAM);
-    const urlVSortType = searchParams.get(SORT_TYPE_URL_PARAM);
+    const searchObj = queryString.parse(urlSearchString);
 
-    if (urlKeyword || this.filtersInURL()) {
-      storeActiveFilters(this.getActiveValuesFromURL(defaultFilters, operatorHubFilterGroups));
+    const urlKeyword = _.get(searchObj, KEYWORD_URL_PARAM);
+    const urlViewType = _.get(searchObj, VIEW_TYPE_URL_PARAM);
+    const urlSortType = _.get(searchObj, SORT_TYPE_URL_PARAM);
+
+    let updatedFilters;
+    const updatedKeyword = urlKeyword || keywordSearch;
+    const updatedViewType = urlViewType || viewType;
+    const updatedSortType = urlSortType || sortType;
+
+    if (urlKeyword || this.filtersInURL(searchObj)) {
+      updatedFilters = this.getActiveValuesFromURL(searchObj, defaultFilters, operatorHubFilterGroups);
+      storeActiveFilters(updatedFilters);
       storeKeywordSearch(urlKeyword || '');
     } else {
-      this.updateFiltersURL(keywordSearch, activeFilters);
+      updatedFilters = activeFilters;
     }
 
     if (urlViewType) {
       storeViewType(urlViewType);
-    } else if (viewType) {
-      this.updateURLParams(VIEW_TYPE_URL_PARAM, viewType);
     }
 
-    if (urlVSortType) {
-      storeSortType(urlVSortType);
-    } else if (sortType) {
-      this.updateURLParams(SORT_TYPE_URL_PARAM, sortType);
+    if (urlSortType) {
+      storeSortType(urlSortType);
     }
 
+    this.updateURL(updatedKeyword, updatedFilters, updatedViewType, updatedSortType);
     this.updateFilteredItems();
   }
 
   componentDidUpdate(prevProps) {
-    const { keywordSearch, operators, activeFilters, sortType } = this.props;
+    const { keywordSearch, operators, activeFilters, sortType, viewType } = this.props;
 
     if (!_.isEqual(activeFilters, prevProps.activeFilters) || keywordSearch !== prevProps.keywordSearch) {
       this.updateFilteredItems();
-      this.updateFiltersURL(keywordSearch, activeFilters);
+      this.updateURL(keywordSearch, activeFilters, viewType, sortType);
     }
 
     if (!_.isEqual(operators, prevProps.operators)) {
@@ -264,6 +270,11 @@ class OperatorHub extends React.Component {
 
     if (sortType !== prevProps.sortType) {
       this.setState({ filteredItems: this.sortItems(this.state.filteredItems) });
+      this.updateURL(keywordSearch, activeFilters, viewType, sortType);
+    }
+
+    if (viewType !== prevProps.viewType) {
+      this.updateURL(keywordSearch, activeFilters, viewType, sortType);
     }
   }
 
@@ -311,23 +322,9 @@ class OperatorHub extends React.Component {
     this.props.history.replace(`${url.pathname}${searchParams}`);
   };
 
-  updateURLParams = (filterName, value) => {
-    const params = new URLSearchParams(window.location.search);
+  filtersInURL = searchObj => _.some(operatorHubFilterGroups, filterGroup => _.get(searchObj, filterGroup));
 
-    if (value) {
-      params.set(filterName, Array.isArray(value) ? JSON.stringify(value) : value);
-    } else {
-      params.delete(filterName);
-    }
-    this.setURLParams(params);
-  };
-
-  filtersInURL = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    _.some(operatorHubFilterGroups, filterGroup => searchParams.get(filterGroup));
-  };
-
-  updateFiltersURL = (keywordSearch, activeFilters) => {
+  updateURL = (keywordSearch, activeFilters, viewType, sortType) => {
     const params = new URLSearchParams(window.location.search);
 
     _.each(_.keys(activeFilters), filterType => {
@@ -339,7 +336,6 @@ class OperatorHub extends React.Component {
       } else {
         params.delete(filterType);
       }
-      this.updateURLParams(filterType, getFilterSearchParam(groupFilter));
     });
 
     if (keywordSearch) {
@@ -348,15 +344,26 @@ class OperatorHub extends React.Component {
       params.delete(KEYWORD_URL_PARAM);
     }
 
+    if (viewType) {
+      params.set(VIEW_TYPE_URL_PARAM, viewType);
+    } else {
+      params.delete(VIEW_TYPE_URL_PARAM);
+    }
+
+    if (sortType) {
+      params.set(SORT_TYPE_URL_PARAM, sortType);
+    } else {
+      params.delete(SORT_TYPE_URL_PARAM);
+    }
+
     this.setURLParams(params);
   };
 
-  getActiveValuesFromURL = (availableFilters, filterGroups) => {
-    const searchParams = new URLSearchParams(window.location.search);
+  getActiveValuesFromURL = (searchObj, availableFilters, filterGroups) => {
     const groupFilters = {};
 
     _.each(filterGroups, filterGroup => {
-      const groupFilterParam = searchParams.get(filterGroup);
+      const groupFilterParam = _.get(searchObj, filterGroup);
       if (!groupFilterParam) {
         return;
       }
@@ -405,8 +412,6 @@ class OperatorHub extends React.Component {
       _.each(_.keys(activeFilters[field]), key => _.set(activeFilters, [field, key, 'active'], false));
     });
 
-    this.updateFiltersURL('', activeFilters);
-
     this.props.storeActiveFilters(activeFilters);
     this.props.storeKeywordSearch('');
   }
@@ -424,12 +429,10 @@ class OperatorHub extends React.Component {
   };
 
   updateViewType = viewType => {
-    this.updateURLParams(VIEW_TYPE_URL_PARAM, viewType);
     this.props.storeViewType(viewType);
   };
 
   updateSort = sortType => {
-    this.updateURLParams(SORT_TYPE_URL_PARAM, sortType);
     this.props.storeSortType(sortType);
   };
 
@@ -441,7 +444,6 @@ class OperatorHub extends React.Component {
     } else {
       params.delete(KEYWORD_URL_PARAM);
     }
-    this.setURLParams(params);
 
     this.props.storeKeywordSearch(searchValue);
   };
@@ -713,6 +715,7 @@ OperatorHub.propTypes = {
     replace: PropTypes.func.isRequired
   }).isRequired,
   fetchOperators: PropTypes.func,
+  urlSearchString: PropTypes.string,
   viewType: PropTypes.string,
   activeFilters: PropTypes.object,
   keywordSearch: PropTypes.string,
@@ -731,6 +734,7 @@ OperatorHub.defaultProps = {
   fetchOperators: helpers.noop,
   activeFilters: [],
   keywordSearch: '',
+  urlSearchString: '',
   viewType: '',
   sortType: '',
   storeActiveFilters: helpers.noop,
