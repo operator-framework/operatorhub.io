@@ -9,6 +9,11 @@ const Footer = ({ history, ...props }) => {
     history.push('/getting-started-with-operators');
   };
 
+  const onWhatIsAnOperator = e => {
+    e.preventDefault();
+    history.push('/what-is-an-operator');
+  };
+
   return (
     <div className="oh-footer" {...props}>
       <div className="oh-footer__top-bar">
@@ -30,7 +35,7 @@ const Footer = ({ history, ...props }) => {
               The Operator Framework is an open source toolkit to manage Kubernetes native applications, called
               Operators, in an effective, automated, and scalable way.
             </div>
-            <a className="oh-footer__button" href="#" onClick={onGettingStarted}>
+            <a className="oh-footer__button" href="/getting-started-with-operators" onClick={onGettingStarted}>
               Jump-start with the SDK
             </a>
           </div>
@@ -39,44 +44,23 @@ const Footer = ({ history, ...props }) => {
             <div className="oh-footer__contents-right__links">
               <div className="oh-footer__contents-right__links__list">
                 <h4 className="oh-footer__contents-right__links__list__header">ABOUT</h4>
-                <a
-                  className="oh-footer__contents-right__links__list__link"
-                  href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a className="oh-footer__contents-right__links__list__link" href="/what-is-an-operator" onClick={onWhatIsAnOperator}>
                   What are Operators?
                 </a>
                 <a
                   className="oh-footer__contents-right__links__list__link"
-                  href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
+                  href="https://github.com/operator-framework/getting-started"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   Documentation
-                </a>
-                <a
-                  className="oh-footer__contents-right__links__list__link"
-                  href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Community
-                </a>
-                <a
-                  className="oh-footer__contents-right__links__list__link"
-                  href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  FAQ
                 </a>
               </div>
               <div className="oh-footer__contents-right__links__list">
                 <h4 className="oh-footer__contents-right__links__list__header">NETWORK</h4>
                 <a
                   className="oh-footer__contents-right__links__list__link"
-                  href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
+                  href="https://github.com/operator-framework"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -88,42 +72,16 @@ const Footer = ({ history, ...props }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Forum
+                  Contact Us
                 </a>
                 <a
                   className="oh-footer__contents-right__links__list__link"
-                  href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
+                  href="https://kubernetes.slack.com/messages/kubernetes-operators"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Contact Us
+                  Join us on Slack
                 </a>
-                <div className="oh-footer__contents-right__links__list__social">
-                  <a
-                    className="fa fa-twitter"
-                    href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="sr-only">Twitter</span>
-                  </a>
-                  <a
-                    className="fa fa-facebook"
-                    href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="sr-only">Facebook</span>
-                  </a>
-                  <a
-                    className="fa fa-slack"
-                    href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="sr-only">Slack</span>
-                  </a>
-                </div>
               </div>
             </div>
           </div>

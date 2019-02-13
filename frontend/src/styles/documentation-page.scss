@@ -1,0 +1,54 @@
+.oh-page.oh-page-documentation {
+  background-color: $color-pf-white;
+}
+
+.oh-documentation-page {
+  margin-top: 30px;
+
+  &__sidebar {
+    margin-top: 20px;
+
+    &__content {
+      background-color: $oh-color-background;
+      padding: 25px 15px;
+    }
+
+    &__link {
+      padding: 3px 0;
+    }
+  }
+
+  &-table {
+    margin: 15px 0 25px;
+
+    th, td {
+      border: 1px solid $oh-color-text-primary;
+      padding: 15px;
+      text-align: left;
+    }
+
+    th {
+      @media (min-width: $screen-sm-min) {
+        white-space: nowrap;
+      }
+    }
+
+    td {
+      vertical-align: top;
+
+      > ul {
+        padding-left: 15px;
+      }
+    }
+
+    .oh-code {
+      display: block;
+      font-size: 12px;
+      word-break: break-all;
+    }
+  }
+
+  .oh-page-getting-started__image {
+    width: 100%;
+  }
+}
