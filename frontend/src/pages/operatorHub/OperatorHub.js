@@ -54,15 +54,15 @@ const maturitySort = maturity => {
   const value = maturity.value || maturity;
 
   switch (value) {
-    case 'Installation':
+    case 'Basic Install':
       return 0;
-    case 'Upgrades':
+    case 'Seamless Upgrades':
       return 1;
-    case 'Lifecycle':
+    case 'Full Lifecycle':
       return 2;
-    case 'Insights':
+    case 'Deep Insights':
       return 3;
-    case 'Auto-pilot':
+    case 'Auto Pilot':
       return 4;
     default:
       return 5;
@@ -436,7 +436,7 @@ class OperatorHub extends React.Component {
 
   openDetails = (event, operator) => {
     event.preventDefault();
-    this.props.history.push(`/operator/${operator.displayName}`);
+    this.props.history.push(`/operator/${operator.name}`);
   };
 
   updateViewType = viewType => {

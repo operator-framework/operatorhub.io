@@ -10,6 +10,7 @@ import { fetchOperator } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import { ExternalLink } from '../../components/ExternalLink';
 import Page from '../../components/Page';
+import InstallModal from './InstallModal';
 import * as operatorImg from '../../imgs/operator.svg';
 import { reduxConstants } from '../../redux';
 import * as maturityImgLevel1 from '../../imgs/maturity-imgs/level-1.svg';
@@ -21,20 +22,25 @@ import * as maturityImgLevel5 from '../../imgs/maturity-imgs/level-5.svg';
 const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
 
 const maturityImages = {
-  Installation: maturityImgLevel1,
-  Upgrades: maturityImgLevel2,
-  Lifecycle: maturityImgLevel3,
-  Insights: maturityImgLevel4,
-  'Auto-pilot': maturityImgLevel5
+  'Basic Install': maturityImgLevel1,
+  'Seamless Upgrades': maturityImgLevel2,
+  'Full Lifecycle': maturityImgLevel3,
+  'Deep Insights': maturityImgLevel4,
+  'Auto Pilot': maturityImgLevel5
 };
 
 class OperatorPage extends React.Component {
   state = {
-    operator: {}
+    operator: {},
+    installShown: false
   };
 
   componentDidMount() {
-    this.setState({ operator: this.props.operator });
+    const { operator } = this.props;
+
+    if (!_.isEmpty(operator)) {
+      this.setCurrentOperatorVersion(operator);
+    }
     this.refresh();
   }
 
@@ -42,11 +48,7 @@ class OperatorPage extends React.Component {
     const { operator } = this.props;
 
     if (operator && !_.isEqual(operator, prevProps.operator)) {
-      let stateOperator = operator;
-      if (this.state.operator) {
-        stateOperator = _.find(operator.version, { version: this.state.operator.version }) || operator;
-      }
-      this.setState({ operator: stateOperator });
+      this.setCurrentOperatorVersion(operator);
     }
   }
 
@@ -54,6 +56,14 @@ class OperatorPage extends React.Component {
     const { match } = this.props;
     this.props.fetchOperator(_.get(match, 'params.operatorId'));
   }
+
+  setCurrentOperatorVersion = operator => {
+    const { match } = this.props;
+    const name = _.get(match, 'params.operatorId');
+
+    const versionOperator = _.size(operator.versions) > 1 ? _.find(operator.versions, { name }) : operator;
+    this.setState({ operator: versionOperator });
+  };
 
   onHome = e => {
     e.preventDefault();
@@ -69,6 +79,16 @@ class OperatorPage extends React.Component {
 
   updateVersion = operator => {
     this.setState({ operator });
+    this.props.history.push(`/operator/${operator.name}`);
+  };
+
+  showInstall = e => {
+    e.preventDefault();
+    this.setState({ installShown: true });
+  };
+
+  hideInstall = () => {
+    this.setState({ installShown: false });
   };
 
   renderPendingMessage = () => (
@@ -157,9 +177,7 @@ class OperatorPage extends React.Component {
     const maturityLabel = (
       <span>
         <span>Operator Maturity</span>
-        <ExternalLink href="#">
-          Operator Maturity
-        </ExternalLink>
+        <ExternalLink href="#">Operator Maturity</ExternalLink>
       </span>
     );
 
@@ -171,7 +189,7 @@ class OperatorPage extends React.Component {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Get Started
+          Install
         </a>
         <div className="oh-operator-page__side-panel__separator" />
         <PropertiesSidePanel>
@@ -216,7 +234,7 @@ class OperatorPage extends React.Component {
   }
 
   render() {
-    const { operator } = this.state;
+    const { operator, installShown } = this.state;
 
     const headerContent = (
       <div className="oh-operator-header__content">
@@ -250,6 +268,7 @@ class OperatorPage extends React.Component {
         topBarRef={this.setTopBarRef}
       >
         {this.renderView()}
+        <InstallModal show={installShown} operator={operator} onClose={this.hideInstall} />
       </Page>
     );
   }

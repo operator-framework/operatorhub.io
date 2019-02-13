@@ -29,8 +29,8 @@ const getVersionedOperators = operators => {
       return operator;
     }
 
-    const sortedOperators = versionSort(operator.versions, { nested: 'versionForCompare' });
-    const latestOperator = sortedOperators[sortedOperators.length - 1];
+    const sortedOperators = _.reverse(versionSort(operator.versions, { nested: 'versionForCompare' }));
+    const latestOperator = sortedOperators[0];
     latestOperator.version = `${latestOperator.version} (latest)`;
 
     operator.versions = sortedOperators;

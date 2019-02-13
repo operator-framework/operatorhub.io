@@ -51,11 +51,16 @@ exports.close = () => {
 };
 
 exports.getOperator = (operatorName, callback) => {
-  db.all(`SELECT * FROM ${OPERATOR_TABLE} where displayName = '${operatorName}'`, (err, rows) => {
+  db.all(`SELECT * FROM ${OPERATOR_TABLE} where name = '${operatorName}'`, (err, rows) => {
     if (err) {
       console.error(err.message);
     }
-    callback(rows);
+    db.all(`SELECT * FROM ${OPERATOR_TABLE} where displayName = '${rows[0].displayName}'`, (err2, allRows) => {
+      if (err) {
+        console.error(err.message);
+      }
+      callback(allRows);
+    });
   });
 };
 

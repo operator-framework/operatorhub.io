@@ -19,10 +19,13 @@ $oh-list-item-height: 100px;
 $oh-filters-width: 220px;
 $oh-card-width: calc(#{$catalog-tile-pf-width} + 15px);
 
-$oh-width-3-tile-min: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 35px);
-$oh-width-4-tile-min: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 35px);
-$oh-width-5-tile-min: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 35px);
-$oh-content-width-3-tiles: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
-$oh-content-width-4-tiles: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
-$oh-content-width-5-tiles: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + 20px);
+$oh-extra-tile-space: 50px; // 15px padding x 2 +  20px margin between filters and tiles
+$oh-window-space: calc(#{$oh-extra-tile-space} + 30px); // 15px padding on each side
+
+$oh-width-3-tile-min: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-window-space});
+$oh-width-4-tile-min: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-window-space});
+$oh-width-5-tile-min: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-window-space});
+$oh-content-width-3-tiles: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-extra-tile-space});
+$oh-content-width-4-tiles: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-extra-tile-space});
+$oh-content-width-5-tiles: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-extra-tile-space});
 

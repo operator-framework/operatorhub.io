@@ -12,22 +12,22 @@ const normalizeMaturity = maturityString => {
 
   switch (maturityString.toLowerCase()) {
     case 'alpha':
-      maturity = 'Installation';
+      maturity = 'Basic Install';
       break;
     case 'beta':
-      maturity = 'Upgrades';
+      maturity = 'Seamless Upgrades';
       break;
     case 'stable':
-      maturity = 'Lifecycle';
+      maturity = 'Full Lifecycle';
       break;
     case 'insights':
-      maturity = 'Insights';
+      maturity = 'Deep Insights';
       break;
     case 'auto-pilot':
-      maturity = 'Auto-pilot';
+      maturity = 'Auto Pilot';
       break;
     default:
-      maturity = 'Installation';
+      maturity = 'Basic Install';
   }
   return maturity;
 };
