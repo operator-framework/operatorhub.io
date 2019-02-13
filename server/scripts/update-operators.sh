@@ -3,13 +3,14 @@
 pushd ../data/
 if [ ! -d "community-operators" ]; then
   if [ ! $1 ]; then
-    echo "Please provide github URL to clone as command line argument"
-    exit 1
+    echo "Using default community operators repository"
+    OPERATORS_REPO=https://github.com/operator-framework/community-operators.git
   else
-    git clone $1 community-operators || exit 1
-    popd
-    exit 0
+    OPERATORS_REPO=$1
   fi
+  git clone $OPERATORS_REPO community-operators || exit 1
+  popd
+  exit 0
 fi
 
 pushd community-operators
