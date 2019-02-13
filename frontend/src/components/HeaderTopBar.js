@@ -23,6 +23,14 @@ class HeaderTopBar extends React.Component {
     }
   }
 
+  onSubmitYourOperator = () => {
+    this.props.history.push('/contribute');
+  };
+
+  onGettingStarted = () => {
+    this.props.history.push('/getting-started-with-operators');
+  };
+
   onLogoClick = e => {
     e.preventDefault();
     this.props.onHome(e);
@@ -96,8 +104,12 @@ class HeaderTopBar extends React.Component {
             id="header-contribute-dropdown"
             pullRight
           >
-            <MenuItem eventKey={0}>Submit your Operator</MenuItem>
-            <MenuItem eventKey={1}>Create an Operator with the SDK</MenuItem>
+            <MenuItem eventKey={0} onSelect={this.onSubmitYourOperator}>
+              Submit your Operator
+            </MenuItem>
+            <MenuItem eventKey={1} onSelect={this.onGettingStarted}>
+              Create an Operator with the SDK
+            </MenuItem>
           </DropdownButton>
         </div>
         <div className="oh-header__top-bar__xs-search">
@@ -110,6 +122,9 @@ class HeaderTopBar extends React.Component {
 
 HeaderTopBar.propTypes = {
   onHome: PropTypes.func,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }).isRequired,
   searchValue: PropTypes.string,
   onSearchChange: PropTypes.func,
   searchCallback: PropTypes.func,

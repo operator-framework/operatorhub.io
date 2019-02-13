@@ -8,6 +8,8 @@ import { reduxConstants } from './redux';
 import OperatorHub from './pages/operatorHub/OperatorHub';
 import OperatorPage from './pages/operatorPage/OperatorPage';
 import GettingStarted from './pages/gettingStarted/GettingStarted';
+import WhatIsAnOperator from './pages/whatIsAnOperator/WhatIsAnOperator';
+import Contribute from './pages/contribute/Contribute';
 
 class App extends React.Component {
   constructor(props) {
@@ -24,6 +26,8 @@ class App extends React.Component {
       <Switch>
         <Route path="/operator/:operatorId" component={OperatorPage} />
         <Route path="/getting-started-with-operators" component={GettingStarted} />
+        <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
+        <Route path="/contribute" component={Contribute} />
         <Route path="/" component={OperatorHub} />
         <Redirect from="*" to="/" key="default-route" />
       </Switch>
