@@ -34,6 +34,10 @@
 .oh-external-link {
   display: inline-block;
 
+  &.block {
+    display: block;
+  }
+
   &.indicator {
     padding-right: 15px;
     &::after {

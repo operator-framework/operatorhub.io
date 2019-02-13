@@ -2,9 +2,9 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-export const ExternalLink = ({ href, text, className, indicator, ...otherProps }) => (
+export const ExternalLink = ({ href, text, className, block, indicator, ...otherProps }) => (
   <a
-    className={classNames('oh-external-link', { indicator }, className)}
+    className={classNames('oh-external-link', { block, indicator }, className)}
     href={href.startsWith('http') ? href : `http://${href}`}
     target="_blank"
     rel="noopener noreferrer"
@@ -16,12 +16,15 @@ export const ExternalLink = ({ href, text, className, indicator, ...otherProps }
 
 ExternalLink.propTypes = {
   href: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired,
+  text: PropTypes.string,
+  block: PropTypes.bool,
   className: PropTypes.string,
   indicator: PropTypes.bool
 };
 
 ExternalLink.defaultProps = {
   className: '',
+  text: '',
+  block: false,
   indicator: true
 };

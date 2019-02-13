@@ -49,8 +49,3 @@ p {
   font-size: 14px;
   color: $oh-color-text-body;
 }
-
-// TODO: Fix in patternfly-react-extensions or determine reason here
-.catalog-tile-pf-body .catalog-tile-pf-description::after {
-  right: -1px;
-}

@@ -50,6 +50,25 @@ const providerSort = provider => {
   return value;
 };
 
+const maturitySort = maturity => {
+  const value = maturity.value || maturity;
+
+  switch (value) {
+    case 'Installation':
+      return 0;
+    case 'Upgrades':
+      return 1;
+    case 'Lifecycle':
+      return 2;
+    case 'Insights':
+      return 3;
+    case 'Auto-pilot':
+      return 4;
+    default:
+      return 5;
+  }
+};
+
 const filterByGroup = (items, filters) =>
   // Filter items by each filter group
   _.reduce(
@@ -391,15 +410,7 @@ class OperatorHub extends React.Component {
     if (groupName === 'provider') {
       sortBy = providerSort;
     } else if (groupName === 'maturity') {
-      return _.keys(activeFilters).sort((value1, value2) => {
-        if (value1 === 'null') {
-          return 1;
-        }
-        if (value1 === 'null') {
-          return -1;
-        }
-        return value1.localeCompare(value2);
-      });
+      sortBy = maturitySort;
     }
     return _.sortBy(_.keys(activeFilters), sortBy);
   };
@@ -536,7 +547,7 @@ class OperatorHub extends React.Component {
       return null;
     }
 
-    const { name, displayName, imgUrl, provider, description, longDescription } = item;
+    const { name, displayName, imgUrl, provider, description } = item;
     const vendor = provider ? `provided by ${provider}` : null;
 
     return (
@@ -546,7 +557,7 @@ class OperatorHub extends React.Component {
         title={displayName}
         iconImg={imgUrl || operatorImg}
         vendor={vendor}
-        description={description || longDescription}
+        description={description}
         href={`${window.location.origin}/operator/${name}`}
         onClick={e => this.openDetails(e, item)}
       />
@@ -689,7 +700,7 @@ class OperatorHub extends React.Component {
 
     const headerContent = (
       <div className="oh-hub-header-content">
-        <h1 className="oh-hero">Welcome to OperatorHub</h1>
+        <h1 className="oh-hero">Welcome to OperatorHub.io</h1>
         <p className="oh-header-content__sub-title">
           Operators deliver the automation advantages of cloud services like provisioning, scaling, and backup/restore
           while being able to run anywhere that Kubernetes can run.

@@ -62,8 +62,7 @@ export class MarkdownView extends React.Component {
 
   render() {
     // Find the app's stylesheets and inject them into the frame to ensure consistent styling.
-    const links = Array.from(document.getElementsByTagName('link'));
-    Array.from(document.getElementsByTagName('link')).forEach(l => console.log(l.href));
+    const links = _.filter(Array.from(document.getElementsByTagName('link')), link => !link.href.includes('/ico/'));
 
     const linkRefs = _.reduce(
       links,

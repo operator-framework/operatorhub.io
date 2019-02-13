@@ -12,8 +12,21 @@ import { ExternalLink } from '../../components/ExternalLink';
 import Page from '../../components/Page';
 import * as operatorImg from '../../imgs/operator.svg';
 import { reduxConstants } from '../../redux';
+import * as maturityImgLevel1 from '../../imgs/maturity-imgs/level-1.svg';
+import * as maturityImgLevel2 from '../../imgs/maturity-imgs/level-2.svg';
+import * as maturityImgLevel3 from '../../imgs/maturity-imgs/level-3.svg';
+import * as maturityImgLevel4 from '../../imgs/maturity-imgs/level-4.svg';
+import * as maturityImgLevel5 from '../../imgs/maturity-imgs/level-5.svg';
 
 const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
+
+const maturityImages = {
+  Installation: maturityImgLevel1,
+  Upgrades: maturityImgLevel2,
+  Lifecycle: maturityImgLevel3,
+  Insights: maturityImgLevel4,
+  'Auto-pilot': maturityImgLevel5
+};
 
 class OperatorPage extends React.Component {
   state = {
@@ -82,6 +95,47 @@ class OperatorPage extends React.Component {
   renderPropertyItem = (label, value) =>
     value ? <PropertyItem label={label} value={value} /> : <PropertyItem label={label} value={notAvailable} />;
 
+  renderVersion = (version, versions) =>
+    _.size(versions) > 1 ? (
+      <DropdownButton className="oh-operator-page__side-panel__version-dropdown" title={version} id="version-dropdown">
+        {_.map(versions, (nextVersion, index) => (
+          <MenuItem key={nextVersion.version} eventKey={index} onClick={() => this.updateVersion(nextVersion)}>
+            {nextVersion.version}
+          </MenuItem>
+        ))}
+      </DropdownButton>
+    ) : (
+      version
+    );
+
+  renderLinks = links =>
+    _.size(links) && (
+      <React.Fragment>
+        {_.map(links, link => (
+          <ExternalLink key={link.name} block href={link.url} text={link.name} />
+        ))}
+      </React.Fragment>
+    );
+
+  renderMaintainers = maintainers =>
+    _.size(maintainers) && (
+      <React.Fragment>
+        {_.map(maintainers, maintainer => (
+          <React.Fragment key={maintainer.name}>
+            <div>{maintainer.name}</div>
+            <a href={`mailto:${maintainer.email}`}>{maintainer.email}</a>
+          </React.Fragment>
+        ))}
+      </React.Fragment>
+    );
+
+  renderMaturity = maturity => (
+    <span>
+      <span className="sr-only">{maturity}</span>
+      <img className="oh-operator-page__side-panel__image" src={maturityImages[maturity]} alt={maturity} />
+    </span>
+  );
+
   renderSidePanel() {
     const { operator } = this.state;
     const {
@@ -97,45 +151,17 @@ class OperatorPage extends React.Component {
       categories
     } = operator;
 
-    const versionComponent =
-      _.size(versions) > 1 ? (
-        <DropdownButton
-          className="oh-operator-page__side-panel__version-dropdown"
-          title={version}
-          id="version-dropdown"
-        >
-          {_.map(versions, (nextVersion, index) => (
-            <MenuItem key={nextVersion.version} eventKey={index} onClick={() => this.updateVersion(nextVersion)}>
-              {nextVersion.version}
-            </MenuItem>
-          ))}
-        </DropdownButton>
-      ) : (
-        version
-      );
-
-    const linksComponent = _.size(links) && (
-      <React.Fragment>
-        {_.map(links, link => (
-          <ExternalLink key={link.name} href={link.url} text={link.name} />
-        ))}
-      </React.Fragment>
-    );
-
-    const maintainersComponent = _.size(maintainers) && (
-      <React.Fragment>
-        {_.map(maintainers, maintainer => (
-          <React.Fragment key={maintainer.name}>
-            <div>{maintainer.name}</div>
-            <a href={`mailto:${maintainer.email}`}>{maintainer.email}</a>
-          </React.Fragment>
-        ))}
-      </React.Fragment>
-    );
-
     const createdString = createdAt && `${createdAt}`;
-
     const containerImageLink = containerImage && <ExternalLink href={containerImage} text={containerImage} />;
+
+    const maturityLabel = (
+      <span>
+        <span>Operator Maturity</span>
+        <ExternalLink href="#">
+          Operator Maturity
+        </ExternalLink>
+      </span>
+    );
 
     return (
       <div className="oh-operator-page__side-panel">
@@ -149,23 +175,32 @@ class OperatorPage extends React.Component {
         </a>
         <div className="oh-operator-page__side-panel__separator" />
         <PropertiesSidePanel>
-          {this.renderPropertyItem('Operator Version', versionComponent)}
-          {this.renderPropertyItem('Operator Maturity', maturity)}
+          {this.renderPropertyItem('Operator Version', this.renderVersion(version, versions))}
+          {this.renderPropertyItem(maturityLabel, this.renderMaturity(maturity))}
           {this.renderPropertyItem('Provider', provider)}
-          {this.renderPropertyItem('Links', linksComponent)}
+          {this.renderPropertyItem('Links', this.renderLinks(links))}
           {this.renderPropertyItem('Repository', repository)}
           {this.renderPropertyItem('Container Image', containerImageLink)}
           {this.renderPropertyItem('Created At', createdString)}
-          {this.renderPropertyItem('Maintainers', maintainersComponent)}
+          {this.renderPropertyItem('Maintainers', this.renderMaintainers(maintainers))}
           {this.renderPropertyItem('Categories', categories)}
         </PropertiesSidePanel>
       </div>
     );
   }
 
-  renderDetails() {
+  renderView() {
+    const { error, pending } = this.props;
     const { operator } = this.state;
     const { displayName, longDescription } = operator;
+
+    if (error) {
+      return this.renderError();
+    }
+
+    if (pending || !operator) {
+      return this.renderPendingMessage();
+    }
 
     return (
       <div className="oh-operator-page row">
@@ -178,21 +213,6 @@ class OperatorPage extends React.Component {
         </Grid.Col>
       </div>
     );
-  }
-
-  renderView() {
-    const { error, pending } = this.props;
-    const { operator } = this.state;
-
-    if (error) {
-      return this.renderError();
-    }
-
-    if (pending || !operator) {
-      return this.renderPendingMessage();
-    }
-
-    return this.renderDetails();
   }
 
   render() {
