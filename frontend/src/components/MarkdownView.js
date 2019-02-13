@@ -62,12 +62,11 @@ export class MarkdownView extends React.Component {
 
   render() {
     // Find the app's stylesheets and inject them into the frame to ensure consistent styling.
-    const filteredLinks = Array.from(document.getElementsByTagName('link')).filter(l =>
-      _.includes(l.href, 'app-bundle')
-    );
+    const links = Array.from(document.getElementsByTagName('link'));
+    Array.from(document.getElementsByTagName('link')).forEach(l => console.log(l.href));
 
     const linkRefs = _.reduce(
-      filteredLinks,
+      links,
       (refs, link) => `${refs}
         <link rel="stylesheet" href="${link.href}">`,
       ''

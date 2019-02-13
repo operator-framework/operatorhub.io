@@ -1,98 +1,56 @@
-.oh-content-operator {
-  overflow-x: hidden;
-}
-
 .oh-page.oh-page-operator {
   background-color: $color-pf-white;
-  &.oh-page-fixed-header {
-    .oh-operator-page__toolbar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-    }
+}
+
+.oh-operator-header {
+  &__content {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: row;
+    padding-bottom: 30px;
+    overflow: hidden;
   }
 
-  .oh-header {
-    &__content {
-      flex-direction: row;
-      align-items: flex-start;
-      overflow: hidden;
-      &__image-container {
-        background: $color-pf-white;
-        border-radius: 50px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        height: 100px;
-        width: 100px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+  &__image-container {
+    background: $color-pf-white;
+    border-radius: 50px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    height: 100px;
+    width: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-      &__image {
-        max-height: 60px;
-        max-width: 60px;
-      }
+  &__image {
+    max-height: 60px;
+    max-width: 60px;
+  }
 
-      &__info {
-        flex: 1;
-        margin-left: 20px;
-        overflow: hidden;
-      }
+  &__info {
+    flex: 1;
+    margin-left: 20px;
+    overflow: hidden;
+  }
 
-      h1 {
-        margin-top: 10px;
-        font-size: 32px;
-        .title {
-          font-family: $oh-code-font-family;
-          padding-left: 8px;
-        }
-      }
+  h1 {
+    margin-top: 10px;
+    font-size: 32px;
+    .title {
+      font-family: $oh-code-font-family;
+      padding-left: 8px;
     }
   }
 }
 
 .oh-operator-page {
-  display: flex;
-  flex-direction: row;
-  padding: 30px 15px 0;
-
-  &__toolbar {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    border-bottom: 1px solid $oh-color-rule;
-    background-color: $page-bg-color;
-    padding: 10px 35px 10px 15px;
-    width: 100%;
-
-    &__inner {
-      display: flex;
-      flex-direction: row;
-      width: 100%;
-
-      @media (min-width: $oh-width-3-tile-min) {
-        width: $oh-content-width-3-tiles;
-      }
-      @media (min-width: $oh-width-4-tile-min) {
-        width: $oh-content-width-4-tiles;
-      }
-      @media (min-width: $oh-width-5-tile-min) {
-        width: $oh-content-width-5-tiles;
-      }
-    }
-    .breadcrumb {
-      margin: 0 25px;
-      flex: 1;
-    }
-  }
-
-  &__content {
-    flex: 1;
-  }
+  margin-top: 30px;
 
   &__side-panel {
+    @media (min-width: $screen-sm-min) {
+      margin-top: 20px;
+    }
+
     &__button {
       background-color: $oh-color-primary;
       border-radius: 4px;

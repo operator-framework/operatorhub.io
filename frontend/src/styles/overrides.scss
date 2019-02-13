@@ -7,6 +7,10 @@ body {
   margin: 0;
 }
 
+::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
 a:hover,
 a:focus {
   text-decoration: none;
@@ -21,6 +25,10 @@ h2, .h2 {
   font-size: 22px;
   color: $oh-color-text-primary;
   letter-spacing: 1.22px;
+  margin-top: 60px;
+  margin-bottom: 20px;
+  padding-top: 60px;
+  border-top: 1px solid $oh-color-rule;
 }
 h3, .h3 {
   font-size: 18px;
@@ -29,13 +37,13 @@ h3, .h3 {
 }
 h4, .h4 {
   font-size: 16px;
-  color: $oh-color-primary;
-  letter-spacing: 1.89px;
+  color: $oh-color-text-primary;
+  letter-spacing: 0.89px;
 }
 h5, .h5 {
   font-size: 15px;
-  color: $oh-color-primary;
-  letter-spacing: 1.83px;
+  color: $oh-color-text-primary;
+  letter-spacing: 0.83px;
 }
 p {
   font-size: 14px;

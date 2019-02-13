@@ -601,10 +601,55 @@ class OperatorHub extends React.Component {
     return <div className="oh-list-view">{_.map(filteredItems, item => this.renderListItem(item))}</div>;
   }
 
+  renderToolbar() {
+    const { viewType, sortType } = this.props;
+    const { filteredItems } = this.state;
+
+    return (
+      <div className="oh-hub-page__toolbar">
+        <div className="oh-hub-page__toolbar__item oh-hub-page__toolbar__item-left">
+          {filteredItems.length}
+          <span className="oh-hub-page__toolbar__label oh-tiny">items</span>
+        </div>
+        <div className="oh-hub-page__toolbar__item">
+          <span className="oh-hub-page__toolbar__label oh-tiny">VIEW:</span>
+          <DropdownButton
+            className="oh-hub-page__toolbar__dropdown"
+            title={this.getViewItem(viewType)}
+            id="view-type-dropdown"
+            pullRight
+          >
+            <MenuItem eventKey={0} active={viewType !== 'list'} onClick={() => this.updateViewType('card')}>
+              {this.getViewItem('card')}
+            </MenuItem>
+            <MenuItem eventKey={0} active={viewType === 'list'} onClick={() => this.updateViewType('list')}>
+              {this.getViewItem('list')}
+            </MenuItem>
+          </DropdownButton>
+        </div>
+        <div className="oh-hub-page__toolbar__item">
+          <span className="oh-hub-page__toolbar__label oh-tiny">SORT:</span>
+          <DropdownButton
+            className="oh-hub-page__toolbar__dropdown"
+            title={this.getSortItem(sortType)}
+            id="view-type-dropdown"
+            pullRight
+          >
+            <MenuItem eventKey={0} active={sortType !== 'descending'} onClick={() => this.updateSort('ascending')}>
+              {this.getSortItem('ascending')}
+            </MenuItem>
+            <MenuItem eventKey={0} active={sortType === 'descending'} onClick={() => this.updateSort('descending')}>
+              {this.getSortItem('descending')}
+            </MenuItem>
+          </DropdownButton>
+        </div>
+      </div>
+    );
+  }
+
   renderView = () => {
     const { error, pending } = this.props;
-    const { operators, viewType, sortType } = this.props;
-    const { filteredItems } = this.state;
+    const { operators, viewType } = this.props;
 
     if (error) {
       return this.renderError();
@@ -631,44 +676,7 @@ class OperatorHub extends React.Component {
       <div className="oh-hub-page">
         <div className="oh-hub-page__filters">{this.renderFilters()}</div>
         <div className="oh-hub-page__content">
-          <div className="oh-hub-page__toolbar">
-            <div className="oh-hub-page__toolbar__item oh-hub-page__toolbar__item-left">
-              {filteredItems.length}
-              <span className="oh-hub-page__toolbar__label oh-tiny">items</span>
-            </div>
-            <div className="oh-hub-page__toolbar__item">
-              <span className="oh-hub-page__toolbar__label oh-tiny">VIEW:</span>
-              <DropdownButton
-                className="oh-hub-page__toolbar__dropdown"
-                title={this.getViewItem(viewType)}
-                id="view-type-dropdown"
-                pullRight
-              >
-                <MenuItem eventKey={0} active={viewType !== 'list'} onClick={() => this.updateViewType('card')}>
-                  {this.getViewItem('card')}
-                </MenuItem>
-                <MenuItem eventKey={0} active={viewType === 'list'} onClick={() => this.updateViewType('list')}>
-                  {this.getViewItem('list')}
-                </MenuItem>
-              </DropdownButton>
-            </div>
-            <div className="oh-hub-page__toolbar__item">
-              <span className="oh-hub-page__toolbar__label oh-tiny">SORT:</span>
-              <DropdownButton
-                className="oh-hub-page__toolbar__dropdown"
-                title={this.getSortItem(sortType)}
-                id="view-type-dropdown"
-                pullRight
-              >
-                <MenuItem eventKey={0} active={sortType !== 'descending'} onClick={() => this.updateSort('ascending')}>
-                  {this.getSortItem('ascending')}
-                </MenuItem>
-                <MenuItem eventKey={0} active={sortType === 'descending'} onClick={() => this.updateSort('descending')}>
-                  {this.getSortItem('descending')}
-                </MenuItem>
-              </DropdownButton>
-            </div>
-          </div>
+          {this.renderToolbar()}
           {viewType !== 'list' && this.renderCards()}
           {viewType === 'list' && this.renderListItems()}
         </div>
@@ -680,18 +688,17 @@ class OperatorHub extends React.Component {
     const { keywordSearch, history } = this.props;
 
     const headerContent = (
-      <React.Fragment>
-        <h1 className="oh-header__content__title oh-hero">Welcome to OperatorHub</h1>
-        <p className="oh-header__content__sub-title">
+      <div className="oh-hub-header-content">
+        <h1 className="oh-hero">Welcome to OperatorHub</h1>
+        <p className="oh-header-content__sub-title">
           Operators deliver the automation advantages of cloud services like provisioning, scaling, and backup/restore
           while being able to run anywhere that Kubernetes can run.
         </p>
-      </React.Fragment>
+      </div>
     );
 
     return (
       <Page
-        pageClasses="oh-page-hub"
         headerContent={headerContent}
         history={history}
         onSearchChange={this.onSearchChange}

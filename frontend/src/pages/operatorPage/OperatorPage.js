@@ -82,23 +82,11 @@ class OperatorPage extends React.Component {
   renderPropertyItem = (label, value) =>
     value ? <PropertyItem label={label} value={value} /> : <PropertyItem label={label} value={notAvailable} />;
 
-  renderDetails() {
-    const { error, pending } = this.props;
+  renderSidePanel() {
     const { operator } = this.state;
-
-    if (error) {
-      return this.renderError();
-    }
-
-    if (pending || !operator) {
-      return this.renderPendingMessage();
-    }
-
     const {
-      displayName,
       provider,
       maturity,
-      longDescription,
       links,
       version,
       versions,
@@ -150,52 +138,76 @@ class OperatorPage extends React.Component {
     const containerImageLink = containerImage && <ExternalLink href={containerImage} text={containerImage} />;
 
     return (
-      <div className="oh-operator-page">
-        <div className="oh-operator-page__content row">
-          <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9} className="oh-operator-page__side-panel">
-            <a
-              className="oh-operator-page__side-panel__button oh-operator-page__side-panel__button-primary"
-              href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Get Started
-            </a>
-            <div className="oh-operator-page__side-panel__separator" />
-            <PropertiesSidePanel>
-              {this.renderPropertyItem('Operator Version', versionComponent)}
-              {this.renderPropertyItem('Operator Maturity', maturity)}
-              {this.renderPropertyItem('Provider', provider)}
-              {this.renderPropertyItem('Links', linksComponent)}
-              {this.renderPropertyItem('Repository', repository)}
-              {this.renderPropertyItem('Container Image', containerImageLink)}
-              {this.renderPropertyItem('Created At', createdString)}
-              {this.renderPropertyItem('Maintainers', maintainersComponent)}
-              {this.renderPropertyItem('Categories', categories)}
-            </PropertiesSidePanel>
-          </Grid.Col>
-          <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
-            <h1>{displayName}</h1>
-            {longDescription && <MarkdownView content={longDescription} outerScroll />}
-          </Grid.Col>
-        </div>
+      <div className="oh-operator-page__side-panel">
+        <a
+          className="oh-operator-page__side-panel__button oh-operator-page__side-panel__button-primary"
+          href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Get Started
+        </a>
+        <div className="oh-operator-page__side-panel__separator" />
+        <PropertiesSidePanel>
+          {this.renderPropertyItem('Operator Version', versionComponent)}
+          {this.renderPropertyItem('Operator Maturity', maturity)}
+          {this.renderPropertyItem('Provider', provider)}
+          {this.renderPropertyItem('Links', linksComponent)}
+          {this.renderPropertyItem('Repository', repository)}
+          {this.renderPropertyItem('Container Image', containerImageLink)}
+          {this.renderPropertyItem('Created At', createdString)}
+          {this.renderPropertyItem('Maintainers', maintainersComponent)}
+          {this.renderPropertyItem('Categories', categories)}
+        </PropertiesSidePanel>
       </div>
     );
+  }
+
+  renderDetails() {
+    const { operator } = this.state;
+    const { displayName, longDescription } = operator;
+
+    return (
+      <div className="oh-operator-page row">
+        <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9}>
+          {this.renderSidePanel()}
+        </Grid.Col>
+        <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
+          <h1>{displayName}</h1>
+          {longDescription && <MarkdownView content={longDescription} outerScroll />}
+        </Grid.Col>
+      </div>
+    );
+  }
+
+  renderView() {
+    const { error, pending } = this.props;
+    const { operator } = this.state;
+
+    if (error) {
+      return this.renderError();
+    }
+
+    if (pending || !operator) {
+      return this.renderPendingMessage();
+    }
+
+    return this.renderDetails();
   }
 
   render() {
     const { operator } = this.state;
 
     const headerContent = (
-      <React.Fragment>
-        <div className="oh-header__content__image-container">
-          <img className="oh-header__content__image" src={operator.imgUrl || operatorImg} alt="" />
+      <div className="oh-operator-header__content">
+        <div className="oh-operator-header__image-container">
+          <img className="oh-operator-header__image" src={operator.imgUrl || operatorImg} alt="" />
         </div>
-        <div className="oh-header__content__info">
-          <h1 className="oh-header__content__title oh-hero">{operator.displayName}</h1>
-          <div className="oh-header__content__description">{operator.description}</div>
+        <div className="oh-operator-header__info">
+          <h1 className="oh-operator-header__title oh-hero">{operator.displayName}</h1>
+          <div className="oh-operator-header__description">{operator.description}</div>
         </div>
-      </React.Fragment>
+      </div>
     );
 
     const toolbarContent = (
@@ -209,7 +221,7 @@ class OperatorPage extends React.Component {
 
     return (
       <Page
-        pageClasses="oh-page-operator"
+        className="oh-page-operator"
         headerContent={headerContent}
         toolbarContent={toolbarContent}
         history={this.props.history}
@@ -217,7 +229,7 @@ class OperatorPage extends React.Component {
         headerRef={this.setHeaderRef}
         topBarRef={this.setTopBarRef}
       >
-        {this.renderDetails()}
+        {this.renderView()}
       </Page>
     );
   }
