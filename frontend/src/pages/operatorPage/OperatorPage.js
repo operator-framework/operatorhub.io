@@ -67,8 +67,9 @@ class OperatorPage extends React.Component {
   }
 
   setCurrentOperatorVersion = operator => {
-    const { match } = this.props;
-    const name = _.get(match, 'params.operatorId');
+    const searchObj = queryString.parse(this.props.location.search || this.props.urlSearchString);
+    const operatorString = _.get(searchObj, 'name');
+    const name = JSON.parse(operatorString);
 
     const versionOperator = _.size(operator.versions) > 1 ? _.find(operator.versions, { name }) : operator;
     this.setState({ operator: versionOperator });
@@ -77,6 +78,11 @@ class OperatorPage extends React.Component {
   onHome = e => {
     e.preventDefault();
     this.props.history.push('/');
+  };
+
+  onViewMaturityModel = e => {
+    e.preventDefault();
+    this.props.history.push('/getting-started-with-operators#maturity-model-graphic');
   };
 
   searchCallback = searchValue => {
@@ -88,7 +94,7 @@ class OperatorPage extends React.Component {
 
   updateVersion = operator => {
     this.setState({ operator });
-    this.props.history.push(`/operator/${operator.name}`);
+    this.props.history.push(`/operator?name=${JSON.stringify(operator.name)}`);
   };
 
   showInstall = e => {
@@ -186,7 +192,7 @@ class OperatorPage extends React.Component {
     const maturityLabel = (
       <span>
         <span>Operator Maturity</span>
-        <ExternalLink href="#">Operator Maturity</ExternalLink>
+        <ExternalLink href="#" onClick={this.onViewMaturityModel}>Operator Maturity</ExternalLink>
       </span>
     );
 
@@ -194,9 +200,8 @@ class OperatorPage extends React.Component {
       <div className="oh-operator-page__side-panel">
         <a
           className="oh-operator-page__side-panel__button oh-operator-page__side-panel__button-primary"
-          href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="#"
+          onClick={this.showInstall}
         >
           Install
         </a>
