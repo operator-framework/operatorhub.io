@@ -9,6 +9,11 @@ const Footer = ({ history, ...props }) => {
     history.push('/getting-started-with-operators');
   };
 
+  const onSubmitYourOperator = e => {
+    e.preventDefault();
+    history.push('/contribute');
+  };
+
   const onWhatIsAnOperator = e => {
     e.preventDefault();
     history.push('/what-is-an-operator');
@@ -18,12 +23,7 @@ const Footer = ({ history, ...props }) => {
     <div className="oh-footer" {...props}>
       <div className="oh-footer__top-bar">
         <h3>List your operator on OperatorHub.io</h3>
-        <a
-          className="oh-footer__top-bar__link"
-          href="https://github.com/operator-framework/operator-lifecycle-manager#getting-started"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a className="oh-footer__top-bar__link" href="#" onClick={onSubmitYourOperator}>
           {`Submit your operator >`}
         </a>
       </div>
@@ -44,7 +44,11 @@ const Footer = ({ history, ...props }) => {
             <div className="oh-footer__contents-right__links">
               <div className="oh-footer__contents-right__links__list">
                 <h4 className="oh-footer__contents-right__links__list__header">ABOUT</h4>
-                <a className="oh-footer__contents-right__links__list__link" href="/what-is-an-operator" onClick={onWhatIsAnOperator}>
+                <a
+                  className="oh-footer__contents-right__links__list__link"
+                  href="/what-is-an-operator"
+                  onClick={onWhatIsAnOperator}
+                >
                   What are Operators?
                 </a>
                 <a
