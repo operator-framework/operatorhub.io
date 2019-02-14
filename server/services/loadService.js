@@ -22,7 +22,19 @@ const loadOperators = callback => {
   };
 
   allFilesSync(operatorsFrameworkDirectory);
-  const operators = _.map(fileList, file => yaml.safeLoad(fs.readFileSync(file)));
+  const operators = _.reduce(
+    fileList,
+    (parsedOperators, file) => {
+      try {
+        parsedOperators.push(yaml.safeLoad(fs.readFileSync(file)));
+      } catch (e) {
+        console.error(`ERROR: Unable to parse ${file}`);
+        console.error(e.message);
+      }
+      return parsedOperators;
+    },
+    []
+  );
   persistentStore.setOperators(normalizeOperators(operators), callback);
 };
 
