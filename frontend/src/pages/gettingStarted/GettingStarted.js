@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import DocumentationPage from '../../components/DocumentationPage';
-import maturityDetailsImg from '../../imgs/Operator-Maturity-Detailed.png';
+import maturityDetailsImg from '../../imgs/operator-maturity-diagram.svg';
 import { operatorSdk, gettingStarted, introBlog } from '../../utils/documentationLinks';
 
 const pageTitle = 'Jump Start Using the Operator-SDK';
@@ -132,12 +132,11 @@ const GettingStarted = ({ history, ...props }) => {
             There are basically three ways of getting there, resulting in the three types of Operators the SDK supports:
           </p>
           {renderOperatorTypesTable()}
+          <div style={{ marginTop: -100 }} />
+          <div id="maturity-model-graphic" style={{ height: 100 }} />
           <p>This results in different maturity models of Operators:</p>
           <p>
             <img className="oh-page-getting-started__image" src={maturityDetailsImg} alt="" />
-          </p>
-          <p>
-            <span style={{ color: 'red' }}>Insert Time Line Image Here</span>
           </p>
           <p>
             Interested? Try the operator-sdk today by following this{' '}
