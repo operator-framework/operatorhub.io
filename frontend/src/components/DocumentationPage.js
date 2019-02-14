@@ -7,8 +7,21 @@ import Page from './Page';
 import { helpers } from '../common/helpers';
 import { reduxConstants } from '../redux';
 
+const idFromTitle = title => title.replace(/ /g, '-');
+
 class DocumentationPage extends React.Component {
   state = { scrollTop: 0, headerHeight: 0, toolbarHeight: 0 };
+
+  componentDidMount() {
+    if (!window.location.hash) {
+      return;
+    }
+
+    const scrollElem = document.getElementById(window.location.hash.slice(1));
+    if (scrollElem) {
+      scrollElem.scrollIntoView();
+    }
+  }
 
   onHome = e => {
     e.preventDefault();
@@ -29,14 +42,18 @@ class DocumentationPage extends React.Component {
   scrollTo = (e, id) => {
     e.preventDefault();
     document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => {
+      window.location.hash = id;
+    }, 500);
   };
 
   renderSection = (sectionTitle, sectionContent) => {
     const offset = this.state.headerHeight + this.state.toolbarHeight - 60;
+
     return (
       <React.Fragment key={sectionTitle}>
         <div style={{ marginTop: -offset }} />
-        <div id={sectionTitle} style={{ height: offset }} />
+        <div id={idFromTitle(sectionTitle)} style={{ height: offset }} />
         <h2>{sectionTitle}</h2>
         {sectionContent}
       </React.Fragment>
@@ -45,7 +62,7 @@ class DocumentationPage extends React.Component {
 
   renderSectionLink = sectionTitle => (
     <div key={sectionTitle} className="oh-documentation-page__sidebar__link">
-      <a href="#" onClick={e => this.scrollTo(e, sectionTitle)}>
+      <a href="#" onClick={e => this.scrollTo(e, idFromTitle(sectionTitle))}>
         {sectionTitle}
       </a>
     </div>
@@ -68,7 +85,10 @@ class DocumentationPage extends React.Component {
 
     return (
       <div>
-        <div className="oh-documentation-page__sidebar__content hidden-sm hidden-xs hidden-xss" style={{ marginTop: scrollTop }}>
+        <div
+          className="oh-documentation-page__sidebar__content hidden-sm hidden-xs hidden-xss"
+          style={{ marginTop: scrollTop }}
+        >
           {sectionLinks}
         </div>
         <div className="oh-documentation-page__sidebar__content visible-sm visible-xs visible-xxs">

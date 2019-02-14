@@ -7,7 +7,8 @@ const _ = require('lodash');
 
 const loadService = require('./services/loadService');
 const persistentStore = require('./store/persistentStore');
-const routes = require('./routes/routes');
+const uiRoutes = require('./routes/uiRoutes');
+const apiRoutes = require('./routes/apiRoutes');
 const mockOperators = require('./__mock__/operators');
 
 // const useSSL = !(process.env.USESSL === 'false');
@@ -22,9 +23,9 @@ const setupApp = () => {
   // app.set('secureport', process.env.SECUREPORT || 8080);
 
   // routes
-  routes(app);
+  uiRoutes(app);
+  apiRoutes(app);
 
-  app.use(express.static('../frontend/dist'));
 };
 
 const setupSSL = () => {

@@ -4,6 +4,7 @@ import * as _ from 'lodash-es';
 import connect from 'react-redux/es/connect/connect';
 import { Alert, Breadcrumb, DropdownButton, EmptyState, Grid, MenuItem } from 'patternfly-react';
 import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
+import queryString from 'query-string';
 
 import { helpers } from '../../common/helpers';
 import { fetchOperator } from '../../services/operatorsService';
@@ -53,8 +54,16 @@ class OperatorPage extends React.Component {
   }
 
   refresh() {
-    const { match } = this.props;
-    this.props.fetchOperator(_.get(match, 'params.operatorId'));
+    const searchObj = queryString.parse(this.props.location.search || this.props.urlSearchString);
+    const operatorString = _.get(searchObj, 'name');
+
+    if (!operatorString) {
+      this.props.history.push('/');
+      return;
+    }
+
+    const operatorId = JSON.parse(operatorString);
+    this.props.fetchOperator(operatorId);
   }
 
   setCurrentOperatorVersion = operator => {
@@ -279,10 +288,11 @@ OperatorPage.propTypes = {
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
-  match: PropTypes.object,
+  urlSearchString: PropTypes.string,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
+  location: PropTypes.object.isRequired,
   fetchOperator: PropTypes.func,
   storeKeywordSearch: PropTypes.func
 };
@@ -292,7 +302,7 @@ OperatorPage.defaultProps = {
   error: false,
   errorMessage: '',
   pending: false,
-  match: {},
+  urlSearchString: '',
   fetchOperator: helpers.noop,
   storeKeywordSearch: helpers.noop
 };
@@ -307,7 +317,8 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  ...state.operatorsState
+  ...state.operatorsState,
+  urlSearchString: state.viewState.urlSearchString
 });
 
 export default connect(

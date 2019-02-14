@@ -24,7 +24,7 @@ class App extends React.Component {
   render() {
     return (
       <Switch>
-        <Route path="/operator/:operatorId" component={OperatorPage} />
+        <Route path="/operator" component={OperatorPage} />
         <Route path="/getting-started-with-operators" component={GettingStarted} />
         <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
         <Route path="/contribute" component={Contribute} />
@@ -36,7 +36,7 @@ class App extends React.Component {
 }
 
 App.propTypes = {
-  location: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired
 };
 
 export default withRouter(App);
