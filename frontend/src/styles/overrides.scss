@@ -20,11 +20,14 @@ h1, .h1 {
   font-size: 26px;
   color: $oh-color-text-primary;
   letter-spacing: 1.44px;
+  font-weight: 400;
+  margin-bottom: 20px;
 }
 h2, .h2 {
   font-size: 22px;
   color: $oh-color-text-primary;
   letter-spacing: 1.22px;
+  font-weight: 400;
   margin-top: 60px;
   margin-bottom: 20px;
   padding-top: 60px;
@@ -48,4 +51,19 @@ h5, .h5 {
 p {
   font-size: 14px;
   color: $oh-color-text-body;
+}
+
+.dropdown-menu {
+  border-radius: 4px;
+  border: 1px solid #eaeaea;
+}
+
+.btn-default.active,
+.btn-default:active,
+.open>.btn-default.dropdown-toggle {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-color: #e0e1e2;
+  border-radius: 4px;
+  border-color: none;
 }
