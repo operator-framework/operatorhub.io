@@ -49,7 +49,7 @@ const Footer = ({ history, ...props }) => {
                   href="/what-is-an-operator"
                   onClick={onWhatIsAnOperator}
                 >
-                  What are Operators?
+                What is an Operator?
                 </a>
                 <a
                   className="oh-footer__contents-right__links__list__link"
