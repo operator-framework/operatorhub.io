@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { DropdownButton, MenuItem } from 'patternfly-react';
 import { helpers } from '../common/helpers';
 import hubLogo from '../imgs/operatorhub-header-logo.svg';
+import { InternalLink } from './InternalLink';
 
 class HeaderTopBar extends React.Component {
   state = {
@@ -29,11 +30,6 @@ class HeaderTopBar extends React.Component {
 
   onGettingStarted = () => {
     this.props.history.push('/getting-started-with-operators');
-  };
-
-  onLogoClick = e => {
-    e.preventDefault();
-    this.props.onHome(e);
   };
 
   onSearchKeyPress = e => {
@@ -93,9 +89,9 @@ class HeaderTopBar extends React.Component {
     return (
       <div className="oh-header__top-bar" ref={this.props.barRef}>
         <div className="oh-header__top-bar__content">
-          <a href={window.location.origin} onClick={e => this.onLogoClick(e)}>
+          <InternalLink route="/" history={this.props.history} noNavigation={this.props.homePage}>
             <img className="oh-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />
-          </a>
+          </InternalLink>
           <span className="oh-header__top-bar__spacer" />
           <form className="oh-header__top-bar__search-form search-pf hidden-xs">{this.renderSearchForm()}</form>
           <DropdownButton
@@ -121,7 +117,6 @@ class HeaderTopBar extends React.Component {
 }
 
 HeaderTopBar.propTypes = {
-  onHome: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
@@ -129,16 +124,17 @@ HeaderTopBar.propTypes = {
   onSearchChange: PropTypes.func,
   searchCallback: PropTypes.func,
   clearSearch: PropTypes.func,
-  barRef: PropTypes.func
+  barRef: PropTypes.func,
+  homePage: PropTypes.bool
 };
 
 HeaderTopBar.defaultProps = {
-  onHome: helpers.noop,
   searchValue: undefined,
   onSearchChange: helpers.noop,
   searchCallback: helpers.noop,
   clearSearch: helpers.noop,
-  barRef: helpers.noop
+  barRef: helpers.noop,
+  homePage: false
 };
 
 export { HeaderTopBar };

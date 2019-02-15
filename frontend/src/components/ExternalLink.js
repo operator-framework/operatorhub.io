@@ -16,7 +16,7 @@ export const ExternalLink = ({ href, text, className, block, indicator, ...other
 
 ExternalLink.propTypes = {
   href: PropTypes.string.isRequired,
-  text: PropTypes.string,
+  text: PropTypes.node,
   block: PropTypes.bool,
   className: PropTypes.string,
   indicator: PropTypes.bool

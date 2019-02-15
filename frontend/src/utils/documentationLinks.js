@@ -3,6 +3,7 @@ const operatorsRepo = `${operatorsFramework}/community-operators`;
 const contributions = `${operatorsRepo}/tree/master/community-operators`;
 const operatorSdk = `${operatorsFramework}/operator-sdk`;
 const olm = `${operatorsFramework}/operator-lifecycle-manager`;
+const olmGettingStarted = `${olm}#getting-started`;
 const gettingStarted = `${operatorsFramework}/getting-started`;
 const marketplaceRef = `${operatorsFramework}/operator-marketplace`;
 const prometheusOperator = `${operatorsRepo}/tree/master/community-operators/prometheus`;
@@ -11,6 +12,9 @@ const buildYourCSV = `${olm}/blob/master/Documentation/design/building-your-csv.
 const installInstructions = `${olm}/blob/master/Documentation/install/install.md`;
 const introBlog = `https://coreos.com/blog/introducing-operators.html`;
 const sampleCode = `${operatorsFramework}/operator-sdk-samples/blob/master/memcached-operator/pkg/controller/memcached/memcached_controller.go#L77`;
+const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
+const hubFacebook = ``;
+const hubTwitter = ``;
 
 const DocmentationLinks = {
   operatorsFramework,
@@ -18,6 +22,7 @@ const DocmentationLinks = {
   contributions,
   operatorSdk,
   olm,
+  olmGettingStarted,
   gettingStarted,
   marketplaceRef,
   prometheusOperator,
@@ -25,7 +30,10 @@ const DocmentationLinks = {
   buildYourCSV,
   installInstructions,
   introBlog,
-  sampleCode
+  sampleCode,
+  kubernetesSlack,
+  hubFacebook,
+  hubTwitter
 };
 
 export {
@@ -35,6 +43,7 @@ export {
   contributions,
   operatorSdk,
   olm,
+  olmGettingStarted,
   gettingStarted,
   marketplaceRef,
   prometheusOperator,
@@ -42,5 +51,8 @@ export {
   buildYourCSV,
   installInstructions,
   introBlog,
-  sampleCode
+  sampleCode,
+  kubernetesSlack,
+  hubFacebook,
+  hubTwitter
 };

@@ -126,7 +126,6 @@ class DocumentationPage extends React.Component {
         className="oh-page-documentation"
         toolbarContent={this.renderToolbarContent()}
         history={history}
-        onHome={this.onHome}
         searchCallback={this.searchCallback}
         scrollCallback={this.onScroll}
       >

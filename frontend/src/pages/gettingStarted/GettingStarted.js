@@ -5,20 +5,11 @@ import { ExternalLink } from '../../components/ExternalLink';
 import DocumentationPage from '../../components/DocumentationPage';
 import maturityDetailsImg from '../../imgs/operator-maturity-diagram.svg';
 import { operatorSdk, gettingStarted, introBlog } from '../../utils/documentationLinks';
+import { InternalLink } from '../../components/InternalLink';
 
 const pageTitle = 'Jump Start Using the Operator-SDK';
 
 const GettingStarted = ({ history, ...props }) => {
-  const onWhatIsAnOperator = e => {
-    e.preventDefault();
-    history.push('/what-is-an-operator');
-  };
-
-  const onContribute = e => {
-    e.preventDefault();
-    history.push('/contribute');
-  };
-
   const renderOperatorTypesTable = () => (
     <table className="oh-documentation-page-table">
       <tbody>
@@ -94,7 +85,7 @@ const GettingStarted = ({ history, ...props }) => {
           when deploying a stateful or distributed cluster application on Kubernetes manually. Maybe you want to achieve
           the simplicity of initial application deployment with Helm charts but without the security implications of
           running Tiller or saving the state of a deployment. Or maybe you are just curious about starting to develop
-          against the Kubernetes API. In any case you’ve come to the right place{' '}
+          against the Kubernetes API. In any case you’ve come to the right place.
         </p>
       )
     },
@@ -104,10 +95,7 @@ const GettingStarted = ({ history, ...props }) => {
         <React.Fragment>
           <p>
             If you would like to get familiar with the Operator pattern,{' '}
-            <a href="#" onClick={onWhatIsAnOperator}>
-              please read on here
-            </a>
-            .
+            <InternalLink route="/what-is-an-operator" history={history} text="please read on here" />.
           </p>
         </React.Fragment>
       )
@@ -123,9 +111,8 @@ const GettingStarted = ({ history, ...props }) => {
           </p>
           <p>
             Fortunately there is the <ExternalLink href={operatorSdk} text="operator-sdk" indicator={false} />, part of
-            the
-            <ExternalLink href={introBlog} text="Operator Framework" indicator={false} />, a community project that aims
-            at simplifying the whole process to create an operator down to the level where all that’s left to do is
+            the <ExternalLink href={introBlog} text="Operator Framework" indicator={false} />, a community project that
+            aims at simplifying the whole process to create an operator down to the level where all that’s left to do is
             writing the custom operational logic inside the control loop.
           </p>
           <p>
@@ -144,10 +131,7 @@ const GettingStarted = ({ history, ...props }) => {
           </p>
           <p>
             Already have an Operator? Discover how to contribute it to the OperatorHub{' '}
-            <a href="#" onClick={onContribute}>
-              here
-            </a>
-            .
+            <InternalLink route="/contribute" history={history} text="here" />.
           </p>
         </React.Fragment>
       )
