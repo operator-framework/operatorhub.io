@@ -193,7 +193,6 @@ class OperatorPage extends React.Component {
       categories
     } = operator;
 
-    const createdString = createdAt && `${createdAt}`;
     const containerImageLink = containerImage && <ExternalLink href={containerImage} text={containerImage} />;
 
     const maturityLabel = (
@@ -233,7 +232,7 @@ class OperatorPage extends React.Component {
           {this.renderPropertyItem('Links', this.renderLinks(links))}
           {this.renderPropertyItem('Repository', repository)}
           {this.renderPropertyItem('Container Image', containerImageLink)}
-          {this.renderPropertyItem('Created At', createdString)}
+          {this.renderPropertyItem('Created At', createdAt)}
           {this.renderPropertyItem('Maintainers', this.renderMaintainers(maintainers))}
           {this.renderPropertyItem('Categories', categories)}
         </PropertiesSidePanel>

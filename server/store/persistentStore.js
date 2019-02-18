@@ -14,7 +14,7 @@ const IMG_FIELD = 'imgUrl TEXT';
 const MATURITY_FIELD = 'maturity BLOB';
 const LINKS_FIELD = 'links BLOB';
 const MAINTAINERS_FIELD = 'maintainers BLOB';
-const CREATED_FIELD = 'createdAt BLOB';
+const CREATED_FIELD = 'createdAt TEXT';
 const CONTAINER_IMAGE_FIELD = 'containerImage TEXT';
 
 exports.initialize = callback => {
@@ -100,7 +100,7 @@ exports.setOperators = (operators, callback) => {
             operator.maturity || null,
             operator.links || null,
             operator.maintainers || null,
-            operator.createdAt || null,
+            operator.createdAt,
             operator.containerImage
           ]);
         });

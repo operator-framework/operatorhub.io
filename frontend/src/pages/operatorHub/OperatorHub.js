@@ -589,7 +589,7 @@ class OperatorHub extends React.Component {
     return (
       <a id={name} key={name} className="oh-list-view__item" href="#" onClick={e => this.openDetails(e, item)}>
         <div className="catalog-tile-pf-header">
-          <img className="catalog-tile-pf-icon" src={imgUrl} alt="" />
+          <img className="catalog-tile-pf-icon" src={imgUrl || operatorImg} alt="" />
           <span>
             <div className="catalog-tile-pf-title">{displayName}</div>
             <div className="catalog-tile-pf-subtitle">{vendor}</div>
