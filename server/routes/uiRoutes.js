@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { comingSoon } = require('../utils/constants');
 
 const addRootRedirect = (app, pathName) => {
   app.get(`/${pathName}`, (request, response) => {
@@ -12,6 +13,11 @@ const addRootRedirect = (app, pathName) => {
 
 module.exports = app => {
   // Base Public Routes
+  if (comingSoon) {
+    app.use(express.static('../comingSoon'));
+    return;
+  }
+
   app.use(express.static('../frontend/dist'));
 
   // Page Routes

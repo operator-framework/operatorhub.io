@@ -5,8 +5,9 @@ const secureServerPort = process.env.SECUREPORT || 8443;
 const useSSL = false && !(process.env.USESSL === 'false');
 const keysDirectory = process.env.KEYDIR || '';
 
-const mockMode = false;
+const mockMode = process.env.MOCK === 'true';
+const comingSoon = process.env.COMINGSOON === 'true';
 
-const constants = { serverPort, secureServerPort, useSSL, keysDirectory, mockMode };
+const constants = { serverPort, secureServerPort, useSSL, keysDirectory, mockMode, comingSoon };
 
 module.exports = constants;
