@@ -15,6 +15,7 @@ module.exports = app => {
   app.use(express.static('../frontend/dist'));
 
   // Page Routes
+  addRootRedirect(app, 'about');
   addRootRedirect(app, 'operator');
   addRootRedirect(app, 'contribute');
   addRootRedirect(app, 'getting-started-with-operators');

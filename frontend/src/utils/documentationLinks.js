@@ -10,12 +10,15 @@ const prometheusOperator = `${operatorsRepo}/tree/master/community-operators/pro
 const olmArchitecture = `${olm}/blob/master/Documentation/design/architecture.md`;
 const buildYourCSV = `${olm}/blob/master/Documentation/design/building-your-csv.md`;
 const installInstructions = `${olm}/blob/master/Documentation/install/install.md`;
+const discoveryCatalogs = `${olm}#discovery-catalogs-and-automated-upgrades`;
 const introBlog = `https://coreos.com/blog/introducing-operators.html`;
 const sampleCode = `${operatorsFramework}/operator-sdk-samples/blob/master/memcached-operator/pkg/controller/memcached/memcached_controller.go#L77`;
 const maturityModelDiagram = `${operatorSdk}/blob/master/doc/images/Operator-Maturity-Model.png`;
 const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
 const hubFacebook = ``;
 const hubTwitter = ``;
+
+const contactUsEmail = `__someon__e@__someplace__.com`;
 
 const DocmentationLinks = {
   operatorsFramework,
@@ -30,12 +33,14 @@ const DocmentationLinks = {
   olmArchitecture,
   buildYourCSV,
   installInstructions,
+  discoveryCatalogs,
   introBlog,
   sampleCode,
   maturityModelDiagram,
   kubernetesSlack,
   hubFacebook,
-  hubTwitter
+  hubTwitter,
+  contactUsEmail
 };
 
 export {
@@ -53,9 +58,11 @@ export {
   buildYourCSV,
   installInstructions,
   introBlog,
+  discoveryCatalogs,
   sampleCode,
   maturityModelDiagram,
   kubernetesSlack,
   hubFacebook,
-  hubTwitter
+  hubTwitter,
+  contactUsEmail
 };

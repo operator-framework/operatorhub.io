@@ -4,7 +4,7 @@ import hubLogo from '../imgs/operatorhub-header-logo.svg';
 import frameworkLogo from '../imgs/operator-framework-logo-lite.svg';
 import { InternalLink } from './InternalLink';
 import { ExternalLink } from './ExternalLink';
-import { gettingStarted, operatorsFramework, kubernetesSlack } from '../utils/documentationLinks';
+import { gettingStarted, operatorsFramework, kubernetesSlack, contactUsEmail } from '../utils/documentationLinks';
 
 const Footer = ({ history, ...props }) => (
   <div className="oh-footer" {...props}>
@@ -39,6 +39,12 @@ const Footer = ({ history, ...props }) => (
               <h4 className="oh-footer__contents-right__links__list__header">ABOUT</h4>
               <InternalLink
                 className="oh-footer__contents-right__links__list__link"
+                route="/about"
+                history={history}
+                text="About OperatorHub.io"
+              />
+              <InternalLink
+                className="oh-footer__contents-right__links__list__link"
                 route="/what-is-an-operator"
                 history={history}
                 text="What is an Operator?"
@@ -60,7 +66,7 @@ const Footer = ({ history, ...props }) => (
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={`mailto: someone@someplace.com`}
+                href={`mailto: ${contactUsEmail}`}
                 text="Contact Us"
                 indicator={false}
               />
