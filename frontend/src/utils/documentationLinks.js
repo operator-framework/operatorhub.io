@@ -12,6 +12,7 @@ const buildYourCSV = `${olm}/blob/master/Documentation/design/building-your-csv.
 const installInstructions = `${olm}/blob/master/Documentation/install/install.md`;
 const introBlog = `https://coreos.com/blog/introducing-operators.html`;
 const sampleCode = `${operatorsFramework}/operator-sdk-samples/blob/master/memcached-operator/pkg/controller/memcached/memcached_controller.go#L77`;
+const maturityModelDiagram = `${operatorSdk}/blob/master/doc/images/Operator-Maturity-Model.png`;
 const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
 const hubFacebook = ``;
 const hubTwitter = ``;
@@ -31,6 +32,7 @@ const DocmentationLinks = {
   installInstructions,
   introBlog,
   sampleCode,
+  maturityModelDiagram,
   kubernetesSlack,
   hubFacebook,
   hubTwitter
@@ -52,6 +54,7 @@ export {
   installInstructions,
   introBlog,
   sampleCode,
+  maturityModelDiagram,
   kubernetesSlack,
   hubFacebook,
   hubTwitter

@@ -2,7 +2,17 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import connect from 'react-redux/es/connect/connect';
-import { Alert, Breadcrumb, DropdownButton, EmptyState, Grid, MenuItem } from 'patternfly-react';
+import {
+  Alert,
+  Breadcrumb,
+  DropdownButton,
+  EmptyState,
+  Grid,
+  Icon,
+  MenuItem,
+  OverlayTrigger,
+  Popover
+} from 'patternfly-react';
 import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 import queryString from 'query-string';
 
@@ -10,6 +20,7 @@ import { helpers } from '../../common/helpers';
 import { fetchOperator } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import { ExternalLink } from '../../components/ExternalLink';
+import { maturityModelDiagram } from '../../utils/documentationLinks';
 import Page from '../../components/Page';
 import InstallModal from './InstallModal';
 import * as operatorImg from '../../imgs/operator.svg';
@@ -19,6 +30,7 @@ import * as maturityImgLevel2 from '../../imgs/maturity-imgs/level-2.svg';
 import * as maturityImgLevel3 from '../../imgs/maturity-imgs/level-3.svg';
 import * as maturityImgLevel4 from '../../imgs/maturity-imgs/level-4.svg';
 import * as maturityImgLevel5 from '../../imgs/maturity-imgs/level-5.svg';
+import * as maturityDiagram from '../../imgs/operator-maturity-diagram.svg';
 
 const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
 
@@ -78,11 +90,6 @@ class OperatorPage extends React.Component {
   onHome = e => {
     e.preventDefault();
     this.props.history.push('/');
-  };
-
-  onViewMaturityModel = e => {
-    e.preventDefault();
-    this.props.history.push('/getting-started-with-operators#maturity-model-graphic');
   };
 
   searchCallback = searchValue => {
@@ -192,7 +199,20 @@ class OperatorPage extends React.Component {
     const maturityLabel = (
       <span>
         <span>Operator Maturity</span>
-        <ExternalLink href="#" onClick={this.onViewMaturityModel}>Operator Maturity</ExternalLink>
+        <OverlayTrigger
+          overlay={
+            <Popover id="maturiy-help" className="oh-maturity-popover">
+              <img className="oh-maturity-popover__img" src={maturityDiagram} alt="" />
+            </Popover>
+          }
+          placement="left"
+          positionLeft={700}
+          trigger={['click']}
+          rootClose
+        >
+          <Icon className="oh-maturity-popover__icon" type="pf" name="help" />
+        </OverlayTrigger>
+        <ExternalLink className="oh-maturity-popover__link" href={maturityModelDiagram} text="" />
       </span>
     );
 
@@ -224,7 +244,6 @@ class OperatorPage extends React.Component {
   renderView() {
     const { error, pending } = this.props;
     const { operator } = this.state;
-    const { displayName, longDescription } = operator;
 
     if (error) {
       return this.renderError();
@@ -233,6 +252,8 @@ class OperatorPage extends React.Component {
     if (pending || !operator) {
       return this.renderPendingMessage();
     }
+
+    const { displayName, longDescription } = operator;
 
     return (
       <div className="oh-operator-page row">
@@ -253,11 +274,11 @@ class OperatorPage extends React.Component {
     const headerContent = (
       <div className="oh-operator-header__content">
         <div className="oh-operator-header__image-container">
-          <img className="oh-operator-header__image" src={operator.imgUrl || operatorImg} alt="" />
+          <img className="oh-operator-header__image" src={_.get(operator, 'imgUrl') || operatorImg} alt="" />
         </div>
         <div className="oh-operator-header__info">
-          <h1 className="oh-operator-header__title oh-hero">{operator.displayName}</h1>
-          <div className="oh-operator-header__description">{operator.description}</div>
+          <h1 className="oh-operator-header__title oh-hero">{_.get(operator, 'displayName')}</h1>
+          <div className="oh-operator-header__description">{_.get(operator, 'description')}</div>
         </div>
       </div>
     );
@@ -267,7 +288,7 @@ class OperatorPage extends React.Component {
         <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
           Home
         </Breadcrumb.Item>
-        <Breadcrumb.Item active>{operator.displayName}</Breadcrumb.Item>
+        <Breadcrumb.Item active>{_.get(operator, 'displayName')}</Breadcrumb.Item>
       </Breadcrumb>
     );
 
