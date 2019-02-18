@@ -10,9 +10,8 @@ if [ ! -d ./dist/ ]; then
 fi
 echo "Frontend build successful"
 popd
+
 pushd server
 npm install
-pushd scripts
-./update-operators.sh $COMMUNITY_REPO || exit 1
-popd
+./scripts/update-operators.sh $COMMUNITY_REPO || exit 1
 popd

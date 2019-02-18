@@ -9,23 +9,20 @@ const loadService = require('./services/loadService');
 const persistentStore = require('./store/persistentStore');
 const uiRoutes = require('./routes/uiRoutes');
 const apiRoutes = require('./routes/apiRoutes');
+const { serverPort, secureServerPort, useSSL, keysDirectory, mockMode } = require('./utils/constants');
 const mockOperators = require('./__mock__/operators');
-
-// const useSSL = !(process.env.USESSL === 'false');
-
-const mockMode = false;
-const keysDirectory = process.env.KEYDIR || '';
 
 const app = express();
 
 const setupApp = () => {
-  app.set('port', process.env.PORT || 8080);
-  // app.set('secureport', process.env.SECUREPORT || 8080);
+  app.set('port', serverPort);
+  if (useSSL) {
+    app.set('secureport', secureServerPort);
+  }
 
   // routes
   uiRoutes(app);
   apiRoutes(app);
-
 };
 
 const setupSSL = () => {
@@ -50,17 +47,16 @@ const serverStart = err => {
     console.log(`Express server listening on port ${app.get('port')}`);
   });
 
-  // const secureServer = setupSSL();
-  // secureServer.listen(app.get('secureport'), '0.0.0.0', () => {
-  //   console.log(`Express secure server listening on port ${app.get('secureport')}`);
-  // });
+  if (useSSL) {
+    const secureServer = setupSSL();
+    secureServer.listen(app.get('secureport'), '0.0.0.0', () => {
+      console.log(`Express secure server listening on port ${app.get('secureport')}`);
+    });
+  }
 };
 
-setupApp();
-
 const populateDBMock = () => {
-  persistentStore.setOperators(mockOperators);
-  serverStart();
+  persistentStore.setOperators(mockOperators, serverStart);
 };
 
 const populateDB = () => {
@@ -68,5 +64,7 @@ const populateDB = () => {
 };
 
 const populate = mockMode ? populateDBMock : populateDB;
+
+setupApp();
 
 persistentStore.initialize(populate);

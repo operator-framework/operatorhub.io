@@ -1,8 +1,7 @@
 const forceSSL = require('express-force-ssl');
 const operatorsService = require('../services/operatorsService');
 const updateService = require('../services/updateService');
-
-const useSSL = !(process.env.USESSL === 'false');
+const { useSSL } = require('../utils/constants');
 
 const addCORSHeader = (request, response, next) => {
   const hasOrigin = request.headers.origin != null;
@@ -30,7 +29,7 @@ const forceToSSL = (request, response, next) => {
 };
 
 module.exports = app => {
-  app.get('/api/*', addCORSHeader);
+  app.get('/api/*', forceToSSL, addCORSHeader);
   app.post('/api/webhook', forceToSSL, addCORSHeader);
 
   app.get('/api/operators', operatorsService.fetchOperators);
