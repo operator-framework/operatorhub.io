@@ -7,8 +7,21 @@ import Page from './Page';
 import { helpers } from '../common/helpers';
 import { reduxConstants } from '../redux';
 
+const idFromTitle = title => title.replace(/ /g, '-');
+
 class DocumentationPage extends React.Component {
   state = { scrollTop: 0, headerHeight: 0, toolbarHeight: 0 };
+
+  componentDidMount() {
+    if (!window.location.hash) {
+      return;
+    }
+
+    const scrollElem = document.getElementById(window.location.hash.slice(1));
+    if (scrollElem) {
+      scrollElem.scrollIntoView();
+    }
+  }
 
   onHome = e => {
     e.preventDefault();
@@ -23,20 +36,33 @@ class DocumentationPage extends React.Component {
   };
 
   onScroll = (scrollTop, headerHeight, toolbarHeight) => {
-    this.setState({ scrollTop, headerHeight, toolbarHeight });
+    const maxTop = Math.min(scrollTop, this.contentRef.offsetHeight - this.sidebarRef.offsetHeight);
+    this.setState({ scrollTop: maxTop, headerHeight, toolbarHeight });
   };
 
   scrollTo = (e, id) => {
     e.preventDefault();
     document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => {
+      window.location.hash = id;
+    }, 500);
+  };
+
+  setSidebarRef = ref => {
+    this.sidebarRef = ref;
+  };
+
+  setContentRef = ref => {
+    this.contentRef = ref;
   };
 
   renderSection = (sectionTitle, sectionContent) => {
     const offset = this.state.headerHeight + this.state.toolbarHeight - 60;
+
     return (
       <React.Fragment key={sectionTitle}>
         <div style={{ marginTop: -offset }} />
-        <div id={sectionTitle} style={{ height: offset }} />
+        <div id={idFromTitle(sectionTitle)} style={{ height: offset }} />
         <h2>{sectionTitle}</h2>
         {sectionContent}
       </React.Fragment>
@@ -45,7 +71,7 @@ class DocumentationPage extends React.Component {
 
   renderSectionLink = sectionTitle => (
     <div key={sectionTitle} className="oh-documentation-page__sidebar__link">
-      <a href="#" onClick={e => this.scrollTo(e, sectionTitle)}>
+      <a href="#" onClick={e => this.scrollTo(e, idFromTitle(sectionTitle))}>
         {sectionTitle}
       </a>
     </div>
@@ -67,14 +93,18 @@ class DocumentationPage extends React.Component {
     const sectionLinks = sections.map(section => this.renderSectionLink(section.title));
 
     return (
-      <div>
-        <div className="oh-documentation-page__sidebar__content hidden-sm hidden-xs hidden-xss" style={{ marginTop: scrollTop }}>
+      <React.Fragment>
+        <div
+          className="oh-documentation-page__sidebar__content hidden-sm hidden-xs hidden-xss"
+          style={{ marginTop: scrollTop }}
+          ref={this.setSidebarRef}
+        >
           {sectionLinks}
         </div>
         <div className="oh-documentation-page__sidebar__content visible-sm visible-xs visible-xxs">
           {sections.map(section => this.renderSectionLink(section.title))}
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 
@@ -96,17 +126,16 @@ class DocumentationPage extends React.Component {
         className="oh-page-documentation"
         toolbarContent={this.renderToolbarContent()}
         history={history}
-        onHome={this.onHome}
         searchCallback={this.searchCallback}
         scrollCallback={this.onScroll}
       >
         <div className="oh-documentation-page row">
-          <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9} className="oh-documentation-page__sidebar">
+          <div className="oh-documentation-page__sidebar col-md-3 col-md-push-9 col-sm-4 col-sm-push-8 col-xs-12">
             {this.renderSidebar()}
-          </Grid.Col>
-          <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
+          </div>
+          <div className="col-md-9 col-md-pull-3 col-sm-8 col-sm-pull-4 col-xs-12" ref={this.setContentRef}>
             {this.renderContent()}
-          </Grid.Col>
+          </div>
         </div>
       </Page>
     );

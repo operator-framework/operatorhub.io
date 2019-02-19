@@ -26,15 +26,23 @@ const fetchOperator = operatorName => dispatch => {
   }
 
   const config = { params: { name: operatorName } };
-  axios.get(operatorRequest, config).then(response => {
-    const responseOperators = response.data.operators;
-    const operators = getVersionedOperators(responseOperators);
+  axios
+    .get(operatorRequest, config)
+    .then(response => {
+      const responseOperators = response.data.operators;
+      const operators = getVersionedOperators(responseOperators);
 
-    dispatch({
-      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-      payload: operators[0]
+      dispatch({
+        type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
+        payload: operators[0]
+      });
+    })
+    .catch(e => {
+      dispatch({
+        type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
+        error: e
+      });
     });
-  });
 };
 
 const fetchOperators = () => dispatch => {
@@ -50,15 +58,24 @@ const fetchOperators = () => dispatch => {
     return;
   }
 
-  axios.get(allOperatorsRequest).then(response => {
-    const responseOperators = response.data.operators;
-    const operators = getVersionedOperators(responseOperators);
+  axios
+    .get(allOperatorsRequest)
+    .then(response => {
+      const responseOperators = response.data.operators;
+      const operators = getVersionedOperators(responseOperators);
 
-    dispatch({
-      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-      payload: operators
+      dispatch({
+        type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
+        payload: operators
+      });
+    })
+    .catch(e => {
+      console.dir(e);
+      dispatch({
+        type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
+        error: e
+      });
     });
-  });
 };
 
 const operatorsService = {

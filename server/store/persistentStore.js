@@ -14,7 +14,7 @@ const IMG_FIELD = 'imgUrl TEXT';
 const MATURITY_FIELD = 'maturity BLOB';
 const LINKS_FIELD = 'links BLOB';
 const MAINTAINERS_FIELD = 'maintainers BLOB';
-const CREATED_FIELD = 'createdAt BLOB';
+const CREATED_FIELD = 'createdAt TEXT';
 const CONTAINER_IMAGE_FIELD = 'containerImage TEXT';
 
 exports.initialize = callback => {
@@ -51,11 +51,16 @@ exports.close = () => {
 };
 
 exports.getOperator = (operatorName, callback) => {
-  db.all(`SELECT * FROM ${OPERATOR_TABLE} where displayName = '${operatorName}'`, (err, rows) => {
+  db.all(`SELECT * FROM ${OPERATOR_TABLE} where name = '${operatorName}'`, (err, rows) => {
     if (err) {
       console.error(err.message);
     }
-    callback(rows);
+    db.all(`SELECT * FROM ${OPERATOR_TABLE} where displayName = '${rows[0].displayName}'`, (err2, allRows) => {
+      if (err) {
+        console.error(err.message);
+      }
+      callback(allRows);
+    });
   });
 };
 
@@ -95,7 +100,7 @@ exports.setOperators = (operators, callback) => {
             operator.maturity || null,
             operator.links || null,
             operator.maintainers || null,
-            operator.createdAt || null,
+            operator.createdAt,
             operator.containerImage
           ]);
         });

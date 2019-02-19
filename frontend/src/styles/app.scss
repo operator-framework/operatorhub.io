@@ -31,8 +31,20 @@
   font-family: $oh-code-font-family;
 }
 
+.oh-indent {
+  padding-left: 40px;
+}
+
+.oh-code {
+  font-family: $oh-code-font-family;
+}
+
 .oh-external-link {
   display: inline-block;
+
+  &.block {
+    display: block;
+  }
 
   &.indicator {
     padding-right: 15px;

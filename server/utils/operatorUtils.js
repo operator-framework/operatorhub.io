@@ -7,6 +7,31 @@ const normalizeVersion = version => {
   return normVersion;
 };
 
+const normalizeMaturity = maturityString => {
+  let maturity;
+
+  switch (maturityString.toLowerCase()) {
+    case 'alpha':
+      maturity = 'Basic Install';
+      break;
+    case 'beta':
+      maturity = 'Seamless Upgrades';
+      break;
+    case 'stable':
+      maturity = 'Full Lifecycle';
+      break;
+    case 'insights':
+      maturity = 'Deep Insights';
+      break;
+    case 'auto-pilot':
+      maturity = 'Auto Pilot';
+      break;
+    default:
+      maturity = 'Basic Install';
+  }
+  return maturity;
+};
+
 const normalizeOperator = operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
@@ -20,7 +45,7 @@ const normalizeOperator = operator => {
     provider: _.get(spec, 'provider.name'),
     version: spec.version,
     versionForCompare: normalizeVersion(spec.version),
-    maturity: spec.maturity || '',
+    maturity: normalizeMaturity(spec.maturity || ''),
     links: spec.links,
     maintainers: spec.maintainers,
     description: _.get(annotations, 'description'),

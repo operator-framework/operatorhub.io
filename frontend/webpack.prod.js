@@ -1,8 +1,8 @@
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = merge(common, {
   mode: 'production',
@@ -18,17 +18,10 @@ module.exports = merge(common, {
     ]
   },
   plugins: [
-    new MiniCssExtractPlugin({
-      filename: '[name].css',
-      chunkFilename: '[id].css'
-    })
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader']
-      }
-    ]
-  }
+    new CopyWebpackPlugin([
+      { from: './src/manifest.json' },
+      { from: './src/browserconfig.xml' },
+      { from: './src/imgs/favicon/*', to: 'ico', flatten: true }
+    ])
+  ]
 });

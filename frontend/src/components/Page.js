@@ -18,13 +18,6 @@ class Page extends React.Component {
     this.props.scrollCallback(0, headerHeight, toolbarHeight);
   }
 
-  onHome = e => {
-    e.preventDefault();
-    if (!this.props.homePage) {
-      this.props.history.push('/');
-    }
-  };
-
   contentScrolled = scrollEvent => {
     const { scrollCallback } = this.props;
     const { scrollTop, scrollHeight, clientHeight } = scrollEvent.currentTarget;
@@ -58,7 +51,7 @@ class Page extends React.Component {
   };
 
   renderHeader(headStyle) {
-    const { headerContent, history, searchValue, onSearchChange, clearSearch, searchCallback } = this.props;
+    const { headerContent, history, searchValue, onSearchChange, clearSearch, searchCallback, homePage } = this.props;
 
     return (
       <div className="oh-header" ref={this.setHeaderRef} style={headStyle}>
@@ -68,9 +61,9 @@ class Page extends React.Component {
             clearSearch={clearSearch}
             searchValue={searchValue}
             searchCallback={searchCallback}
-            onHome={this.onHome}
             history={history}
             barRef={this.setTopBarRef}
+            homePage={homePage}
           />
           {headerContent}
         </div>

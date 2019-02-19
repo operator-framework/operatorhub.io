@@ -10,6 +10,7 @@ import OperatorPage from './pages/operatorPage/OperatorPage';
 import GettingStarted from './pages/gettingStarted/GettingStarted';
 import WhatIsAnOperator from './pages/whatIsAnOperator/WhatIsAnOperator';
 import Contribute from './pages/contribute/Contribute';
+import About from './pages/about/About';
 
 class App extends React.Component {
   constructor(props) {
@@ -24,10 +25,11 @@ class App extends React.Component {
   render() {
     return (
       <Switch>
-        <Route path="/operator/:operatorId" component={OperatorPage} />
+        <Route path="/operator" component={OperatorPage} />
         <Route path="/getting-started-with-operators" component={GettingStarted} />
         <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
         <Route path="/contribute" component={Contribute} />
+        <Route path="/about" component={About} />
         <Route path="/" component={OperatorHub} />
         <Redirect from="*" to="/" key="default-route" />
       </Switch>
@@ -36,7 +38,7 @@ class App extends React.Component {
 }
 
 App.propTypes = {
-  location: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired
 };
 
 export default withRouter(App);

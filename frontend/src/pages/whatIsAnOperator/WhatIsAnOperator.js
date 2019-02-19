@@ -4,15 +4,11 @@ import PropTypes from 'prop-types';
 import { ExternalLink } from '../../components/ExternalLink';
 import DocumentationPage from '../../components/DocumentationPage';
 import { sampleCode } from '../../utils/documentationLinks';
+import { InternalLink } from '../../components/InternalLink';
 
 const pageTitle = 'What is an Operator';
 
 const WhatIsAnOperator = ({ history, ...props }) => {
-  const onGettingStarted = e => {
-    e.preventDefault();
-    history.push('/getting-started-with-operators');
-  };
-
   const sections = [
     {
       title: `What is an Operator after all?`,
@@ -20,8 +16,8 @@ const WhatIsAnOperator = ({ history, ...props }) => {
         <React.Fragment>
           <p>
             Operators implement and automate common Day-1 (installation, configuration, etc) and Day-2
-            (re-configuration, update, backup, failover, restore, etc.) activities in a piece of software running inside
-            your Kubernetes cluster, by integrating natively with Kubernetes concepts and APIs. We call this a
+            (re-configuration, update, backup, fail-over, restore, etc.) activities in a piece of software running
+            inside your Kubernetes cluster, by integrating natively with Kubernetes concepts and APIs. We call this a
             Kubernetes-native application. With Operators you can stop treating an application as a wild collection of
             primitives like Pods, Deployments, Services or ConfigMaps but as a single object that only exposes the knobs
             that make sense for the application.
@@ -55,9 +51,8 @@ const WhatIsAnOperator = ({ history, ...props }) => {
             configured in the way the user expressed in the specification of FooBarApp objects. This is also called a
             reconciliation loop (<ExternalLink href={sampleCode} text="example code" indicator={false} />
             ). The application service may in turn be implemented with more basic objects like <code>Pods</code>,{' '}
-            <code>Secrets</code> or
-            <code>PersistentVolumes</code> but carefully arranged and initialized, specific to the needs of this
-            application. Furthermore, the Operator could possibly introduce an object of type{' '}
+            <code>Secrets</code> or <code>PersistentVolumes</code> but carefully arranged and initialized, specific to
+            the needs of this application. Furthermore, the Operator could possibly introduce an object of type{' '}
             <code>FooBarAppBackup</code> and create backups of the app as a result.
           </p>
         </React.Fragment>
@@ -68,9 +63,11 @@ const WhatIsAnOperator = ({ history, ...props }) => {
       content: (
         <p>
           Head over to{' '}
-          <a href="#" onClick={onGettingStarted}>
-            Jump Start Using the Operator SDK
-          </a>{' '}
+          <InternalLink
+            route="/getting-started-with-operators"
+            history={history}
+            text="Jump Start Using the Operator SDK"
+          />{' '}
           to find out how to write your own Operator with Go, Ansible or with Helm charts.
         </p>
       )

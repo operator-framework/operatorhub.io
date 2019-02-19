@@ -96,7 +96,7 @@ const Contribute = ({ history, ...props }) => {
       content: (
         <React.Fragment>
           <p>
-            Your Operator should be able to be managed by the Operator Lifecycle Manager (OLM). This component of the
+            Your Operator should be able to be managed by the Operator Lifecycle Manager (OLM). This component of the{' '}
             <ExternalLink href={gettingStarted} text="Operator Framework" indicator={false} /> is deployed on your
             Kubernetes cluster and will be able to install the Operator via the CLI or through a GUI component like{' '}
             <ExternalLink href={marketplaceRef} text="Operator Hub" indicator={false} />. Either way, this requires some
@@ -122,6 +122,8 @@ const Contribute = ({ history, ...props }) => {
             The main part is in the ClusterServiceVersion (CSV) file, of which there is one per version of your
             Operator. This file’s specified description, logo, version, maturity level, authoring info, links etc. will
             be used to render on OperatorHub.io. Follow these instructions to create this file:
+          </p>
+          <p>
             <ExternalLink href={buildYourCSV} text={buildYourCSV} indicator={false} />
           </p>
           <p>

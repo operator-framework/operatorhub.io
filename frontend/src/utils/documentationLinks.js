@@ -3,14 +3,22 @@ const operatorsRepo = `${operatorsFramework}/community-operators`;
 const contributions = `${operatorsRepo}/tree/master/community-operators`;
 const operatorSdk = `${operatorsFramework}/operator-sdk`;
 const olm = `${operatorsFramework}/operator-lifecycle-manager`;
+const olmGettingStarted = `${olm}#getting-started`;
 const gettingStarted = `${operatorsFramework}/getting-started`;
 const marketplaceRef = `${operatorsFramework}/operator-marketplace`;
 const prometheusOperator = `${operatorsRepo}/tree/master/community-operators/prometheus`;
 const olmArchitecture = `${olm}/blob/master/Documentation/design/architecture.md`;
 const buildYourCSV = `${olm}/blob/master/Documentation/design/building-your-csv.md`;
 const installInstructions = `${olm}/blob/master/Documentation/install/install.md`;
+const discoveryCatalogs = `${olm}#discovery-catalogs-and-automated-upgrades`;
 const introBlog = `https://coreos.com/blog/introducing-operators.html`;
 const sampleCode = `${operatorsFramework}/operator-sdk-samples/blob/master/memcached-operator/pkg/controller/memcached/memcached_controller.go#L77`;
+const maturityModelDiagram = `${operatorSdk}/blob/master/doc/images/Operator-Maturity-Model.png`;
+const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
+const hubFacebook = ``;
+const hubTwitter = ``;
+
+const contactUsEmail = `__someon__e@__someplace__.com`;
 
 const DocmentationLinks = {
   operatorsFramework,
@@ -18,14 +26,21 @@ const DocmentationLinks = {
   contributions,
   operatorSdk,
   olm,
+  olmGettingStarted,
   gettingStarted,
   marketplaceRef,
   prometheusOperator,
   olmArchitecture,
   buildYourCSV,
   installInstructions,
+  discoveryCatalogs,
   introBlog,
-  sampleCode
+  sampleCode,
+  maturityModelDiagram,
+  kubernetesSlack,
+  hubFacebook,
+  hubTwitter,
+  contactUsEmail
 };
 
 export {
@@ -35,6 +50,7 @@ export {
   contributions,
   operatorSdk,
   olm,
+  olmGettingStarted,
   gettingStarted,
   marketplaceRef,
   prometheusOperator,
@@ -42,5 +58,11 @@ export {
   buildYourCSV,
   installInstructions,
   introBlog,
-  sampleCode
+  discoveryCatalogs,
+  sampleCode,
+  maturityModelDiagram,
+  kubernetesSlack,
+  hubFacebook,
+  hubTwitter,
+  contactUsEmail
 };
