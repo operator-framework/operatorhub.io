@@ -94,7 +94,7 @@ class Page extends React.Component {
   }
 
   render() {
-    const { className, headerContent, children, history } = this.props;
+    const { className, headerContent, children, history, showFooter } = this.props;
 
     const { fixedHeader, scrollTop, headerHeight, toolbarHeight } = this.state;
     const isFixed = fixedHeader || !headerContent;
@@ -111,7 +111,7 @@ class Page extends React.Component {
             {children}
           </div>
         </div>
-        <Footer history={history} />
+       <Footer history={history} visible={showFooter} />
       </div>
     );
   }
@@ -121,6 +121,7 @@ Page.propTypes = {
   className: PropTypes.string,
   headerContent: PropTypes.node,
   toolbarContent: PropTypes.node,
+  showFooter: PropTypes.bool,
   children: PropTypes.node,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
@@ -137,6 +138,7 @@ Page.defaultProps = {
   className: '',
   headerContent: null,
   toolbarContent: null,
+  showFooter: true,
   children: null,
   searchValue: undefined,
   onSearchChange: helpers.noop,

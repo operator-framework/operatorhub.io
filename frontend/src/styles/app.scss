@@ -39,6 +39,10 @@
   font-family: $oh-code-font-family;
 }
 
+.oh-not-visible {
+  visibility: hidden;
+}
+
 .oh-external-link {
   display: inline-block;
 

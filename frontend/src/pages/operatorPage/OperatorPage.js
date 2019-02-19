@@ -45,7 +45,8 @@ const maturityImages = {
 class OperatorPage extends React.Component {
   state = {
     operator: {},
-    installShown: false
+    installShown: false,
+    refreshed: false
   };
 
   componentDidMount() {
@@ -55,6 +56,13 @@ class OperatorPage extends React.Component {
       this.setCurrentOperatorVersion(operator);
     }
     this.refresh();
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (!state.refreshed && props.pending) {
+      return { refreshed: true };
+    }
+    return null;
   }
 
   componentDidUpdate(prevProps) {
@@ -268,7 +276,8 @@ class OperatorPage extends React.Component {
   }
 
   render() {
-    const { operator, installShown } = this.state;
+    const { operator, installShown, refreshed } = this.state;
+    const { pending } = this.props;
 
     const headerContent = (
       <div className="oh-operator-header__content">
@@ -300,6 +309,7 @@ class OperatorPage extends React.Component {
         searchCallback={this.searchCallback}
         headerRef={this.setHeaderRef}
         topBarRef={this.setTopBarRef}
+        showFooter={refreshed && !pending}
       >
         {this.renderView()}
         <InstallModal show={installShown} operator={operator} onClose={this.hideInstall} />

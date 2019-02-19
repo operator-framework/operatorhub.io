@@ -6,8 +6,8 @@ import { InternalLink } from './InternalLink';
 import { ExternalLink } from './ExternalLink';
 import { gettingStarted, operatorsFramework, kubernetesSlack, contactUsEmail } from '../utils/documentationLinks';
 
-const Footer = ({ history, ...props }) => (
-  <div className="oh-footer" {...props}>
+const Footer = ({ history, visible, ...props }) => (
+  <div className={`oh-footer${visible ? '' : ' oh-not-visible'}`} {...props}>
     <div className="oh-footer__top-bar">
       <h3>List your operator on OperatorHub.io</h3>
       <InternalLink
@@ -87,7 +87,12 @@ const Footer = ({ history, ...props }) => (
 Footer.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
-  }).isRequired
+  }).isRequired,
+  visible: PropTypes.bool
+};
+
+Footer.defaultProps = {
+  visible: true
 };
 
 export default Footer;

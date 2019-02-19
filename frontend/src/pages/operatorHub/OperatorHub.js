@@ -226,7 +226,9 @@ export const getFilterSearchParam = groupFilter => {
 class OperatorHub extends React.Component {
   state = {
     filteredItems: [],
-    filterCounts: null
+    filterCounts: null,
+    filterGroupsShowAll: {},
+    refreshed: false
   };
 
   componentDidMount() {
@@ -272,6 +274,13 @@ class OperatorHub extends React.Component {
 
     this.updateURL(updatedKeyword, updatedFilters, updatedViewType, updatedSortType);
     this.updateFilteredItems();
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (!state.refreshed && props.pending) {
+      return { refreshed: true };
+    }
+    return null;
   }
 
   componentDidUpdate(prevProps) {
@@ -417,13 +426,14 @@ class OperatorHub extends React.Component {
 
   clearFilters() {
     const { activeFilters } = this.props;
+    const clearedFilters = _.cloneDeep(activeFilters);
 
     // Clear the group filters
     _.each(operatorHubFilterGroups, field => {
-      _.each(_.keys(activeFilters[field]), key => _.set(activeFilters, [field, key, 'active'], false));
+      _.each(_.keys(clearedFilters[field]), key => _.set(clearedFilters, [field, key, 'active'], false));
     });
 
-    this.props.storeActiveFilters(activeFilters);
+    this.props.storeActiveFilters(clearedFilters);
     this.props.storeKeywordSearch('');
   }
 
@@ -472,8 +482,20 @@ class OperatorHub extends React.Component {
 
   getSortItem = sortType => <span>{sortType === 'descending' ? 'Z-A' : 'A-Z'}</span>;
 
+  onShowAllToggle(groupName) {
+    const { filterGroupsShowAll } = this.state;
+    const updatedShow = _.clone(filterGroupsShowAll);
+    _.set(updatedShow, groupName, !_.get(filterGroupsShowAll, groupName, false));
+    this.setState({ filterGroupsShowAll: updatedShow });
+  }
+
   renderFilterGroup = (groupName, activeFilters, filterCounts) => (
-    <FilterSidePanel.Category key={groupName} title={operatorHubFilterMap[groupName] || groupName}>
+    <FilterSidePanel.Category
+      key={groupName}
+      title={operatorHubFilterMap[groupName] || groupName}
+      onShowAllToggle={() => this.onShowAllToggle(groupName)}
+      showAll={_.get(this.state.filterGroupsShowAll, groupName, false)}
+    >
       {_.map(this.sortFilters(activeFilters[groupName], groupName), filterName => {
         const filter = activeFilters[groupName][filterName];
         const { label, active } = filter;
@@ -696,7 +718,8 @@ class OperatorHub extends React.Component {
   };
 
   render() {
-    const { keywordSearch, history } = this.props;
+    const { keywordSearch, history, pending } = this.props;
+    const { refreshed } = this.state;
 
     const headerContent = (
       <div className="oh-hub-header-content">
@@ -715,6 +738,7 @@ class OperatorHub extends React.Component {
         onSearchChange={this.onSearchChange}
         clearSearch={this.clearSearch}
         searchValue={keywordSearch}
+        showFooter={refreshed && !pending}
         homePage
       >
         {this.renderView()}
