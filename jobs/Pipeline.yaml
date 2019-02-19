@@ -1,0 +1,47 @@
+- project:
+    name: 'Jenkinsfile CICD Pipeline OperatorHub.io'
+    folder: 'lgallett'
+
+    email_recipients: 
+      - 'lgallett@redhat.com'
+      - 'jephilli@redhat.com'
+      - 'dmesser@redhat.com'
+      - 'tunwu@redhat.com'
+
+    jobs:
+      - 'pipeline-job-template':
+          job_name: 'Build'
+          job_description: 'Build {name}'
+          pipeline_script_path: 'jobs/src/build.pipeline'
+          concurrent: false
+
+      - 'pipeline-job-template':
+          job_name: 'Deploy'
+          job_description: 'Deploy {name} to a given environment'
+          pipeline_script_path: 'jobs/src/deploy.pipeline'
+          concurrent: true
+
+      - 'pipeline-job-template':
+          job_name: 'Rollout to all envs'
+          job_description: 'Rollout {name} through all environments'
+          pipeline_script_path: 'jobs/src/rollout.pipeline'
+          concurrent: false
+
+- job-template:
+    id: 'pipeline-job-template'
+    name: '{folder}/{name} - {job_name}'
+    description: '{job_description}'
+    project-type: 'pipeline'
+    sandbox: true
+    concurrent: '{concurrent}'
+    pipeline-scm:
+      scm:
+        - git:
+            url: 'https://github.com/operator-framework/operatorhub.io.git'
+            branches:
+              - 'origin/master'
+            clean:
+              before: true
+            skip-tag: true
+      script-path: '{pipeline_script_path}'
+      lightweight-checkout: true
