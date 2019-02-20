@@ -46,7 +46,8 @@ class OperatorPage extends React.Component {
   state = {
     operator: {},
     installShown: false,
-    refreshed: false
+    refreshed: false,
+    keywordSearch: ''
   };
 
   componentDidMount() {
@@ -98,6 +99,14 @@ class OperatorPage extends React.Component {
   onHome = e => {
     e.preventDefault();
     this.props.history.push('/');
+  };
+
+  onSearchChange = searchValue => {
+    this.setState({ keywordSearch: searchValue });
+  };
+
+  clearSearch = () => {
+    this.onSearchChange('');
   };
 
   searchCallback = searchValue => {
@@ -276,7 +285,7 @@ class OperatorPage extends React.Component {
   }
 
   render() {
-    const { operator, installShown, refreshed } = this.state;
+    const { operator, installShown, refreshed, keywordSearch } = this.state;
     const { pending } = this.props;
 
     const headerContent = (
@@ -306,6 +315,9 @@ class OperatorPage extends React.Component {
         headerContent={headerContent}
         toolbarContent={toolbarContent}
         history={this.props.history}
+        searchValue={keywordSearch}
+        onSearchChange={this.onSearchChange}
+        clearSearch={this.clearSearch}
         searchCallback={this.searchCallback}
         headerRef={this.setHeaderRef}
         topBarRef={this.setTopBarRef}

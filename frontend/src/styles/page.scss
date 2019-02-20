@@ -50,6 +50,36 @@
   }
 }
 
+.oh-page-topper.oh-page-topper-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1010;
+
+  .oh-header__top-bar__content .dropdown-menu {
+    position: fixed;
+    right: 45px;
+    top: 42px;
+
+    @media (min-width: $screen-sm-min) {
+      top: 55px;
+    }
+
+    @media (min-width: $oh-width-3-tile-min) {
+      right: calc(((100% - #{$oh-content-width-3-tiles}) / 2) + 15px);
+    }
+    @media (min-width: $oh-width-4-tile-min) {
+      right: calc(100% - #{$oh-content-width-4-tiles});
+      right: calc(((100% - #{$oh-content-width-4-tiles}) / 2) + 15px);
+    }
+    @media (min-width: $oh-width-5-tile-min) {
+      right: calc(100% - #{$oh-content-width-5-tiles});
+      right: calc(((100% - #{$oh-content-width-5-tiles}) / 2) + 15px);
+    }
+  }
+}
+
 .oh-header {
   background-image: url("../imgs/header-bg.png");
   background-image: url("../imgs/header-bg.png"), linear-gradient(to right, #134F77, #2C95B5);
@@ -334,48 +364,5 @@
       border: 2px solid $color-pf-white;
 
     }
-  }
-}
-
-.oh-page-fixed-header {
-  .oh-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1010;
-
-    .oh-header__inner {
-      flex-direction: column-reverse;
-    }
-
-    .oh-header__top-bar__content .dropdown-menu {
-      position: fixed;
-      right: 45px;
-      top: 42px;
-
-      @media (min-width: $screen-sm-min) {
-        top: 55px;
-      }
-
-      @media (min-width: $oh-width-3-tile-min) {
-        right: calc(((100% - #{$oh-content-width-3-tiles}) / 2) + 23px);
-      }
-      @media (min-width: $oh-width-4-tile-min) {
-        right: calc(100% - #{$oh-content-width-4-tiles});
-        right: calc(((100% - #{$oh-content-width-4-tiles}) / 2) + 23px);
-      }
-      @media (min-width: $oh-width-5-tile-min) {
-        right: calc(100% - #{$oh-content-width-5-tiles});
-        right: calc(((100% - #{$oh-content-width-5-tiles}) / 2) + 23px);
-      }
-    }
-  }
-  .oh-page-toolbar {
-    position: absolute;
-    top: 56px;
-    left: 0;
-    right: 0;
-    z-index: 1000;
   }
 }
