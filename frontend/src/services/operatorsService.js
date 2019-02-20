@@ -18,9 +18,11 @@ const fetchOperator = operatorName => dispatch => {
   });
 
   if (process.env.MOCK_MODE) {
+    const versionedOperator = _.find(mockOperators, { name: operatorName });
+    const operators = _.filter(mockOperators, { displayName: versionedOperator.displayName });
     dispatch({
       type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-      payload: getVersionedOperators(_.cloneDeep(_.filter(mockOperators, { name: operatorName })))
+      payload: operators[0]
     });
     return;
   }
