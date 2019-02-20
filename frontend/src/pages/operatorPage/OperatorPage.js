@@ -14,7 +14,6 @@ import {
   Popover
 } from 'patternfly-react';
 import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
-import queryString from 'query-string';
 
 import { helpers } from '../../common/helpers';
 import { fetchOperator } from '../../services/operatorsService';
@@ -75,22 +74,13 @@ class OperatorPage extends React.Component {
   }
 
   refresh() {
-    const searchObj = queryString.parse(this.props.location.search || this.props.urlSearchString);
-    const operatorString = _.get(searchObj, 'name');
+    const operatorName = _.get(this.props.match, 'params.operatorId');
 
-    if (!operatorString) {
-      this.props.history.push('/');
-      return;
-    }
-
-    const operatorId = JSON.parse(operatorString);
-    this.props.fetchOperator(operatorId);
+    this.props.fetchOperator(operatorName);
   }
 
   setCurrentOperatorVersion = operator => {
-    const searchObj = queryString.parse(this.props.location.search || this.props.urlSearchString);
-    const operatorString = _.get(searchObj, 'name');
-    const name = JSON.parse(operatorString);
+    const name = _.get(this.props.match, 'params.operatorId');
 
     const versionOperator = _.size(operator.versions) > 1 ? _.find(operator.versions, { name }) : operator;
     this.setState({ operator: versionOperator });
@@ -118,7 +108,7 @@ class OperatorPage extends React.Component {
 
   updateVersion = operator => {
     this.setState({ operator });
-    this.props.history.push(`/operator?name=${JSON.stringify(operator.name)}`);
+    this.props.history.push(`/operator/${operator.name}`);
   };
 
   showInstall = e => {
@@ -335,11 +325,10 @@ OperatorPage.propTypes = {
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
-  urlSearchString: PropTypes.string,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  location: PropTypes.object.isRequired,
+  match: PropTypes.object.isRequired,
   fetchOperator: PropTypes.func,
   storeKeywordSearch: PropTypes.func
 };
@@ -349,7 +338,6 @@ OperatorPage.defaultProps = {
   error: false,
   errorMessage: '',
   pending: false,
-  urlSearchString: '',
   fetchOperator: helpers.noop,
   storeKeywordSearch: helpers.noop
 };
@@ -364,8 +352,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  ...state.operatorsState,
-  urlSearchString: state.viewState.urlSearchString
+  ...state.operatorsState
 });
 
 export default connect(
