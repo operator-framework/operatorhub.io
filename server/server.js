@@ -21,8 +21,8 @@ const setupApp = () => {
   }
 
   // routes
-  uiRoutes(app);
   apiRoutes(app);
+  uiRoutes(app);
 };
 
 const setupSSL = () => {

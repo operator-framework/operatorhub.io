@@ -1,13 +1,25 @@
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 const { comingSoon } = require('../utils/constants');
 
+const getDistFilePath = fileName => {
+  const distDir = path.resolve(__dirname, '../../frontend/dist');
+  const filePath = path.join(distDir, fileName);
+  if (fs.existsSync(filePath)) {
+    return filePath;
+  }
+  return path.join(distDir, 'index.html');
+};
+
 const addRootRedirect = (app, pathName) => {
-  app.get(`/${pathName}`, (request, response) => {
-    response.sendFile(path.resolve(__dirname, `../../frontend/dist/index.html`));
+  app.get(`*${pathName}`, (request, response) => {
+    const distFilePath = getDistFilePath(request.url.slice(pathName.length + 2));
+    response.sendFile(distFilePath);
   });
-  app.get(`/${pathName}/*`, (request, response) => {
-    response.sendFile(path.resolve(__dirname, `../../frontend/dist/${request.url.slice(pathName.length + 2)}`));
+  app.get(`*${pathName}/*`, (request, response) => {
+    const distFilePath = getDistFilePath(request.url.slice(pathName.length + 2));
+    response.sendFile(distFilePath);
   });
 };
 
