@@ -7,29 +7,13 @@ const normalizeVersion = version => {
   return normVersion;
 };
 
-const normalizeMaturity = maturityString => {
-  let maturity;
+const validMaturityStrings = ['Basic Install', 'Seamless Upgrades', 'Full Lifecycle', 'Deep Insights', 'Auto Pilot'];
 
-  switch (maturityString.toLowerCase()) {
-    case 'alpha':
-      maturity = 'Basic Install';
-      break;
-    case 'beta':
-      maturity = 'Seamless Upgrades';
-      break;
-    case 'stable':
-      maturity = 'Full Lifecycle';
-      break;
-    case 'insights':
-      maturity = 'Deep Insights';
-      break;
-    case 'auto-pilot':
-      maturity = 'Auto Pilot';
-      break;
-    default:
-      maturity = 'Basic Install';
+const normalizeMaturity = maturity => {
+  if (validMaturityStrings.includes(maturity)) {
+    return maturity;
   }
-  return maturity;
+  return validMaturityStrings[0];
 };
 
 const normalizeOperator = operator => {

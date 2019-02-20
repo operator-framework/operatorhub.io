@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
-import { Breadcrumb, Grid } from 'patternfly-react';
+import { Breadcrumb } from 'patternfly-react';
 
 import Page from './Page';
 import { helpers } from '../common/helpers';
@@ -10,7 +10,7 @@ import { reduxConstants } from '../redux';
 const idFromTitle = title => title.replace(/ /g, '-');
 
 class DocumentationPage extends React.Component {
-  state = { scrollTop: 0, headerHeight: 0, toolbarHeight: 0 };
+  state = { scrollTop: 0, topperHeight: 0, keywordSearch: '' };
 
   componentDidMount() {
     if (!window.location.hash) {
@@ -28,6 +28,14 @@ class DocumentationPage extends React.Component {
     this.props.history.push('/');
   };
 
+  onSearchChange = searchValue => {
+    this.setState({ keywordSearch: searchValue });
+  };
+
+  clearSearch = () => {
+    this.onSearchChange('');
+  };
+
   searchCallback = searchValue => {
     if (searchValue) {
       this.props.storeKeywordSearch(searchValue);
@@ -35,9 +43,9 @@ class DocumentationPage extends React.Component {
     }
   };
 
-  onScroll = (scrollTop, headerHeight, toolbarHeight) => {
+  onScroll = (scrollTop, topperHeight) => {
     const maxTop = Math.min(scrollTop, this.contentRef.offsetHeight - this.sidebarRef.offsetHeight);
-    this.setState({ scrollTop: maxTop, headerHeight, toolbarHeight });
+    this.setState({ scrollTop: maxTop, topperHeight });
   };
 
   scrollTo = (e, id) => {
@@ -57,7 +65,7 @@ class DocumentationPage extends React.Component {
   };
 
   renderSection = (sectionTitle, sectionContent) => {
-    const offset = this.state.headerHeight + this.state.toolbarHeight - 60;
+    const offset = (this.state.topperHeight || 0) - 60;
 
     return (
       <React.Fragment key={sectionTitle}>
@@ -96,7 +104,7 @@ class DocumentationPage extends React.Component {
       <React.Fragment>
         <div
           className="oh-documentation-page__sidebar__content hidden-sm hidden-xs hidden-xss"
-          style={{ marginTop: scrollTop }}
+          style={{ marginTop: scrollTop || 0 }}
           ref={this.setSidebarRef}
         >
           {sectionLinks}
@@ -120,12 +128,16 @@ class DocumentationPage extends React.Component {
 
   render() {
     const { history } = this.props;
+    const { keywordSearch } = this.state;
 
     return (
       <Page
         className="oh-page-documentation"
         toolbarContent={this.renderToolbarContent()}
         history={history}
+        searchValue={keywordSearch}
+        onSearchChange={this.onSearchChange}
+        clearSearch={this.clearSearch}
         searchCallback={this.searchCallback}
         scrollCallback={this.onScroll}
       >

@@ -45,7 +45,9 @@ const maturityImages = {
 class OperatorPage extends React.Component {
   state = {
     operator: {},
-    installShown: false
+    installShown: false,
+    refreshed: false,
+    keywordSearch: ''
   };
 
   componentDidMount() {
@@ -55,6 +57,13 @@ class OperatorPage extends React.Component {
       this.setCurrentOperatorVersion(operator);
     }
     this.refresh();
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (!state.refreshed && props.pending) {
+      return { refreshed: true };
+    }
+    return null;
   }
 
   componentDidUpdate(prevProps) {
@@ -90,6 +99,14 @@ class OperatorPage extends React.Component {
   onHome = e => {
     e.preventDefault();
     this.props.history.push('/');
+  };
+
+  onSearchChange = searchValue => {
+    this.setState({ keywordSearch: searchValue });
+  };
+
+  clearSearch = () => {
+    this.onSearchChange('');
   };
 
   searchCallback = searchValue => {
@@ -268,7 +285,8 @@ class OperatorPage extends React.Component {
   }
 
   render() {
-    const { operator, installShown } = this.state;
+    const { operator, installShown, refreshed, keywordSearch } = this.state;
+    const { pending } = this.props;
 
     const headerContent = (
       <div className="oh-operator-header__content">
@@ -297,9 +315,13 @@ class OperatorPage extends React.Component {
         headerContent={headerContent}
         toolbarContent={toolbarContent}
         history={this.props.history}
+        searchValue={keywordSearch}
+        onSearchChange={this.onSearchChange}
+        clearSearch={this.clearSearch}
         searchCallback={this.searchCallback}
         headerRef={this.setHeaderRef}
         topBarRef={this.setTopBarRef}
+        showFooter={refreshed && !pending}
       >
         {this.renderView()}
         <InstallModal show={installShown} operator={operator} onClose={this.hideInstall} />
