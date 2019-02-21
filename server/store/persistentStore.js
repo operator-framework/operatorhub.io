@@ -15,10 +15,12 @@ const LONG_DESCRIPTION_FIELD = 'longDescription TEXT';
 const IMG_FIELD = 'imgUrl TEXT';
 const MATURITY_FIELD = 'maturity BLOB';
 const LINKS_FIELD = 'links BLOB';
+const REPOSITORY_FIELD = 'repository TEXT';
 const MAINTAINERS_FIELD = 'maintainers BLOB';
-const CREATED_FIELD = 'createdAt TEXT';
+const CREATED_FIELD = 'createdAt BLOB';
 const CONTAINER_IMAGE_FIELD = 'containerImage TEXT';
-const CUSTOM_RESOURCE_DEFINIITIONS_FIELD = 'customResourceDefinitions BLOB';
+const CATEGORIES_FIELD = 'categories BLOB';
+const CUSTOM_RESOURCE_DEFINITIONS_FIELD = 'customResourceDefinitions BLOB';
 
 exports.initialize = callback => {
   db = new sqlite3.Database(':memory:', sqlite3.OPEN_READWRITE, err => {
@@ -41,10 +43,12 @@ exports.initialize = callback => {
         ${IMG_FIELD},
         ${MATURITY_FIELD},
         ${LINKS_FIELD},
+        ${REPOSITORY_FIELD},
         ${MAINTAINERS_FIELD},
         ${CREATED_FIELD},
         ${CONTAINER_IMAGE_FIELD},
-        ${CUSTOM_RESOURCE_DEFINIITIONS_FIELD}
+        ${CATEGORIES_FIELD},
+        ${CUSTOM_RESOURCE_DEFINITIONS_FIELD}
       )`,
       callback
     );
@@ -53,6 +57,15 @@ exports.initialize = callback => {
 
 exports.close = () => {
   db.close();
+};
+
+const normalizeRow = row => {
+  row.links = JSON.parse(row.links);
+  row.maintainers = JSON.parse(row.maintainers);
+  row.customResourceDefinitions = JSON.parse(row.customResourceDefinitions);
+  row.categories = JSON.parse(row.categories);
+  row.createdAt = JSON.parse(row.createdAt);
+  return row;
 };
 
 exports.getOperator = (operatorName, callback) => {
@@ -64,10 +77,7 @@ exports.getOperator = (operatorName, callback) => {
       if (err) {
         console.error(err.message);
       }
-      const operators = _.map(allRows, row => {
-        row.customResourceDefinitions = JSON.parse(row.customResourceDefinitions);
-        return row;
-      });
+      const operators = _.map(allRows, row => normalizeRow(row));
       callback(operators);
     });
   });
@@ -78,10 +88,7 @@ exports.getOperators = callback => {
     if (err) {
       console.error(err.message);
     }
-    const operators = _.map(rows, row => {
-      row.customResourceDefinitions = JSON.parse(row.customResourceDefinitions);
-      return row;
-    });
+    const operators = _.map(rows, row => normalizeRow(row));
     callback(operators);
   });
 };
@@ -92,9 +99,9 @@ exports.clearOperators = callback => {
 
 exports.setOperators = (operators, callback) => {
   const sql = `INSERT OR IGNORE INTO ${OPERATOR_TABLE}
-    (id, name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, maintainers, createdAt, containerImage, customResourceDefinitions)
+    (id, name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, repository, maintainers, createdAt, containerImage, categories, customResourceDefinitions)
     VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   exports.clearOperators(() =>
     db.serialize(
@@ -112,10 +119,12 @@ exports.setOperators = (operators, callback) => {
             operator.longDescription,
             operator.imgUrl,
             operator.maturity || null,
-            operator.links || null,
-            operator.maintainers || null,
-            operator.createdAt,
+            JSON.stringify(operator.links),
+            operator.repository,
+            JSON.stringify(operator.maintainers),
+            JSON.stringify(operator.createdAt),
             operator.containerImage,
+            JSON.stringify(operator.categories),
             JSON.stringify(operator.customResourceDefinitions)
           ]);
         });
