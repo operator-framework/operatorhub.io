@@ -32,10 +32,10 @@ const getExampleYAML = (kind, operator) => {
 };
 
 const normalizeCRD = (crd, operator) => ({
-  name: crd.name,
+  name: _.get(crd, 'name', 'Name Not Available'),
   kind: crd.kind,
-  displayName: crd.displayName,
-  description: crd.description,
+  displayName: _.get(crd, 'displayName', 'Name Not Available'),
+  description: _.get(crd, 'description', 'No description available'),
   yamlExample: getExampleYAML(crd.kind, operator)
 });
 
@@ -44,12 +44,15 @@ const normalizeCRDs = operator => {
   return _.map(customResourceDefinitions, crd => normalizeCRD(crd, operator));
 };
 
+const generateId = name => name.slice(0, name.indexOf('.'));
+
 const normalizeOperator = operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
   const iconObj = _.get(spec, 'icon[0]');
 
   return {
+    id: generateId(operator.metadata.name),
     name: operator.metadata.name,
     displayName: _.get(spec, 'displayName', operator.metadata.name),
     imgUrl: iconObj ? `data:${iconObj.mediatype};base64,${iconObj.base64data}` : '',

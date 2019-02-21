@@ -4,7 +4,7 @@ import hubLogo from '../imgs/operatorhub-header-logo.svg';
 import frameworkLogo from '../imgs/operator-framework-logo-lite.svg';
 import { InternalLink } from './InternalLink';
 import { ExternalLink } from './ExternalLink';
-import { gettingStarted, operatorsFramework, kubernetesSlack, contactUsEmail } from '../utils/documentationLinks';
+import { gettingStarted, operatorsFramework, kubernetesSlack, fileAnIssue } from '../utils/documentationLinks';
 
 const Footer = ({ history, visible, ...props }) => (
   <div className={`oh-footer${visible ? '' : ' oh-not-visible'}`} {...props}>
@@ -66,8 +66,8 @@ const Footer = ({ history, visible, ...props }) => (
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={`mailto: ${contactUsEmail}`}
-                text="Contact Us"
+                href={fileAnIssue}
+                text="File an issue on GitHub"
                 indicator={false}
               />
               <ExternalLink

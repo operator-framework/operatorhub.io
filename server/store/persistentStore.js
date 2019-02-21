@@ -4,6 +4,7 @@ const sqlite3 = require('sqlite3').verbose();
 let db;
 
 const OPERATOR_TABLE = 'operators';
+const ID_FIELD = 'id TEXT';
 const NAME_FIELD = 'name TEXT';
 const DISPLAY_NAME_FIELD = 'displayName TEXT';
 const VERSION_FIELD = 'version TEXT';
@@ -29,6 +30,7 @@ exports.initialize = callback => {
     console.log('Connected to the in-memory SQlite database.');
     db.run(
       `CREATE TABLE ${OPERATOR_TABLE} (
+        ${ID_FIELD},
         ${NAME_FIELD},
         ${DISPLAY_NAME_FIELD},
         ${VERSION_FIELD},
@@ -58,7 +60,7 @@ exports.getOperator = (operatorName, callback) => {
     if (err) {
       console.error(err.message);
     }
-    db.all(`SELECT * FROM ${OPERATOR_TABLE} where displayName = '${rows[0].displayName}'`, (err2, allRows) => {
+    db.all(`SELECT * FROM ${OPERATOR_TABLE} where id = '${rows[0].id}'`, (err2, allRows) => {
       if (err) {
         console.error(err.message);
       }
@@ -90,9 +92,9 @@ exports.clearOperators = callback => {
 
 exports.setOperators = (operators, callback) => {
   const sql = `INSERT OR IGNORE INTO ${OPERATOR_TABLE}
-    (name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, maintainers, createdAt, containerImage, customResourceDefinitions)
+    (id, name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, maintainers, createdAt, containerImage, customResourceDefinitions)
     VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   exports.clearOperators(() =>
     db.serialize(
@@ -100,6 +102,7 @@ exports.setOperators = (operators, callback) => {
         db.run('BEGIN TRANSACTION');
         operators.forEach(operator => {
           db.run(sql, [
+            operator.id,
             operator.name,
             operator.displayName,
             operator.version,
