@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { comingSoon } = require('../utils/constants');
 
+const testRouteFile = path.resolve(__dirname, '../../test-route/akamai-sureroute-test-object.html');
+
 const getDistFilePath = fileName => {
   const distDir = path.resolve(__dirname, '../../frontend/dist');
   const filePath = path.join(distDir, fileName);
@@ -38,4 +40,12 @@ module.exports = app => {
   addRootRedirect(app, 'contribute');
   addRootRedirect(app, 'getting-started-with-operators');
   addRootRedirect(app, 'what-is-an-operator');
+
+  // Test Route
+  app.get('/akamai-sureroute-test', (request, response) => {
+    response.sendFile(testRouteFile);
+  });
+  app.get('/akamai-sureroute-test/*', (request, response) => {
+    response.sendFile(testRouteFile);
+  });
 };
