@@ -127,3 +127,99 @@
     }
   }
 }
+
+.oh-crd-tile-view {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  padding: 10px 0 0;
+
+  @media (min-width: $screen-sm-min) {
+    flex-direction: row;
+  }
+
+  .oh-crd-tile {
+    align-items: flex-start;
+    background: $oh-color-background;
+    border-radius: 3px;
+    color: inherit;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    height: 165px;
+    margin: 0 15px 15px 0;
+    padding: 20px;
+    width: 265px;
+
+    &__title {
+      color: $oh-color-text-primary;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    &__rule {
+      border-bottom: 2px solid $oh-color-accent;
+      margin-bottom: 15px;
+      margin-top: 10px;
+      width: 60px;
+    }
+
+    &__description {
+      height: 60px;
+      min-height: 60px;
+      font-size: 12px;
+      color: $oh-color-text-body;
+      overflow: hidden;
+      position: relative;
+
+      &::after {
+        background: linear-gradient(to right, rgba(250, 251, 253, 0), rgba(250, 251, 253, 1) 75%);
+        bottom: 0;
+        color: transparent;
+        content: ".";
+        position: absolute;
+        right: 0;
+        width: 50%;
+        text-align: right;
+      }
+    }
+
+    &__link {
+      font-size: 13px;
+    }
+  }
+}
+
+.oh-yaml-viewer {
+  height: 300px;
+
+  &__modal .modal-header {
+    background-color: #fff;
+  }
+
+  &__content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+
+  &__acebox {
+    flex: 1;
+    &.ace-clouds
+    {
+      background: $oh-color-background;
+    }
+  }
+
+  &__copy-container {
+    align-self: flex-start;
+    margin-left: 7px;
+  }
+
+  &__copy {
+    color: $oh-color-text-body;
+    padding: 3px;
+  }
+}
