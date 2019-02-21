@@ -22,6 +22,7 @@ import { ExternalLink } from '../../components/ExternalLink';
 import { maturityModelDiagram } from '../../utils/documentationLinks';
 import Page from '../../components/Page';
 import InstallModal from './InstallModal';
+import ExampleYamlModal from './ExampleYamlModal';
 import * as operatorImg from '../../imgs/operator.svg';
 import { reduxConstants } from '../../redux';
 import * as maturityImgLevel1 from '../../imgs/maturity-imgs/level-1.svg';
@@ -46,7 +47,8 @@ class OperatorPage extends React.Component {
     operator: {},
     installShown: false,
     refreshed: false,
-    keywordSearch: ''
+    keywordSearch: '',
+    exampleYamlShown: false
   };
 
   componentDidMount() {
@@ -118,6 +120,15 @@ class OperatorPage extends React.Component {
 
   hideInstall = () => {
     this.setState({ installShown: false });
+  };
+
+  showExampleYaml = (e, crd) => {
+    e.preventDefault();
+    this.setState({ exampleYamlShown: true, crdExample: crd });
+  };
+
+  hideExampleYaml = () => {
+    this.setState({ exampleYamlShown: false });
   };
 
   renderPendingMessage = () => (
@@ -247,6 +258,42 @@ class OperatorPage extends React.Component {
     );
   }
 
+  renderCustomResourceDefinitions() {
+    const { operator } = this.state;
+
+    if (!operator) {
+      return null;
+    }
+
+    const { customResourceDefinitions } = operator;
+
+    if (!_.size(customResourceDefinitions)) {
+      return null;
+    }
+
+    return (
+      <React.Fragment>
+        <h3>Custom Resource Definitions</h3>
+        <div className="oh-crd-tile-view">
+          {_.map(customResourceDefinitions, crd => (
+            <div className="oh-crd-tile" key={crd.name}>
+              <span className="oh-crd-tile__title">{crd.displayName}</span>
+              <span className="oh-crd-tile__rule" />
+              <p className="oh-crd-tile__description">{crd.description}</p>
+              <a
+                className={`oh-crd-tile__link ${crd.yamlExample ? '' : 'oh-not-visible'}`}
+                href="#"
+                onClick={e => this.showExampleYaml(e, crd)}
+              >
+                <span>View YAML Example</span>
+              </a>
+            </div>
+          ))}
+        </div>
+      </React.Fragment>
+    );
+  }
+
   renderView() {
     const { error, pending } = this.props;
     const { operator } = this.state;
@@ -269,13 +316,14 @@ class OperatorPage extends React.Component {
         <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
           <h1>{displayName}</h1>
           {longDescription && <MarkdownView content={longDescription} outerScroll />}
+          {this.renderCustomResourceDefinitions()}
         </Grid.Col>
       </div>
     );
   }
 
   render() {
-    const { operator, installShown, refreshed, keywordSearch } = this.state;
+    const { operator, installShown, exampleYamlShown, crdExample, refreshed, keywordSearch } = this.state;
     const { pending } = this.props;
 
     const headerContent = (
@@ -315,6 +363,11 @@ class OperatorPage extends React.Component {
       >
         {this.renderView()}
         <InstallModal show={installShown} operator={operator} onClose={this.hideInstall} />
+        <ExampleYamlModal
+          show={exampleYamlShown}
+          customResourceDefinition={crdExample}
+          onClose={this.hideExampleYaml}
+        />
       </Page>
     );
   }

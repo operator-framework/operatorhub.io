@@ -16,6 +16,34 @@ const normalizeMaturity = maturity => {
   return validMaturityStrings[0];
 };
 
+const getExampleYAML = (kind, operator) => {
+  const examples = _.get(operator, 'metadata.annotations.alm-examples');
+  if (!examples) {
+    return null;
+  }
+
+  try {
+    const yamlExamples = JSON.parse(examples);
+    return _.find(yamlExamples, { kind });
+  } catch (e) {
+    console.error(e);
+  }
+  return null;
+};
+
+const normalizeCRD = (crd, operator) => ({
+  name: crd.name,
+  kind: crd.kind,
+  displayName: crd.displayName,
+  description: crd.description,
+  yamlExample: getExampleYAML(crd.kind, operator)
+});
+
+const normalizeCRDs = operator => {
+  const customResourceDefinitions = _.get(operator, 'spec.customresourcedefinitions.owned');
+  return _.map(customResourceDefinitions, crd => normalizeCRD(crd, operator));
+};
+
 const normalizeOperator = operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
@@ -34,7 +62,8 @@ const normalizeOperator = operator => {
     maintainers: spec.maintainers,
     description: _.get(annotations, 'description'),
     createdAt: annotations.createdAt,
-    containerImage: annotations.containerImage
+    containerImage: annotations.containerImage,
+    customResourceDefinitions: normalizeCRDs(operator)
   };
 };
 

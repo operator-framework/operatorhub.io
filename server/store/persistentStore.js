@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const sqlite3 = require('sqlite3').verbose();
 
 let db;
@@ -16,6 +17,7 @@ const LINKS_FIELD = 'links BLOB';
 const MAINTAINERS_FIELD = 'maintainers BLOB';
 const CREATED_FIELD = 'createdAt TEXT';
 const CONTAINER_IMAGE_FIELD = 'containerImage TEXT';
+const CUSTOM_RESOURCE_DEFINIITIONS_FIELD = 'customResourceDefinitions BLOB';
 
 exports.initialize = callback => {
   db = new sqlite3.Database(':memory:', sqlite3.OPEN_READWRITE, err => {
@@ -39,7 +41,8 @@ exports.initialize = callback => {
         ${LINKS_FIELD},
         ${MAINTAINERS_FIELD},
         ${CREATED_FIELD},
-        ${CONTAINER_IMAGE_FIELD}
+        ${CONTAINER_IMAGE_FIELD},
+        ${CUSTOM_RESOURCE_DEFINIITIONS_FIELD}
       )`,
       callback
     );
@@ -59,7 +62,11 @@ exports.getOperator = (operatorName, callback) => {
       if (err) {
         console.error(err.message);
       }
-      callback(allRows);
+      const operators = _.map(allRows, row => {
+        row.customResourceDefinitions = JSON.parse(row.customResourceDefinitions);
+        return row;
+      });
+      callback(operators);
     });
   });
 };
@@ -69,7 +76,11 @@ exports.getOperators = callback => {
     if (err) {
       console.error(err.message);
     }
-    callback(rows);
+    const operators = _.map(rows, row => {
+      row.customResourceDefinitions = JSON.parse(row.customResourceDefinitions);
+      return row;
+    });
+    callback(operators);
   });
 };
 
@@ -79,9 +90,9 @@ exports.clearOperators = callback => {
 
 exports.setOperators = (operators, callback) => {
   const sql = `INSERT OR IGNORE INTO ${OPERATOR_TABLE}
-    (name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, maintainers, createdAt, containerImage)
+    (name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, maintainers, createdAt, containerImage, customResourceDefinitions)
     VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   exports.clearOperators(() =>
     db.serialize(
@@ -101,7 +112,8 @@ exports.setOperators = (operators, callback) => {
             operator.links || null,
             operator.maintainers || null,
             operator.createdAt,
-            operator.containerImage
+            operator.containerImage,
+            JSON.stringify(operator.customResourceDefinitions)
           ]);
         });
         db.run('END', callback);
