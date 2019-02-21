@@ -17,8 +17,8 @@ const maturityModelDiagram = `${operatorSdk}/blob/master/doc/images/operator-mat
 const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
 const hubFacebook = ``;
 const hubTwitter = ``;
-
-const contactUsEmail = `__someon__e@__someplace__.com`;
+const fileAnIssue = `${operatorsFramework}/operatorhub.io/issues/new`;
+const contactUsEmail = `__someone__@__someplace__.com`;
 
 const DocmentationLinks = {
   operatorsFramework,
@@ -40,6 +40,7 @@ const DocmentationLinks = {
   kubernetesSlack,
   hubFacebook,
   hubTwitter,
+  fileAnIssue,
   contactUsEmail
 };
 
@@ -64,5 +65,6 @@ export {
   kubernetesSlack,
   hubFacebook,
   hubTwitter,
+  fileAnIssue,
   contactUsEmail
 };

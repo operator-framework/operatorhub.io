@@ -2,7 +2,7 @@ import * as _ from 'lodash-es';
 import * as versionSort from 'version-sort';
 
 const addVersionedOperator = (operators, newOperator) => {
-  const existingOperator = _.find(operators, { displayName: newOperator.displayName });
+  const existingOperator = _.find(operators, { id: newOperator.id });
   if (existingOperator) {
     if (!existingOperator.versions) {
       existingOperator.versions = [existingOperator];
