@@ -27,7 +27,7 @@ const Footer = ({ history, visible, ...props }) => (
           </div>
           <InternalLink
             className="oh-footer__button"
-            route="/getting-started-with-operators"
+            route="/getting-started"
             history={history}
             text="Jump-start with the SDK"
           />

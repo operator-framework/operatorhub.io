@@ -38,7 +38,7 @@ module.exports = app => {
   addRootRedirect(app, 'about');
   addRootRedirect(app, 'operator');
   addRootRedirect(app, 'contribute');
-  addRootRedirect(app, 'getting-started-with-operators');
+  addRootRedirect(app, 'getting-started');
   addRootRedirect(app, 'what-is-an-operator');
 
   // Test Route
