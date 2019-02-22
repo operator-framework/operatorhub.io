@@ -51,6 +51,7 @@ const normalizeOperator = operator => {
   const spec = _.get(operator, 'spec', {});
   const iconObj = _.get(spec, 'icon[0]');
   const categoriesString = _.get(annotations, 'categories');
+  const packageInfo = _.get(operator, 'packageInfo', {});
 
   return {
     id: generateIdFromVersionedName(operator.metadata.name),
@@ -69,7 +70,9 @@ const normalizeOperator = operator => {
     categories: categoriesString && _.map(categoriesString.split(','), category => category.trim()),
     createdAt: annotations.createdAt,
     containerImage: annotations.containerImage,
-    customResourceDefinitions: normalizeCRDs(operator)
+    customResourceDefinitions: normalizeCRDs(operator),
+    packageName: packageInfo.packageName,
+    channels: packageInfo.channels
   };
 };
 

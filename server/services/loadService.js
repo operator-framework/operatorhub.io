@@ -2,14 +2,13 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const { generateIdFromVersionedName, normalizeOperators } = require('../utils/operatorUtils');
+const { normalizeOperators } = require('../utils/operatorUtils');
 const persistentStore = require('../store/persistentStore');
 
 const operatorsFrameworkDirectory = './data/community-operators';
 
 const loadOperators = callback => {
   const csvFileList = [];
-  const packageFileList = [];
 
   const allCSVFilesSync = dir => {
     fs.readdirSync(dir).forEach(file => {
@@ -17,54 +16,25 @@ const loadOperators = callback => {
       if (fs.statSync(filePath).isDirectory()) {
         allCSVFilesSync(filePath);
       } else if (file.endsWith('.clusterserviceversion.yaml')) {
-        csvFileList.push(filePath);
-      }
-    });
-  };
-
-  const allPackageFilesSync = dir => {
-    fs.readdirSync(dir).forEach(file => {
-      const filePath = path.join(dir, file);
-      if (fs.statSync(filePath).isDirectory()) {
-        allCSVFilesSync(filePath);
-      } else if (file.endsWith('.package.yaml')) {
-        packageFileList.push(filePath);
+        csvFileList.push({ filePath, dir });
       }
     });
   };
 
   allCSVFilesSync(operatorsFrameworkDirectory);
-  allPackageFilesSync(operatorsFrameworkDirectory);
-
-  const channels = _.reduce(
-    packageFileList,
-    (channels, file) => {
-      try {
-        const packageData = yaml.safeLoad(fs.readFileSync(file));
-        _.forEach(packageData.channels, channel => {
-          const id = generateIdFromVersionedName(channel.currentCSV);
-          if (!channels[id]) {
-            channels[id] = [];
-          }
-          channels[id].push(channel.name);
-        });
-        return channels;
-      } catch (e) {
-        console.error(`ERROR: Unable to parse ${file}`);
-        console.error(e.message);
-      }
-      return channels;
-    },
-    {}
-  );
 
   const operators = _.reduce(
     csvFileList,
-    (parsedOperators, file) => {
+    (parsedOperators, { filePath, dir }) => {
       try {
-        parsedOperators.push(yaml.safeLoad(fs.readFileSync(file)));
+        const operator = yaml.safeLoad(fs.readFileSync(filePath));
+        const packageFile = fs.readdirSync(dir).filter(fn => fn.endsWith('.package.yaml'));
+        if (packageFile.length === 1) {
+          operator.packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
+        }
+        parsedOperators.push(operator);
       } catch (e) {
-        console.error(`ERROR: Unable to parse ${file}`);
+        console.error(`ERROR: Unable to parse ${filePath}`);
         console.error(e.message);
       }
       return parsedOperators;

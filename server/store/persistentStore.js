@@ -4,6 +4,7 @@ const sqlite3 = require('sqlite3').verbose();
 let db;
 
 const OPERATOR_TABLE = 'operators';
+
 const ID_FIELD = 'id TEXT';
 const NAME_FIELD = 'name TEXT';
 const DISPLAY_NAME_FIELD = 'displayName TEXT';
@@ -21,6 +22,33 @@ const CREATED_FIELD = 'createdAt BLOB';
 const CONTAINER_IMAGE_FIELD = 'containerImage TEXT';
 const CATEGORIES_FIELD = 'categories BLOB';
 const CUSTOM_RESOURCE_DEFINITIONS_FIELD = 'customResourceDefinitions BLOB';
+const PACKAGE_NAME_FIELD = 'packageName TEXT';
+const CHANNELS_FIELD = 'channels BLOB';
+
+const operatorFields = [
+  'id',
+  'name',
+  'displayName',
+  'version',
+  'versionForCompare',
+  'provider',
+  'description',
+  'longDescription',
+  'imgUrl',
+  'capabilityLevel',
+  'links',
+  'repository',
+  'maintainers',
+  'createdAt',
+  'containerImage',
+  'categories',
+  'customResourceDefinitions',
+  'packageName',
+  'channels'
+];
+
+const operatorFieldsList = operatorFields.join(', ');
+const operatorFieldsRefs = _.map(operatorFields, () => '?').join(', ');
 
 exports.initialize = callback => {
   db = new sqlite3.Database(':memory:', sqlite3.OPEN_READWRITE, err => {
@@ -48,7 +76,9 @@ exports.initialize = callback => {
         ${CREATED_FIELD},
         ${CONTAINER_IMAGE_FIELD},
         ${CATEGORIES_FIELD},
-        ${CUSTOM_RESOURCE_DEFINITIONS_FIELD}
+        ${CUSTOM_RESOURCE_DEFINITIONS_FIELD},
+        ${PACKAGE_NAME_FIELD},
+        ${CHANNELS_FIELD}
       )`,
       callback
     );
@@ -65,22 +95,41 @@ const normalizeRow = row => {
   row.customResourceDefinitions = JSON.parse(row.customResourceDefinitions);
   row.categories = JSON.parse(row.categories);
   row.createdAt = JSON.parse(row.createdAt);
+  row.channels = JSON.parse(row.channels);
   return row;
+};
+
+exports.getVersionedOperator = (operatorName, callback) => {
+  db.all(`SELECT * FROM ${OPERATOR_TABLE} where name = '${operatorName}'`, (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      callback(null, err.message);
+    }
+
+    if (!_.size(rows)) {
+      callback(null, `operator ${operatorName} is not found.`);
+      return;
+    }
+    callback(normalizeRow(rows[0]));
+  });
 };
 
 exports.getOperator = (operatorName, callback) => {
   db.all(`SELECT * FROM ${OPERATOR_TABLE} where name = '${operatorName}'`, (err, rows) => {
     if (err) {
       console.error(err.message);
+      callback(null, err.message);
+      return;
     }
 
     if (!_.size(rows)) {
-      callback(rows);
+      callback(null, `operator ${operatorName} is not found.`);
     }
 
     db.all(`SELECT * FROM ${OPERATOR_TABLE} where id = '${rows[0].id}'`, (err2, allRows) => {
       if (err) {
         console.error(err.message);
+        callback(null, err.message);
       }
       const operators = _.map(allRows, row => normalizeRow(row));
       callback(operators);
@@ -92,6 +141,8 @@ exports.getOperators = callback => {
   db.all(`SELECT * FROM ${OPERATOR_TABLE}`, (err, rows) => {
     if (err) {
       console.error(err.message);
+      callback(null, err.message);
+      return;
     }
     const operators = _.map(rows, row => normalizeRow(row));
     callback(operators);
@@ -103,10 +154,7 @@ exports.clearOperators = callback => {
 };
 
 exports.setOperators = (operators, callback) => {
-  const sql = `INSERT OR IGNORE INTO ${OPERATOR_TABLE}
-    (id, name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, capabilityLevel, links, repository, maintainers, createdAt, containerImage, categories, customResourceDefinitions)
-    VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const sql = `INSERT OR IGNORE INTO ${OPERATOR_TABLE} (${operatorFieldsList}) VALUES (${operatorFieldsRefs})`;
 
   exports.clearOperators(() =>
     db.serialize(
@@ -130,7 +178,9 @@ exports.setOperators = (operators, callback) => {
             JSON.stringify(operator.createdAt),
             operator.containerImage,
             JSON.stringify(operator.categories),
-            JSON.stringify(operator.customResourceDefinitions)
+            JSON.stringify(operator.customResourceDefinitions),
+            operator.packageName,
+            JSON.stringify(operator.channels)
           ]);
         });
         db.run('END', callback);

@@ -1,6 +1,7 @@
 const forceSSL = require('express-force-ssl');
 const operatorsService = require('../services/operatorsService');
 const updateService = require('../services/updateService');
+const yamlService = require('../services/yamlService');
 const { useSSL } = require('../utils/constants');
 
 const addCORSHeader = (request, response, next) => {
@@ -35,4 +36,6 @@ module.exports = app => {
   app.get('/api/operators', operatorsService.fetchOperators);
   app.get('/api/operator', operatorsService.fetchOperator);
   app.post('/api/webhook', updateService.updateLocalOperators);
+
+  app.get('/install/*.yaml', yamlService.generateInstallYaml);
 };

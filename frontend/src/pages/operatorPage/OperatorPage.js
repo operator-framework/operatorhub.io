@@ -192,7 +192,11 @@ class OperatorPage extends React.Component {
   renderCapabilityLevel = capabilityLevel => (
     <span>
       <span className="sr-only">{capabilityLevel}</span>
-      <img className="oh-operator-page__side-panel__image" src={capabilityLevelImages[capabilityLevel]} alt={capabilityLevel} />
+      <img
+        className="oh-operator-page__side-panel__image"
+        src={capabilityLevelImages[capabilityLevel]}
+        alt={capabilityLevel}
+      />
     </span>
   );
 
