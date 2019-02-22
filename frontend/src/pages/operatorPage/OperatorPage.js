@@ -196,6 +196,20 @@ class OperatorPage extends React.Component {
     </span>
   );
 
+  renderCategories = categories => {
+    if (!_.size(categories)) {
+      return null;
+    }
+
+    return (
+      <React.Fragment>
+        {_.map(categories, category => (
+          <div key={category}>{category}</div>
+        ))}
+      </React.Fragment>
+    );
+  };
+
   renderSidePanel() {
     const { operator } = this.state;
     const {
@@ -211,7 +225,8 @@ class OperatorPage extends React.Component {
       categories
     } = operator;
 
-    const containerImageLink = containerImage && <ExternalLink href={containerImage} text={containerImage} />;
+    const imageLink = containerImage ? <ExternalLink href={containerImage} text={containerImage} /> : notAvailable;
+    const repoLink = repository ? <ExternalLink href={repository} text={repository} /> : notAvailable;
 
     const maturityLabel = (
       <span>
@@ -248,11 +263,11 @@ class OperatorPage extends React.Component {
           {this.renderPropertyItem(maturityLabel, this.renderMaturity(maturity))}
           {this.renderPropertyItem('Provider', provider)}
           {this.renderPropertyItem('Links', this.renderLinks(links))}
-          {this.renderPropertyItem('Repository', repository)}
-          {this.renderPropertyItem('Container Image', containerImageLink)}
+          {this.renderPropertyItem('Repository', repoLink)}
+          {this.renderPropertyItem('Container Image', imageLink)}
           {this.renderPropertyItem('Created At', createdAt)}
           {this.renderPropertyItem('Maintainers', this.renderMaintainers(maintainers))}
-          {this.renderPropertyItem('Categories', categories)}
+          {this.renderPropertyItem('Categories', this.renderCategories(categories))}
         </PropertiesSidePanel>
       </div>
     );

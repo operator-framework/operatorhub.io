@@ -50,6 +50,7 @@ const normalizeOperator = operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
   const iconObj = _.get(spec, 'icon[0]');
+  const categoriesString = _.get(annotations, 'categories');
 
   return {
     id: generateId(operator.metadata.name),
@@ -62,8 +63,10 @@ const normalizeOperator = operator => {
     versionForCompare: normalizeVersion(spec.version),
     maturity: normalizeMaturity(spec.maturity || ''),
     links: spec.links,
+    repository: annotations.repository,
     maintainers: spec.maintainers,
     description: _.get(annotations, 'description'),
+    categories: categoriesString && _.map(categoriesString.split(','), category => category.trim()),
     createdAt: annotations.createdAt,
     containerImage: annotations.containerImage,
     customResourceDefinitions: normalizeCRDs(operator)
