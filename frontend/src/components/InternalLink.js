@@ -7,6 +7,11 @@ export const InternalLink = ({ text, children, className, block, route, history,
     e.preventDefault();
     if (!noNavigation) {
       history.push(route);
+    } else {
+      const scrollToElem = document.getElementById('page-top');
+      if (scrollToElem) {
+        scrollToElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   };
 

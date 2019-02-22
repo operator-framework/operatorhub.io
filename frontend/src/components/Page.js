@@ -8,103 +8,106 @@ import { HeaderTopBar } from './HeaderTopBar';
 import Footer from './Footer';
 
 class Page extends React.Component {
-  state = { fixedHeader: false };
+  state = { scrolled: false };
 
   componentDidMount() {
-    const topperHeight = _.get(this.topperRef, 'clientHeight') || 0;
-    this.props.scrollCallback(0, topperHeight);
+    this.props.scrollCallback(0, _.get(this.topBarRef, 'clientHeight') || 0);
+    window.addEventListener('scroll', this.contentScrolled);
+    const scrollToElem = document.getElementById('page-top');
+    if (scrollToElem) {
+      scrollToElem.scrollIntoView();
+    }
   }
 
-  contentScrolled = scrollEvent => {
-    const { scrollCallback } = this.props;
-    const { scrollTop } = scrollEvent.currentTarget;
-    const headerHeight = this.headerRef.clientHeight;
-    const topBarHeight = this.topBarRef.clientHeight;
-    const fixedHeightThreshold = headerHeight - topBarHeight;
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.contentScrolled);
+  }
 
-    this.setState({ fixedHeader: scrollTop > fixedHeightThreshold });
-
-    const topperHeight = _.get(this.topperRef, 'clientHeight') || 0;
-    scrollCallback(scrollTop, topperHeight);
-  };
-
-  setTopperRef = ref => {
-    this.topperRef = ref;
-  };
-
-  setHeaderRef = ref => {
-    this.headerRef = ref;
+  contentScrolled = () => {
+    const { toolbarContent, headerContent } = this.props;
+    const scrollTop = window.pageYOffset;
+    const scrolled = scrollTop > 30;
+    const toolbarFixed =
+      !headerContent || (toolbarContent && scrollTop > this.headerRef.offsetHeight - this.topBarRef.offsetHeight);
+    this.setState({ scrolled, toolbarFixed });
+    this.props.scrollCallback(scrollTop, _.get(this.topBarRef, 'clientHeight') || 0);
   };
 
   setTopBarRef = ref => {
     this.topBarRef = ref;
   };
 
-  renderHeaderTopBar(fixed) {
-    const { history, searchValue, onSearchChange, clearSearch, searchCallback, homePage } = this.props;
+  setToolbarRef = ref => {
+    this.toolbarRef = ref;
+  };
+
+  setHeaderRef = ref => {
+    this.headerRef = ref;
+  };
+
+  renderTopBar() {
+    const { headerContent, history, searchValue, onSearchChange, clearSearch, searchCallback, homePage } = this.props;
+
     return (
       <HeaderTopBar
+        scrolled={this.state.scrolled || !headerContent}
         onSearchChange={onSearchChange}
         clearSearch={clearSearch}
         searchValue={searchValue}
         searchCallback={searchCallback}
         history={history}
-        barRef={ref => {
-          !fixed && this.setTopBarRef(ref);
-        }}
+        barRef={this.setTopBarRef}
         homePage={homePage}
       />
     );
   }
 
-  renderTopper() {
-    const { headerContent, toolbarContent } = this.props;
+  renderHeader() {
+    const { headerContent } = this.props;
+    if (!headerContent) {
+      return null;
+    }
 
+    const style = { paddingTop: _.get(this.topBarRef, 'clientHeight', 0) };
     return (
-      <div className="oh-page-topper" ref={this.setTopperRef}>
-        <div className="oh-header" ref={this.setHeaderRef}>
-          <div className="oh-header__inner">
-            {this.renderHeaderTopBar(false)}
-            {headerContent}
-          </div>
-        </div>
-        {toolbarContent && (
-          <div className="oh-page-toolbar">
-            <div className="oh-page-toolbar__inner">{toolbarContent}</div>
-          </div>
-        )}
+      <div className="oh-header" style={style} ref={this.setHeaderRef}>
+        <div className="oh-header__inner">{headerContent}</div>
       </div>
     );
   }
 
-  renderFixedTopper() {
-    const { toolbarContent } = this.props;
+  renderToolbar() {
+    const { toolbarContent, headerContent } = this.props;
+    const { toolbarFixed } = this.state;
+    if (!toolbarContent) {
+      return null;
+    }
+
+    const toolbarClasses = classNames('oh-page-toolbar', { fixed: toolbarFixed || !headerContent });
     return (
-      <div className="oh-page-topper oh-page-topper-fixed">
-        <div className="oh-header">
-          <div className="oh-header__inner">{this.renderHeaderTopBar(true)}</div>
-        </div>
-        {toolbarContent && (
-          <div className="oh-page-toolbar">
-            <div className="oh-page-toolbar__inner">{toolbarContent}</div>
-          </div>
-        )}
+      <div className={toolbarClasses} ref={this.setToolbarRef}>
+        <div className="oh-page-toolbar__inner">{toolbarContent}</div>
       </div>
     );
   }
 
   render() {
-    const { className, headerContent, children, history, showFooter } = this.props;
-
-    const { fixedHeader } = this.state;
-    const isFixed = fixedHeader || !headerContent;
-    const ohPageClasses = classNames('content-scrollable oh-page', className);
+    const { className, children, history, headerContent, showFooter } = this.props;
+    const ohPageClasses = classNames('oh-page', className);
+    const { toolbarFixed } = this.state;
+    let pageStyle;
+    if (!headerContent) {
+      pageStyle = { marginTop: _.get(this.topBarRef, 'clientHeight', 0) + _.get(this.toolbarRef, 'clientHeight', 0) };
+    } else if (toolbarFixed) {
+      pageStyle = { marginTop: _.get(this.toolbarRef, 'clientHeight', 0) };
+    }
 
     return (
-      <div className={ohPageClasses} onScroll={this.contentScrolled}>
-        {this.renderTopper()}
-        {isFixed && this.renderFixedTopper()}
-        <div className="oh-page-contents">
+      <div id="page-top" className={ohPageClasses} onScroll={this.contentScrolled}>
+        {this.renderTopBar()}
+        {this.renderHeader()}
+        {this.renderToolbar()}
+        <div className="oh-page-contents" style={pageStyle}>
           <div className="oh-page-contents__inner">{children}</div>
         </div>
         <Footer history={history} visible={showFooter} />

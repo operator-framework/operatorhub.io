@@ -86,9 +86,12 @@ class HeaderTopBar extends React.Component {
   }
 
   render() {
+    const { scrolled } = this.props;
+    const topBarClasses = classNames('oh-header__top-bar', { scrolled });
+
     return (
-      <div className="oh-header__top-bar" ref={this.props.barRef}>
-        <div className="oh-header__top-bar__content">
+      <div className={topBarClasses} ref={this.props.barRef}>
+        <div className="oh-header__top-bar__inner">
           <InternalLink route="/" history={this.props.history} noNavigation={this.props.homePage}>
             <img className="oh-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />
           </InternalLink>
@@ -117,6 +120,7 @@ class HeaderTopBar extends React.Component {
 }
 
 HeaderTopBar.propTypes = {
+  scrolled: PropTypes.bool,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
@@ -129,6 +133,7 @@ HeaderTopBar.propTypes = {
 };
 
 HeaderTopBar.defaultProps = {
+  scrolled: false,
   searchValue: undefined,
   onSearchChange: helpers.noop,
   searchCallback: helpers.noop,
