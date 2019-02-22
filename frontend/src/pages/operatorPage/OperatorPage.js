@@ -381,7 +381,7 @@ class OperatorPage extends React.Component {
         showFooter={refreshed && !pending}
       >
         {this.renderView()}
-        <InstallModal show={installShown} operator={operator} onClose={this.hideInstall} />
+        <InstallModal show={installShown} operator={operator} onClose={this.hideInstall} history={this.props.history} />
         <ExampleYamlModal
           show={exampleYamlShown}
           customResourceDefinition={crdExample}

@@ -1,4 +1,5 @@
 const express = require('express');
+const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const { comingSoon } = require('../utils/constants');
@@ -31,15 +32,21 @@ module.exports = app => {
     app.use(express.static('../comingSoon'));
     return;
   }
+  const uiRoutes = [
+    'operator',
+    'about',
+    'contribute',
+    'getting-started',
+    'what-is-an-operator',
+    'how-to-install-an-operator'
+  ];
 
   app.use(express.static('../frontend/dist'));
 
   // Page Routes
-  addRootRedirect(app, 'about');
-  addRootRedirect(app, 'operator');
-  addRootRedirect(app, 'contribute');
-  addRootRedirect(app, 'getting-started');
-  addRootRedirect(app, 'what-is-an-operator');
+  _.forEach(uiRoutes, uiRoute => {
+    addRootRedirect(app, uiRoute);
+  });
 
   // Test Route
   app.get('/akamai-sureroute-test', (request, response) => {

@@ -7,11 +7,12 @@ import { CatalogItemHeader } from 'patternfly-react-extensions';
 
 import { helpers } from '../../common/helpers';
 import * as operatorImg from '../../imgs/operator.svg';
+import { InternalLink } from '../../components/InternalLink';
 
 const INSTALL_OLM_COMMAND =
   '$kubectl create -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/manifests/latest/';
 
-const InstallModal = ({ show, operator, onClose }) => (
+const InstallModal = ({ show, operator, onClose, history }) => (
   <Modal show={show} onHide={onClose} bsSize="lg" className="oh-install-modal right-side-modal-pf">
     {_.get(operator, 'displayName') && (
       <React.Fragment>
@@ -24,7 +25,10 @@ const InstallModal = ({ show, operator, onClose }) => (
           />
         </Modal.Header>
         <Modal.Body>
-          <h2 className="oh-install-modal__title">Install on Kubernetes</h2>
+          <div className="oh-install-modal__title">
+            <h2>Install on Kubernetes</h2>
+            <InternalLink route="/how-to-install-an-operator" history={history} text="How to Install an Operator" />
+          </div>
           <ExpandCollapse
             className="oh-install-expander"
             textCollapsed="Show Prerequisites"
@@ -58,7 +62,10 @@ const InstallModal = ({ show, operator, onClose }) => (
 InstallModal.propTypes = {
   show: PropTypes.bool,
   operator: PropTypes.object,
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }).isRequired
 };
 
 InstallModal.defaultProps = {
