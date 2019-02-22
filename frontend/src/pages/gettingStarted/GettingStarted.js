@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import DocumentationPage from '../../components/DocumentationPage';
-import maturityDetailsImg from '../../imgs/operator-maturity-diagram.svg';
+import maturityDetailsImg from '../../imgs/capability-level-diagram.svg';
 import { operatorSdk, gettingStarted, introBlog } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
 
