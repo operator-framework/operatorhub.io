@@ -29,7 +29,7 @@ class HeaderTopBar extends React.Component {
   };
 
   onGettingStarted = () => {
-    this.props.history.push('/getting-started-with-operators');
+    this.props.history.push('/getting-started');
   };
 
   onSearchKeyPress = e => {

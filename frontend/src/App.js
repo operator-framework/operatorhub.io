@@ -26,7 +26,7 @@ class App extends React.Component {
     return (
       <Switch>
         <Route path="/operator/:operatorId" component={OperatorPage} />
-        <Route path="/getting-started-with-operators" component={GettingStarted} />
+        <Route path="/getting-started" component={GettingStarted} />
         <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
         <Route path="/contribute" component={Contribute} />
         <Route path="/about" component={About} />

@@ -64,7 +64,7 @@ const WhatIsAnOperator = ({ history, ...props }) => {
         <p>
           Head over to{' '}
           <InternalLink
-            route="/getting-started-with-operators"
+            route="/getting-started"
             history={history}
             text="Jump Start Using the Operator SDK"
           />{' '}
