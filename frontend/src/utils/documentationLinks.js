@@ -13,7 +13,8 @@ const installInstructions = `${olm}/blob/master/Documentation/install/install.md
 const discoveryCatalogs = `${olm}#discovery-catalogs-and-automated-upgrades`;
 const introBlog = `https://coreos.com/blog/introducing-operators.html`;
 const sampleCode = `${operatorsFramework}/operator-sdk-samples/blob/master/memcached-operator/pkg/controller/memcached/memcached_controller.go#L77`;
-const maturityModelDiagram = `${operatorSdk}/blob/master/doc/images/operator-maturity-model.png`;
+const capabilityLevelModelDiagram = `${operatorSdk}/blob/master/doc/images/operator-maturity-model.png`;
+// const capabilityLevelModelDiagram = `${operatorSdk}/blob/master/doc/images/operator-capability-level-model.png`;
 const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
 const hubFacebook = ``;
 const hubTwitter = ``;
@@ -36,7 +37,7 @@ const DocmentationLinks = {
   discoveryCatalogs,
   introBlog,
   sampleCode,
-  maturityModelDiagram,
+  capabilityLevelModelDiagram,
   kubernetesSlack,
   hubFacebook,
   hubTwitter,
@@ -61,7 +62,7 @@ export {
   introBlog,
   discoveryCatalogs,
   sampleCode,
-  maturityModelDiagram,
+  capabilityLevelModelDiagram,
   kubernetesSlack,
   hubFacebook,
   hubTwitter,

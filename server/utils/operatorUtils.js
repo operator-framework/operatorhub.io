@@ -7,13 +7,13 @@ const normalizeVersion = version => {
   return normVersion;
 };
 
-const validMaturityStrings = ['Basic Install', 'Seamless Upgrades', 'Full Lifecycle', 'Deep Insights', 'Auto Pilot'];
+const validCapabilityStrings = ['Basic Install', 'Seamless Upgrades', 'Full Lifecycle', 'Deep Insights', 'Auto Pilot'];
 
-const normalizeMaturity = maturity => {
-  if (validMaturityStrings.includes(maturity)) {
-    return maturity;
+const normalizeCapabilityLevel = capability => {
+  if (validCapabilityStrings.includes(capability)) {
+    return capability;
   }
-  return validMaturityStrings[0];
+  return validCapabilityStrings[0];
 };
 
 const getExampleYAML = (kind, operator) => {
@@ -61,7 +61,7 @@ const normalizeOperator = operator => {
     provider: _.get(spec, 'provider.name'),
     version: spec.version,
     versionForCompare: normalizeVersion(spec.version),
-    maturity: normalizeMaturity(spec.maturity || ''),
+    capabilityLevel: normalizeCapabilityLevel(annotations.capabilities || ''),
     links: spec.links,
     repository: annotations.repository,
     maintainers: spec.maintainers,

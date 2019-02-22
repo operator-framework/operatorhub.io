@@ -13,7 +13,7 @@ const PROVIDER_FIELD = 'provider TEXT';
 const DESCRIPTION_FIELD = 'description TEXT';
 const LONG_DESCRIPTION_FIELD = 'longDescription TEXT';
 const IMG_FIELD = 'imgUrl TEXT';
-const MATURITY_FIELD = 'maturity BLOB';
+const CAPABILITY_LEVEL_FIELD = 'capabilityLevel BLOB';
 const LINKS_FIELD = 'links BLOB';
 const REPOSITORY_FIELD = 'repository TEXT';
 const MAINTAINERS_FIELD = 'maintainers BLOB';
@@ -41,7 +41,7 @@ exports.initialize = callback => {
         ${DESCRIPTION_FIELD},
         ${LONG_DESCRIPTION_FIELD},
         ${IMG_FIELD},
-        ${MATURITY_FIELD},
+        ${CAPABILITY_LEVEL_FIELD},
         ${LINKS_FIELD},
         ${REPOSITORY_FIELD},
         ${MAINTAINERS_FIELD},
@@ -73,6 +73,11 @@ exports.getOperator = (operatorName, callback) => {
     if (err) {
       console.error(err.message);
     }
+
+    if (!_.size(rows)) {
+      callback(rows);
+    }
+
     db.all(`SELECT * FROM ${OPERATOR_TABLE} where id = '${rows[0].id}'`, (err2, allRows) => {
       if (err) {
         console.error(err.message);
@@ -99,7 +104,7 @@ exports.clearOperators = callback => {
 
 exports.setOperators = (operators, callback) => {
   const sql = `INSERT OR IGNORE INTO ${OPERATOR_TABLE}
-    (id, name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, maturity, links, repository, maintainers, createdAt, containerImage, categories, customResourceDefinitions)
+    (id, name, displayName, version, versionForCompare, provider, description, longDescription, imgUrl, capabilityLevel, links, repository, maintainers, createdAt, containerImage, categories, customResourceDefinitions)
     VALUES
     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
@@ -118,7 +123,7 @@ exports.setOperators = (operators, callback) => {
             operator.description,
             operator.longDescription,
             operator.imgUrl,
-            operator.maturity || null,
+            operator.capabilityLevel || null,
             JSON.stringify(operator.links),
             operator.repository,
             JSON.stringify(operator.maintainers),

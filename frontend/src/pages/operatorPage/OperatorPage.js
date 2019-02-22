@@ -19,27 +19,27 @@ import { helpers } from '../../common/helpers';
 import { fetchOperator } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import { ExternalLink } from '../../components/ExternalLink';
-import { maturityModelDiagram } from '../../utils/documentationLinks';
+import { capabilityLevelModelDiagram } from '../../utils/documentationLinks';
 import Page from '../../components/Page';
 import InstallModal from './InstallModal';
 import ExampleYamlModal from './ExampleYamlModal';
 import * as operatorImg from '../../imgs/operator.svg';
 import { reduxConstants } from '../../redux';
-import * as maturityImgLevel1 from '../../imgs/maturity-imgs/level-1.svg';
-import * as maturityImgLevel2 from '../../imgs/maturity-imgs/level-2.svg';
-import * as maturityImgLevel3 from '../../imgs/maturity-imgs/level-3.svg';
-import * as maturityImgLevel4 from '../../imgs/maturity-imgs/level-4.svg';
-import * as maturityImgLevel5 from '../../imgs/maturity-imgs/level-5.svg';
-import * as maturityDiagram from '../../imgs/operator-maturity-diagram.svg';
+import * as capabilityLevelImgLevel1 from '../../imgs/capability-level-imgs/level-1.svg';
+import * as capabilityLevelImgLevel2 from '../../imgs/capability-level-imgs/level-2.svg';
+import * as capabilityLevelImgLevel3 from '../../imgs/capability-level-imgs/level-3.svg';
+import * as capabilityLevelImgLevel4 from '../../imgs/capability-level-imgs/level-4.svg';
+import * as capabilityLevelImgLevel5 from '../../imgs/capability-level-imgs/level-5.svg';
+import * as capabilityLevelDiagram from '../../imgs/capability-level-diagram.svg';
 
 const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
 
-const maturityImages = {
-  'Basic Install': maturityImgLevel1,
-  'Seamless Upgrades': maturityImgLevel2,
-  'Full Lifecycle': maturityImgLevel3,
-  'Deep Insights': maturityImgLevel4,
-  'Auto Pilot': maturityImgLevel5
+const capabilityLevelImages = {
+  'Basic Install': capabilityLevelImgLevel1,
+  'Seamless Upgrades': capabilityLevelImgLevel2,
+  'Full Lifecycle': capabilityLevelImgLevel3,
+  'Deep Insights': capabilityLevelImgLevel4,
+  'Auto Pilot': capabilityLevelImgLevel5
 };
 
 class OperatorPage extends React.Component {
@@ -189,10 +189,10 @@ class OperatorPage extends React.Component {
       </React.Fragment>
     );
 
-  renderMaturity = maturity => (
+  renderCapabilityLevel = capabilityLevel => (
     <span>
-      <span className="sr-only">{maturity}</span>
-      <img className="oh-operator-page__side-panel__image" src={maturityImages[maturity]} alt={maturity} />
+      <span className="sr-only">{capabilityLevel}</span>
+      <img className="oh-operator-page__side-panel__image" src={capabilityLevelImages[capabilityLevel]} alt={capabilityLevel} />
     </span>
   );
 
@@ -214,7 +214,7 @@ class OperatorPage extends React.Component {
     const { operator } = this.state;
     const {
       provider,
-      maturity,
+      capabilityLevel,
       links,
       version,
       versions,
@@ -228,13 +228,13 @@ class OperatorPage extends React.Component {
     const imageLink = containerImage ? <ExternalLink href={containerImage} text={containerImage} /> : notAvailable;
     const repoLink = repository ? <ExternalLink href={repository} text={repository} /> : notAvailable;
 
-    const maturityLabel = (
+    const capabilityLevelLabel = (
       <span>
-        <span>Operator Maturity</span>
+        <span>Capability Level</span>
         <OverlayTrigger
           overlay={
-            <Popover id="maturiy-help" className="oh-maturity-popover">
-              <img className="oh-maturity-popover__img" src={maturityDiagram} alt="" />
+            <Popover id="capability-level-help" className="oh-capability-level-popover">
+              <img className="oh-capability-level-popover__img" src={capabilityLevelDiagram} alt="" />
             </Popover>
           }
           placement="left"
@@ -242,9 +242,9 @@ class OperatorPage extends React.Component {
           trigger={['click']}
           rootClose
         >
-          <Icon className="oh-maturity-popover__icon" type="pf" name="help" />
+          <Icon className="oh-capability-level-popover__icon" type="pf" name="help" />
         </OverlayTrigger>
-        <ExternalLink className="oh-maturity-popover__link" href={maturityModelDiagram} text="" />
+        <ExternalLink className="oh-capability-level-popover__link" href={capabilityLevelModelDiagram} text="" />
       </span>
     );
 
@@ -260,7 +260,7 @@ class OperatorPage extends React.Component {
         <div className="oh-operator-page__side-panel__separator" />
         <PropertiesSidePanel>
           {this.renderPropertyItem('Operator Version', this.renderVersion(version, versions))}
-          {this.renderPropertyItem(maturityLabel, this.renderMaturity(maturity))}
+          {this.renderPropertyItem(capabilityLevelLabel, this.renderCapabilityLevel(capabilityLevel))}
           {this.renderPropertyItem('Provider', provider)}
           {this.renderPropertyItem('Links', this.renderLinks(links))}
           {this.renderPropertyItem('Repository', repoLink)}

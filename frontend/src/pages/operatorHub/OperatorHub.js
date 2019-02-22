@@ -21,10 +21,10 @@ const SORT_TYPE_URL_PARAM = 'sort';
 /**
  * Filter property white list
  */
-const operatorHubFilterGroups = ['provider', 'maturity'];
+const operatorHubFilterGroups = ['provider', 'capabilityLevel'];
 
 const operatorHubFilterMap = {
-  maturity: 'Operator Maturity'
+  capabilityLevel: 'Capability Level'
 };
 
 const ignoredProviderTails = [', Inc.', ', Inc', ' Inc.', ' Inc', ', LLC', ' LLC'];
@@ -50,8 +50,8 @@ const providerSort = provider => {
   return value;
 };
 
-const maturitySort = maturity => {
-  const value = maturity.value || maturity;
+const capabilityLevelSort = capabilityLevel => {
+  const value = capabilityLevel.value || capabilityLevel;
 
   switch (value) {
     case 'Basic Install':
@@ -418,8 +418,8 @@ class OperatorHub extends React.Component {
 
     if (groupName === 'provider') {
       sortBy = providerSort;
-    } else if (groupName === 'maturity') {
-      sortBy = maturitySort;
+    } else if (groupName === 'capabilityLevel') {
+      sortBy = capabilityLevelSort;
     }
     return _.sortBy(_.keys(activeFilters), sortBy);
   };
