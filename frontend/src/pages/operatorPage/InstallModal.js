@@ -2,11 +2,14 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 
-import { Modal } from 'patternfly-react';
+import { ExpandCollapse, Modal } from 'patternfly-react';
 import { CatalogItemHeader } from 'patternfly-react-extensions';
 
 import { helpers } from '../../common/helpers';
 import * as operatorImg from '../../imgs/operator.svg';
+
+const INSTALL_OLM_COMMAND =
+  '$kubectl create -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/manifests/latest/';
 
 const InstallModal = ({ show, operator, onClose }) => (
   <Modal show={show} onHide={onClose} bsSize="lg" className="oh-install-modal right-side-modal-pf">
@@ -21,14 +24,30 @@ const InstallModal = ({ show, operator, onClose }) => (
           />
         </Modal.Header>
         <Modal.Body>
+          <h2 className="oh-install-modal__title">Install on Kubernetes</h2>
+          <ExpandCollapse
+            className="oh-install-expander"
+            textCollapsed="Show Prerequisites"
+            textExpanded="Hide Prerequisites"
+          >
+            <div className="oh-install-olm-instructions">
+              <p>
+                Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on your cluster.
+                Platforms like OpenShift / OKD will have it pre-installed.
+              </p>
+              <div className="oh-code">
+                <code>{INSTALL_OLM_COMMAND}</code>
+              </div>
+            </div>
+          </ExpandCollapse>
+
+          <p>Install the operator by running the following command:</p>
+          <div className="oh-code">
+            {`kubectl create -f https://operatorhub.io/install/${_.get(operator, 'name')}.yaml`}
+          </div>
           <p>
-            We need to have a visual popup upon clicking <i>install</i> that shows instructions to install on OCP and
-            Kube (which in turns asks to install OLM/Marketplace) and then a single line command like:
-          </p>
-          <p>
-            <span className="oh-code oh-indent">
-              {`kubectl create -f https://operatorhub.io/#/operators/${_.get(operator, 'name')}/install.yaml`}
-            </span>
+            After install, checkout the custom resource definitions (CRDs) introduced by this operator to start using
+            it.
           </p>
         </Modal.Body>
       </React.Fragment>

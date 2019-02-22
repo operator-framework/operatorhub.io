@@ -193,12 +193,32 @@
   }
 }
 
+.oh-install-modal {
+  &__title {
+    padding-top: 15px;
+    margin-top: 0;
+    border: 0;
+  }
+
+  .oh-code {
+    margin: 20px 10px 30px 0;
+    padding: 10px;
+    background-color: $oh-color-background;
+    border-radius: 3px;
+  }
+}
+
+.oh-install-expander {
+  padding-bottom: 30px;
+}
+
+.oh-install-olm-instructions {
+  margin-top: 15px;
+  border-bottom: 1px solid $oh-color-rule;
+}
+
 .oh-yaml-viewer {
   height: 450px;
-
-  &__modal .modal-header {
-    background-color: #fff;
-  }
 
   &__content {
     width: 100%;
@@ -222,6 +242,6 @@
 
   &__copy {
     color: $oh-color-text-body;
-    padding: 3px;
+    padding: 3px 5px;
   }
 }
