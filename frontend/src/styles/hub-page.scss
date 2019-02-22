@@ -155,6 +155,7 @@
   .catalog-tile-pf-description {
     margin-top: 5px;
     overflow: hidden;
+    position: relative;
     width: 100%;
     &::after {
       background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 75%);
@@ -163,7 +164,7 @@
       content: ".";
       position: absolute;
       right: 0;
-      width: 50%;
+      width: 25%;
       text-align: right;
     }
   }
