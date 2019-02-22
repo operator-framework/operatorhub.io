@@ -18,7 +18,7 @@ const capabilityLevelModelDiagram = `${operatorSdk}/blob/master/doc/images/opera
 const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
 const hubFacebook = ``;
 const hubTwitter = ``;
-const fileAnIssue = `${operatorsFramework}/operatorhub.io/issues/new`;
+const fileAnIssue = `${operatorsRepo}/issues/new`;
 const contactUsEmail = `__someone__@__someplace__.com`;
 
 const DocmentationLinks = {
