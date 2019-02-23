@@ -725,8 +725,7 @@ class OperatorHub extends React.Component {
       <div className="oh-hub-header-content">
         <h1 className="oh-hero">Welcome to OperatorHub.io</h1>
         <p className="oh-header-content__sub-title">
-          Operators deliver the automation advantages of cloud services like provisioning, scaling, and backup/restore
-          while being able to run anywhere that Kubernetes can run.
+          OperatorHub.io is a new home for the Kubernetes community to share Operators. Find an existing Operator or list your own today.
         </p>
       </div>
     );
