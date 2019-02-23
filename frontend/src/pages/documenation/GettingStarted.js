@@ -25,8 +25,8 @@ const GettingStarted = ({ history, ...props }) => {
               <li>General go program structure</li>
               <li>Boilerplate code to talk to the Kubernetes API</li>
               <li>Boilerplate code to watch for Kubernetes objects of interest</li>
-              <li>Entry point to the reconciliation loop</li>
-              <li>Example YAML files based on CRDs</li>
+              <li>An entry point to the reconciliation loop</li>
+              <li>An example YAML files based on CRDs</li>
             </ul>
           </td>
           <td>
@@ -81,16 +81,17 @@ const GettingStarted = ({ history, ...props }) => {
       title: `Welcome`,
       content: (
         <p>
-          So you are interested in creating your own Kubernetes operator? Maybe you are tired of the complexity involved
-          when deploying a stateful or distributed cluster application on Kubernetes manually. Maybe you want to achieve
-          the simplicity of initial application deployment with Helm charts but without the security implications of
-          running Tiller or saving the state of a deployment. Or maybe you are just curious about starting to develop
-          against the Kubernetes API. In any case you’ve come to the right place.
+          If you are considering making a Kubernetes Operator, you’re not alone. Since their launch in 2016, Kubernetes
+          Operators have been solving notoriously tricky problems for Kubernetes users. Operators reduce the complexity
+          of deploying a stateful or distributed cluster application on Kubernetes. They help users to achieve the
+          simplicity of initial application deployment with Helm charts but without the security implications of running
+          Tiller or saving the state of a deployment. Or they also help those starting to develop against the Kubernetes
+          API. If you’re looking to build an Operator for any of the above reasons, you’ve come to the right place!
         </p>
       )
     },
     {
-      title: `What is an Operator after all?`,
+      title: `What exactly is an Operator?`,
       content: (
         <React.Fragment>
           <p>
@@ -112,8 +113,8 @@ const GettingStarted = ({ history, ...props }) => {
           <p>
             Fortunately there is the <ExternalLink href={operatorSdk} text="operator-sdk" indicator={false} />, part of
             the <ExternalLink href={introBlog} text="Operator Framework" indicator={false} />, a community project that
-            aims at simplifying the whole process to create an operator down to the level where all that’s left to do is
-            writing the custom operational logic inside the control loop.
+            aims at simplifying the whole process of Operator creation to just writing the custom operational logic
+            inside the control loop.
           </p>
           <p>
             There are basically three ways of getting there, resulting in the three types of Operators the SDK supports:
@@ -128,7 +129,7 @@ const GettingStarted = ({ history, ...props }) => {
             <ExternalLink href={gettingStarted} text="Getting Started Guide" indicator={false} />.
           </p>
           <p>
-            Already have an Operator? Discover how to contribute it to the OperatorHub{' '}
+            Already have an Operator? Discover how to contribute it to OperatorHub.io{' '}
             <InternalLink route="/contribute" history={history} text="here" />.
           </p>
         </React.Fragment>
