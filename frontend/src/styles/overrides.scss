@@ -64,3 +64,14 @@ p {
   background-color: #e0e1e2;
   border-radius: 4px;
 }
+
+.popover {
+  -webkit-box-shadow: -5px 0px 15px rgba(0,0,0,.2);
+  box-shadow: -3px 0px 15px rgba(0,0,0,.2);
+  border-radius: 4px;
+  border: 1px solid #efefef;
+
+  &.left > .arrow {
+    border-left-color: #efefef;
+  }
+}
