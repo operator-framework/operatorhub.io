@@ -70,3 +70,21 @@
     }
   }
 }
+
+.oh-numbered-list {
+  counter-reset: list;
+  li {
+    counter-increment: list;
+    list-style: none;
+    position: relative;
+    padding-bottom: 10px;
+    &:last-of-type {
+      padding-bottom: 0;
+    }
+  }
+  li:before {
+    position: absolute;
+    left: -20px;
+    content: counter(list) " )";
+  }
+}
