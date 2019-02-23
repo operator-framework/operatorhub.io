@@ -108,13 +108,15 @@
 
 .oh-capability-level-popover {
   max-width: 730px;
-  height: 300px;
+  height: 330px;
   width: 730px;
   &__img {
     max-width: 700px;
+    margin: 5px 0;
   }
   &__icon {
     display: none;
+    cursor: pointer;
     @media (min-width: 915px) {
       display: inline-block;
       margin-left: 3px;
