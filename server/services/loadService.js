@@ -2,10 +2,11 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const { operatorsDirectory } = require('../utils/constants');
 const { normalizeOperators } = require('../utils/operatorUtils');
 const persistentStore = require('../store/persistentStore');
 
-const operatorsFrameworkDirectory = './data/community-operators';
+const operatorsFrameworkDirectory = `./data/community-operators/${operatorsDirectory}`;
 
 const loadOperators = callback => {
   const csvFileList = [];
