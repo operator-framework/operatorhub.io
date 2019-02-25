@@ -2,9 +2,21 @@ const express = require('express');
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const { comingSoon } = require('../utils/constants');
+const { releaseDate, ignoreComingSoon } = require('../utils/constants');
 
 const testRouteFile = path.resolve(__dirname, '../../test-route/akamai-sureroute-test-object.html');
+
+const getComingSoonFilePath = fileName => {
+  const distDir = path.resolve(__dirname, '../../comingSoon');
+  if (!fileName) {
+    fileName = 'index.html';
+  }
+  const filePath = path.join(distDir, fileName);
+  if (fs.existsSync(filePath)) {
+    return filePath;
+  }
+  return path.join(distDir, 'index.html');
+};
 
 const getDistFilePath = fileName => {
   const distDir = path.resolve(__dirname, '../../frontend/dist');
@@ -30,13 +42,21 @@ const addRootRedirect = (app, pathName) => {
 };
 
 module.exports = app => {
-  // Base Public Routes
-  if (comingSoon) {
-    app.use(express.static('../comingSoon'));
-    app.get('*', (request, response) => {
-      response.sendFile(path.resolve(__dirname, '../../comingSoon/index.html'));
+  // Prior to release, serve up only the Coming Soon page
+  if (!ignoreComingSoon && Date.now() < releaseDate.getTime()) {
+    app.get('*', (request, response, next) => {
+      // Check if we have since released
+      if (Date.now() < releaseDate.getTime()) {
+        const filePath = getComingSoonFilePath(request.url);
+        response.sendFile(filePath);
+      } else {
+        // Released!
+        next();
+      }
     });
   }
+
+  // Base Public Routes
   const uiRoutes = [
     'operator',
     'about',

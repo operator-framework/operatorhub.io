@@ -42,6 +42,9 @@
             margin: auto;
             width: 40%;
         }
+        .refreshlink {
+            color: white;
+        }
     </style>
 
     <body>
@@ -60,22 +63,27 @@
             </div>
         </div>
     <script>
-      // Set the date we're counting down to
-      var countDownDate = new Date("Feb 28, 2019 10:00:00 PST").getTime();
+      // THIS MUST BE IN SYNC WITH server/utils/constants.js 'releaseDate' VALUE
+      const releaseDate = new Date('Feb 28, 2019 10:00:00 PST');
+      var countDownDate = releaseDate.getTime();
       var timer;
+      var refreshTimer;
 
       var updateCountdown = function() {
         // Get today's date and time
         var now = new Date().getTime();
 
-          // Find the distance between now an the count down date
-          var distance = countDownDate - now;
+        // Find the distance between now an the count down date
+        var distance = countDownDate - now;
+        if (!refreshTimer) {
+          refreshTimer = setTimeout(window.location.reload.bind(window.location), distance);
+        }
 
         // If the count down is finished, write some text
         var countDownElem = document.getElementById("countdown");
         if (distance < 0) {
           if (timer) clearInterval(timer);
-          countDownElem.innerHTML = "EXPIRED";
+          countDownElem.innerHTML = "<span>EXPIRED - Please <a href='/' class='refreshlink'> Refresh</a></span>";
         } else {
           // Time calculations for days, hours, minutes and seconds
           var days = Math.floor(distance / (1000 * 60 * 60 * 24));
