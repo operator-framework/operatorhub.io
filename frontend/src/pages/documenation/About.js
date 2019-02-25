@@ -10,9 +10,7 @@ import {
   olmArchitecture,
   buildYourCSV,
   introBlog,
-  operatorsFramework,
-  discoveryCatalogs,
-  contactUsEmail
+  discoveryCatalogs
 } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
 
@@ -33,57 +31,70 @@ const About = ({ history, ...props }) => {
           </p>
           <p>
             While there are several approaches to implement Operators yielding the same level of integration with
-            Kubernetes, what is missing so far is a central location to find and deploy them.{' '}
-            <InternalLink route="/" history={history} text="OperatorHub.io" /> aims to be that central place.
+            Kubernetes, what has been missing is a central location to find the wide array of great Operators that have
+            been built by the community. OperatorHub.io aims to be that central location.
           </p>
           <p>
-            In addition to a community-sourced index of Operators it is also a way to package Operators for deployment
-            on any Kubernetes cluster. Contributors of Operators not only get a chance to publicize their work but
-            provide end users an easy way to start using it. To that end OperatorHub.io leverages quay.io and the{' '}
-            <ExternalLink href={`${olm}`} text="Operator Lifecycle Manager" indicator={false} /> to store and deploy
-            Operators in a consistent fashion on any Kubernetes cluster.
-          </p>
-          <p>
-            While the Operator concept is a definition of how automation of complex applications on Kubernetes should be
-            achieved, the lifecycle of such an application and the Operator itself is not addressed. By using the
-            Operator Lifecycle Manager, which is part of the{' '}
-            <ExternalLink href={`${operatorsFramework}`} text="Operator Framework" indicator={false} />, Kubernetes
-            users get access to a service that obtains, installs and updates Operators in their clusters over time.
+            In addition to a community-sourced index of Operators, OperatorHub.io also ensures that the set of Operators
+            are packaged for easy deployment and management on any Kubernetes cluster. Contributors of Operators not
+            only get a chance to publicize their work but provide end users an easy way to start using them. To that end
+            the packaging of the Operators indexed in OperatorHub.io relies on the{' '}
+            <ExternalLink href={`${olm}`} text="Operator Lifecycle Manager" indicator={false} /> to install, manage and
+            update Operators consistently on any Kubernetes cluster.
           </p>
         </React.Fragment>
       )
     },
     {
-      title: `Who should use OperatorHub.io?`,
+      title: `Who can benefit from OperatorHub.io?`,
       content: (
         <p>
           In short: everyone who uses Kubernetes. This audience is segmented into two groups: Operator developers and
-          users. Developers have the ability to publish and update their Operators on OperatorHub following a{' '}
+          users. Developers have the ability to publish and update their Operators on OperatorHub.io following a{' '}
           <InternalLink route="/contribute" history={history} text="community contribution process" />. Users gain
-          access to published Operators including basic documentation and a defined installation method.
+          access to published Operators that have basic documentation and a well defined installation and management
+          model. On any Operator, try out the “<b>Install</b>” button.
         </p>
       )
     },
     {
       title: `How does OperatorHub.io work?`,
       content: (
-        <p>
-          The content behind OperatorHub.io is sourced from the community operator repository on GitHub and stored in
-          quay.io. New content comes in from anyone who wishes to contribute an Operator by the means of a Pull Request.
-          Information from the Operators metadata (
-          <ExternalLink href={`${buildYourCSV}`} text="ClusterServiceVersion" indicator={false} /> in the{' '}
-          <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populated the
-          Operators’ detail page on OperatorHub.io. With this metadata Operators are packaged and ready-to-run on any
-          Kubernetes cluster that has the Operator Lifecycle Manager (OLM) available. OKD and OpenShift Container
-          Platform users have this component installed already. On a Kubernetes cluster, OLM allows a user to “
-          <ExternalLink href={`${olmArchitecture}`} text="subscribe" indicator={false} />” to an Operator, which unifies
-          installation and updates in a single concept. We expect Operators to be long-lived services that are
-          constantly updated to provide new capabilities and update the managed application to a newer version. A
-          subscription can be made to a{' '}
-          <ExternalLink href={`${discoveryCatalogs}`} text="selection of channels" indicator={false} /> (e.g. ‘stable’
-          vs. ‘beta’). With the community repository as a source, users can install, use and receive updates for all
-          Operators on OperatorHub.io right away.
-        </p>
+        <React.Fragment>
+          <p>
+            The content behind OperatorHub.io is sourced from the community operator repository on GitHub and stored in
+            quay.io. New content comes in from anyone who wishes to contribute an Operator by the means of a Pull
+            Request. Information from the Operators metadata (
+            <ExternalLink href={`${buildYourCSV}`} text="ClusterServiceVersion" indicator={false} /> in the{' '}
+            <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populated
+            the Operators’ detail page on OperatorHub.io. With this metadata Operators are packaged and ready-to-run on
+            any Kubernetes cluster that has the Operator Lifecycle Manager (OLM) available. OKD and OpenShift Container
+            Platform users have this component installed already. On a Kubernetes cluster, OLM allows a user to “
+            <ExternalLink href={`${olmArchitecture}`} text="subscribe" indicator={false} />” to an Operator, which
+            unifies installation and updates in a single concept. We expect Operators to be long-lived services that are
+            constantly updated to provide new capabilities and update the managed application to a newer version. A
+            subscription can be made to a{' '}
+            <ExternalLink href={`${discoveryCatalogs}`} text="selection of channels" indicator={false} /> (e.g. ‘stable’
+            vs. ‘beta’). With the community repository as a source, users can install, use and receive updates for all
+            Operators on OperatorHub.io right away.
+          </p>
+          <p>
+            OperatorHub.io’s content is sourced from the community Operator repository on GitHub and stored in quay.io.
+            A simple Pull Request is all that is required for any developer to add their Operator to the repository to
+            be screened for inclusion on OperatorHub.io. Information from the Operators metadata (
+            <ExternalLink href={`${buildYourCSV}`} text="ClusterServiceVersion" indicator={false} />) in the{' '}
+            <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populated
+            the Operators’ detail page. With this metadata Operators are packaged and ready-to-run on any Kubernetes
+            cluster that has the Operator Lifecycle Manager (OLM) available. On a Kubernetes cluster, OLM allows a user
+            to “<ExternalLink href={`${olmArchitecture}`} text="subscribe" indicator={false} />” to an Operator, which
+            unifies installation and updates in a single concept. We expect Operators to be long-lived services that are
+            constantly updated to provide new capabilities and update the managed application to a newer version. A
+            subscription can be made to a{' '}
+            <ExternalLink href={`${discoveryCatalogs}`} text="selection of channels" indicator={false} /> (e.g. ‘stable’
+            vs. ‘beta’). With the community repository as a source, users can install, use and receive updates for all
+            Operators on OperatorHub.io right away.
+          </p>
+        </React.Fragment>
       )
     },
     {
@@ -91,19 +102,19 @@ const About = ({ history, ...props }) => {
       content: (
         <React.Fragment>
           <p>
-            In general every type of Operator can be on pushed to OperatorHub.io. There is some light vetting and
-            packaging that takes place before the Operator is published. It is not required that the Operator is
-            developed with the <ExternalLink href={`${operatorSdk}`} text="operator-sdk" indicator={false} /> but it
-            should be formatted for use with the Operator Lifecycle Manager. The Operator’s container image is not
-            pushed to OperatorHub.io but can live on any public registry like{' '}
-            <ExternalLink href="https://quay.io" text="quay.io" indicator={false} />
-            or <ExternalLink href="https://hub.docker.com" text="docker.io" indicator={false} />.
+            In general every type of Operator can be on pushed to OperatorHub.io. It is not required that the Operator
+            be developed with the <ExternalLink href={`${operatorSdk}`} text="operator-sdk" indicator={false} />.
+            However it should be formatted for use with the Operator Lifecycle Manager. It will go through some light
+            vetting and packaging before it is published. The Operator’s container image is not pushed to OperatorHub.io
+            and can live on any public registry like{' '}
+            <ExternalLink href="https://quay.io" text="quay.io" indicator={false} /> or{' '}
+            <ExternalLink href="https://hub.docker.com" text="docker.io" indicator={false} />.
           </p>
           <p>
             There should be sufficient description and initial steps available as part of the Operator metadata. It is
-            expected that the Operator runs of top of Kubernetes starting version 1.7. If you like support to help test
-            your Operator before release, please{' '}
-            <ExternalLink href={`mailto: ${contactUsEmail}`} text="contact us" indicator={false} />.
+            expected that the Operator runs of top of Kubernetes starting with version 1.7. If you need support to test
+            your Operator before release, please file an issue on{' '}
+            <ExternalLink href={operatorsRepo} text="GitHub" indicator={false} />.
           </p>
         </React.Fragment>
       )
@@ -112,10 +123,10 @@ const About = ({ history, ...props }) => {
       title: `Who is behind OperatorHub.io?`,
       content: (
         <p>
-          Initially Red Hat sponsors OperatorHub.io recognizing the need for a unified and consistent experience for
-          Operators in production environments. Launched with it’s partners like Amazon Web Services, Microsoft, Redis
-          and Couchbase the goal is to have the Open Source and Kubernetes Community lead the initiative and grow the
-          ecosystem of Operators.
+          OperatorHub.io was launched by Red Hat in conjunction with Amazon, Microsoft, and Google forming the initial
+          group that are supporting the initiative. Together, this group leveraging their Kubernetes expertise is
+          managing the contribution and vetting process for the Operators included in OperatorHub.io. We look forward to
+          seeing this list expand with other Kubernetes industry leaders over time.
         </p>
       )
     }

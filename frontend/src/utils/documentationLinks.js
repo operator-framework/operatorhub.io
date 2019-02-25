@@ -5,8 +5,9 @@ const operatorSdk = `${operatorsFramework}/operator-sdk`;
 const olm = `${operatorsFramework}/operator-lifecycle-manager`;
 const olmGettingStarted = `${olm}#getting-started`;
 const gettingStarted = `${operatorsFramework}/getting-started`;
+const operatorRegistry = `${operatorsFramework}/operator-registry`;
 const marketplaceRef = `${operatorsFramework}/operator-marketplace`;
-const prometheusOperator = `${operatorsRepo}/tree/master/community-operators/prometheus`;
+const prometheusOperator = `${contributions}/prometheus`;
 const olmArchitecture = `${olm}/blob/master/Documentation/design/architecture.md`;
 const buildYourCSV = `${olm}/blob/master/Documentation/design/building-your-csv.md`;
 const installInstructions = `${olm}/blob/master/Documentation/install/install.md`;
@@ -15,6 +16,7 @@ const introBlog = `https://coreos.com/blog/introducing-operators.html`;
 const sampleCode = `${operatorsFramework}/operator-sdk-samples/blob/master/memcached-operator/pkg/controller/memcached/memcached_controller.go#L77`;
 const capabilityLevelModelDiagram = `${operatorSdk}/blob/master/doc/images/operator-maturity-model.png`;
 const manageOperatorWithOlm = `${operatorsFramework}/getting-started#manage-the-operator-using-the-operator-lifecycle-manager`;
+const addingYourOperator = `${operatorsRepo}#adding-your-operator`;
 const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
 const hubFacebook = ``;
 const hubTwitter = ``;
@@ -29,6 +31,7 @@ const DocmentationLinks = {
   olm,
   olmGettingStarted,
   gettingStarted,
+  operatorRegistry,
   marketplaceRef,
   prometheusOperator,
   olmArchitecture,
@@ -37,6 +40,7 @@ const DocmentationLinks = {
   discoveryCatalogs,
   introBlog,
   sampleCode,
+  addingYourOperator,
   capabilityLevelModelDiagram,
   manageOperatorWithOlm,
   kubernetesSlack,
@@ -55,6 +59,7 @@ export {
   olm,
   olmGettingStarted,
   gettingStarted,
+  operatorRegistry,
   marketplaceRef,
   prometheusOperator,
   olmArchitecture,
@@ -63,6 +68,7 @@ export {
   introBlog,
   discoveryCatalogs,
   sampleCode,
+  addingYourOperator,
   capabilityLevelModelDiagram,
   manageOperatorWithOlm,
   kubernetesSlack,
