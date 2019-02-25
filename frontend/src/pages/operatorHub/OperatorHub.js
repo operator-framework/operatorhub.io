@@ -1,5 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import * as _ from 'lodash-es';
 import queryString from 'query-string';
@@ -219,7 +220,9 @@ class OperatorHub extends React.Component {
     filteredItems: [],
     filterCounts: null,
     filterGroupsShowAll: {},
-    refreshed: false
+    refreshed: false,
+    filtersOpen: false,
+    filterPanelHeight: 0
   };
 
   componentDidMount() {
@@ -274,8 +277,9 @@ class OperatorHub extends React.Component {
     return null;
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { keywordSearch, operators, activeFilters, sortType, viewType } = this.props;
+    const { filtersOpen } = this.state;
 
     if (!_.isEqual(activeFilters, prevProps.activeFilters) || keywordSearch !== prevProps.keywordSearch) {
       this.updateFilteredItems();
@@ -294,6 +298,13 @@ class OperatorHub extends React.Component {
 
     if (viewType !== prevProps.viewType) {
       this.updateURL(keywordSearch, activeFilters, viewType, sortType);
+    }
+
+    if (filtersOpen !== prevState.filtersOpen) {
+      setTimeout(
+        () => this.setState({ filterPanelHeight: this.state.filtersOpen ? this.mobileFiltersRef.offsetHeight : 0 }),
+        1
+      );
     }
   }
 
@@ -480,6 +491,14 @@ class OperatorHub extends React.Component {
     this.setState({ filterGroupsShowAll: updatedShow });
   }
 
+  toggleFiltersOpen = () => {
+    this.setState({ filtersOpen: !this.state.filtersOpen });
+  };
+
+  setMobileFiltersRef = ref => {
+    this.mobileFiltersRef = ref;
+  };
+
   renderFilterGroup = (groupName, activeFilters, filterCounts) => (
     <FilterSidePanel.Category
       key={groupName}
@@ -625,6 +644,36 @@ class OperatorHub extends React.Component {
     return <div className="oh-list-view">{_.map(filteredItems, item => this.renderListItem(item))}</div>;
   }
 
+  renderMobileFilters() {
+    const { activeFilters } = this.props;
+    const { filterCounts, filtersOpen, filterPanelHeight } = this.state;
+    const filtersClasses = classNames('oh-hub-page__mobile-filters__filters', { open: filtersOpen });
+    return (
+      <div className="oh-hub-page__mobile-filters">
+        <div className="oh-hub-page__mobile-filters__toolbar">
+          <button className="oh-filter-toggle" type="button" onClick={this.toggleFiltersOpen}>
+            {filtersOpen && <Icon className="oh-filter-close" type="pf" name="close" />}
+            {!filtersOpen && (
+              <span className="oh-filter-bars">
+                <span className="icon-bar" />
+                <span className="icon-bar" />
+                <span className="icon-bar" />
+              </span>
+            )}
+            <span>Filters</span>
+          </button>
+        </div>
+        <div className={filtersClasses} style={{ height: filterPanelHeight }}>
+          <div className="oh-hub-page__mobile-filters__filters__inner" ref={this.setMobileFiltersRef}>
+            {_.map(operatorHubFilterGroups, groupName =>
+              this.renderFilterGroup(groupName, activeFilters, filterCounts)
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   renderToolbar() {
     const { viewType, sortType } = this.props;
     const { filteredItems } = this.state;
@@ -672,8 +721,7 @@ class OperatorHub extends React.Component {
   }
 
   renderView = () => {
-    const { error, pending } = this.props;
-    const { operators, viewType } = this.props;
+    const { error, pending, operators, viewType } = this.props;
 
     if (error) {
       return this.renderError();
@@ -700,9 +748,9 @@ class OperatorHub extends React.Component {
       <div className="oh-hub-page">
         <div className="oh-hub-page__filters">{this.renderFilters()}</div>
         <div className="oh-hub-page__content">
+          {this.renderMobileFilters()}
           {this.renderToolbar()}
-          {viewType !== 'list' && this.renderCards()}
-          {viewType === 'list' && this.renderListItems()}
+          {viewType !== 'list' ? this.renderCards() : this.renderListItems()}
         </div>
       </div>
     );
