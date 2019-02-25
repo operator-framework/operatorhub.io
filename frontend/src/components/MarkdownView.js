@@ -1,107 +1,20 @@
-/* eslint-disable jsx-a11y/iframe-has-title */
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
-import { Converter } from 'showdown';
-import * as sanitizeHtml from 'sanitize-html';
+import classNames from 'classnames';
+import ReactMarkdown from 'react-markdown';
 
-const markdownConvert = markdown => {
-  const unsafeHtml = new Converter({
-    openLinksInNewWindow: true,
-    strikethrough: true,
-    emoji: true
-  }).makeHtml(markdown);
-
-  return sanitizeHtml(unsafeHtml, {
-    allowedTags: [
-      'b',
-      'i',
-      'strike',
-      's',
-      'del',
-      'em',
-      'strong',
-      'a',
-      'p',
-      'h1',
-      'h2',
-      'h3',
-      'h4',
-      'ul',
-      'ol',
-      'li',
-      'code',
-      'pre'
-    ],
-    allowedAttributes: {
-      a: ['href', 'target', 'rel']
-    },
-    allowedSchemes: ['http', 'https', 'mailto'],
-    transformTags: {
-      a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer' }, true)
-    }
-  });
-};
-
-export class MarkdownView extends React.Component {
-  frame = {};
-
-  componentDidMount() {
-    this.updateDimensions();
-  }
-
-  updateDimensions() {
-    if (!this.frame || !this.frame.contentWindow.document.body || !this.frame.contentWindow.document.body.firstChild) {
-      return;
-    }
-    this.frame.style.height = `${this.frame.contentWindow.document.body.firstChild.offsetHeight + 50}px`;
-    if (this.props.outerScroll) {
-      this.frame.contentWindow.document.firstChild.style.height = 'inherit';
-    }
-  }
-
-  render() {
-    // Find the app's stylesheets and inject them into the frame to ensure consistent styling.
-    const links = _.filter(Array.from(document.getElementsByTagName('link')), link => !link.href.includes('/ico/'));
-
-    const linkRefs = _.reduce(
-      links,
-      (refs, link) => `${refs}
-        <link rel="stylesheet" href="${link.href}">`,
-      ''
-    );
-
-    const contents = `
-      ${linkRefs}
-      <style type="text/css">
-      body {
-          color: ${this.props.content ? '#333' : '#999'};
-          background-color: transparent !important;
-          min-width: auto !important;
-          font-family: "Lato", var(--pf-global--FontFamily--sans-serif);
-      }
-      </style>
-      <body><div>${markdownConvert(this.props.content || 'Not available')}</div></body>`;
-
-    return (
-      <iframe
-        sandbox="allow-popups allow-same-origin"
-        srcDoc={contents}
-        style={{ border: '0px', width: '100%', height: '100%' }}
-        ref={r => {
-          this.frame = r;
-        }}
-        onLoad={() => this.updateDimensions()}
-      />
-    );
-  }
-}
+export const MarkdownView = ({ className, children, ...props }) => (
+  <ReactMarkdown className={classNames('oh-markdown-view', className)} linkTarget={() => '_blank'} {...props}>
+    {children}
+  </ReactMarkdown>
+);
 
 MarkdownView.propTypes = {
-  content: PropTypes.node.isRequired,
-  outerScroll: PropTypes.bool
+  className: PropTypes.string,
+  children: PropTypes.node
 };
 
 MarkdownView.defaultProps = {
-  outerScroll: false
+  className: '',
+  children: null
 };
