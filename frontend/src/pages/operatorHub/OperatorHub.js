@@ -42,13 +42,7 @@ const getProviderValue = value => {
   return value;
 };
 
-const providerSort = provider => {
-  const value = provider.value || provider;
-  if (value.toLowerCase() === 'red hat') {
-    return '';
-  }
-  return value;
-};
+const providerSort = provider => (provider.value || provider).toLowerCase();
 
 const capabilityLevelSort = capabilityLevel => {
   const value = capabilityLevel.value || capabilityLevel;
@@ -107,9 +101,6 @@ const keywordCompare = (filterString, item) => {
       .toLowerCase()
       .includes(filterString) ||
     _.get(item, 'displayName', '')
-      .toLowerCase()
-      .includes(filterString) ||
-    _.get(item, 'categories', '')
       .toLowerCase()
       .includes(filterString)
   );
@@ -725,7 +716,8 @@ class OperatorHub extends React.Component {
       <div className="oh-hub-header-content">
         <h1 className="oh-hero">Welcome to OperatorHub.io</h1>
         <p className="oh-header-content__sub-title">
-          OperatorHub.io is a new home for the Kubernetes community to share Operators. Find an existing Operator or list your own today.
+          OperatorHub.io is a new home for the Kubernetes community to share Operators. Find an existing Operator or
+          list your own today.
         </p>
       </div>
     );
