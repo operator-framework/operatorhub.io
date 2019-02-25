@@ -54,7 +54,7 @@ const HowToInstallOperators = ({ history, ...props }) => {
       )
     },
     {
-      title: `What happens when I execute the \`Install\` command presented in the pop-up?`,
+      title: `What happens when I execute the 'Install' command presented in the pop-up?`,
       content: (
         <React.Fragment>
           <p>

@@ -198,17 +198,10 @@
     padding-top: 0;
   }
 
-  &__title {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-
-    h2 {
-      padding-top: 0;
-      margin: 30px 0;
-      border: 0;
-    }
+  h2 {
+    padding-top: 0;
+    margin: 30px 0;
+    border: 0;
   }
 
   .oh-code {
@@ -216,6 +209,19 @@
     padding: 10px;
     background-color: $oh-color-background;
     border-radius: 3px;
+  }
+
+  &__install-command-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .oh-code {
+      flex: 1;
+    }
+  }
+
+  &__install-command-copy {
+    color: $oh-color-text-body;
   }
 }
 
