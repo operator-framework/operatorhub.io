@@ -334,7 +334,7 @@ class OperatorPage extends React.Component {
         </Grid.Col>
         <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
           <h1>{displayName}</h1>
-          {longDescription && <MarkdownView content={longDescription} outerScroll />}
+          {longDescription && <MarkdownView>{longDescription}</MarkdownView>}
           {this.renderCustomResourceDefinitions()}
         </Grid.Col>
       </div>
