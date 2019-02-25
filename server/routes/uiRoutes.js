@@ -7,6 +7,9 @@ const testRouteFile = path.resolve(__dirname, '../../test-route/akamai-sureroute
 
 const getDistFilePath = fileName => {
   const distDir = path.resolve(__dirname, '../../frontend/dist');
+  if (!fileName) {
+    fileName = 'index.html';
+  }
   const filePath = path.join(distDir, fileName);
   if (fs.existsSync(filePath)) {
     return filePath;
