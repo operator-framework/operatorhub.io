@@ -16,6 +16,58 @@
     &__link {
       padding: 3px 0;
     }
+
+    &__content-fixed {
+      background-color: $oh-color-background;
+      padding: 25px 15px;
+      position: fixed;
+      right: 15px;
+      $sidebar-content-fixed-padding: 15px;
+
+      @media (min-width: $screen-sm-min) {
+        max-width: calc((100% / 3) - (2 * #{$sidebar-content-fixed-padding}));
+      }
+
+      @media (min-width: $screen-md-min) {
+        max-width: calc((100% / 4) - (2 * #{$sidebar-content-fixed-padding}));
+      }
+
+      @media (min-width: $oh-width-3-tile-min) {
+        right: calc((100% - #{$oh-content-width-3-tiles}) / 2 + #{$sidebar-content-fixed-padding});
+
+        @media (min-width: $screen-sm-min) {
+          max-width: calc((#{$oh-content-width-3-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
+        }
+
+        @media (min-width: $screen-md-min) {
+          max-width: calc((#{$oh-content-width-3-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
+        }
+      }
+
+      @media (min-width: $oh-width-4-tile-min) {
+        right: calc((100% - #{$oh-content-width-4-tiles}) / 2 + #{$sidebar-content-fixed-padding});
+
+        @media (min-width: $screen-sm-min) {
+          max-width: calc((#{$oh-content-width-4-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
+        }
+
+        @media (min-width: $screen-md-min) {
+          max-width: calc((#{$oh-content-width-4-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
+        }
+      }
+
+      @media (min-width: $oh-width-5-tile-min) {
+        right: calc((100% - #{$oh-content-width-5-tiles}) / 2 + #{$sidebar-content-fixed-padding});
+
+        @media (min-width: $screen-sm-min) {
+          max-width: calc((#{$oh-content-width-5-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
+        }
+
+        @media (min-width: $screen-md-min) {
+          max-width: calc((#{$oh-content-width-5-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
+        }
+      }
+    }
   }
 
   &-table {
