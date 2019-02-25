@@ -22,6 +22,54 @@
   }
 }
 
+.oh-hub-page__mobile-filters {
+  @media (min-width: $screen-xs-min) {
+    display: none;
+  }
+
+  &__toolbar {
+    display: block;
+    padding-bottom: 15px;
+    vertical-align: middle;
+  }
+
+  .oh-filter-toggle {
+    background: none;
+    border: none;
+    padding: 0 2px 0 0;
+  }
+
+  .oh-filter-close {
+    margin-right: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    width: 17px;
+  }
+
+  .oh-filter-bars {
+    display: inline-block;
+    margin-right: 5px;
+
+    .icon-bar {
+      background-color: $oh-color-text-body;
+      display: block;
+      width: 17px;
+      height: 2px;
+      border-radius: 1px;
+      margin-top:2px;
+    }
+  }
+  &__filters {
+    overflow-y: hidden;
+    transition-property: all;
+    transition-duration: .5s;
+    transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+    &__inner {
+      padding-bottom: 20px;
+    }
+  }
+}
+
 .oh-hub-page {
   background: transparent;
   display: flex;
