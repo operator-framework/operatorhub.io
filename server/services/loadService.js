@@ -8,33 +8,40 @@ const persistentStore = require('../store/persistentStore');
 const operatorsFrameworkDirectory = './data/community-operators';
 
 const loadOperators = callback => {
-  const fileList = [];
+  const csvFileList = [];
 
-  const allFilesSync = dir => {
+  const allCSVFilesSync = dir => {
     fs.readdirSync(dir).forEach(file => {
       const filePath = path.join(dir, file);
       if (fs.statSync(filePath).isDirectory()) {
-        allFilesSync(filePath);
+        allCSVFilesSync(filePath);
       } else if (file.endsWith('.clusterserviceversion.yaml')) {
-        fileList.push(filePath);
+        csvFileList.push({ filePath, dir });
       }
     });
   };
 
-  allFilesSync(operatorsFrameworkDirectory);
+  allCSVFilesSync(operatorsFrameworkDirectory);
+
   const operators = _.reduce(
-    fileList,
-    (parsedOperators, file) => {
+    csvFileList,
+    (parsedOperators, { filePath, dir }) => {
       try {
-        parsedOperators.push(yaml.safeLoad(fs.readFileSync(file)));
+        const operator = yaml.safeLoad(fs.readFileSync(filePath));
+        const packageFile = fs.readdirSync(dir).filter(fn => fn.endsWith('.package.yaml'));
+        if (packageFile.length === 1) {
+          operator.packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
+        }
+        parsedOperators.push(operator);
       } catch (e) {
-        console.error(`ERROR: Unable to parse ${file}`);
+        console.error(`ERROR: Unable to parse ${filePath}`);
         console.error(e.message);
       }
       return parsedOperators;
     },
     []
   );
+
   persistentStore.setOperators(normalizeOperators(operators), callback);
 };
 

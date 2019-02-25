@@ -44,16 +44,17 @@ const normalizeCRDs = operator => {
   return _.map(customResourceDefinitions, crd => normalizeCRD(crd, operator));
 };
 
-const generateId = name => name.slice(0, name.indexOf('.'));
+const generateIdFromVersionedName = name => name.slice(0, name.indexOf('.'));
 
 const normalizeOperator = operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
   const iconObj = _.get(spec, 'icon[0]');
   const categoriesString = _.get(annotations, 'categories');
+  const packageInfo = _.get(operator, 'packageInfo', {});
 
   return {
-    id: generateId(operator.metadata.name),
+    id: generateIdFromVersionedName(operator.metadata.name),
     name: operator.metadata.name,
     displayName: _.get(spec, 'displayName', operator.metadata.name),
     imgUrl: iconObj ? `data:${iconObj.mediatype};base64,${iconObj.base64data}` : '',
@@ -69,13 +70,16 @@ const normalizeOperator = operator => {
     categories: categoriesString && _.map(categoriesString.split(','), category => category.trim()),
     createdAt: annotations.createdAt,
     containerImage: annotations.containerImage,
-    customResourceDefinitions: normalizeCRDs(operator)
+    customResourceDefinitions: normalizeCRDs(operator),
+    packageName: packageInfo.packageName,
+    channels: packageInfo.channels
   };
 };
 
 const normalizeOperators = operators => _.map(operators, operator => normalizeOperator(operator));
 
 const operatorUtils = {
+  generateIdFromVersionedName,
   normalizeOperator,
   normalizeOperators
 };
