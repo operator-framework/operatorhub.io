@@ -33,7 +33,9 @@ module.exports = app => {
   // Base Public Routes
   if (comingSoon) {
     app.use(express.static('../comingSoon'));
-    return;
+    app.get('*', (request, response) => {
+      response.sendFile(path.resolve(__dirname, '../../comingSoon/index.html'));
+    });
   }
   const uiRoutes = [
     'operator',
