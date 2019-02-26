@@ -16,43 +16,39 @@ const generateInstallYaml = (serverRequest, serverResponse) => {
       }
       const operatorChannel = channels[0].name;
 
-      const installYaml = `
-        apiVersion: v1
-        kind: Namespace
-        metadata:
-          name: my-${packageName}
-        ---
-        apiVersion: operators.coreos.com/v1alpha1
-        kind: CatalogSource
-        metadata:
-          name: operatorhubio-catalog
-          namespace: my-${packageName}
-        spec:
-          sourceType: grpc
-          image: quay.io/ecordell/rh-operators-test:3
-          displayName: Community Operators
-          publisher: OperatorHub.io
-        ---
-        apiVersion: operators.coreos.com/v1alpha2
-        kind: OperatorGroup
-        metadata:
-          name: operatorgroup
-          namespace: my-${packageName}
-        spec:
-          targetNamespaces:
-          - my-${packageName}
-        ---
-        apiVersion: operators.coreos.com/v1alpha1
-        kind: Subscription
-        metadata:
-          name: my-${packageName}
-          namespace: my-${packageName}
-        spec:
-          channel: ${operatorChannel}
-          name: ${packageName}
-          source: operatorhub-catalog
-          sourceNamespace: my-${packageName}
-      `;
+      const installYaml = `apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: my-${packageName}
+  apiVersion: operators.coreos.com/v1alpha1
+  kind: CatalogSource
+  metadata:
+    name: operatorhubio-catalog
+    namespace: my-${packageName}
+  spec:
+    sourceType: grpc
+    image: quay.io/ecordell/rh-operators-test:3
+    displayName: Community Operators
+    publisher: OperatorHub.io
+  apiVersion: operators.coreos.com/v1alpha2
+  kind: OperatorGroup
+  metadata:
+    name: operatorgroup
+    namespace: my-${packageName}
+  spec:
+    targetNamespaces:
+    - my-${packageName}
+  apiVersion: operators.coreos.com/v1alpha1
+  kind: Subscription
+  metadata:
+    name: my-${packageName}
+    namespace: my-${packageName}
+  spec:
+    channel: ${operatorChannel}
+    name: ${packageName}
+    source: operatorhub-catalog
+    sourceNamespace: my-${packageName}
+`;
       serverResponse.send(installYaml);
     });
   } catch (e) {
