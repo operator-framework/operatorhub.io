@@ -652,14 +652,7 @@ class OperatorHub extends React.Component {
       <div className="oh-hub-page__mobile-filters">
         <div className="oh-hub-page__mobile-filters__toolbar">
           <button className="oh-filter-toggle" type="button" onClick={this.toggleFiltersOpen}>
-            {filtersOpen && <Icon className="oh-filter-close" type="pf" name="close" />}
-            {!filtersOpen && (
-              <span className="oh-filter-bars">
-                <span className="icon-bar" />
-                <span className="icon-bar" />
-                <span className="icon-bar" />
-              </span>
-            )}
+            <Icon className="oh-filter-icon" type="pf" name={filtersOpen ? 'close' : 'filter'} />
             <span>Filters</span>
           </button>
         </div>
@@ -682,10 +675,10 @@ class OperatorHub extends React.Component {
       <div className="oh-hub-page__toolbar">
         <div className="oh-hub-page__toolbar__item oh-hub-page__toolbar__item-left">
           {filteredItems.length}
-          <span className="oh-hub-page__toolbar__label oh-tiny">items</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">ITEMS</span>
         </div>
         <div className="oh-hub-page__toolbar__item">
-          <span className="oh-hub-page__toolbar__label oh-tiny">VIEW:</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">VIEW</span>
           <DropdownButton
             className="oh-hub-page__toolbar__dropdown"
             title={this.getViewItem(viewType)}
@@ -701,7 +694,7 @@ class OperatorHub extends React.Component {
           </DropdownButton>
         </div>
         <div className="oh-hub-page__toolbar__item">
-          <span className="oh-hub-page__toolbar__label oh-tiny">SORT:</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">SORT</span>
           <DropdownButton
             className="oh-hub-page__toolbar__dropdown"
             title={this.getSortItem(sortType)}
