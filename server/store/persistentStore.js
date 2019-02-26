@@ -104,6 +104,7 @@ exports.getVersionedOperator = (operatorName, callback) => {
     if (err) {
       console.error(err.message);
       callback(null, err.message);
+      return;
     }
 
     if (!_.size(rows)) {
@@ -124,12 +125,14 @@ exports.getOperator = (operatorName, callback) => {
 
     if (!_.size(rows)) {
       callback(null, `operator ${operatorName} is not found.`);
+      return;
     }
 
     db.all(`SELECT * FROM ${OPERATOR_TABLE} where id = '${rows[0].id}'`, (err2, allRows) => {
       if (err) {
         console.error(err.message);
         callback(null, err.message);
+        return;
       }
       const operators = _.map(allRows, row => normalizeRow(row));
       callback(operators);
