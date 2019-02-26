@@ -39,26 +39,12 @@
     padding: 0 2px 0 0;
   }
 
-  .oh-filter-close {
+  .oh-filter-icon {
     margin-right: 5px;
     font-size: 12px;
     font-weight: 700;
-    width: 17px;
   }
 
-  .oh-filter-bars {
-    display: inline-block;
-    margin-right: 5px;
-
-    .icon-bar {
-      background-color: $oh-color-text-body;
-      display: block;
-      width: 17px;
-      height: 2px;
-      border-radius: 1px;
-      margin-top:2px;
-    }
-  }
   &__filters {
     overflow-y: hidden;
     transition-property: all;
