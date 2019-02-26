@@ -10,20 +10,28 @@ import { helpers } from '../../common/helpers';
 import * as operatorImg from '../../imgs/operator.svg';
 import { InternalLink } from '../../components/InternalLink';
 
-const INSTALL_OLM_COMMAND =
-  '$ kubectl create -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/manifests/latest/';
+const olmRepo = 'https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager';
+const olmYAMLFile = `${olmRepo}/master/deploy/upstream/quickstart/olm.yaml`;
+
+const INSTALL_OLM_COMMAND = `kubectl create -f ${olmYAMLFile}`;
 
 class InstallModal extends React.Component {
   state = { installCommand: '', copied: false };
 
-  copyToClipboard = e => {
+  copyToClipboard = (e, command) => {
     e.preventDefault();
-    copy(this.state.installCommand);
+    copy(command);
     this.setState({ copied: true });
   };
 
   onCopyEnter = () => {
     this.setState({ copied: false });
+  };
+
+  copyOlmCommandToClipboard = e => {
+    e.preventDefault();
+    copy(INSTALL_OLM_COMMAND);
+    this.setState({ copied: true });
   };
 
   componentDidUpdate(prevProps) {
@@ -82,7 +90,20 @@ class InstallModal extends React.Component {
                     Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on your
                     cluster. Platforms like OpenShift / OKD will have it pre-installed.
                   </p>
-                  <div className="oh-code">{INSTALL_OLM_COMMAND}</div>
+                  <div className="oh-install-modal__install-command-container">
+                    <div className="oh-code">{`$ ${INSTALL_OLM_COMMAND}`}</div>
+                    <Tooltip content={tooltipContent} styles={tooltipOverrides}>
+                      <a
+                        href="#"
+                        onClick={e => this.copyToClipboard(e, INSTALL_OLM_COMMAND)}
+                        className="oh-install-modal__install-command-copy"
+                        onMouseEnter={this.onCopyEnter}
+                      >
+                        <Icon type="fa" name="clipboard" />
+                        <span className="sr-only">Copy to Clipboard</span>
+                      </a>
+                    </Tooltip>
+                  </div>
                 </div>
               </ExpandCollapse>
 
@@ -101,6 +122,7 @@ class InstallModal extends React.Component {
                   <a
                     href="#"
                     onClick={this.copyToClipboard}
+                    onClick={e => this.copyToClipboard(e, installCommand)}
                     className="oh-install-modal__install-command-copy"
                     onMouseEnter={this.onCopyEnter}
                   >
