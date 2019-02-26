@@ -213,15 +213,15 @@
     padding: 10px;
     background-color: $oh-color-background;
     border-radius: 3px;
+    flex: 1;
+    word-break: break-all;
   }
 
   &__install-command-container {
     display: flex;
     flex-direction: row;
     align-items: center;
-    .oh-code {
-      flex: 1;
-    }
+    width: 100%;
   }
 
   &__install-command-copy {
