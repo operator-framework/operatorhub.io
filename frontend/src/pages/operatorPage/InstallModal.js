@@ -31,7 +31,7 @@ class InstallModal extends React.Component {
 
     if (operator !== prevProps.operator) {
       this.setState({
-        installCommand: `kubectl create -f https://operatorhub.io/install/${_.get(this.props.operator, 'name')}.yaml`
+        installCommand: `kubectl create -f ${window.location.origin}/install/${_.get(this.props.operator, 'name')}.yaml`
       });
     }
   }
