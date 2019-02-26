@@ -16,7 +16,21 @@ module.exports = merge(common, {
     historyApiFallback: true,
     hot: true,
     overlay: true,
-    open: true
+    open: true,
+    setup(app) {
+      //
+      // HACK, change the URL to return the index.html for the operators page with versions
+      // the .'s in the path keep the historyApiFallback from working
+      // glad this is only dev mode ;)
+      //
+      app.use((req, res, next) => {
+        const versionRegEx = /v(\d+\.)(\d+\.)(\d)/;
+        if (versionRegEx.test(req.url)) {
+          req.url = '/';
+        }
+        next();
+      });
+    }
   },
   module: {
     rules: [
