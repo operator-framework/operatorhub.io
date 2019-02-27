@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const persistentStore = require('../store/persistentStore');
 
-const quayCatalogSourceImage = 'quay.io/operatorframework/upstream-community-operators:d65ff77';
+const quayCatalogSourceImage = 'quay.io/operatorframework/upstream-community-operators:latest';
 
 const generateInstallYaml = (serverRequest, serverResponse) => {
   try {
@@ -54,7 +54,7 @@ spec:
   source: operatorhubio-catalog
   sourceNamespace: my-${packageName}`;
 
-      const globalInstallYaml = `v1
+      const globalInstallYaml = `apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
   name: operatorhubio-catalog
