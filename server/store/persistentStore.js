@@ -24,6 +24,7 @@ const CATEGORIES_FIELD = 'categories BLOB';
 const CUSTOM_RESOURCE_DEFINITIONS_FIELD = 'customResourceDefinitions BLOB';
 const PACKAGE_NAME_FIELD = 'packageName TEXT';
 const CHANNELS_FIELD = 'channels BLOB';
+const GLOBAL_OPERATOR_FIELD = 'globalOperator INTEGER';
 
 const operatorFields = [
   'id',
@@ -44,7 +45,8 @@ const operatorFields = [
   'categories',
   'customResourceDefinitions',
   'packageName',
-  'channels'
+  'channels',
+  'globalOperator'
 ];
 
 const operatorFieldsList = operatorFields.join(', ');
@@ -78,7 +80,8 @@ exports.initialize = callback => {
         ${CATEGORIES_FIELD},
         ${CUSTOM_RESOURCE_DEFINITIONS_FIELD},
         ${PACKAGE_NAME_FIELD},
-        ${CHANNELS_FIELD}
+        ${CHANNELS_FIELD},
+        ${GLOBAL_OPERATOR_FIELD}
       )`,
       callback
     );
@@ -96,6 +99,7 @@ const normalizeRow = row => {
   row.categories = JSON.parse(row.categories);
   row.createdAt = JSON.parse(row.createdAt);
   row.channels = JSON.parse(row.channels);
+  row.globalOperator = JSON.parse(row.globalOperator);
   return row;
 };
 
@@ -183,7 +187,8 @@ exports.setOperators = (operators, callback) => {
             JSON.stringify(operator.categories),
             JSON.stringify(operator.customResourceDefinitions),
             operator.packageName,
-            JSON.stringify(operator.channels)
+            JSON.stringify(operator.channels),
+            JSON.stringify(operator.globalOperator)
           ]);
         });
         db.run('END', callback);

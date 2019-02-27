@@ -223,6 +223,7 @@
 .oh-install-modal {
   .modal-body {
     padding-top: 0;
+    padding-bottom: 20px;
   }
 
   h2 {
@@ -232,7 +233,7 @@
   }
 
   .oh-code {
-    margin: 20px 10px 30px 0;
+    margin: 20px 10px 15px 0;
     padding: 10px;
     background-color: $oh-color-background;
     border-radius: 3px;
@@ -250,10 +251,19 @@
   &__install-command-copy {
     color: $oh-color-text-body;
   }
+
+  &__namespace-text {
+    font-size: 13px;
+    font-weight: 600;
+  }
 }
 
 .oh-install-expander {
   padding-bottom: 30px;
+
+  .expand-collapse-pf-link-container > .btn-link {
+    margin-left: -6px;
+  }
 }
 
 .oh-install-olm-instructions {

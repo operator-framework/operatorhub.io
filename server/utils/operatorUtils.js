@@ -46,6 +46,8 @@ const normalizeCRDs = operator => {
 
 const generateIdFromVersionedName = name => name.slice(0, name.indexOf('.'));
 
+const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamespaces', supported: true });
+
 const normalizeOperator = operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
@@ -72,7 +74,8 @@ const normalizeOperator = operator => {
     containerImage: annotations.containerImage,
     customResourceDefinitions: normalizeCRDs(operator),
     packageName: packageInfo.packageName,
-    channels: packageInfo.channels
+    channels: packageInfo.channels,
+    globalOperator: isGlobalOperator(_.get(spec, 'installModes'))
   };
 };
 
