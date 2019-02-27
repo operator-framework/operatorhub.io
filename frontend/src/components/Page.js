@@ -84,8 +84,10 @@ class Page extends React.Component {
     }
 
     const toolbarClasses = classNames('oh-page-toolbar', { fixed: toolbarFixed || !headerContent });
+    const toolbarStyle = { top: _.get(this.topBarRef, 'offsetHeight') || 0 };
+
     return (
-      <div className={toolbarClasses} ref={this.setToolbarRef}>
+      <div className={toolbarClasses} ref={this.setToolbarRef} style={toolbarStyle}>
         <div className="oh-page-toolbar__inner">{toolbarContent}</div>
       </div>
     );
