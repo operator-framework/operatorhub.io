@@ -1,6 +1,6 @@
 const operatorsFramework = 'https://github.com/operator-framework';
 const operatorsRepo = `${operatorsFramework}/community-operators`;
-const contributions = `${operatorsRepo}/tree/master/community-operators`;
+const contributions = `${operatorsRepo}/tree/master/upstream-community-operators`;
 const operatorSdk = `${operatorsFramework}/operator-sdk`;
 const olm = `${operatorsFramework}/operator-lifecycle-manager`;
 const olmGettingStarted = `${olm}#getting-started`;
