@@ -50,6 +50,18 @@ const HowToInstallOperators = ({ history, ...props }) => {
             This will deploy OLM, which consists of two Operators (<code>catalog-operator</code> and{' '}
             <code>olm-operator</code>) running in Pods in the <code>olm</code> namespace. OLM is now ready to run.
           </p>
+          <p>
+            If you receive permission errors running the above command referring to a failed{' '}
+            <i>attempt to grant extra privileges</i> to the <code>system:controller:operator-lifecycle-manager</code>{' '}
+            service account, please <code>kubectl delete -f</code> the above command and add more privileges to your
+            current user:
+          </p>
+          <p className="oh-documentation-page__code_snippet">
+            <code>
+              kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user [USER_NAME]
+            </code>
+          </p>
+          <p>Then retry to install OLM.</p>
         </React.Fragment>
       )
     },
