@@ -28,12 +28,6 @@ class InstallModal extends React.Component {
     this.setState({ copied: false });
   };
 
-  copyOlmCommandToClipboard = e => {
-    e.preventDefault();
-    copy(INSTALL_OLM_COMMAND);
-    this.setState({ copied: true });
-  };
-
   componentDidUpdate(prevProps) {
     const { operator } = this.props;
 
@@ -65,6 +59,8 @@ class InstallModal extends React.Component {
         minWidth: 'auto'
       }
     });
+
+    const globalOperator = _.get(operator, 'globalOperator', true);
 
     return (
       <Modal show={show} onHide={onClose} bsSize="lg" className="oh-install-modal right-side-modal-pf">
@@ -121,7 +117,6 @@ class InstallModal extends React.Component {
                 <Tooltip content={tooltipContent} styles={tooltipOverrides}>
                   <a
                     href="#"
-                    onClick={this.copyToClipboard}
                     onClick={e => this.copyToClipboard(e, installCommand)}
                     className="oh-install-modal__install-command-copy"
                     onMouseEnter={this.onCopyEnter}
@@ -131,6 +126,24 @@ class InstallModal extends React.Component {
                   </a>
                 </Tooltip>
               </div>
+              <blockquote>
+                <p>
+                  {globalOperator && (
+                    <span>
+                      {`This Operator will be installed in the "`}
+                      <span className="oh-install-modal__namespace-text">operators</span>
+                      {`" namespace and will be usable from all namespaces in the cluster.`}
+                    </span>
+                  )}
+                  {!globalOperator && (
+                    <span>
+                      {`This Operator will be installed in the "`}
+                      <span className="oh-install-modal__namespace-text">{`my-${operator.packageName}`}</span>
+                      {`" namespace and will be usable from this namespace only.`}
+                    </span>
+                  )}
+                </p>
+              </blockquote>
               <p>
                 After install, checkout the custom resource definitions (CRDs) introduced by this operator to start
                 using it.

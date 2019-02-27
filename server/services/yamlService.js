@@ -11,7 +11,7 @@ const generateInstallYaml = (serverRequest, serverResponse) => {
         serverResponse.status(500).send(err);
         return;
       }
-      const { channels, packageName } = operator;
+      const { channels, packageName, globalOperator } = operator;
       if (!_.size(channels) || !packageName) {
         serverResponse.status(500).send(`Operator ${operatorName} has invalid or no package information.`);
         return;
@@ -54,7 +54,29 @@ spec:
   source: operatorhubio-catalog
   sourceNamespace: my-${packageName}`;
 
-      serverResponse.send(installYaml);
+      const globalInstallYaml = `v1
+kind: CatalogSource
+metadata:
+  name: operatorhubio-catalog
+  namespace: olm
+spec:
+  sourceType: grpc
+  image: ${quayCatalogSourceImage}
+  displayName: Community Operators
+  publisher: OperatorHub.io
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: my-${packageName}
+  namespace: operators
+spec:
+  channel: ${operatorChannel}
+  name: ${packageName}
+  source: operatorhubio-catalog
+  sourceNamespace: olm`;
+
+      serverResponse.send(globalOperator ? globalInstallYaml : installYaml);
     });
   } catch (e) {
     serverResponse.status(500).send(e.message);

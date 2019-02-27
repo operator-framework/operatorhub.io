@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import DocumentationPage from '../../components/DocumentationPage';
-import { olm, olmArchitecture, manageOperatorWithOlm } from '../../utils/documentationLinks';
+import { olm, olmArchitecture, manageOperatorWithOlm, operatorGroupDesign } from '../../utils/documentationLinks';
 
 const pageTitle = 'How to install an Operator from OperatorHub.io';
 
@@ -20,7 +20,8 @@ const HowToInstallOperators = ({ history, ...props }) => {
             and <i>CustomResourceDefinitions</i>. The{' '}
             <ExternalLink href={olm} text="Operator Lifecycle Manager" indicator={false} /> (OLM), a component of the{' '}
             <ExternalLink href={manageOperatorWithOlm} text="Operator Framework" indicator={false} />, must also be
-            present in your cluster. OLM makes Operators available for users to install based on the concept of catalogs
+            present in your cluster. OLM makes Operators available for users to install based on the concept of{' '}
+            <i>catalogs</i>
             which are repositories of Operators packaged for use with OLM. If you like to learn more about how OLM
             delivers Operators, click <ExternalLink href={olmArchitecture} text="here" indicator={false} />.
           </p>
@@ -76,26 +77,36 @@ const HowToInstallOperators = ({ history, ...props }) => {
           </p>
           <ol className="oh-numbered-list">
             <li>
-              A namespace, named after the Operator, in which the Operator will work and which contains all further
-              resources below
-            </li>
-            <li>
               A <code>CatalogSource</code> object that represents a catalog of all the Operators found on
               OperatorHub.io, so OLM knows where to download the Operator
             </li>
+            <li>
+              A <i>Subscription</i> object that represents your intent to deploy an Operator via OLM, triggering the
+              actual installation
+            </li>
+            <p>
+              Optionally, if the Operator is only able to work in a particular namespace, also the following gets
+              created:
+            </p>
             <li>
               An <code>OperatorGroup</code> object that configures the Operator to only watch for the{' '}
               <code>CustomResourceDefinitions</code> in the namespace it’s deployed in
             </li>
             <li>
-              And finally a <code>Subscription</code> object that represents your intent to deploy an Operator via OLM,
-              triggering the actual installation
+              A separate namespace, named after the Operator, in which the Operator following the scheme{' '}
+              <code>{`my-<operator-name>`}</code>, in which the Operator and all the resources above
             </li>
           </ol>
           <p>
-            When executed it typically takes between 20-30 seconds to deploy an Operator. You can watch the progress by
-            watching for <i>ClusterServiceVersion</i> objects being deployed in the namespace the command created. See
-            below for output at the example of deploying the <i>EtcdOperator</i>:
+            This difference will be called out in the <b>Installation</b> dialog.
+          </p>
+          <p>
+            When executed it typically takes between 20-30 seconds to deploy an Operator. You can watch it’s
+            <i>ClusterServiceVersion</i> spin up in either the namespace called <code>operators</code> or the namespace
+            created by the install command (if applicable).
+          </p>
+          <p>
+            See below for an example of the output from deploying the <i>EtcdOperator</i>:
           </p>
           <pre>
             <p className="oh-documentation-page__code_snippet">
@@ -119,7 +130,7 @@ const HowToInstallOperators = ({ history, ...props }) => {
           <p>After a while the Operator will be stood up in the form of a Pod:</p>
           <pre>
             <p className="oh-documentation-page__code_snippet">
-              <code>$ kubectl get pod -n my-etcd</code>
+              <code>$ kubectl get pod -n operators</code>
               <br />
               <code>{`NAME                            READY   STATUS    RESTARTS   AGE`}</code>
               <br />
@@ -133,20 +144,20 @@ const HowToInstallOperators = ({ history, ...props }) => {
             OLM.
           </p>
           <p>
-            You can now start using the Operator in the namespace that got created, in the example above{' '}
-            <code>my-etcd</code>.
+            You can now start using the Operator by leveraging it’s <i>CustomResource</i>. The Operator detail page
+            contains examples of these in the <i>CustomResourceDefinitions</i> section
           </p>
           <p>
-            <b>Important:</b> The Operator by default is configured to only work in the namespace in which it was
-            deployed. In the above example that would be <code>my-etcd</code>. Any of its <i>CustomResources</i> need to
-            be placed there. If you like to change that, read about how to configure the <i>OperatorGroup</i> here. In
-            short, you need to edit the list in{` `}
-            <code>spec.targetNamespaces</code> of the <i>OperatorGroup</i> and add all namespaces in which you want this
+            <b>Important:</b> Most Operators are available in all namespaces in your cluster. Some however do not
+            support this. That means, that any of its CustomResources need to be placed in a specific namespace that the
+            Operator is watching. For Operators from OperatorHub.io this namespace is called{' '}
+            <code>{`my-<operator-name>`}</code>. Also the Operators <i>Pod</i> will be deployed there.
+          </p>
+          <p>
+            This behavior is controlled by the OperatorGroup , you can read more about it{' '}
+            <ExternalLink href={operatorGroupDesign} text="here" indicator={false} />. In short, the list in{' '}
+            <code>spec.targetNamespace</code> of the OperatorGroup and controls namespaces in which you want this
             Operator to be usable.
-          </p>
-          <p>
-            Refer to the Operator description on the detail page for <i>CustomResourceDefinitions</i> you can use to
-            interact with the Operator in its namespace.
           </p>
         </React.Fragment>
       )
