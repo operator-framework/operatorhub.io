@@ -48,6 +48,16 @@
 
   .oh-markdown-view {
     padding-bottom: 15px;
+
+    > pre {
+      background: $oh-color-background;
+      display: block;
+      font-size: 12px;
+      margin-left: 10px;
+      padding: 5px 10px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
   }
 
   &__side-panel {
