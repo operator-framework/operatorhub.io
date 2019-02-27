@@ -290,22 +290,26 @@ class OperatorPage extends React.Component {
       return null;
     }
 
+    const showExamples = _.some(customResourceDefinitions, crd => crd.yamlExample);
+
     return (
       <React.Fragment>
         <h3>Custom Resource Definitions</h3>
         <div className="oh-crd-tile-view">
           {_.map(customResourceDefinitions, crd => (
             <div className="oh-crd-tile" key={crd.name}>
-              <span className="oh-crd-tile__title">{crd.displayName}</span>
-              <span className="oh-crd-tile__rule" />
-              <p className="oh-crd-tile__description">{crd.description}</p>
-              <a
-                className={`oh-crd-tile__link ${crd.yamlExample ? '' : 'oh-not-visible'}`}
-                href="#"
-                onClick={e => this.showExampleYaml(e, crd)}
-              >
-                <span>View YAML Example</span>
-              </a>
+              <div className="oh-crd-tile__title">{crd.displayName}</div>
+              <div className="oh-crd-tile__rule" />
+              <div className="oh-crd-tile__description">{crd.description}</div>
+              {showExamples && (
+                <a
+                  className={`oh-crd-tile__link ${crd.yamlExample ? '' : 'oh-not-visible'}`}
+                  href="#"
+                  onClick={e => this.showExampleYaml(e, crd)}
+                >
+                  <span>View YAML Example</span>
+                </a>
+              )}
             </div>
           ))}
         </div>

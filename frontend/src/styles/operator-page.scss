@@ -156,14 +156,10 @@
   }
 
   .oh-crd-tile {
-    align-items: flex-start;
     background: $oh-color-background;
     border-radius: 3px;
     color: inherit;
-    display: flex;
     flex: 0 0 auto;
-    flex-direction: column;
-    height: 165px;
     margin: 0 15px 15px 0;
     padding: 20px;
     width: 265px;
@@ -172,6 +168,22 @@
       color: $oh-color-text-primary;
       font-size: 14px;
       font-weight: 600;
+      overflow: hidden;
+      position: relative;
+      word-break: break-word;
+      height: 48px;
+      width: 100%;
+
+      &::after {
+        background: linear-gradient(to right, rgba(250, 251, 253, 0), rgba(250, 251, 253, 1) 75%);
+        bottom: 0;
+        color: transparent;
+        content: ".";
+        position: absolute;
+        right: 0;
+        width: 50%;
+        text-align: right;
+      }
     }
 
     &__rule {
@@ -203,6 +215,7 @@
 
     &__link {
       font-size: 13px;
+      margin-top: 10px
     }
   }
 }

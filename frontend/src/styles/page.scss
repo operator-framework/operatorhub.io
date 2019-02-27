@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-x: hidden;
+    overflow: hidden;
     width: 100%;
     min-height: calc(100vh - #{$oh-header-footer-height});
 
@@ -18,8 +18,6 @@
         width: $oh-content-width-3-tiles;
       }
       @media (min-width: $oh-width-4-tile-min) {
-        padding-left: 15px;
-        padding-right: 15px;
         width: $oh-content-width-4-tiles;
       }
       @media (min-width: $oh-width-5-tile-min) {
@@ -204,8 +202,6 @@
       width: $oh-content-width-3-tiles;
     }
     @media (min-width: $oh-width-4-tile-min) {
-      padding-left: 15px;
-      padding-right: 15px;
       width: $oh-content-width-4-tiles;
     }
     @media (min-width: $oh-width-5-tile-min) {
@@ -238,8 +234,6 @@
       width: $oh-content-width-3-tiles;
     }
     @media (min-width: $oh-width-4-tile-min) {
-      padding-left: 15px;
-      padding-right: 15px;
       width: $oh-content-width-4-tiles;
     }
     @media (min-width: $oh-width-5-tile-min) {
@@ -304,8 +298,6 @@
         width: $oh-content-width-3-tiles;
       }
       @media (min-width: $oh-width-4-tile-min) {
-        padding-left: 30px;
-        padding-right: 30px;
         width: $oh-content-width-4-tiles;
       }
       @media (min-width: $oh-width-5-tile-min) {
