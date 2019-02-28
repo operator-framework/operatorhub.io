@@ -63,15 +63,36 @@
             </div>
         </div>
     <script>
-      // THIS MUST BE IN SYNC WITH server/utils/constants.js 'releaseDate' VALUE
       const releaseDate = new Date('Feb 28, 2019 9:00:00 PST');
-      var countDownDate = releaseDate.getTime();
-      var timer;
-      var refreshTimer;
+      let countDownDate = releaseDate.getTime();
+      let deltaTime = 0;
 
-      var updateCountdown = function() {
+      function loadReleaseState() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            try {
+                const releaseInfo = JSON.parse(xhttp.response).releaseInfo;
+                countDownDate = new Date(releaseInfo.releaseDate).getTime();
+                deltaTime = Date.now() - releaseInfo.currentTime;
+            } catch (e) {
+              console.log(e.message);
+            }
+          }
+        };
+
+        xhttp.open("GET", "api/releasedate", true);
+        xhttp.send();
+      }
+
+      window.onload = loadReleaseState;
+
+      let timer;
+      let refreshTimer;
+
+      const updateCountdown = function() {
         // Get today's date and time
-        var now = new Date().getTime();
+        const now = new Date().getTime() - deltaTime;
 
         // Find the distance between now an the count down date
         var distance = countDownDate - now;
