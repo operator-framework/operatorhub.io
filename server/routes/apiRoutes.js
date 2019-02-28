@@ -2,7 +2,7 @@ const forceSSL = require('express-force-ssl');
 const operatorsService = require('../services/operatorsService');
 const updateService = require('../services/updateService');
 const yamlService = require('../services/yamlService');
-const { useSSL } = require('../utils/constants');
+const { useSSL, releaseDate } = require('../utils/constants');
 
 const addCORSHeader = (request, response, next) => {
   const hasOrigin = request.headers.origin != null;
@@ -29,6 +29,14 @@ const forceToSSL = (request, response, next) => {
   next();
 };
 
+const sendReleaseDate = (request, response) => {
+  const releaseInfo = {
+    releaseDate,
+    currentTime: Date.now()
+  };
+  response.send({ releaseInfo });
+};
+
 module.exports = app => {
   app.get('/api/*', forceToSSL, addCORSHeader);
   app.post('/api/webhook', forceToSSL, addCORSHeader);
@@ -36,6 +44,7 @@ module.exports = app => {
   app.get('/api/operators', operatorsService.fetchOperators);
   app.get('/api/operator', operatorsService.fetchOperator);
   app.post('/api/webhook', updateService.updateLocalOperators);
+  app.get('/api/releasedate', sendReleaseDate, addCORSHeader);
 
   app.get('/install/*.yaml', yamlService.generateInstallYaml);
 };
