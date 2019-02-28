@@ -68,8 +68,8 @@ const About = ({ history, ...props }) => {
             <ExternalLink href={`${buildYourCSV}`} text="ClusterServiceVersion" indicator={false} /> in the{' '}
             <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populated
             the Operators’ detail page on OperatorHub.io. With this metadata Operators are packaged and ready-to-run on
-            any Kubernetes cluster that has the Operator Lifecycle Manager (OLM) available. OKD and OpenShift Container
-            Platform users have this component installed already. On a Kubernetes cluster, OLM allows a user to “
+            any Kubernetes cluster that has the Operator Lifecycle Manager (OLM) available. On a Kubernetes cluster, OLM
+            allows a user to “
             <ExternalLink href={`${olmArchitecture}`} text="subscribe" indicator={false} />” to an Operator, which
             unifies installation and updates in a single concept. We expect Operators to be long-lived services that are
             constantly updated to provide new capabilities and update the managed application to a newer version. A
@@ -85,14 +85,7 @@ const About = ({ history, ...props }) => {
             <ExternalLink href={`${buildYourCSV}`} text="ClusterServiceVersion" indicator={false} />) in the{' '}
             <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populated
             the Operators’ detail page. With this metadata Operators are packaged and ready-to-run on any Kubernetes
-            cluster that has the Operator Lifecycle Manager (OLM) available. On a Kubernetes cluster, OLM allows a user
-            to “<ExternalLink href={`${olmArchitecture}`} text="subscribe" indicator={false} />” to an Operator, which
-            unifies installation and updates in a single concept. We expect Operators to be long-lived services that are
-            constantly updated to provide new capabilities and update the managed application to a newer version. A
-            subscription can be made to a{' '}
-            <ExternalLink href={`${discoveryCatalogs}`} text="selection of channels" indicator={false} /> (e.g. ‘stable’
-            vs. ‘beta’). With the community repository as a source, users can install, use and receive updates for all
-            Operators on OperatorHub.io right away.
+            cluster that has the Operator Lifecycle Manager (OLM) available.
           </p>
         </React.Fragment>
       )
