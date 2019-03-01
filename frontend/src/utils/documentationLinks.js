@@ -18,6 +18,7 @@ const capabilityLevelModelDiagram = `${operatorSdk}/blob/master/doc/images/opera
 const manageOperatorWithOlm = `${operatorsFramework}/getting-started#manage-the-operator-using-the-operator-lifecycle-manager`;
 const operatorGroupDesign = `${olm}/blob/master/Documentation/design/architecture.md#operator-group-design`;
 const addingYourOperator = `${operatorsRepo}#adding-your-operator`;
+const privacyPolicy = `https://www.redhat.com/en/about/privacy-policy`;
 const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes-operators`;
 const hubFacebook = ``;
 const hubTwitter = ``;
@@ -45,6 +46,7 @@ const DocmentationLinks = {
   capabilityLevelModelDiagram,
   manageOperatorWithOlm,
   operatorGroupDesign,
+  privacyPolicy,
   kubernetesSlack,
   hubFacebook,
   hubTwitter,
@@ -74,6 +76,7 @@ export {
   capabilityLevelModelDiagram,
   manageOperatorWithOlm,
   operatorGroupDesign,
+  privacyPolicy,
   kubernetesSlack,
   hubFacebook,
   hubTwitter,
