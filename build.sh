@@ -12,5 +12,5 @@ popd
 
 pushd server
 npm install
-./scripts/update-operators.sh $COMMUNITY_REPO || exit 1
+./scripts/update-operators.sh $COMMUNITY_REPO $COMMUNITY_BRANCH || exit 1
 popd
