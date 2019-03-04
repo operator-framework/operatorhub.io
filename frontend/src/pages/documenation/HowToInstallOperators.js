@@ -44,7 +44,7 @@ const HowToInstallOperators = ({ history, ...props }) => {
           <p className="oh-documentation-page__code_snippet">
             <code>
               kubectl create -f
-              https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/quickstart/deploy/upstream/quickstart/olm.yaml
+              https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/olm.yaml
             </code>
           </p>
           <p>
