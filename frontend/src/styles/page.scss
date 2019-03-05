@@ -117,7 +117,6 @@
   &__logo {
     font-family: $oh-code-font-family;
     height: 14px;
-    margin-top: 7px;
   }
 
   &__spacer {
@@ -269,6 +268,10 @@
 
     @media (min-width: $screen-sm-min) {
       z-index: 1000;
+    }
+
+    &__link {
+      white-space: nowrap;
     }
   }
 
