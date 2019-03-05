@@ -52,7 +52,7 @@ class InstallModal extends React.Component {
     const tooltipOverrides = Object.freeze({
       wrapper: {
         cursor: 'pointer',
-        top: '-5px'
+        top: '2px'
       },
       tooltip: {
         maxWidth: '170px',

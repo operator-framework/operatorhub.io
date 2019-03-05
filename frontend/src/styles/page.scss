@@ -269,6 +269,10 @@
     @media (min-width: $screen-sm-min) {
       z-index: 1000;
     }
+
+    &__link {
+      white-space: nowrap;
+    }
   }
 
   &__contents {
