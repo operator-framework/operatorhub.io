@@ -116,7 +116,7 @@ const About = ({ history, ...props }) => {
     {
       title: `Who is behind OperatorHub.io?`,
       content: (
-        <React.Fragmen>
+        <React.Fragment>
           <p>
             OperatorHub.io was launched by Red Hat in conjunction with Amazon, Microsoft, and Google forming the initial
             group that are supporting the initiative. Together, this group leveraging their Kubernetes expertise is
@@ -126,7 +126,7 @@ const About = ({ history, ...props }) => {
           <p>
             <ExternalLink href={`${privacyPolicy}`} text="Privacy Policy" indicator={false} />
           </p>
-        </React.Fragmen>
+        </React.Fragment>
       )
     }
   ];
