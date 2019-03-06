@@ -10,8 +10,7 @@ import {
   olmArchitecture,
   buildYourCSV,
   introBlog,
-  discoveryCatalogs,
-  privacyPolicy
+  discoveryCatalogs
 } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
 
@@ -116,17 +115,12 @@ const About = ({ history, ...props }) => {
     {
       title: `Who is behind OperatorHub.io?`,
       content: (
-        <React.Fragment>
-          <p>
-            OperatorHub.io was launched by Red Hat in conjunction with Amazon, Microsoft, and Google forming the initial
-            group that are supporting the initiative. Together, this group leveraging their Kubernetes expertise is
-            managing the contribution and vetting process for the Operators included in OperatorHub.io. We look forward
-            to seeing this list expand with other Kubernetes industry leaders over time.
-          </p>
-          <p>
-            <ExternalLink href={`${privacyPolicy}`} text="Privacy Policy" indicator={false} />
-          </p>
-        </React.Fragment>
+        <p>
+          OperatorHub.io was launched by Red Hat in conjunction with Amazon, Microsoft, and Google forming the initial
+          group that are supporting the initiative. Together, this group leveraging their Kubernetes expertise is
+          managing the contribution and vetting process for the Operators included in OperatorHub.io. We look forward to
+          seeing this list expand with other Kubernetes industry leaders over time.
+        </p>
       )
     }
   ];
