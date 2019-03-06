@@ -1,13 +1,28 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import * as _ from 'lodash-es';
+import { safeDump } from 'js-yaml';
 import { Modal } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
-import YamlViewer from '../../components/YamlViewer';
+import { helpers } from '../common/helpers';
+import YamlEditor from './YamlViewer';
 
 const ExampleYamlModal = ({ show, customResourceDefinition, onClose }) => {
   const renderContents = () => {
     const { displayName, yamlExample } = customResourceDefinition;
+    let yaml;
+
+    if (yamlExample) {
+      try {
+        if (!_.isString(yamlExample)) {
+          yaml = safeDump(yamlExample);
+        } else {
+          yaml = yamlExample;
+        }
+      } catch (e) {
+        yaml = `Error dumping YAML: ${e}`;
+      }
+    }
 
     return (
       <React.Fragment>
@@ -16,7 +31,7 @@ const ExampleYamlModal = ({ show, customResourceDefinition, onClose }) => {
           <Modal.Title>{displayName} - YAML Example</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <YamlViewer yamlObj={yamlExample} />
+          <YamlEditor yaml={yaml} />
         </Modal.Body>
       </React.Fragment>
     );

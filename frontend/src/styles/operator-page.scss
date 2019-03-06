@@ -3,6 +3,7 @@
 }
 
 .oh-operator-header {
+
   &__content {
     align-items: flex-start;
     display: flex;
@@ -36,6 +37,7 @@
   h1 {
     margin-top: 10px;
     font-size: 32px;
+
     .title {
       font-family: $oh-code-font-family;
       padding-left: 8px;
@@ -65,19 +67,6 @@
       margin-top: 20px;
     }
 
-    &__button {
-      background-color: $oh-color-primary;
-      border-radius: 4px;
-      color: $color-pf-white;
-      display: block;
-      height: 30px;
-      padding-top: 3px;
-      text-align: center;
-      &:hover, &:focus {
-        color: $color-pf-white;
-      }
-    }
-
     &__image {
       padding-top: 5px;
     }
@@ -85,6 +74,10 @@
     &__separator {
       margin: 30px 0;
       border-top: 1px solid $oh-color-rule;
+    }
+
+    .oh-button {
+      width: 100%;
     }
 
     .properties-side-panel-pf {
@@ -124,10 +117,12 @@
   max-width: 730px;
   height: 330px;
   width: 730px;
+
   &__img {
     max-width: 700px;
     margin: 5px 0;
   }
+
   &__icon {
     display: none;
     cursor: pointer;
@@ -136,6 +131,7 @@
       margin-left: 3px;
     }
   }
+
   &__link {
     display: none;
     @media (max-width: 914px) {
@@ -221,6 +217,7 @@
 }
 
 .oh-install-modal {
+
   .modal-body {
     padding-top: 0;
   }
@@ -268,33 +265,4 @@
 .oh-install-olm-instructions {
   margin-top: 15px;
   border-bottom: 1px solid $oh-color-rule;
-}
-
-.oh-yaml-viewer {
-  height: 450px;
-
-  &__content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-  }
-
-  &__acebox {
-    flex: 1;
-    &.ace-clouds
-    {
-      background: $oh-color-background;
-    }
-  }
-
-  &__copy-container {
-    align-self: flex-start;
-    margin-left: 7px;
-  }
-
-  &__copy {
-    color: $oh-color-text-body;
-    padding: 3px 5px;
-  }
 }

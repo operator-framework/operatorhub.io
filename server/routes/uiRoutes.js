@@ -32,6 +32,7 @@ module.exports = app => {
   // Base Public Routes
   const uiRoutes = [
     'operator',
+    'preview',
     'about',
     'contribute',
     'getting-started',

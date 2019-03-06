@@ -6,14 +6,15 @@ import * as _ from 'lodash-es';
 import queryString from 'query-string';
 
 import { Alert, DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
-import { CatalogTile, FilterSidePanel } from 'patternfly-react-extensions';
+import { FilterSidePanel } from 'patternfly-react-extensions';
 
 import { fetchOperators } from '../../services/operatorsService';
 import { helpers } from '../../common/helpers';
 
 import Page from '../../components/Page';
 import { reduxConstants } from '../../redux';
-import * as operatorImg from '../../imgs/operator.svg';
+import OperatorTile from '../../components/OperatorTile';
+import OperatorListItem from '../../components/OperatorListItem';
 
 const CATEGORY_URL_PARAM = 'category';
 const KEYWORD_URL_PARAM = 'keyword';
@@ -664,35 +665,13 @@ class OperatorHub extends React.Component {
           No operators are being shown due to the filters being applied.
         </EmptyState.Info>
         <EmptyState.Help>
-          <button type="button" className="btn btn-link" onClick={() => this.clearFilters()}>
+          <button type="button" className="oh-button oh-button-primary" onClick={() => this.clearFilters()}>
             Clear All Filters
           </button>
         </EmptyState.Help>
       </EmptyState>
     );
   }
-
-  renderCard = item => {
-    if (!item) {
-      return null;
-    }
-
-    const { name, displayName, imgUrl, provider, description } = item;
-    const vendor = provider ? `provided by ${provider}` : null;
-
-    return (
-      <CatalogTile
-        id={name}
-        key={name}
-        title={displayName}
-        iconImg={imgUrl || operatorImg}
-        vendor={vendor}
-        description={description}
-        href={`${window.location.origin}/operator/${name}`}
-        onClick={e => this.openDetails(e, item)}
-      />
-    );
-  };
 
   renderCards() {
     const { filteredItems } = this.state;
@@ -703,34 +682,17 @@ class OperatorHub extends React.Component {
 
     return (
       <div className="catalog-tile-view-pf catalog-tile-view-pf-no-categories">
-        {_.map(filteredItems, item => this.renderCard(item))}
+        {_.map(filteredItems, item => (
+          <OperatorTile
+            operator={item}
+            key={item.name}
+            href={`${window.location.origin}/operator/${item.name}`}
+            onClick={e => this.openDetails(e, item)}
+          />
+        ))}
       </div>
     );
   }
-
-  renderListItem = item => {
-    if (!item) {
-      return null;
-    }
-
-    const { name, displayName, imgUrl, provider, description } = item;
-    const vendor = provider ? `provided by ${provider}` : null;
-
-    return (
-      <a id={name} key={name} className="oh-list-view__item" href="#" onClick={e => this.openDetails(e, item)}>
-        <div className="catalog-tile-pf-header">
-          <img className="catalog-tile-pf-icon" src={imgUrl || operatorImg} alt="" />
-          <span>
-            <div className="catalog-tile-pf-title">{displayName}</div>
-            <div className="catalog-tile-pf-subtitle">{vendor}</div>
-          </span>
-        </div>
-        <div className="catalog-tile-pf-description">
-          <span>{description}</span>
-        </div>
-      </a>
-    );
-  };
 
   renderListItems() {
     const { filteredItems } = this.state;
@@ -739,7 +701,13 @@ class OperatorHub extends React.Component {
       return this.renderFilteredEmptyState();
     }
 
-    return <div className="oh-list-view">{_.map(filteredItems, item => this.renderListItem(item))}</div>;
+    return (
+      <div className="oh-list-view">
+        {_.map(filteredItems, item => (
+          <OperatorListItem key={item.name} operator={item} href="#" onClick={e => this.openDetails(e, item)} />
+        ))}
+      </div>
+    );
   }
 
   renderMobileFilters() {
