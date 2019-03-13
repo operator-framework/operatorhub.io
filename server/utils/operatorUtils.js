@@ -70,6 +70,7 @@ const normalizeOperator = operator => {
     maintainers: spec.maintainers,
     description: _.get(annotations, 'description'),
     categories: categoriesString && _.map(categoriesString.split(','), category => category.trim()),
+    keywords: spec.keywords,
     createdAt: annotations.createdAt,
     containerImage: annotations.containerImage,
     customResourceDefinitions: normalizeCRDs(operator),
