@@ -15,9 +15,12 @@ import Page from '../../components/Page';
 import { reduxConstants } from '../../redux';
 import * as operatorImg from '../../imgs/operator.svg';
 
+const CATEGORY_URL_PARAM = 'category';
 const KEYWORD_URL_PARAM = 'keyword';
 const VIEW_TYPE_URL_PARAM = 'view';
 const SORT_TYPE_URL_PARAM = 'sort';
+
+const OTHER_CATEGORY = 'Other';
 
 /**
  * Filter property white list
@@ -135,6 +138,26 @@ const filterItems = (items, keyword, filters) => {
   return [..._.values(filteredByGroup), filteredByKeyword].reduce((a, b) => a.filter(c => b.includes(c)));
 };
 
+const determineAvailableCategories = items => {
+  const categories = {};
+
+  _.forEach(items, item => {
+    if (!_.size(item.categories)) {
+      if (!categories[OTHER_CATEGORY]) {
+        categories[OTHER_CATEGORY] = [];
+      }
+      categories[OTHER_CATEGORY].push(item);
+    }
+    _.forEach(item.categories, category => {
+      if (!categories[category]) {
+        categories[category] = [];
+      }
+      categories[category].push(item);
+    });
+  });
+  return categories;
+};
+
 const determineAvailableFilters = (initialFilters, items, filterGroups) => {
   const filters = _.cloneDeep(initialFilters);
 
@@ -228,10 +251,12 @@ class OperatorHub extends React.Component {
   componentDidMount() {
     const {
       storeActiveFilters,
+      storeSelectedCategory,
       storeKeywordSearch,
       storeViewType,
       storeSortType,
       activeFilters,
+      selectedCategory,
       keywordSearch,
       urlSearchString,
       viewType,
@@ -241,14 +266,20 @@ class OperatorHub extends React.Component {
 
     const searchObj = queryString.parse(urlSearchString);
 
+    const urlCategory = _.get(searchObj, CATEGORY_URL_PARAM);
     const urlKeyword = _.get(searchObj, KEYWORD_URL_PARAM);
     const urlViewType = _.get(searchObj, VIEW_TYPE_URL_PARAM);
     const urlSortType = _.get(searchObj, SORT_TYPE_URL_PARAM);
 
     let updatedFilters;
+    const updatedCategory = urlCategory || selectedCategory;
     const updatedKeyword = urlKeyword || keywordSearch;
     const updatedViewType = urlViewType || viewType;
     const updatedSortType = urlSortType || sortType;
+
+    if (urlCategory) {
+      storeSelectedCategory(urlCategory);
+    }
 
     if (urlKeyword || this.filtersInURL(searchObj)) {
       updatedFilters = this.getActiveValuesFromURL(searchObj, defaultFilters, operatorHubFilterGroups);
@@ -266,8 +297,7 @@ class OperatorHub extends React.Component {
       storeSortType(urlSortType);
     }
 
-    this.updateURL(updatedKeyword, updatedFilters, updatedViewType, updatedSortType);
-    this.updateFilteredItems();
+    this.updateURL(updatedKeyword, updatedFilters, updatedCategory, updatedViewType, updatedSortType);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -278,26 +308,37 @@ class OperatorHub extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { keywordSearch, operators, activeFilters, sortType, viewType } = this.props;
-    const { filtersOpen } = this.state;
+    const { keywordSearch, operators, activeFilters, selectedCategory, sortType, viewType } = this.props;
+    const { categories, filtersOpen } = this.state;
 
     if (!_.isEqual(activeFilters, prevProps.activeFilters) || keywordSearch !== prevProps.keywordSearch) {
-      this.updateFilteredItems();
-      this.updateURL(keywordSearch, activeFilters, viewType, sortType);
+      this.updateFilteredItems(categories);
+      this.updateURL(keywordSearch, activeFilters, selectedCategory, viewType, sortType);
     }
 
     if (!_.isEqual(operators, prevProps.operators)) {
-      this.updateCurrentFilters(operators);
-      this.updateFilteredItems();
+      const updatedCategories = determineAvailableCategories(operators);
+      this.updateCurrentFilters();
+
+      if (!_.isEqual(updatedCategories, categories)) {
+        this.setState({ categories: updatedCategories });
+      }
+
+      this.updateFilteredItems(updatedCategories);
+    }
+
+    if (selectedCategory !== prevProps.selectedCategory) {
+      this.updateURL(keywordSearch, activeFilters, selectedCategory, viewType, sortType);
+      this.updateFilteredItems(categories);
     }
 
     if (sortType !== prevProps.sortType) {
       this.setState({ filteredItems: this.sortItems(this.state.filteredItems) });
-      this.updateURL(keywordSearch, activeFilters, viewType, sortType);
+      this.updateURL(keywordSearch, activeFilters, selectedCategory, viewType, sortType);
     }
 
     if (viewType !== prevProps.viewType) {
-      this.updateURL(keywordSearch, activeFilters, viewType, sortType);
+      this.updateURL(keywordSearch, activeFilters, selectedCategory, viewType, sortType);
     }
 
     if (filtersOpen !== prevState.filtersOpen) {
@@ -332,11 +373,17 @@ class OperatorHub extends React.Component {
     storeActiveFilters(_.cloneDeep(newActiveFilters));
   };
 
-  updateFilteredItems = () => {
-    const { operators, activeFilters, keywordSearch } = this.props;
+  updateFilteredItems = categories => {
+    const { operators, activeFilters, selectedCategory, keywordSearch } = this.props;
 
-    const filterCounts = getFilterGroupCounts(operators, activeFilters);
-    const filteredItems = this.sortItems(filterItems(operators, keywordSearch, activeFilters));
+    if (!operators) {
+      return;
+    }
+
+    const filterOperators = selectedCategory ? _.get(categories, selectedCategory) : operators;
+
+    const filterCounts = getFilterGroupCounts(filterOperators, activeFilters);
+    const filteredItems = this.sortItems(filterItems(filterOperators, keywordSearch, activeFilters));
 
     this.setState({ filteredItems, filterCounts });
   };
@@ -354,7 +401,7 @@ class OperatorHub extends React.Component {
 
   filtersInURL = searchObj => _.some(operatorHubFilterGroups, filterGroup => _.get(searchObj, filterGroup));
 
-  updateURL = (keywordSearch, activeFilters, viewType, sortType) => {
+  updateURL = (keywordSearch, activeFilters, selectedCategory, viewType, sortType) => {
     const params = new URLSearchParams(window.location.search);
 
     _.each(_.keys(activeFilters), filterType => {
@@ -367,6 +414,12 @@ class OperatorHub extends React.Component {
         params.delete(filterType);
       }
     });
+
+    if (selectedCategory) {
+      params.set(CATEGORY_URL_PARAM, selectedCategory);
+    } else {
+      params.delete(CATEGORY_URL_PARAM);
+    }
 
     if (keywordSearch) {
       params.set(KEYWORD_URL_PARAM, keywordSearch);
@@ -401,7 +454,6 @@ class OperatorHub extends React.Component {
       try {
         _.set(groupFilters, filterGroup, JSON.parse(groupFilterParam));
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.warn('could not update filters from url params: could not parse search params', e);
       }
     });
@@ -436,6 +488,7 @@ class OperatorHub extends React.Component {
     });
 
     this.props.storeActiveFilters(clearedFilters);
+    this.props.storeSelectedCategory('');
     this.props.storeKeywordSearch('');
   }
 
@@ -444,6 +497,22 @@ class OperatorHub extends React.Component {
 
     const updatedFilters = updateActiveFilters(activeFilters, filterType, id, value);
     this.props.storeActiveFilters(updatedFilters);
+  };
+
+  sortCategories = categories =>
+    _.keys(categories).sort((cat1, cat2) => {
+      if (cat1 === OTHER_CATEGORY) {
+        return 1;
+      }
+      if (cat2 === OTHER_CATEGORY) {
+        return -1;
+      }
+      return cat1.localeCompare(cat2);
+    });
+
+  categorySelect = (event, selectedCategory) => {
+    event.preventDefault();
+    this.props.storeSelectedCategory(selectedCategory);
   };
 
   openDetails = (event, operator) => {
@@ -524,12 +593,40 @@ class OperatorHub extends React.Component {
     </FilterSidePanel.Category>
   );
 
+  renderCategories = () => {
+    const { selectedCategory } = this.props;
+    const { categories } = this.state;
+
+    if (!categories) {
+      return null;
+    }
+
+    return (
+      <FilterSidePanel.Category key="categories" title="Categories" maxShowCount={20}>
+        {_.map(this.sortCategories(categories), category => (
+          <div key={category} className={`oh-category-item ${category === selectedCategory ? 'selected' : ''}`}>
+            <button className="oh-category-item__select" onClick={e => this.categorySelect(e, category)}>
+              {category}
+            </button>
+            {category === selectedCategory && (
+              <button className="oh-category-item__deselect" onClick={e => this.categorySelect(e, '')}>
+                <Icon type="pf" name="close" />
+                <span className="sr-only">clear</span>
+              </button>
+            )}
+          </div>
+        ))}
+      </FilterSidePanel.Category>
+    );
+  };
+
   renderFilters() {
     const { activeFilters } = this.props;
     const { filterCounts } = this.state;
 
     return (
       <FilterSidePanel>
+        {this.renderCategories()}
         {_.map(operatorHubFilterGroups, groupName => this.renderFilterGroup(groupName, activeFilters, filterCounts))}
       </FilterSidePanel>
     );
@@ -658,6 +755,7 @@ class OperatorHub extends React.Component {
         </div>
         <div className={filtersClasses} style={{ height: filterPanelHeight }}>
           <div className="oh-hub-page__mobile-filters__filters__inner" ref={this.setMobileFiltersRef}>
+            {this.renderCategories()}
             {_.map(operatorHubFilterGroups, groupName =>
               this.renderFilterGroup(groupName, activeFilters, filterCounts)
             )}
@@ -792,9 +890,11 @@ OperatorHub.propTypes = {
   urlSearchString: PropTypes.string,
   viewType: PropTypes.string,
   activeFilters: PropTypes.object,
+  selectedCategory: PropTypes.string,
   keywordSearch: PropTypes.string,
   sortType: PropTypes.string,
   storeActiveFilters: PropTypes.func,
+  storeSelectedCategory: PropTypes.func,
   storeKeywordSearch: PropTypes.func,
   storeSortType: PropTypes.func,
   storeViewType: PropTypes.func
@@ -807,11 +907,13 @@ OperatorHub.defaultProps = {
   pending: false,
   fetchOperators: helpers.noop,
   activeFilters: [],
+  selectedCategory: '',
   keywordSearch: '',
   urlSearchString: '',
   viewType: '',
   sortType: '',
   storeActiveFilters: helpers.noop,
+  storeSelectedCategory: helpers.noop,
   storeKeywordSearch: helpers.noop,
   storeSortType: helpers.noop,
   storeViewType: helpers.noop
@@ -823,6 +925,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch({
       type: reduxConstants.SET_ACTIVE_FILTERS,
       activeFilters
+    }),
+  storeSelectedCategory: selectedCategory =>
+    dispatch({
+      type: reduxConstants.SET_SELECTED_CATEGORY,
+      selectedCategory
     }),
   storeKeywordSearch: keywordSearch =>
     dispatch({

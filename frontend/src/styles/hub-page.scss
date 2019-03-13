@@ -231,3 +231,39 @@
     }
   }
 }
+
+.oh-category-item {
+  border-radius: 4px;
+  display: flex;
+  width: 100%;
+
+  > button {
+    background: transparent;
+    border: none;
+    padding: 2px 5px;
+    text-align: left;
+
+    &:focus {
+      outline: none;
+      text-decoration: underline;
+    }
+  }
+
+  &__select {
+    flex: 1;
+  }
+
+  &__deselect {
+    &:focus, &:hover {
+      color: $oh-color-primary;
+    }
+  }
+
+  &.selected, &:hover {
+    background-color: $oh-color-rule;
+
+    .oh-category-item__select {
+      color: $oh-color-primary;
+    }
+  }
+}
