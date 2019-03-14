@@ -2,6 +2,7 @@ import { reduxConstants } from './index';
 
 const initialState = {
   activeFilters: {},
+  selectedCategory: '',
   keywordSearch: '',
   urlSearchString: '',
   sortType: '',
@@ -12,6 +13,9 @@ const viewReducer = (state = initialState, action) => {
   switch (action.type) {
     case reduxConstants.SET_ACTIVE_FILTERS:
       return Object.assign({}, state, { activeFilters: action.activeFilters });
+
+    case reduxConstants.SET_SELECTED_CATEGORY:
+      return Object.assign({}, state, { selectedCategory: action.selectedCategory });
 
     case reduxConstants.SET_KEYWORD_SEARCH:
       return Object.assign({}, state, { keywordSearch: action.keywordSearch });
