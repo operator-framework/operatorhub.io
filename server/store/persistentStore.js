@@ -21,6 +21,7 @@ const MAINTAINERS_FIELD = 'maintainers BLOB';
 const CREATED_FIELD = 'createdAt BLOB';
 const CONTAINER_IMAGE_FIELD = 'containerImage TEXT';
 const CATEGORIES_FIELD = 'categories BLOB';
+const KEYWORDS_FIELD = 'keywords BLOB';
 const CUSTOM_RESOURCE_DEFINITIONS_FIELD = 'customResourceDefinitions BLOB';
 const PACKAGE_NAME_FIELD = 'packageName TEXT';
 const CHANNELS_FIELD = 'channels BLOB';
@@ -43,6 +44,7 @@ const operatorFields = [
   'createdAt',
   'containerImage',
   'categories',
+  'keywords',
   'customResourceDefinitions',
   'packageName',
   'channels',
@@ -78,6 +80,7 @@ exports.initialize = callback => {
         ${CREATED_FIELD},
         ${CONTAINER_IMAGE_FIELD},
         ${CATEGORIES_FIELD},
+        ${KEYWORDS_FIELD},
         ${CUSTOM_RESOURCE_DEFINITIONS_FIELD},
         ${PACKAGE_NAME_FIELD},
         ${CHANNELS_FIELD},
@@ -97,6 +100,7 @@ const normalizeRow = row => {
   row.maintainers = JSON.parse(row.maintainers);
   row.customResourceDefinitions = JSON.parse(row.customResourceDefinitions);
   row.categories = JSON.parse(row.categories);
+  row.keywords = JSON.parse(row.keywords);
   row.createdAt = JSON.parse(row.createdAt);
   row.channels = JSON.parse(row.channels);
   row.globalOperator = JSON.parse(row.globalOperator);
@@ -185,6 +189,7 @@ exports.setOperators = (operators, callback) => {
             JSON.stringify(operator.createdAt),
             operator.containerImage,
             JSON.stringify(operator.categories),
+            JSON.stringify(operator.keywords),
             JSON.stringify(operator.customResourceDefinitions),
             operator.packageName,
             JSON.stringify(operator.channels),

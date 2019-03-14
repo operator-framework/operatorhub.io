@@ -106,7 +106,8 @@ const keywordCompare = (filterString, item) => {
       .includes(filterString) ||
     _.get(item, 'displayName', '')
       .toLowerCase()
-      .includes(filterString)
+      .includes(filterString) ||
+    _.some(_.get(item, 'keywords'), keyword => keyword.toLowerCase().includes(filterString))
   );
 };
 

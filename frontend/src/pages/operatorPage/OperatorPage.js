@@ -202,7 +202,7 @@ class OperatorPage extends React.Component {
 
   renderCategories = categories => {
     if (!_.size(categories)) {
-      return null;
+      return <div>Other</div>;
     }
 
     return (
