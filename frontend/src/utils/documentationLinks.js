@@ -2,6 +2,9 @@ const operatorsFramework = 'https://github.com/operator-framework';
 const operatorsRepo = `${operatorsFramework}/community-operators`;
 const contributions = `${operatorsRepo}/tree/master/upstream-community-operators`;
 const operatorSdk = `${operatorsFramework}/operator-sdk`;
+const operatorCourier = `${operatorsFramework}/operator-courier`;
+const operatorScorecard = `${operatorSdk}/blob/master/doc/test-framework/scorecard.md`;
+const operatorBundle = `${operatorsRepo}#adding-your-operator`;
 const olm = `${operatorsFramework}/operator-lifecycle-manager`;
 const olmGettingStarted = `${olm}#getting-started`;
 const gettingStarted = `${operatorsFramework}/getting-started`;
@@ -30,6 +33,9 @@ const DocmentationLinks = {
   operatorsRepo,
   contributions,
   operatorSdk,
+  operatorCourier,
+  operatorScorecard,
+  operatorBundle,
   olm,
   olmGettingStarted,
   gettingStarted,
@@ -60,6 +66,9 @@ export {
   operatorsRepo,
   contributions,
   operatorSdk,
+  operatorCourier,
+  operatorScorecard,
+  operatorBundle,
   olm,
   olmGettingStarted,
   gettingStarted,

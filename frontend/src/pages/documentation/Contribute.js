@@ -14,7 +14,9 @@ import {
   olmArchitecture,
   buildYourCSV,
   installInstructions,
-  operatorRegistry
+  operatorRegistry,
+  operatorScorecard,
+  operatorBundle
 } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
 
@@ -162,6 +164,23 @@ const Contribute = ({ history, ...props }) => {
             <ExternalLink href={contributions} text="community repository" indicator={false} />.
           </p>
           <p>Feel free to use existing Community Operators catalog data as a template.</p>
+        </React.Fragment>
+      )
+    },
+    {
+      title: `Preview your Cluster Service Version`,
+      content: (
+        <React.Fragment>
+          <p>
+            With your CSV written you can get a preview of your Operators appearance on from the OperatorHub.io{' '}
+            <InternalLink route="/preview" history={history} text="preview" /> page.
+          </p>
+          <p>
+            <b>Important:</b> This preview and operator-courier only check for syntax of your CSV. Please use the{' '}
+            <ExternalLink href={operatorScorecard} indicator={false} text="scorecard" /> utility which is part of the
+            operator-sdk to validate your entire{' '}
+            <ExternalLink href={operatorBundle} indicator={false} text="Operator bundle" />
+          </p>
         </React.Fragment>
       )
     },

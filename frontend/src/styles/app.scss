@@ -92,6 +92,42 @@
   }
 }
 
+.oh-button {
+  border: none;
+  border-radius: 4px;
+  padding: 6px 15px 7px 15px;
+
+  &.oh-button-primary {
+    background-color: $oh-color-primary;
+    color: $pf-color-white;
+  }
+
+  &.oh-button-secondary {
+    background-color: $oh-color-secondary;
+    color: $oh-color-text-body;
+  }
+}
+
+.oh-disabled,
+.oh-button:disabled,
+.oh-button[disabled] {
+  cursor: default;
+  text-decoration: none;
+  opacity: .5;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+
+  .oh-button {
+    margin-left: 15px;
+
+    &:first-of-type {
+      margin-left: 0;
+    }
+  }
+}
+
 noscript {
   margin: 20px 40px;
   h1 {

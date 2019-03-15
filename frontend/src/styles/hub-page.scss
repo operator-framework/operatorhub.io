@@ -159,15 +159,6 @@
       font-size: 18px;
     }
   }
-
-  .catalog-tile-pf {
-    border: none;
-    border-radius: 5px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    &:hover, &:focus {
-      box-shadow: 0 6px 12px rgba(0,0,0,0.12)
-    }
-  }
 }
 
 
@@ -178,32 +169,6 @@
 
 .oh-list-view {
   width: 100%;
-
-  .catalog-tile-pf-icon {
-    margin-right: 10px;
-  }
-
-  .catalog-tile-pf-subtitle {
-    color: $color-pf-black-400;
-    font-size: 12px;
-  }
-
-  .catalog-tile-pf-description {
-    margin-top: 5px;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-    &::after {
-      background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 75%);
-      bottom: 0;
-      color: transparent;
-      content: ".";
-      position: absolute;
-      right: 0;
-      width: 25%;
-      text-align: right;
-    }
-  }
 
   &__item {
     background: $card-pf-bg-color;
@@ -228,6 +193,32 @@
 
     &:hover, &:focus {
       box-shadow: 0 6px 12px rgba(0,0,0,0.12)
+    }
+
+    .catalog-tile-pf-icon {
+      margin-right: 10px;
+    }
+
+    .catalog-tile-pf-subtitle {
+      color: $color-pf-black-400;
+      font-size: 12px;
+    }
+
+    .catalog-tile-pf-description {
+      margin-top: 5px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      &::after {
+        background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 75%);
+        bottom: 0;
+        color: transparent;
+        content: ".";
+        position: absolute;
+        right: 0;
+        width: 25%;
+        text-align: right;
+      }
     }
   }
 }

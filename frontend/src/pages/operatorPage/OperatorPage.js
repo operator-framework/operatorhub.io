@@ -2,45 +2,18 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import connect from 'react-redux/es/connect/connect';
-import {
-  Alert,
-  Breadcrumb,
-  DropdownButton,
-  EmptyState,
-  Grid,
-  Icon,
-  MenuItem,
-  OverlayTrigger,
-  Popover
-} from 'patternfly-react';
-import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
+import { Alert, Breadcrumb, EmptyState, Grid } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import { fetchOperator } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
-import { ExternalLink } from '../../components/ExternalLink';
-import { capabilityLevelModelDiagram } from '../../utils/documentationLinks';
 import Page from '../../components/Page';
-import InstallModal from './InstallModal';
-import ExampleYamlModal from './ExampleYamlModal';
+import InstallModal from '../../components/InstallModal';
+import ExampleYamlModal from '../../components/ExampleYamlModal';
 import * as operatorImg from '../../imgs/operator.svg';
 import { reduxConstants } from '../../redux';
-import * as capabilityLevelImgLevel1 from '../../imgs/capability-level-imgs/level-1.svg';
-import * as capabilityLevelImgLevel2 from '../../imgs/capability-level-imgs/level-2.svg';
-import * as capabilityLevelImgLevel3 from '../../imgs/capability-level-imgs/level-3.svg';
-import * as capabilityLevelImgLevel4 from '../../imgs/capability-level-imgs/level-4.svg';
-import * as capabilityLevelImgLevel5 from '../../imgs/capability-level-imgs/level-5.svg';
-import * as capabilityLevelDiagram from '../../imgs/capability-level-diagram.svg';
-
-const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
-
-const capabilityLevelImages = {
-  'Basic Install': capabilityLevelImgLevel1,
-  'Seamless Upgrades': capabilityLevelImgLevel2,
-  'Full Lifecycle': capabilityLevelImgLevel3,
-  'Deep Insights': capabilityLevelImgLevel4,
-  'Auto Pilot': capabilityLevelImgLevel5
-};
+import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';
+import OperatorSidePanel from '../../components/OperatorSidePanel';
 
 class OperatorPage extends React.Component {
   state = {
@@ -152,171 +125,6 @@ class OperatorPage extends React.Component {
     );
   };
 
-  renderPropertyItem = (label, value) =>
-    value ? <PropertyItem label={label} value={value} /> : <PropertyItem label={label} value={notAvailable} />;
-
-  renderVersion = (version, versions) =>
-    _.size(versions) > 1 ? (
-      <DropdownButton className="oh-operator-page__side-panel__version-dropdown" title={version} id="version-dropdown">
-        {_.map(versions, (nextVersion, index) => (
-          <MenuItem key={nextVersion.version} eventKey={index} onClick={() => this.updateVersion(nextVersion)}>
-            {nextVersion.version}
-          </MenuItem>
-        ))}
-      </DropdownButton>
-    ) : (
-      version
-    );
-
-  renderLinks = links =>
-    _.size(links) && (
-      <React.Fragment>
-        {_.map(links, link => (
-          <ExternalLink key={link.name} block href={link.url} text={link.name} />
-        ))}
-      </React.Fragment>
-    );
-
-  renderMaintainers = maintainers =>
-    _.size(maintainers) && (
-      <React.Fragment>
-        {_.map(maintainers, maintainer => (
-          <React.Fragment key={maintainer.name}>
-            <div>{maintainer.name}</div>
-            <a href={`mailto:${maintainer.email}`}>{maintainer.email}</a>
-          </React.Fragment>
-        ))}
-      </React.Fragment>
-    );
-
-  renderCapabilityLevel = capabilityLevel => (
-    <span>
-      <span className="sr-only">{capabilityLevel}</span>
-      <img
-        className="oh-operator-page__side-panel__image"
-        src={capabilityLevelImages[capabilityLevel]}
-        alt={capabilityLevel}
-      />
-    </span>
-  );
-
-  renderCategories = categories => {
-    if (!_.size(categories)) {
-      return <div>Other</div>;
-    }
-
-    return (
-      <React.Fragment>
-        {_.map(categories, category => (
-          <div key={category}>{category}</div>
-        ))}
-      </React.Fragment>
-    );
-  };
-
-  renderSidePanel() {
-    const { operator } = this.state;
-    const {
-      provider,
-      capabilityLevel,
-      links,
-      version,
-      versions,
-      repository,
-      containerImage,
-      createdAt,
-      maintainers,
-      categories
-    } = operator;
-
-    const imageLink = containerImage ? <ExternalLink href={containerImage} text={containerImage} /> : notAvailable;
-    const repoLink = repository ? <ExternalLink href={repository} text={repository} /> : notAvailable;
-
-    const capabilityLevelLabel = (
-      <span>
-        <span>Capability Level</span>
-        <OverlayTrigger
-          overlay={
-            <Popover id="capability-level-help" className="oh-capability-level-popover">
-              <img className="oh-capability-level-popover__img" src={capabilityLevelDiagram} alt="" />
-            </Popover>
-          }
-          placement="left"
-          positionLeft={700}
-          trigger={['click']}
-          rootClose
-        >
-          <Icon className="oh-capability-level-popover__icon" type="pf" name="help" />
-        </OverlayTrigger>
-        <ExternalLink className="oh-capability-level-popover__link" href={capabilityLevelModelDiagram} text="" />
-      </span>
-    );
-
-    return (
-      <div className="oh-operator-page__side-panel">
-        <a
-          className="oh-operator-page__side-panel__button oh-operator-page__side-panel__button-primary"
-          href="#"
-          onClick={this.showInstall}
-        >
-          Install
-        </a>
-        <div className="oh-operator-page__side-panel__separator" />
-        <PropertiesSidePanel>
-          {this.renderPropertyItem('Operator Version', this.renderVersion(version, versions))}
-          {this.renderPropertyItem(capabilityLevelLabel, this.renderCapabilityLevel(capabilityLevel))}
-          {this.renderPropertyItem('Provider', provider)}
-          {this.renderPropertyItem('Links', this.renderLinks(links))}
-          {this.renderPropertyItem('Repository', repoLink)}
-          {this.renderPropertyItem('Container Image', imageLink)}
-          {this.renderPropertyItem('Created At', createdAt)}
-          {this.renderPropertyItem('Maintainers', this.renderMaintainers(maintainers))}
-          {this.renderPropertyItem('Categories', this.renderCategories(categories))}
-        </PropertiesSidePanel>
-      </div>
-    );
-  }
-
-  renderCustomResourceDefinitions() {
-    const { operator } = this.state;
-
-    if (!operator) {
-      return null;
-    }
-
-    const { customResourceDefinitions } = operator;
-
-    if (!_.size(customResourceDefinitions)) {
-      return null;
-    }
-
-    const showExamples = _.some(customResourceDefinitions, crd => crd.yamlExample);
-
-    return (
-      <React.Fragment>
-        <h3>Custom Resource Definitions</h3>
-        <div className="oh-crd-tile-view">
-          {_.map(customResourceDefinitions, crd => (
-            <div className="oh-crd-tile" key={crd.name}>
-              <div className="oh-crd-tile__title">{crd.displayName}</div>
-              <div className="oh-crd-tile__rule" />
-              <div className="oh-crd-tile__description">{crd.description}</div>
-              {showExamples && (
-                <a
-                  className={`oh-crd-tile__link ${crd.yamlExample ? '' : 'oh-not-visible'}`}
-                  href="#"
-                  onClick={e => this.showExampleYaml(e, crd)}
-                >
-                  <span>View YAML Example</span>
-                </a>
-              )}
-            </div>
-          ))}
-        </div>
-      </React.Fragment>
-    );
-  }
-
   renderView() {
     const { error, pending } = this.props;
     const { operator } = this.state;
@@ -334,12 +142,12 @@ class OperatorPage extends React.Component {
     return (
       <div className="oh-operator-page row">
         <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9}>
-          {this.renderSidePanel()}
+          <OperatorSidePanel operator={operator} showInstall={this.showInstall} updateVersion={this.updateVersion} />
         </Grid.Col>
         <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
           <h1>{displayName}</h1>
           {longDescription && <MarkdownView>{longDescription}</MarkdownView>}
-          {this.renderCustomResourceDefinitions()}
+          <CustomResourceDefinitionsView operator={operator} showExampleYaml={this.showExampleYaml} />
         </Grid.Col>
       </div>
     );
