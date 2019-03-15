@@ -8,11 +8,11 @@ import { reduxConstants } from './redux';
 import OperatorHub from './pages/operatorHub/OperatorHub';
 import OperatorPage from './pages/operatorPage/OperatorPage';
 import OperatorPreviewPage from './pages/operatorPreviewPage/OperatorPreviewPage';
-import GettingStarted from './pages/documenation/GettingStarted';
-import WhatIsAnOperator from './pages/documenation/WhatIsAnOperator';
-import Contribute from './pages/documenation/Contribute';
-import HowToInstallOperators from './pages/documenation/HowToInstallOperators';
-import About from './pages/documenation/About';
+import GettingStarted from './pages/documentation/GettingStarted';
+import WhatIsAnOperator from './pages/documentation/WhatIsAnOperator';
+import Contribute from './pages/documentation/Contribute';
+import HowToInstallOperators from './pages/documentation/HowToInstallOperators';
+import About from './pages/documentation/About';
 import ConfirmationModal from './components/ConfirmationModal';
 
 class App extends React.Component {
