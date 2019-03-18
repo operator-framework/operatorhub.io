@@ -15,7 +15,7 @@ import {
   buildYourCSV,
   installInstructions,
   operatorRegistry,
-  operatorScorecard,
+  operatorCourier,
   operatorBundle
 } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
@@ -172,14 +172,14 @@ const Contribute = ({ history, ...props }) => {
       content: (
         <React.Fragment>
           <p>
-            With your CSV written you can get a preview of your Operators appearance on from the OperatorHub.io{' '}
+            With your CSV written, you can get a preview of your Operator{"'"}s appearance on OperatorHub.io using the{' '}
             <InternalLink route="/preview" history={history} text="preview" /> page.
           </p>
           <p>
-            <b>Important:</b> This preview and operator-courier only check for syntax of your CSV. Please use the{' '}
-            <ExternalLink href={operatorScorecard} indicator={false} text="scorecard" /> utility which is part of the
-            operator-sdk to validate your entire{' '}
-            <ExternalLink href={operatorBundle} indicator={false} text="Operator bundle" />
+            <b>Important:</b> This preview only checks the syntax of your CSV. Please use the{' '}
+            <ExternalLink href={operatorCourier} indicator={false} text="operator-courier" /> utility, which is part of
+            the <ExternalLink href={operatorSdk} indicator={false} text="operator-sdk" />, to validate your entire
+            Operator <ExternalLink href={operatorBundle} indicator={false} text="bundle" />.
           </p>
         </React.Fragment>
       )
