@@ -4,8 +4,8 @@ import connect from 'react-redux/es/connect/connect';
 import { Breadcrumb } from 'patternfly-react';
 
 import Page from './Page';
-import { helpers } from '../common/helpers';
-import { reduxConstants } from '../redux';
+import { helpers } from '../../common/helpers';
+import { reduxConstants } from '../../redux/index';
 
 const idFromTitle = title => title.replace(/ /g, '-');
 

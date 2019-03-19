@@ -7,10 +7,6 @@ body {
   margin: 0;
 }
 
-::placeholder {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
 a:hover,
 a:focus {
   text-decoration: none;
@@ -94,3 +90,16 @@ p {
     box-shadow: 0 6px 12px rgba(0,0,0,0.12)
   }
 }
+
+.fa.fa-check-circle {
+  color: $brand-success;
+}
+
+.fa.fa-warning {
+  color: $brand-warning;
+}
+
+.fa.fa-times-circle {
+  color: $brand-danger;
+}
+

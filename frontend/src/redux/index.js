@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { operatorsReducer } from './operatorsReducer';
 import { viewReducer } from './viewReducer';
+import { editorReducer } from './editorReducer';
 import { previewReducer } from './previewReducer';
 import { confirmationModalReducer } from './confirmationModalReducer';
 
@@ -14,6 +15,11 @@ const SET_SORT_TYPE = 'SET_SORT_TYPE';
 const SET_VIEW_TYPE = 'SET_VIEW_TYPE';
 
 const SET_URL_SEARCH_STRING = 'SET_URL_SEARCH_STRING';
+
+const SET_EDITOR_OPERATOR = 'SET_EDITOR_OPERATOR';
+const SET_EDITOR_YAML = 'SET_EDITOR_YAML';
+const SET_EDITOR_MODE = 'SET_EDITOR_MODE';
+const SET_EDITOR_FORM_ERRORS = 'SET_EDITOR_FORM_ERRORS';
 
 const SET_PREVIEW_YAML = 'SET_PREVIEW_YAML';
 const SET_PREVIEW_CONTENT_HEIGHT = 'SET_PREVIEW_CONTENT_HEIGHT';
@@ -30,6 +36,10 @@ const reduxConstants = {
   SET_SORT_TYPE,
   SET_VIEW_TYPE,
   SET_URL_SEARCH_STRING,
+  SET_EDITOR_OPERATOR,
+  SET_EDITOR_YAML,
+  SET_EDITOR_MODE,
+  SET_EDITOR_FORM_ERRORS,
   SET_PREVIEW_YAML,
   SET_PREVIEW_CONTENT_HEIGHT,
   CONFIRMATION_MODAL_SHOW,
@@ -39,6 +49,7 @@ const reduxConstants = {
 const reducers = {
   operatorsState: operatorsReducer,
   viewState: viewReducer,
+  editorState: editorReducer,
   previewState: previewReducer,
   confirmationModal: confirmationModalReducer
 };

@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
-import DocumentationPage from '../../components/DocumentationPage';
+import DocumentationPage from '../../components/page/DocumentationPage';
 import { introBlog, sampleCode } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
 

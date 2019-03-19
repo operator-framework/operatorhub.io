@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import * as _ from 'lodash-es';
 
-import { helpers } from '../common/helpers';
+import { helpers } from '../../common/helpers';
 import { HeaderTopBar } from './HeaderTopBar';
 import Footer from './Footer';
 
@@ -11,7 +11,11 @@ class Page extends React.Component {
   state = { scrolled: false };
 
   componentDidMount() {
-    this.props.scrollCallback(0, _.get(this.topBarRef, 'clientHeight') || 0);
+    this.props.scrollCallback(
+      0,
+      _.get(this.topBarRef, 'clientHeight') || 0,
+      _.get(this.toolbarRef, 'clientHeight') || 0
+    );
     window.addEventListener('scroll', this.contentScrolled);
     const scrollToElem = document.getElementById('page-top');
     if (scrollToElem) {
@@ -30,7 +34,11 @@ class Page extends React.Component {
     const toolbarFixed =
       !headerContent || (toolbarContent && scrollTop > this.headerRef.offsetHeight - this.topBarRef.offsetHeight);
     this.setState({ scrolled, toolbarFixed });
-    this.props.scrollCallback(scrollTop, _.get(this.topBarRef, 'clientHeight') || 0);
+    this.props.scrollCallback(
+      scrollTop,
+      _.get(this.topBarRef, 'clientHeight') || 0,
+      _.get(this.toolbarRef, 'clientHeight') || 0
+    );
   };
 
   setTopBarRef = ref => {

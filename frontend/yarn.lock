@@ -3435,7 +3435,7 @@ emotion@^10.0.6:
     babel-plugin-emotion "^10.0.7"
     create-emotion "^10.0.7"
 
-emotion@^9.2.6:
+emotion@^9.1.2, emotion@^9.2.6:
   version "9.2.12"
   resolved "https://registry.yarnpkg.com/emotion/-/emotion-9.2.12.tgz#53925aaa005614e65c6e43db8243c843574d1ea9"
   dependencies:
@@ -5559,6 +5559,11 @@ mem@^4.0.0:
     mimic-fn "^1.0.0"
     p-is-promise "^2.0.0"
 
+memoize-one@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-5.0.0.tgz#d55007dffefb8de7546659a1722a5d42e128286e"
+  integrity sha512-7g0+ejkOaI9w5x6LvQwmj68kUj6rxROywPSCqmclG/HBacmFnZqhVscQ8kovkn9FBCNJmOz6SY42+jnvZzDWdw==
+
 memory-fs@^0.4.0, memory-fs@^0.4.1, memory-fs@~0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"
@@ -6976,7 +6981,7 @@ querystringify@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.0.tgz#7ded8dfbf7879dcc60d0a644ac6754b283ad17ef"
 
-raf@^3.1.0:
+raf@^3.1.0, raf@^3.4.0:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/raf/-/raf-3.4.1.tgz#0742e99a4a6552f445d73e3ee0328af0ff1ede39"
   dependencies:
@@ -7090,6 +7095,13 @@ react-fontawesome@^1.6.1:
   dependencies:
     prop-types "^15.5.6"
 
+react-input-autosize@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-2.2.1.tgz#ec428fa15b1592994fb5f9aa15bb1eb6baf420f8"
+  integrity sha512-3+K4CD13iE4lQQ2WlF8PuV5htfmTRLH6MDnfndHM6LuBRszuXnuyIfE7nhSKt8AzRBZ50bu0sAhkNMeS5pxQQA==
+  dependencies:
+    prop-types "^15.5.8"
+
 react-is@^16.3.2, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1:
   version "16.8.3"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.8.3.tgz#4ad8b029c2a718fc0cfc746c8d4e1b7221e5387d"
@@ -7189,9 +7201,32 @@ react-router@^4.3.1:
     prop-types "^15.6.1"
     warning "^4.0.1"
 
+react-select@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-2.4.2.tgz#27da80e3880e92b081be607207bebdf63bcf4f3a"
+  integrity sha512-5xFOQ6JJktkY5NTaHrc6x9mKwIjhNIiBkGic1j71uyY+ulFpRFra6f4WKLd9fuCylk4WjLpO5zDhdF4CAcwFzA==
+  dependencies:
+    classnames "^2.2.5"
+    emotion "^9.1.2"
+    memoize-one "^5.0.0"
+    prop-types "^15.6.0"
+    raf "^3.4.0"
+    react-input-autosize "^2.2.1"
+    react-transition-group "^2.2.1"
+
 react-transition-group@^2.0.0, react-transition-group@^2.2.0:
   version "2.5.3"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-2.5.3.tgz#26de363cab19e5c88ae5dbae105c706cf953bb92"
+  dependencies:
+    dom-helpers "^3.3.1"
+    loose-envify "^1.4.0"
+    prop-types "^15.6.2"
+    react-lifecycles-compat "^3.0.4"
+
+react-transition-group@^2.2.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-2.6.1.tgz#abf4a95e2f13fb9ba83a970a896fedbc5c4856a2"
+  integrity sha512-9DHwCy0aOYEe35frlEN68N9ut/THDQBLnVoQuKTvzF4/s3tk7lqkefCqxK2Nv96fOh6JXk6tQtliygk6tl3bQA==
   dependencies:
     dom-helpers "^3.3.1"
     loose-envify "^1.4.0"

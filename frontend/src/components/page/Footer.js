@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import hubLogo from '../imgs/operatorhub-header-logo.svg';
-import frameworkLogo from '../imgs/operator-framework-logo-lite.svg';
-import { InternalLink } from './InternalLink';
-import { ExternalLink } from './ExternalLink';
+import hubLogo from '../../imgs/operatorhub-header-logo.svg';
+import frameworkLogo from '../../imgs/operator-framework-logo-lite.svg';
+import { InternalLink } from '../InternalLink';
+import { ExternalLink } from '../ExternalLink';
 import {
   gettingStarted,
   operatorsFramework,
   kubernetesSlack,
   fileAnIssue,
   privacyPolicy
-} from '../utils/documentationLinks';
+} from '../../utils/documentationLinks';
 
 const Footer = ({ history, visible, ...props }) => (
   <div className={`oh-footer${visible ? '' : ' oh-not-visible'}`} {...props}>

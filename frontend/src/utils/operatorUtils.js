@@ -1,4 +1,6 @@
 import * as _ from 'lodash-es';
+import { operatorFieldValidators } from './operatorDescriptors';
+import { helpers } from '../common/helpers';
 
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');
@@ -78,4 +80,71 @@ const normalizeOperator = operator => {
   };
 };
 
-export { generateIdFromVersionedName, normalizeOperator };
+const getFieldValueError = (operator, field) => {
+  const value = _.get(operator, field);
+
+  const regex = _.get(_.get(operatorFieldValidators, field), 'regex');
+  if (regex) {
+    if (!regex.test(value)) {
+      return _.get(_.get(operatorFieldValidators, field), 'regexErrorMessage');
+    }
+  }
+
+  const validator = _.get(_.get(operatorFieldValidators, field), 'validator', helpers.noop);
+  if (validator) {
+    return validator(value);
+  }
+  return null;
+};
+
+const validateOperatorSubFields = (operator, fieldList) => {
+  const validators = _.get(operatorFieldValidators, fieldList);
+  if (!_.isObject(validators)) {
+    return true;
+  }
+
+  const error = _.find(_.keys(validators), key => {
+    const newFieldList = _.clone(fieldList);
+    newFieldList.push(key);
+    const field = newFieldList.join('.');
+
+    if (getFieldValueError(operator, field)) {
+      return true;
+    }
+
+    return !validateOperatorSubFields(operator, newFieldList);
+  });
+
+  return !error;
+};
+
+const validateOperator = operator => {
+  if (_.isEmpty(operator)) {
+    return false;
+  }
+
+  const error = _.find(_.keys(operatorFieldValidators), key => {
+    if (getFieldValueError(operator, key)) {
+      return false;
+    }
+
+    return !validateOperatorSubFields(operator, [key]);
+  });
+
+  return !error;
+};
+
+const getFieldMissing = (operator, field) => {
+  const value = _.get(operator, field, '');
+  const required = _.get(_.get(operatorFieldValidators, field), 'required', false);
+  return value === '' && required;
+};
+
+export {
+  generateIdFromVersionedName,
+  normalizeOperator,
+  validCapabilityStrings,
+  validateOperator,
+  getFieldValueError,
+  getFieldMissing
+};

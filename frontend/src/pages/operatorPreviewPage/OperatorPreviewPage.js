@@ -6,8 +6,8 @@ import { Breadcrumb, Grid } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import { MarkdownView } from '../../components/MarkdownView';
-import Page from '../../components/Page';
-import ExampleYamlModal from '../../components/ExampleYamlModal';
+import Page from '../../components/page/Page';
+import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
 import { reduxConstants } from '../../redux';
 import YamlEditor from '../../components/YamlViewer';
 import { normalizeOperator } from '../../utils/operatorUtils';
@@ -112,7 +112,7 @@ class OperatorPreviewPage extends React.Component {
 
     return (
       <div className="oh-preview-page-yaml">
-        <YamlEditor onSave={this.previewYAML} editable error={yamlError} saveButtonText="Preview Operator" />
+        <YamlEditor isPreview onSave={this.previewYAML} editable error={yamlError} saveButtonText="Preview Operator" />
       </div>
     );
   }

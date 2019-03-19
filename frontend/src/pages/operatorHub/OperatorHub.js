@@ -11,7 +11,7 @@ import { FilterSidePanel } from 'patternfly-react-extensions';
 import { fetchOperators } from '../../services/operatorsService';
 import { helpers } from '../../common/helpers';
 
-import Page from '../../components/Page';
+import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';
 import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';

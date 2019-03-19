@@ -155,6 +155,9 @@
     @media (min-width: $screen-sm-min) {
       width: 100%;
     }
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
   }
 
   &__dropdown {
