@@ -23,17 +23,6 @@ kind: Namespace
 metadata:
   name: my-${packageName}
 ---
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: operatorhubio-catalog
-  namespace: my-${packageName}
-spec:
-  sourceType: grpc
-  image: ${quayCatalogSourceImage}
-  displayName: Community Operators
-  publisher: OperatorHub.io
----
 apiVersion: operators.coreos.com/v1alpha2
 kind: OperatorGroup
 metadata:
@@ -52,7 +41,7 @@ spec:
   channel: ${operatorChannel}
   name: ${packageName}
   source: operatorhubio-catalog
-  sourceNamespace: my-${packageName}`;
+  sourceNamespace: olm`;
 
       const globalInstallYaml = `apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
