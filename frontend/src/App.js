@@ -29,6 +29,7 @@ class App extends React.Component {
     return (
       <React.Fragment>
         <Switch>
+          <Route path="/operator/:channel/:operatorId" component={OperatorPage} />
           <Route path="/operator/:operatorId" component={OperatorPage} />
           <Route path="/preview" component={OperatorPreviewPage} />
           <Route path="/getting-started" component={GettingStarted} />

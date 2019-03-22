@@ -1,8 +1,10 @@
 const _ = require('lodash');
+const versionSort = require('version-sort');
 
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');
   normVersion = normVersion.replace(/-alpha/gi, 'alpha');
+  normVersion = normVersion.replace(/-rc/gi, '.');
 
   return normVersion;
 };
@@ -29,6 +31,80 @@ const getExampleYAML = (kind, operator) => {
     console.error(e);
   }
   return null;
+};
+
+const addReplacedOperators = (packageChannel, currentOperator, operators) => {
+  const replacedOperatorName = _.get(currentOperator, 'replaces');
+  if (!replacedOperatorName) {
+    return;
+  }
+
+  const replacedOperator = _.find(operators, { name: replacedOperatorName });
+  if (replacedOperator) {
+    packageChannel.versions.push({ name: replacedOperator.name, version: replacedOperator.version });
+    addReplacedOperators(packageChannel, replacedOperator, operators);
+  }
+};
+
+const getPackageChannels = (operatorPackage, operators) => {
+  const { channels } = operatorPackage;
+
+  const packageChannels = _.map(channels, channel => {
+    const packageChannel = {
+      name: channel.name,
+      currentCSV: channel.currentCSV
+    };
+
+    const currentOperator = _.find(operators, { name: channel.currentCSV });
+    if (!currentOperator) {
+      console.error(
+        `ERROR: package ${operatorPackage.packageName}, channel ${
+          channel.name
+        } has a missing or invalid currentCSV value.`
+      );
+      return null;
+    }
+
+    packageChannel.versions = [{ name: currentOperator.name, version: currentOperator.version }];
+
+    addReplacedOperators(packageChannel, currentOperator, operators);
+    return packageChannel;
+  });
+
+  return _.compact(packageChannels);
+};
+
+const getDefaultChannel = (operatorPackage, channels, operators) => {
+  // if we have a set default channel use it
+  const defaultChannel = _.get(operatorPackage, 'defaultChannel');
+  if (defaultChannel) {
+    return defaultChannel;
+  }
+
+  // If there is only 1 channel, use it
+  if (channels.length === 1) {
+    return channels[0];
+  }
+
+  // Get all the versions of the operators
+  const packageOperators = _.filter(operators, { packageName: operatorPackage.packageName });
+  const versionObjects = _.reduce(
+    packageOperators,
+    (reducedOperators, packageOperator) => {
+      reducedOperators.push({ name: packageOperator.name, version: normalizeVersion(packageOperator.version) });
+      return reducedOperators;
+    },
+    []
+  );
+
+  // Get the latest version
+  const sortedVersions = _.reverse(versionSort(versionObjects, { nested: 'version' }));
+  const latestOperator = _.find(operators, { version: _.get(_.first(sortedVersions), 'version') });
+
+  // Return the channel with the latest version
+  return _.find(channels, channel =>
+    _.find(channel.versions, nextVersion => nextVersion.name === _.get(latestOperator, 'name'))
+  );
 };
 
 const normalizeCRD = (crd, operator) => ({
@@ -64,6 +140,7 @@ const normalizeOperator = operator => {
     provider: _.get(spec, 'provider.name'),
     version: spec.version,
     versionForCompare: normalizeVersion(spec.version),
+    replaces: spec.replaces,
     capabilityLevel: normalizeCapabilityLevel(annotations.capabilities || ''),
     links: spec.links,
     repository: annotations.repository,
@@ -75,17 +152,34 @@ const normalizeOperator = operator => {
     containerImage: annotations.containerImage,
     customResourceDefinitions: normalizeCRDs(operator),
     packageName: packageInfo.packageName,
-    channels: packageInfo.channels,
     globalOperator: isGlobalOperator(_.get(spec, 'installModes'))
   };
 };
 
 const normalizeOperators = operators => _.map(operators, operator => normalizeOperator(operator));
 
+const normalizePackage = (operatorPackage, operators) => {
+  const channels = getPackageChannels(operatorPackage, operators);
+  const defaultChannel = getDefaultChannel(operatorPackage, channels, operators);
+
+  return {
+    id: operatorPackage.packageName,
+    name: operatorPackage.packageName,
+    channels,
+    defaultChannel: _.get(defaultChannel, 'name'),
+    defaultOperatorId: _.get(defaultChannel, 'currentCSV')
+  };
+};
+
+const normalizePackages = (packages, operators) =>
+  _.map(packages, operatorPackage => normalizePackage(operatorPackage, operators));
+
 const operatorUtils = {
   generateIdFromVersionedName,
   normalizeOperator,
-  normalizeOperators
+  normalizeOperators,
+  normalizePackage,
+  normalizePackages
 };
 
 module.exports = operatorUtils;

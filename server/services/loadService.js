@@ -3,13 +3,14 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const { operatorsDirectory } = require('../utils/constants');
-const { normalizeOperators } = require('../utils/operatorUtils');
+const { normalizeOperators, normalizePackages } = require('../utils/operatorUtils');
 const persistentStore = require('../store/persistentStore');
 
 const operatorsFrameworkDirectory = `./data/community-operators/${operatorsDirectory}`;
 
 const loadOperators = callback => {
   const csvFileList = [];
+  const packages = [];
 
   const allCSVFilesSync = dir => {
     fs.readdirSync(dir).forEach(file => {
@@ -31,6 +32,10 @@ const loadOperators = callback => {
         const operator = yaml.safeLoad(fs.readFileSync(filePath));
         const packageFile = fs.readdirSync(dir).filter(fn => fn.endsWith('.package.yaml'));
         if (packageFile.length === 1) {
+          const packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
+          if (!_.find(packages, { packageName: packageInfo.packageName })) {
+            packages.push(packageInfo);
+          }
           operator.packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
         }
         parsedOperators.push(operator);
@@ -43,7 +48,15 @@ const loadOperators = callback => {
     []
   );
 
-  persistentStore.setOperators(normalizeOperators(operators), callback);
+  const normalizedOperators = normalizeOperators(operators);
+  const normalizedPackages = normalizePackages(packages, normalizedOperators);
+
+  persistentStore.setPackages(normalizedPackages, packagesErr => {
+    if (packagesErr) {
+      console.error(packagesErr.message);
+    }
+    persistentStore.setOperators(normalizedOperators, callback);
+  });
 };
 
 const loadService = {

@@ -5,18 +5,21 @@ const quayCatalogSourceImage = 'quay.io/operatorframework/upstream-community-ope
 
 const generateInstallYaml = (serverRequest, serverResponse) => {
   try {
-    const operatorName = serverRequest.url.replace('/install/', '').replace('.yaml', '');
-    persistentStore.getVersionedOperator(operatorName, (operator, err) => {
+    const fields = serverRequest.url.split('/');
+    const operatorChannel = fields[2];
+    const operatorName = fields[3].replace('.yaml', '');
+
+    persistentStore.getOperator(operatorName, (operator, err) => {
       if (err) {
         serverResponse.status(500).send(err);
         return;
       }
-      const { channels, packageName, globalOperator } = operator;
-      if (!_.size(channels) || !packageName) {
+
+      const { packageName, globalOperator } = operator;
+      if (!packageName) {
         serverResponse.status(500).send(`Operator ${operatorName} has invalid or no package information.`);
         return;
       }
-      const operatorChannel = channels[0].name;
 
       const installYaml = `apiVersion: v1
 kind: Namespace

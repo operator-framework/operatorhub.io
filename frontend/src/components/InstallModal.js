@@ -32,8 +32,9 @@ class InstallModal extends React.Component {
     const { operator } = this.props;
 
     if (operator !== prevProps.operator) {
+      const installPath = `install/${_.get(operator, 'channel')}/${_.get(operator, 'name')}.yaml`;
       this.setState({
-        installCommand: `kubectl create -f ${window.location.origin}/install/${_.get(this.props.operator, 'name')}.yaml`
+        installCommand: `kubectl create -f ${window.location.origin}/${installPath}`
       });
     }
   }

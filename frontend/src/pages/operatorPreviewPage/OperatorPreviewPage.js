@@ -95,7 +95,7 @@ class OperatorPreviewPage extends React.Component {
         <div className="oh-preview-page-yaml__preview-separator" />
         <div className="oh-operator-page row">
           <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9}>
-            <OperatorSidePanel operator={operator} updateVersion={this.updateVersion} />
+            <OperatorSidePanel operator={operator} />
           </Grid.Col>
           <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
             <h1>{operator.displayName}</h1>

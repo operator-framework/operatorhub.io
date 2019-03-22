@@ -1060,6 +1060,11 @@ uid-safe@~2.1.5:
   dependencies:
     random-bytes "~1.0.0"
 
+underscore@^1.6.0:
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.9.1.tgz#06dce34a0e68a7babc29b365b8e74b8925203961"
+  integrity sha512-5/4etnCkd9c8gwgowi5/om/mYO5ajCaOgdzj/oW+0eQV9WxKBDZw5+ycmKmeaTXjInS/W0BzpGLo2xR2aBwZdg==
+
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"
@@ -1099,6 +1104,13 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+version-sort@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/version-sort/-/version-sort-0.1.1.tgz#b3c937000555ed03d312a2d42def65948265b08b"
+  integrity sha1-s8k3AAVV7QPTEqLULe9llIJlsIs=
+  dependencies:
+    underscore "^1.6.0"
 
 wide-align@^1.1.0:
   version "1.1.3"

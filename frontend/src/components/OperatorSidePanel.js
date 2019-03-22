@@ -24,17 +24,19 @@ const capabilityLevelImages = {
   'Auto Pilot': capabilityLevelImgLevel5
 };
 
-const OperatorSidePanel = ({ operator, showInstall, updateVersion }) => {
+const OperatorSidePanel = ({ operator, showInstall, updateChannel, updateVersion }) => {
   if (!operator) {
     return null;
   }
 
   const {
+    name,
     provider,
     capabilityLevel,
     links,
+    channel,
+    channels,
     version,
-    versions,
     repository,
     containerImage,
     createdAt,
@@ -42,20 +44,44 @@ const OperatorSidePanel = ({ operator, showInstall, updateVersion }) => {
     categories
   } = operator;
 
+  const activeChannel = _.find(channels, { name: channel });
+  const versions = _.get(activeChannel, 'versions', [version]);
+  const currentVersion = _.find(versions, { name: _.get(activeChannel, 'currentCSV') });
+  const allowInstall = name === _.get(currentVersion, 'name');
+
+  const getVersionString = ver => `${ver}${ver === _.get(currentVersion, 'version') ? ' (Current)' : ''}`;
+
   const renderPropertyItem = (label, value) =>
     value ? <PropertyItem label={label} value={value} /> : <PropertyItem label={label} value={notAvailable} />;
 
-  const renderVersion = () =>
-    _.size(versions) > 1 ? (
-      <DropdownButton className="oh-operator-page__side-panel__version-dropdown" title={version} id="version-dropdown">
-        {_.map(versions, (nextVersion, index) => (
-          <MenuItem key={nextVersion.version} eventKey={index} onClick={() => updateVersion(nextVersion)}>
-            {nextVersion.version}
+  const renderChannel = () =>
+    _.size(channels) > 1 ? (
+      <DropdownButton className="oh-operator-page__side-panel__version-dropdown" title={channel} id="channel-dropdown">
+        {_.map(channels, (nextChannel, index) => (
+          <MenuItem key={nextChannel.name} eventKey={index} onClick={() => updateChannel(nextChannel)}>
+            {nextChannel.name}
           </MenuItem>
         ))}
       </DropdownButton>
     ) : (
-      version
+      channel
+    );
+
+  const renderVersion = () =>
+    _.size(versions) > 1 ? (
+      <DropdownButton
+        className="oh-operator-page__side-panel__version-dropdown"
+        title={getVersionString(version)}
+        id="version-dropdown"
+      >
+        {_.map(versions, (nextVersion, index) => (
+          <MenuItem key={nextVersion.version} eventKey={index} onClick={() => updateVersion(nextVersion)}>
+            {getVersionString(nextVersion.version)}
+          </MenuItem>
+        ))}
+      </DropdownButton>
+    ) : (
+      getVersionString(version)
     );
 
   const renderLinks = () =>
@@ -142,12 +168,26 @@ const OperatorSidePanel = ({ operator, showInstall, updateVersion }) => {
 
   return (
     <div className="oh-operator-page__side-panel">
-      <button className="oh-button oh-button-primary" disabled={!showInstall} onClick={showInstall}>
-        Install
-      </button>
+      {showInstall && !allowInstall ? (
+        <OverlayTrigger
+          overlay={
+            <Popover id="old-version-help">
+              <span>Only the current version can be installed</span>
+            </Popover>
+          }
+          placement="top"
+        >
+          <button className="oh-button oh-button-primary oh-disabled">Install</button>
+        </OverlayTrigger>
+      ) : (
+        <button className="oh-button oh-button-primary" disabled={!showInstall} onClick={showInstall}>
+          Install
+        </button>
+      )}
       <div className="oh-operator-page__side-panel__separator" />
       <PropertiesSidePanel>
-        {renderPropertyItem('Operator Version', renderVersion())}
+        {renderPropertyItem('Channel', renderChannel())}
+        {renderPropertyItem('Version', renderVersion())}
         {renderPropertyItem(capabilityLevelLabel, renderCapabilityLevel())}
         {renderPropertyItem('Provider', provider)}
         {renderPropertyItem('Links', renderLinks())}
@@ -164,12 +204,14 @@ const OperatorSidePanel = ({ operator, showInstall, updateVersion }) => {
 OperatorSidePanel.propTypes = {
   operator: PropTypes.object,
   showInstall: PropTypes.func,
+  updateChannel: PropTypes.func,
   updateVersion: PropTypes.func
 };
 
 OperatorSidePanel.defaultProps = {
   operator: null,
   showInstall: null,
+  updateChannel: helpers.noop,
   updateVersion: helpers.noop
 };
 
