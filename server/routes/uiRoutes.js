@@ -14,6 +14,16 @@ const getDistFilePath = fileName => {
   if (fs.existsSync(filePath)) {
     return filePath;
   }
+
+  let subFileName = fileName;
+  while (subFileName.indexOf('/') !== -1) {
+    subFileName = subFileName.slice(fileName.indexOf('/'));
+    const subfilePath = path.join(distDir, subFileName);
+    if (fs.existsSync(subfilePath)) {
+      return subfilePath;
+    }
+  }
+
   return path.join(distDir, 'index.html');
 };
 

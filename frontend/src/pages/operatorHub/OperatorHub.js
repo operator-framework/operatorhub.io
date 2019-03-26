@@ -519,7 +519,7 @@ class OperatorHub extends React.Component {
 
   openDetails = (event, operator) => {
     event.preventDefault();
-    this.props.history.push(`/operator/${operator.name}`);
+    this.props.history.push(`/operator/${operator.channel}/${operator.name}`);
   };
 
   updateViewType = viewType => {

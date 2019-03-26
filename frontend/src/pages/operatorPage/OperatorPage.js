@@ -17,7 +17,6 @@ import OperatorSidePanel from '../../components/OperatorSidePanel';
 
 class OperatorPage extends React.Component {
   state = {
-    operator: {},
     installShown: false,
     refreshed: false,
     keywordSearch: '',
@@ -25,14 +24,16 @@ class OperatorPage extends React.Component {
   };
 
   componentDidMount() {
-    const { operator } = this.props;
-
-    if (!_.isEmpty(operator)) {
-      this.setCurrentOperatorVersion(operator);
-    }
     this.refresh();
   }
 
+  componentDidUpdate(prevProps) {
+    const { match } = this.props;
+
+    if (!_.isEqual(match, prevProps.match)) {
+      this.refresh();
+    }
+  }
   static getDerivedStateFromProps(props, state) {
     if (!state.refreshed && props.pending) {
       return { refreshed: true };
@@ -40,26 +41,12 @@ class OperatorPage extends React.Component {
     return null;
   }
 
-  componentDidUpdate(prevProps) {
-    const { operator } = this.props;
-
-    if (operator && !_.isEqual(operator, prevProps.operator)) {
-      this.setCurrentOperatorVersion(operator);
-    }
-  }
-
   refresh() {
+    const channel = _.get(this.props.match, 'params.channel');
     const operatorName = _.get(this.props.match, 'params.operatorId');
 
-    this.props.fetchOperator(operatorName);
+    this.props.fetchOperator(operatorName, channel);
   }
-
-  setCurrentOperatorVersion = operator => {
-    const name = _.get(this.props.match, 'params.operatorId');
-
-    const versionOperator = _.size(operator.versions) > 1 ? _.find(operator.versions, { name }) : operator;
-    this.setState({ operator: versionOperator });
-  };
 
   onHome = e => {
     e.preventDefault();
@@ -81,9 +68,18 @@ class OperatorPage extends React.Component {
     }
   };
 
-  updateVersion = operator => {
-    this.setState({ operator });
-    this.props.history.push(`/operator/${operator.name}`);
+  updateChannel = channel => {
+    const { operator } = this.props;
+
+    if (channel.name !== operator.channel) {
+      this.props.history.push(`/operator/${channel.name}/${channel.currentCSV}`);
+    }
+  };
+
+  updateVersion = version => {
+    const { operator } = this.props;
+
+    this.props.history.push(`/operator/${operator.channel}/${version.name}`);
   };
 
   showInstall = e => {
@@ -126,8 +122,7 @@ class OperatorPage extends React.Component {
   };
 
   renderView() {
-    const { error, pending } = this.props;
-    const { operator } = this.state;
+    const { operator, error, pending } = this.props;
 
     if (error) {
       return this.renderError();
@@ -142,7 +137,12 @@ class OperatorPage extends React.Component {
     return (
       <div className="oh-operator-page row">
         <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9}>
-          <OperatorSidePanel operator={operator} showInstall={this.showInstall} updateVersion={this.updateVersion} />
+          <OperatorSidePanel
+            operator={operator}
+            showInstall={this.showInstall}
+            updateChannel={this.updateChannel}
+            updateVersion={this.updateVersion}
+          />
         </Grid.Col>
         <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
           <h1>{displayName}</h1>
@@ -154,8 +154,8 @@ class OperatorPage extends React.Component {
   }
 
   render() {
-    const { operator, installShown, exampleYamlShown, crdExample, refreshed, keywordSearch } = this.state;
-    const { pending } = this.props;
+    const { installShown, exampleYamlShown, crdExample, refreshed, keywordSearch } = this.state;
+    const { operator, pending } = this.props;
 
     const headerContent = (
       <div className="oh-operator-header__content">
@@ -227,7 +227,7 @@ OperatorPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  fetchOperator: name => dispatch(fetchOperator(name)),
+  fetchOperator: (name, channel) => dispatch(fetchOperator(name, channel)),
   storeKeywordSearch: keywordSearch =>
     dispatch({
       type: reduxConstants.SET_KEYWORD_SEARCH,

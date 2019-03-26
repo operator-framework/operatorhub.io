@@ -2,7 +2,6 @@ import axios from 'axios';
 import * as _ from 'lodash-es';
 import { helpers } from '../common/helpers';
 import { reduxConstants } from '../redux';
-import { getVersionedOperators } from '../utils/operatorUtils';
 import { mockOperators } from '../__mock__/operators';
 
 const serverHost = process.env.DEV_HOST || 'localhost';
@@ -12,31 +11,27 @@ const serverURL = `http://${serverHost}:${serverPort}`;
 const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/api/operators` : `/api/operators`;
 const operatorRequest = process.env.DEV_MODE ? `${serverURL}/api/operator` : `/api/operator`;
 
-const fetchOperator = operatorName => dispatch => {
+const fetchOperator = (operatorName, channel) => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
 
   if (process.env.MOCK_MODE) {
-    const versionedOperator = _.find(mockOperators, { name: operatorName });
-    const operators = _.filter(mockOperators, { displayName: versionedOperator.displayName });
+    const operator = _.find(mockOperators, { name: operatorName });
     dispatch({
       type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-      payload: operators[0]
+      payload: operator
     });
     return;
   }
 
-  const config = { params: { name: operatorName } };
+  const config = { params: { name: operatorName, channel } };
   axios
     .get(operatorRequest, config)
     .then(response => {
-      const responseOperators = response.data.operators;
-      const operators = getVersionedOperators(responseOperators);
-
       dispatch({
         type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-        payload: operators[0]
+        payload: response.data.operator
       });
     })
     .catch(e => {
@@ -55,7 +50,7 @@ const fetchOperators = () => dispatch => {
   if (process.env.MOCK_MODE) {
     dispatch({
       type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-      payload: getVersionedOperators(_.cloneDeep(mockOperators))
+      payload: _.cloneDeep(mockOperators)
     });
     return;
   }
@@ -63,12 +58,9 @@ const fetchOperators = () => dispatch => {
   axios
     .get(allOperatorsRequest)
     .then(response => {
-      const responseOperators = response.data.operators;
-      const operators = getVersionedOperators(responseOperators);
-
       dispatch({
         type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-        payload: operators
+        payload: response.data.operators
       });
     })
     .catch(e => {
