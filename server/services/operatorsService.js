@@ -2,7 +2,7 @@ const _ = require('lodash');
 const persistentStore = require('../store/persistentStore');
 
 const fetchOperator = (serverRequest, serverResponse) => {
-  const operatorName = serverRequest.query.name;
+  const operatorName = _.get(serverRequest, 'query.name', '');
 
   persistentStore.getOperator(operatorName, (operator, err) => {
     if (err) {
@@ -16,7 +16,7 @@ const fetchOperator = (serverRequest, serverResponse) => {
         return;
       }
       // use the default channel if no channel was passed (backwards compatibility)
-      const channelName = serverRequest.query.channel || operatorPackage.defaultChannel;
+      const channelName = _.get(serverRequest, 'query.channel') || operatorPackage.defaultChannel;
 
       // Make sure the requested operator version is in the channel, if not find the one that it is in
       let channel = _.find(operatorPackage.channels, { name: channelName });
@@ -24,7 +24,7 @@ const fetchOperator = (serverRequest, serverResponse) => {
         channel = _.find(operatorPackage.channels, opChannel => _.find(opChannel.versions, { name: operatorName }));
       }
 
-      operator.channel = channel.name;
+      operator.channel = _.get(channel, 'name');
       operator.channels = operatorPackage.channels;
 
       serverResponse.send({ operator });
@@ -47,9 +47,13 @@ const fetchOperators = (serverRequest, serverResponse) => {
       const operators = [];
       _.forEach(packages, operatorPackage => {
         const packageOperator = _.find(allOperators, { name: operatorPackage.defaultOperatorId });
-        packageOperator.channel = operatorPackage.defaultChannel;
-        packageOperator.channels = operatorPackage.channels;
-        operators.push(packageOperator);
+        if (packageOperator) {
+          packageOperator.channel = operatorPackage.defaultChannel;
+          packageOperator.channels = operatorPackage.channels;
+          operators.push(packageOperator);
+        } else {
+          console.error(`Unable to find default operator for package ${operatorPackage.name}`);
+        }
       });
 
       serverResponse.send({ operators });

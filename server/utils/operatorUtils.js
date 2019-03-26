@@ -76,9 +76,12 @@ const getPackageChannels = (operatorPackage, operators) => {
 
 const getDefaultChannel = (operatorPackage, channels, operators) => {
   // if we have a set default channel use it
-  const defaultChannel = _.get(operatorPackage, 'defaultChannel');
-  if (defaultChannel) {
-    return defaultChannel;
+  const defaultChannelName = _.get(operatorPackage, 'defaultChannel');
+  if (defaultChannelName) {
+    const defaultChannel = _.find(channels, { name: defaultChannelName });
+    if (defaultChannel) {
+      return defaultChannel;
+    }
   }
 
   // If there is only 1 channel, use it
