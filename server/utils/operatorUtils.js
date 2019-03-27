@@ -1,13 +1,18 @@
 const _ = require('lodash');
-const versionSort = require('version-sort');
 
-const normalizeVersion = version => {
-  let normVersion = version.replace(/-beta/gi, 'beta');
-  normVersion = normVersion.replace(/-alpha/gi, 'alpha');
-  normVersion = normVersion.replace(/-rc/gi, '.');
-
-  return normVersion;
-};
+const normalizeVersion = version =>
+  version
+    .split('.')
+    .map(versionField => {
+      if (versionField.indexOf('-') === -1) {
+        return +versionField + 100000;
+      }
+      return versionField
+        .split('-')
+        .map(fieldPart => (_.isNaN(+fieldPart) ? fieldPart : +fieldPart + 100000))
+        .join('-');
+    })
+    .join('.');
 
 const validCapabilityStrings = ['Basic Install', 'Seamless Upgrades', 'Full Lifecycle', 'Deep Insights', 'Auto Pilot'];
 
@@ -101,8 +106,8 @@ const getDefaultChannel = (operatorPackage, channels, operators) => {
   );
 
   // Get the latest version
-  const sortedVersions = _.reverse(versionSort(versionObjects, { nested: 'version' }));
-  const latestOperator = _.find(operators, { version: _.get(_.first(sortedVersions), 'version') });
+  const sortedVersions = _.reverse(_.sortBy(versionObjects, versionObject => versionObject.version));
+  const latestOperator = _.find(operators, { name: _.get(_.first(sortedVersions), 'name') });
 
   // Return the channel with the latest version
   return _.find(channels, channel =>
