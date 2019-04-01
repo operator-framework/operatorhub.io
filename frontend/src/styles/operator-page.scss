@@ -60,6 +60,10 @@
       white-space: pre-wrap;
       word-break: break-all;
     }
+
+    tr > th {
+      text-align: left;
+    }
   }
 
   &__side-panel {
