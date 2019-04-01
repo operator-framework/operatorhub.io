@@ -5,7 +5,6 @@ import * as _ from 'lodash-es';
 import { safeLoad, safeDump } from 'js-yaml';
 import { Alert, Breadcrumb, EmptyState, Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
-import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';
 import YamlEditor from '../../components/YamlViewer';
 import { validateOperator } from '../../utils/operatorUtils';
@@ -13,13 +12,12 @@ import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import EditorSection from '../../components/editor/EditorSection';
 import ManifestUploader from '../../components/editor/ManifestUploader';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
+import OperatorEditorSubPage from './OperatorEditorSubPage';
 
 class OperatorEditorPage extends React.Component {
   state = {
     validCSV: false,
     previewShown: false,
-    headerHeight: 0,
-    titleHeight: 0,
     uploadExpanded: false
   };
 
@@ -29,45 +27,11 @@ class OperatorEditorPage extends React.Component {
     this.setState({
       validCSV: validateOperator(operator)
     });
-
-    this.updateTitleHeight();
-    this.onWindowResize = helpers.debounce(this.updateTitleHeight, 100);
-    window.addEventListener('resize', this.onWindowResize);
   }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.onWindowResize);
-  }
-
-  onScroll = (scrollTop, topperHeight, toolbarHeight) => {
-    const { headerHeight } = this.state;
-    if (headerHeight !== topperHeight + toolbarHeight) {
-      this.setState({ headerHeight: topperHeight + toolbarHeight });
-    }
-  };
-
-  updateTitleHeight = () => {
-    this.setState({ titleHeight: this.titleAreaRef.scrollHeight });
-  };
 
   onHome = e => {
     e.preventDefault();
     this.props.history.push('/');
-  };
-
-  onSearchChange = searchValue => {
-    this.setState({ keywordSearch: searchValue });
-  };
-
-  clearSearch = () => {
-    this.onSearchChange('');
-  };
-
-  searchCallback = searchValue => {
-    if (searchValue) {
-      this.props.storeKeywordSearch(searchValue);
-      this.props.history.push(`/?keyword=${searchValue}`);
-    }
   };
 
   onYamlChange = yaml => {
@@ -410,10 +374,10 @@ class OperatorEditorPage extends React.Component {
   }
 
   render() {
-    const { operator, editMode } = this.props;
-    const { previewShown, keywordSearch, headerHeight, titleHeight } = this.state;
+    const { operator, editMode, history } = this.props;
+    const { previewShown } = this.state;
 
-    const toolbarContent = (
+    const breadcrumbs = (
       <Breadcrumb>
         <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
           Home
@@ -423,35 +387,19 @@ class OperatorEditorPage extends React.Component {
     );
 
     return (
-      <Page
-        className="oh-page-operator-editor"
-        toolbarContent={toolbarContent}
-        history={this.props.history}
-        searchValue={keywordSearch}
-        onSearchChange={this.onSearchChange}
-        clearSearch={this.clearSearch}
-        searchCallback={this.searchCallback}
-        scrollCallback={this.onScroll}
-      >
-        <div className="oh-operator-editor-page">
-          <div className="oh-operator-editor-page__title-area" ref={this.setTitleAreaRef} style={{ top: headerHeight }}>
-            {this.renderHeader()}
-          </div>
-          <div className="oh-operator-editor-page__page-area" style={{ marginTop: titleHeight || 0 }}>
-            {this.renderManifests()}
-            {editMode === 'form' && (
-              <React.Fragment>
-                {this.renderGeneralInfo()}
-                {this.renderCustomResourceDefinitions()}
-                {this.renderOperatorInstallation()}
-              </React.Fragment>
-            )}
-            {editMode === 'yaml' && this.renderYamlEditor()}
-            {this.renderButtonBar()}
-          </div>
-        </div>
+      <OperatorEditorSubPage breadcrumbs={breadcrumbs} header={this.renderHeader()} history={history}>
+        {this.renderManifests()}
+        {editMode === 'form' && (
+          <React.Fragment>
+            {this.renderGeneralInfo()}
+            {this.renderCustomResourceDefinitions()}
+            {this.renderOperatorInstallation()}
+          </React.Fragment>
+        )}
+        {editMode === 'yaml' && this.renderYamlEditor()}
+        {this.renderButtonBar()}
         <PreviewOperatorModal show={previewShown} yamlOperator={operator} onClose={this.hidePreviewOperator} />
-      </Page>
+      </OperatorEditorSubPage>
     );
   }
 }
