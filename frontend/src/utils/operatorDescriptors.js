@@ -10,7 +10,20 @@ const operatorFieldDescriptions = {
         'A summary of functionality provided by this Operator. Used for displaying as the headline of the Operator within compatible UIs. This description is limited to 135 characters.',
       containerImage:
         'The repository that hosts the operator image. The format should match ${REGISTRYHOST}/${USERNAME}/${NAME}:${TAG}',
-      repository: "Optional. The URL operator's source code repository."
+      repository: "Optional. The URL operator's source code repository.",
+      'alm-examples': (
+        <span>
+          Users of your Operator will need ot be aware of which options are required vs optional. You can provide
+          templates for each of the owned CRDs with a minimum set of configuration as an annotation named{' '}
+          <code>alm-examples</code>. Compatible UIs will pre-enter this template for users to further customize.
+          <br />
+          <br />
+          The annotation consists of a list of the <code>kind</code>, e.g. the CRD name, and the corresponding{' '}
+          <code>metadata</code> and{' '}
+          <code>spec</code> of the Kubernetes object. If you uploaded your CRD templates with other operator manifests,
+          CRD templates will be populated into the coresponding CRD fields.
+        </span>
+      )
     }
   },
   spec: {
@@ -55,9 +68,16 @@ const operatorFieldDescriptions = {
         deployments: 'Describe the deployment that will be started within the desired namespace',
         permissions: (
           <span>
-            Describe the <code>permissions</code> or <code>clusterPermissions</code> required to successfully run the
-            Operator. Ensure that the <code>serviceAccountName</code> used in the <code>deployment</code> spec matches
-            one of the Roles described under <code>permissions</code>.
+            Describes the <code>permissions</code> required to successfully run the Operator. Ensure that the{' '}
+            <code>serviceAccountName</code> used in the <code>deployment</code> spec matches one of the Roles described
+            under <code>permissions</code>.
+          </span>
+        ),
+        clusterPermissions: (
+          <span>
+            Describes the <code>clusterPermissions</code> required to successfully run the Operator. Ensure that the{' '}
+            <code>serviceAccountName</code> used in the <code>deployment</code> spec matches one of the Roles described
+            under <code>clusterPermissions</code>.
           </span>
         )
       }
@@ -68,11 +88,48 @@ const operatorFieldDescriptions = {
         'A list of label selectors to identify related resources. Set this to select on current labels applied to this CSV object (if applicable).'
     },
     customresourcedefinitions: {
-      owned: `The CRDs owned by your Operator are the most important part of your CSV. This establishes the link
-      between your Operator and hte required RBAC rules, dependency management and other under-the-hood
-      Kubernetes concepts`,
+      owned: {
+        displayName: 'A human readable version of your CRD name, e.g. "MongoDB Standalone".',
+        description:
+          'A short description of how this CRD is used by the Operator or a description of the functionality provided by the CRD.',
+        group: 'The API group that this CRD belongs to, e.g. mongodb.com.',
+        kind: 'The machine readable name of your CRD.',
+        name: 'The full name of your CRD, e.g. mongodbstandalones.mongodb.com.',
+        version: 'The version of the object API.',
+        resources: (
+          <React.Fragment>
+            Your CRDs will own one or more types of Kubernetes objects. These are listed in the resources section to
+            inform your end-users of the objects they might need to troubleshoot or how to connect to the application,
+            such as the Service or Ingress rule that exposes a database.
+            <br />
+            <br />
+            {"It's"} recommended to only list out the objects what are important to a human, not an exhaustive list of
+            everything you orchestrate. For example, ConfigMaps that store internal state that {"shouldn't"} be modified
+            by a user {"shouldn't"} appear here.
+          </React.Fragment>
+        ),
+        descriptors: `These are a way to hint UIs with certain inputs or outputs of your Operator that are most important to an end
+          user. If your CRD contains the name of a Secret or ConfigMap that the user must provide, you can specify that
+          here. These items will be linked and highlited in compatible UIs.`
+      },
       required: `Relying on other "required" CRDs is completely optional and only exists to reduce the scope of
          individual Operators and provide a way to compose multiple Operators together to solve an end-to-end use case.`
+    }
+  }
+};
+
+const operatorObjectDescriptions = {
+  spec: {
+    customresourcedefinitions: {
+      owned: {
+        description: `The CRDs owned by your Operator are the most important part of your CSV. This establishes the link
+        between your Operator and the required RBAC rules, dependency management and other under-the-hood
+        Kubernetes concepts`
+      },
+      required: {
+        description: `Relying on other "required" CRDs is completely optional and only exists to reduce the scope of
+        individual Operators and provide a way to compose multiple Operators together to solve an end-to-end use case.`
+      }
     }
   }
 };
@@ -221,6 +278,7 @@ const operatorFieldValidators = {
 
 export {
   operatorFieldDescriptions,
+  operatorObjectDescriptions,
   capabilityDescriptions,
   categoryOptions,
   installModeDescriptors,

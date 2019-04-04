@@ -79,7 +79,6 @@ class LabelsEditor extends React.Component {
     const { labels } = this.state;
 
     if (label[keyField] && label[valueField]) {
-      console.dir(labels);
       onUpdate(labels);
     }
   };
@@ -146,25 +145,23 @@ class LabelsEditor extends React.Component {
   };
 
   render() {
-    const { title, field, keyLabel, valueLabel } = this.props;
+    const { title, singular, field, keyLabel, valueLabel } = this.props;
     const { labels } = this.state;
     return (
       <React.Fragment>
         <h3>{title}</h3>
         <p>{_.get(operatorFieldDescriptions, field)}</p>
         <div className="oh-operator-editor-form__field row">
-          <div className="form-group col-sm-6">
-            <span className="oh-operator-editor-form__label-title">{keyLabel}</span>
-          </div>
-          <div className="form-group col-sm-6">
-            <span className="oh-operator-editor-form__label-title">{valueLabel}</span>
-          </div>
+          <span className="col-sm-6">{keyLabel}</span>
+          <span className="col-sm-6">{valueLabel}</span>
         </div>
         {_.map(labels, (operatorLabel, index) => this.renderLabel(operatorLabel, index))}
-        <a href="#" className="oh-operator-editor-form__label-adder" onClick={e => this.addOperatorLabel(e)}>
-          <Icon type="fa" name="plus-circle" />
-          <span>Add More</span>
-        </a>
+        <div className="oh-operator-editor__list__adder">
+          <a href="#" className="oh-operator-editor-form__label-adder" onClick={e => this.addOperatorLabel(e)}>
+            <Icon type="fa" name="plus-circle" />
+            <span>{`Add ${singular}`}</span>
+          </a>
+        </div>
       </React.Fragment>
     );
   }
@@ -173,6 +170,7 @@ class LabelsEditor extends React.Component {
 LabelsEditor.propTypes = {
   operator: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
+  singular: PropTypes.string.isRequired,
   field: PropTypes.string.isRequired,
   onUpdate: PropTypes.func.isRequired,
   keyField: PropTypes.string,

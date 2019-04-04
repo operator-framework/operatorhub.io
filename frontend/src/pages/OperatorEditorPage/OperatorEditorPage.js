@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import * as _ from 'lodash-es';
 import { safeLoad, safeDump } from 'js-yaml';
-import { Alert, Breadcrumb, EmptyState, Icon } from 'patternfly-react';
+import { Alert, EmptyState, Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import YamlEditor from '../../components/YamlViewer';
@@ -11,7 +11,7 @@ import { validateOperator } from '../../utils/operatorUtils';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import EditorSection from '../../components/editor/EditorSection';
 import ManifestUploader from '../../components/editor/ManifestUploader';
-import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
+import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 
 class OperatorEditorPage extends React.Component {
@@ -28,11 +28,6 @@ class OperatorEditorPage extends React.Component {
       validCSV: validateOperator(operator)
     });
   }
-
-  onHome = e => {
-    e.preventDefault();
-    this.props.history.push('/');
-  };
 
   onYamlChange = yaml => {
     let updatedOperator = {};
@@ -83,7 +78,6 @@ class OperatorEditorPage extends React.Component {
   updateOperatorFromManifests = operator => {
     const { storeEditorOperator } = this.props;
 
-    console.dir(operator);
     const validCSV = validateOperator(operator);
 
     this.setState({ validCSV });
@@ -177,7 +171,7 @@ class OperatorEditorPage extends React.Component {
         operator={operator}
         fields={fields}
         title="Owned CRDs"
-        description={_.get(operatorFieldDescriptions, 'spec.customresourcedefinitions.owned')}
+        description={_.get(operatorObjectDescriptions, 'spec.customresourcedefinitions.owned.description')}
         history={history}
         sectionLocation="owned-crds"
       />
@@ -192,7 +186,7 @@ class OperatorEditorPage extends React.Component {
         operator={operator}
         fields={fields}
         title="Required CRDs (Optional)"
-        description={_.get(operatorFieldDescriptions, 'spec.customresourcedefinitions.required')}
+        description={_.get(operatorObjectDescriptions, 'spec.customresourcedefinitions.required.description')}
         history={history}
         sectionLocation="required-crds"
       />
@@ -239,6 +233,21 @@ class OperatorEditorPage extends React.Component {
     );
   };
 
+  renderClusterPermissions = () => {
+    const { operator, history } = this.props;
+    const fields = [];
+    return (
+      <EditorSection
+        operator={operator}
+        fields={fields}
+        title="Cluster Permissions"
+        description={_.get(operatorFieldDescriptions, 'spec.install.spec.clusterPermissions')}
+        history={history}
+        sectionLocation="clusterPermissions"
+      />
+    );
+  };
+
   renderInstallModes = () => {
     const { operator, history } = this.props;
     const fields = [];
@@ -260,6 +269,7 @@ class OperatorEditorPage extends React.Component {
         <h2>Installation and Permissions</h2>
         {this.renderDeployments()}
         {this.renderPermissions()}
+        {this.renderClusterPermissions()}
         {this.renderInstallModes()}
       </React.Fragment>
     );
@@ -328,7 +338,7 @@ class OperatorEditorPage extends React.Component {
   }
 
   renderHeader = () => (
-    <div className="oh-operator-editor-page__title-area__inner">
+    <React.Fragment>
       <div className="oh-operator-editor-page__header">
         <h1>Build the Cluster Service Version (CSV) for your Operator</h1>
       </div>
@@ -337,7 +347,7 @@ class OperatorEditorPage extends React.Component {
         by uploading your operator manifests for deployments, RBAC, CRDs, or an existing ClusterServiceVersion file. The
         forms below will be populated with all valid information and used to create the CSV file for your operator.
       </p>
-    </div>
+    </React.Fragment>
   );
 
   renderButtonBar() {
@@ -377,17 +387,8 @@ class OperatorEditorPage extends React.Component {
     const { operator, editMode, history } = this.props;
     const { previewShown } = this.state;
 
-    const breadcrumbs = (
-      <Breadcrumb>
-        <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
-          Home
-        </Breadcrumb.Item>
-        <Breadcrumb.Item active>Operator Editor</Breadcrumb.Item>
-      </Breadcrumb>
-    );
-
     return (
-      <OperatorEditorSubPage breadcrumbs={breadcrumbs} header={this.renderHeader()} history={history}>
+      <OperatorEditorSubPage title="Operator Editor" header={this.renderHeader()} history={history}>
         {this.renderManifests()}
         {editMode === 'form' && (
           <React.Fragment>

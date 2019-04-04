@@ -5,43 +5,56 @@ import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
-import { getFieldValueError } from '../../utils/operatorUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
+import { getFieldValueError } from '../../utils/operatorUtils';
+import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 
-const OperatorDeploymentsPage = ({ operator, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => {
-  const updateOperator = deployments => {
-    const updatedOperator = _.cloneDeep(operator);
-    _.set(updatedOperator, 'spec.install.spec.deployments', deployments);
-    storeEditorOperator(updatedOperator);
-    validateField('spec.install.spec.deployments');
-  };
-
+const OperatorCRDsPage = ({ operator, crdsField, crdsTitle, crdsDescription, objectPage, objectType, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => {
   const validateField = field => {
     const error = getFieldValueError(operator, field);
     _.set(formErrors, field, error);
     storeEditorFormErrors(formErrors);
   };
 
+  const updateOperator = crds => {
+    const updatedOperator = _.cloneDeep(operator);
+    _.set(updatedOperator, crdsField, crds);
+    storeEditorOperator(updatedOperator);
+    validateField(crdsField);
+  };
+
+  const description = (
+    <span>
+      <p>{_.get(operatorObjectDescriptions, [crdsField, 'description'])}</p>
+      <p>{crdsDescription}</p>
+    </span>
+  );
+
   return (
-    <OperatorEditorSubPage title="Deployments" field="spec.install.spec.deployments" secondary history={history}>
+    <OperatorEditorSubPage title={crdsTitle} description={description} secondary history={history}>
       <ListObjectEditor
         operator={operator}
-        title="Deployments"
+        title={crdsTitle}
         onUpdate={updateOperator}
-        field="spec.install.spec.deployments"
-        fieldTitle="Name"
-        objectPage="deployments"
+        field={crdsField}
+        fieldTitle="Display Name"
+        objectPage={objectPage}
         history={history}
-        objectTitleField="name"
-        objectType="Deployment"
+        objectTitleField="displayName"
+        objectType={objectType}
       />
     </OperatorEditorSubPage>
   );
 };
 
-OperatorDeploymentsPage.propTypes = {
+OperatorCRDsPage.propTypes = {
   operator: PropTypes.object,
+  crdsField: PropTypes.string.isRequired,
+  crdsTitle: PropTypes.string.isRequired,
+  crdsDescription: PropTypes.node.isRequired,
+  objectPage: PropTypes.string.isRequired,
+  objectType: PropTypes.string.isRequired,
   formErrors: PropTypes.object,
   storeEditorOperator: PropTypes.func,
   storeEditorFormErrors: PropTypes.func,
@@ -50,7 +63,7 @@ OperatorDeploymentsPage.propTypes = {
   }).isRequired
 };
 
-OperatorDeploymentsPage.defaultProps = {
+OperatorCRDsPage.defaultProps = {
   operator: {},
   formErrors: {},
   storeEditorFormErrors: helpers.noop,
@@ -78,4 +91,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(OperatorDeploymentsPage);
+)(OperatorCRDsPage);

@@ -6,13 +6,24 @@ import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 
-const OperatorPermissionsPage = ({ operator, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => (
-  <OperatorEditorSubPage title="Permissions" field="spec.install.spec.permissions" secondary history={history}>
+const OperatorClusterPermissionsPage = ({
+  operator,
+  formErrors,
+  storeEditorOperator,
+  storeEditorFormErrors,
+  history
+}) => (
+  <OperatorEditorSubPage
+    title="Cluster Permissions"
+    field="spec.install.spec.clusterPermissions"
+    secondary
+    history={history}
+  >
     TBD
   </OperatorEditorSubPage>
 );
 
-OperatorPermissionsPage.propTypes = {
+OperatorClusterPermissionsPage.propTypes = {
   operator: PropTypes.object,
   formErrors: PropTypes.object,
   storeEditorOperator: PropTypes.func,
@@ -22,7 +33,7 @@ OperatorPermissionsPage.propTypes = {
   }).isRequired
 };
 
-OperatorPermissionsPage.defaultProps = {
+OperatorClusterPermissionsPage.defaultProps = {
   operator: {},
   formErrors: {},
   storeEditorFormErrors: helpers.noop,
@@ -50,4 +61,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(OperatorPermissionsPage);
+)(OperatorClusterPermissionsPage);

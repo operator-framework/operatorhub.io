@@ -31,7 +31,11 @@ class YamlViewer extends React.Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { error } = this.props;
+    const { yaml, error } = this.props;
+    if (yaml !== prevProps.yaml) {
+      this.doc.setValue(yaml);
+    }
+
     if (error && error !== prevProps.error) {
       document.getElementById('yaml-editor-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -41,6 +45,7 @@ class YamlViewer extends React.Component {
     const { yaml, isPreview, initYaml, initYamlChanged, initContentHeight } = this.props;
     const currentYaml = yaml || (isPreview && initYaml) || '';
 
+    console.log(currentYaml);
     this.initEditor(currentYaml);
     this.setState({
       contentHeight: (isPreview && initContentHeight) || this.contentView.clientHeight,
@@ -64,6 +69,7 @@ class YamlViewer extends React.Component {
     }
 
     this.doc.off('change', this.onYamlChange);
+    this.ace.off('blur', this.onYamlBlur);
     this.doc = null;
   }
 
@@ -79,6 +85,12 @@ class YamlViewer extends React.Component {
       storePreviewYaml(yamlDoc.getValue(), true);
     }
     onChange(yamlDoc.getValue());
+  };
+
+  onYamlBlur = (event, yamlDoc) => {
+    const { onBlur } = this.props;
+
+    onBlur(yamlDoc.getValue());
   };
 
   copyToClipboard = e => {
@@ -145,6 +157,7 @@ class YamlViewer extends React.Component {
       es.setUseWrapMode(true);
       this.doc = es.getDocument();
       this.doc.on('change', this.onYamlChange);
+      this.ace.on('blur', this.onYamlBlur);
     }
 
     this.doc.setValue(currentYaml);
@@ -426,6 +439,7 @@ YamlViewer.propTypes = {
   showRemove: PropTypes.bool,
   onRemove: PropTypes.func,
   onChange: PropTypes.func,
+  onBlur: PropTypes.func,
   error: PropTypes.node,
   storePreviewYaml: PropTypes.func,
   storeContentHeight: PropTypes.func,
@@ -448,6 +462,7 @@ YamlViewer.defaultProps = {
   showRemove: false,
   onRemove: helpers.noop,
   onChange: helpers.noop,
+  onBlur: helpers.noop,
   error: null,
   storePreviewYaml: helpers.noop,
   storeContentHeight: helpers.noop,

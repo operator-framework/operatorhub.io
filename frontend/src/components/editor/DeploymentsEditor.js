@@ -109,15 +109,7 @@ class DeploymentsEditor extends React.Component {
     const allowRemove = _.size(deployments) > 1;
 
     return (
-      <React.Fragment>
-        <ExpandCollapse textCollapsed="Show Deployments" textExpanded="Hide Deployments">
-          {_.map(deployments, (deployment, index) => this.renderDeployment(deployment, index, allowRemove))}
-          <a href="#" className="oh-operator-editor-form__label-adder" onClick={e => this.addOperatorDeployment(e)}>
-            <Icon type="fa" name="plus-circle" />
-            <span>Add More</span>
-          </a>
-        </ExpandCollapse>
-      </React.Fragment>
+      <YamlEditor editable initYaml={deploymentYaml} />
     );
   }
 }

@@ -1,19 +1,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Prompt } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import App from './App';
 import './style.scss';
 
-const getUserConfirmation = (message, confirmCallback) => {
-  console.log(message);
-  confirmCallback(1 === 0);
-};
-
 ReactDOM.render(
   <Provider store={store}>
-    <Router get getUserConfirmation={getUserConfirmation}>
+    <Router>
       <App />
     </Router>
   </Provider>,

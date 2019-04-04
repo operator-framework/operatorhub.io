@@ -15,7 +15,6 @@ const editorReducer = (state = initialState, action) => {
         mode: action.mode
       });
     case reduxConstants.SET_EDITOR_OPERATOR:
-      console.dir(action.operator);
       return Object.assign({}, state, {
         operator: action.operator
       });

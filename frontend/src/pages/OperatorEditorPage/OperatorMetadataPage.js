@@ -2,7 +2,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import * as _ from 'lodash-es';
-import { Breadcrumb } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
@@ -14,17 +13,12 @@ import ImageEditor from '../../components/editor/ImageEditor';
 import { renderOperatorFormField } from './editorPageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 
+const metadataDescription = `
+  The metadata section contains general metadata around the name, version, and other info that aids users in the
+  discovery of your Operator.
+  `;
+
 const OperatorMetadataPage = ({ operator, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => {
-  const onHome = e => {
-    e.preventDefault();
-    history.push('/');
-  };
-
-  const onBack = e => {
-    e.preventDefault();
-    history.push('/editor');
-  };
-
   const operatorUpdated = () => {
     storeEditorOperator(operator);
   };
@@ -125,11 +119,18 @@ const OperatorMetadataPage = ({ operator, formErrors, storeEditorOperator, store
       {renderFormField('Replaces', 'spec.replaces', 'text')}
       {renderFormField('Minimum Kubernetes Version', 'spec.MinKubeVersion', 'text')}
       <CapabilityEditor operator={operator} onUpdate={updateOperatorCapability} />
-      <LabelsEditor operator={operator} onUpdate={updateOperatorLabels} title="Labels (optional)" field="spec.labels" />
+      <LabelsEditor
+        operator={operator}
+        onUpdate={updateOperatorLabels}
+        title="Labels (optional)"
+        singular="Label"
+        field="spec.labels"
+      />
       <LabelsEditor
         operator={operator}
         onUpdate={updateOperatorSelectors}
         title="Selectors (optional)"
+        singular="Selector"
         field="spec.selector.matchLabels"
       />
       <h3>Categories and Keywords</h3>
@@ -141,6 +142,7 @@ const OperatorMetadataPage = ({ operator, formErrors, storeEditorOperator, store
         operator={operator}
         onUpdate={updateOperatorExternalLinks}
         title="External Links"
+        singular="External Link"
         field="spec.links"
         keyField="name"
         keyLabel="Name"
@@ -155,6 +157,7 @@ const OperatorMetadataPage = ({ operator, formErrors, storeEditorOperator, store
         operator={operator}
         onUpdate={updateOperatorMaintainers}
         title="Maintainers"
+        singular="Maintainer"
         field="spec.maintainers"
         keyField="name"
         keyLabel="Name"
@@ -166,30 +169,8 @@ const OperatorMetadataPage = ({ operator, formErrors, storeEditorOperator, store
     </form>
   );
 
-  const renderHeader = () => (
-    <React.Fragment>
-      <h1>Operator Metadata</h1>
-      <p>
-        The metadata section contains general metadata around the name, version, and other info that aids users in in
-        discovery of your Operator.
-      </p>
-    </React.Fragment>
-  );
-
-  const breadcrumbs = (
-    <Breadcrumb>
-      <Breadcrumb.Item onClick={e => onHome(e)} href={window.location.origin}>
-        Home
-      </Breadcrumb.Item>
-      <Breadcrumb.Item onClick={e => onBack(e)} href={`${window.location.origin}/Operator Editor`}>
-        Operator Editor
-      </Breadcrumb.Item>
-      <Breadcrumb.Item active>Operator Metadata</Breadcrumb.Item>
-    </Breadcrumb>
-  );
-
   return (
-    <OperatorEditorSubPage breadcrumbs={breadcrumbs} header={renderHeader()} history={history}>
+    <OperatorEditorSubPage title="Operator Metadata" description={metadataDescription} secondary history={history}>
       {renderMetadataFields()}
     </OperatorEditorSubPage>
   );

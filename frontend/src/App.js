@@ -21,6 +21,10 @@ import OperatorInstallModesPage from './pages/OperatorEditorPage/OperatorInstall
 import OperatorOwnedCRDsPage from './pages/OperatorEditorPage/OperatorOwnedCRDsPage';
 import OperatorRequiredCRDsPage from './pages/OperatorEditorPage/OperatorRequiredCRDsPage';
 import OperatorPermissionsPage from './pages/OperatorEditorPage/OperatorPermissionsPage';
+import OperatorClusterPermissionsPage from './pages/OperatorEditorPage/OperatorClusterPermissionsPage';
+import OperatorOwnedCRDEditPage from './pages/OperatorEditorPage/OperatorOwnedCRDEditPage';
+import OperatorDeploymentEditPage from './pages/OperatorEditorPage/OperatorDeploymentEditPage';
+import OperatorRequiredCRDEditPage from './pages/OperatorEditorPage/OperatorRequiredCRDEditPage';
 
 class App extends React.Component {
   constructor(props) {
@@ -40,10 +44,14 @@ class App extends React.Component {
           <Route path="/operator/:operatorId" component={OperatorPage} />
           <Route path="/preview" component={OperatorPreviewPage} />
           <Route path="/editor/metadata" component={OperatorMetadataPage} />
+          <Route path="/editor/owned-crds/:crd" component={OperatorOwnedCRDEditPage} />
           <Route path="/editor/owned-crds" component={OperatorOwnedCRDsPage} />
+          <Route path="/editor/required-crds/:crd" component={OperatorRequiredCRDEditPage} />
           <Route path="/editor/required-crds" component={OperatorRequiredCRDsPage} />
+          <Route path="/editor/deployments/:deployment" component={OperatorDeploymentEditPage} />
           <Route path="/editor/deployments" component={OperatorDeploymentsPage} />
           <Route path="/editor/permissions" component={OperatorPermissionsPage} />
+          <Route path="/editor/clusterPermissions" component={OperatorClusterPermissionsPage} />
           <Route path="/editor/install-modes" component={OperatorInstallModesPage} />
           <Route path="/editor" component={OperatorEditorPage} />
           <Route path="/getting-started" component={GettingStarted} />

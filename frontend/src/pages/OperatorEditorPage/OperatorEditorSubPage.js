@@ -1,10 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
+import * as _ from 'lodash-es';
+import { Breadcrumb } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';
+import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 
 class OperatorEditorSubPage extends React.Component {
   state = {
@@ -22,6 +25,21 @@ class OperatorEditorSubPage extends React.Component {
     window.removeEventListener('resize', this.onWindowResize);
   }
 
+  onHome = e => {
+    e.preventDefault();
+    this.props.history.push('/');
+  };
+
+  onEditor = e => {
+    e.preventDefault();
+    this.props.history.push('/editor');
+  };
+
+  onBack = e => {
+    e.preventDefault();
+    this.props.history.push(`/editor/${this.props.lastPage}`);
+  };
+
   onScroll = (scrollTop, topperHeight, toolbarHeight) => {
     const { headerHeight } = this.state;
     if (headerHeight !== topperHeight + toolbarHeight) {
@@ -31,16 +49,6 @@ class OperatorEditorSubPage extends React.Component {
 
   updateTitleHeight = () => {
     this.setState({ titleHeight: this.titleAreaRef.scrollHeight });
-  };
-
-  onHome = e => {
-    e.preventDefault();
-    this.props.history.push('/');
-  };
-
-  onBack = e => {
-    e.preventDefault();
-    this.props.history.push('/editor');
   };
 
   onSearchChange = searchValue => {
@@ -62,14 +70,36 @@ class OperatorEditorSubPage extends React.Component {
     this.titleAreaRef = ref;
   };
 
+  renderBreadcrumbs = () => (
+    <Breadcrumb>
+      <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
+        Home
+      </Breadcrumb.Item>
+      {(this.props.secondary || this.props.tertiary) && (
+        <Breadcrumb.Item onClick={e => this.onEditor(e)} href={`${window.location.origin}/editor`}>
+          Operator Editor
+        </Breadcrumb.Item>
+      )}
+      {this.props.tertiary && (
+        <Breadcrumb.Item
+          onClick={e => this.onBack(e)}
+          href={`${window.location.origin}/editor/${this.props.lastPage}`}
+        >
+          {this.props.lastPageTitle}
+        </Breadcrumb.Item>
+      )}
+      <Breadcrumb.Item active>{this.props.title}</Breadcrumb.Item>
+    </Breadcrumb>
+  );
+
   render() {
-    const { breadcrumbs, header, children } = this.props;
+    const { header, title, field, description, children } = this.props;
     const { keywordSearch, headerHeight, titleHeight } = this.state;
 
     return (
       <Page
         className="oh-page-operator-editor"
-        toolbarContent={breadcrumbs}
+        toolbarContent={this.renderBreadcrumbs()}
         history={this.props.history}
         searchValue={keywordSearch}
         onSearchChange={this.onSearchChange}
@@ -80,7 +110,14 @@ class OperatorEditorSubPage extends React.Component {
         <div className="oh-operator-editor-page">
           <div className="oh-operator-editor-page__title-area" ref={this.setTitleAreaRef} style={{ top: headerHeight }}>
             <div className="oh-operator-editor-page__title-area__inner">
-              {header}
+              {header && header}
+              {!header && (
+                <React.Fragment>
+                  <h1>{title}</h1>
+                  {description}
+                  {!description && <p>{_.get(operatorFieldDescriptions, field)}</p>}
+                </React.Fragment>
+              )}
             </div>
           </div>
           <div className="oh-operator-editor-page__page-area" style={{ marginTop: titleHeight || 0 }}>
@@ -93,8 +130,14 @@ class OperatorEditorSubPage extends React.Component {
 }
 
 OperatorEditorSubPage.propTypes = {
-  breadcrumbs: PropTypes.node,
   header: PropTypes.node,
+  title: PropTypes.string,
+  field: PropTypes.string,
+  description: PropTypes.node,
+  secondary: PropTypes.bool,
+  tertiary: PropTypes.bool,
+  lastPage: PropTypes.string,
+  lastPageTitle: PropTypes.string,
   children: PropTypes.node,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
@@ -103,8 +146,14 @@ OperatorEditorSubPage.propTypes = {
 };
 
 OperatorEditorSubPage.defaultProps = {
-  breadcrumbs: null,
   header: null,
+  title: '',
+  field: '',
+  description: null,
+  secondary: false,
+  tertiary: false,
+  lastPage: '',
+  lastPageTitle: '',
   children: null,
   storeKeywordSearch: helpers.noop
 };
