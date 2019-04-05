@@ -99,7 +99,7 @@ class OperatorPreviewPage extends React.Component {
           </Grid.Col>
           <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
             <h1>{operator.displayName}</h1>
-            {operator.longDescription && <MarkdownView>{operator.longDescription}</MarkdownView>}
+            {operator.longDescription && <MarkdownView markdown={operator.longDescription} />}
             <CustomResourceDefinitionsView operator={operator} showExampleYaml={this.showExampleYaml} />
           </Grid.Col>
         </div>
