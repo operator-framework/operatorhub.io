@@ -48,24 +48,6 @@
 .oh-operator-page {
   margin-top: 30px;
 
-  .oh-markdown-view {
-    padding-bottom: 15px;
-
-    > pre {
-      background: $oh-color-background;
-      display: block;
-      font-size: 12px;
-      margin-left: 10px;
-      padding: 5px 10px;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-
-    tr > th {
-      text-align: left;
-    }
-  }
-
   &__side-panel {
     @media (min-width: $screen-sm-min) {
       margin-top: 20px;
