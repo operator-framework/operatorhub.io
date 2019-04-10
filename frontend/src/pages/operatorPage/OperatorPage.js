@@ -13,7 +13,7 @@ import ExampleYamlModal from '../../components/ExampleYamlModal';
 import * as operatorImg from '../../imgs/operator.svg';
 import { reduxConstants } from '../../redux';
 import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';
-import OperatorSidePanel from '../../components/OperatorSidePanel';
+import { OperatorSidePanel } from '../../components/OperatorSidePanel';
 
 class OperatorPage extends React.Component {
   state = {
