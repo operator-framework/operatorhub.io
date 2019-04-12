@@ -11,7 +11,7 @@ import ExampleYamlModal from '../../components/ExampleYamlModal';
 import { reduxConstants } from '../../redux';
 import YamlEditor from '../../components/YamlViewer';
 import { normalizeOperator } from '../../utils/operatorUtils';
-import OperatorSidePanel from '../../components/OperatorSidePanel';
+import { OperatorSidePanel } from '../../components/OperatorSidePanel';
 import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';
 import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';
