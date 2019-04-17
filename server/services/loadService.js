@@ -17,7 +17,7 @@ const loadOperators = callback => {
       const filePath = path.join(dir, file);
       if (fs.statSync(filePath).isDirectory()) {
         allCSVFilesSync(filePath);
-      } else if (file.endsWith('.clusterserviceversion.yaml')) {
+      } else if (file.endsWith('.clusterserviceversion.yaml') || file.endsWith('.csv.yaml')) {
         csvFileList.push({ filePath, dir });
       }
     });
