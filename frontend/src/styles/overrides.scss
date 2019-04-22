@@ -7,10 +7,6 @@ body {
   margin: 0;
 }
 
-::placeholder {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
 a:hover,
 a:focus {
   text-decoration: none;
@@ -92,5 +88,41 @@ p {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   &:hover, &:focus {
     box-shadow: 0 6px 12px rgba(0,0,0,0.12)
+  }
+}
+
+.fa.fa-check-circle {
+  color: $brand-success;
+}
+
+.fa.fa-warning {
+  color: $brand-warning;
+}
+
+.fa.fa-times-circle {
+  color: $brand-danger;
+}
+
+.mde-preview .mde-preview-content table {
+  > pre {
+    background: $oh-color-background;
+    display: block;
+    font-size: 12px;
+    margin-left: 10px;
+    padding: 5px 10px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  tr > th {
+    text-align: left;
+  }
+
+  th, td {
+    padding: 5px 15px;
+    word-break: break-word;
+    border: none;
+    border-bottom: 1px solid $color-pf-black-200;
+    vertical-align: top;
   }
 }

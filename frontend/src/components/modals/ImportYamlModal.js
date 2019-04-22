@@ -2,25 +2,15 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import { Alert, FormControl, Grid, HelpBlock, Modal } from 'patternfly-react';
-import { helpers } from '../common/helpers';
+import { helpers } from '../../common/helpers';
+import { urlRegExp } from '../../utils/operatorDescriptors';
 
-class UploadUrlModal extends React.Component {
+class ImportYamlModal extends React.Component {
   state = {
     url: '',
     validURL: false,
     uploadError: null
   };
-
-  componentDidUpdate(prevProps) {
-    if (this.props.show && !prevProps.show) {
-      // reset upload states
-      this.setState({
-        url: '',
-        validURL: false,
-        uploadError: null
-      });
-    }
-  }
 
   uploadFile = () => {
     const { url } = this.state;
@@ -58,19 +48,7 @@ class UploadUrlModal extends React.Component {
     xhr.send();
   };
 
-  validURL = url => {
-    const urlRegExp = new RegExp(
-      '^(?:(?:(?:https?|ftp):)?//)' + // protocol
-      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
-      '((\\d{1,3}\\.){3}\\d{1,3}))' + // ip (v4) address
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port
-      '(\\?[;&amp;a-z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-z\\d_]*)?$',
-      'i'
-    );
-
-    return urlRegExp.test(url);
-  };
+  validURL = url => urlRegExp.test(url);
 
   urlChange = e => {
     const url = e.target.value;
@@ -143,15 +121,15 @@ class UploadUrlModal extends React.Component {
   }
 }
 
-UploadUrlModal.propTypes = {
+ImportYamlModal.propTypes = {
   show: PropTypes.bool,
   onClose: PropTypes.func,
   onUpload: PropTypes.func.isRequired
 };
 
-UploadUrlModal.defaultProps = {
+ImportYamlModal.defaultProps = {
   show: false,
   onClose: helpers.noop
 };
 
-export default UploadUrlModal;
+export default ImportYamlModal;

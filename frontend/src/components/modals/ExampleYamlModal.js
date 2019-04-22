@@ -4,8 +4,8 @@ import * as _ from 'lodash-es';
 import { safeDump } from 'js-yaml';
 import { Modal } from 'patternfly-react';
 
-import { helpers } from '../common/helpers';
-import YamlEditor from './YamlViewer';
+import { helpers } from '../../common/helpers';
+import YamlViewer from '../YamlViewer';
 
 const ExampleYamlModal = ({ show, customResourceDefinition, onClose }) => {
   const renderContents = () => {
@@ -31,7 +31,7 @@ const ExampleYamlModal = ({ show, customResourceDefinition, onClose }) => {
           <Modal.Title>{displayName} - YAML Example</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <YamlEditor yaml={yaml} />
+          <YamlViewer yaml={yaml} />
         </Modal.Body>
       </React.Fragment>
     );
