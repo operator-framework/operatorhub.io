@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import queryString from 'query-string';
 
@@ -11,7 +11,7 @@ import { FilterSidePanel } from 'patternfly-react-extensions';
 import { fetchOperators } from '../../services/operatorsService';
 import { helpers } from '../../common/helpers';
 
-import Page from '../../components/Page';
+import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';
 import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';
@@ -742,10 +742,10 @@ class OperatorHub extends React.Component {
       <div className="oh-hub-page__toolbar">
         <div className="oh-hub-page__toolbar__item oh-hub-page__toolbar__item-left">
           {filteredItems.length}
-          <span className="oh-hub-page__toolbar__label oh-tiny">ITEMS</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">Items</span>
         </div>
         <div className="oh-hub-page__toolbar__item">
-          <span className="oh-hub-page__toolbar__label oh-tiny">VIEW</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">View</span>
           <DropdownButton
             className="oh-hub-page__toolbar__dropdown"
             title={this.getViewItem(viewType)}
@@ -761,7 +761,7 @@ class OperatorHub extends React.Component {
           </DropdownButton>
         </div>
         <div className="oh-hub-page__toolbar__item">
-          <span className="oh-hub-page__toolbar__label oh-tiny">SORT</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">Sort</span>
           <DropdownButton
             className="oh-hub-page__toolbar__dropdown"
             title={this.getSortItem(sortType)}

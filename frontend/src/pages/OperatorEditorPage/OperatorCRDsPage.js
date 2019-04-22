@@ -1,0 +1,106 @@
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import * as _ from 'lodash-es';
+
+import { helpers } from '../../common/helpers';
+import { reduxConstants } from '../../redux';
+import OperatorEditorSubPage from './OperatorEditorSubPage';
+import ListObjectEditor from '../../components/editor/ListObjectEditor';
+import { getFieldValueError } from '../../utils/operatorUtils';
+import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
+
+const OperatorCRDsPage = ({
+  operator,
+  crdsField,
+  crdsTitle,
+  crdsDescription,
+  objectPage,
+  objectType,
+  formErrors,
+  storeEditorOperator,
+  storeEditorFormErrors,
+  history
+}) => {
+  const validateField = field => {
+    const error = getFieldValueError(operator, field);
+    _.set(formErrors, field, error);
+    storeEditorFormErrors(formErrors);
+  };
+
+  const updateOperator = crds => {
+    const updatedOperator = _.cloneDeep(operator);
+    _.set(updatedOperator, crdsField, crds);
+    storeEditorOperator(updatedOperator);
+    validateField(crdsField);
+  };
+
+  const description = (
+    <span>
+      <p>{_.get(operatorObjectDescriptions, [...crdsField.split('.'), 'description'])}</p>
+      <p>{crdsDescription}</p>
+    </span>
+  );
+
+  return (
+    <OperatorEditorSubPage title={crdsTitle} description={description} secondary history={history} section={objectPage}>
+      <ListObjectEditor
+        operator={operator}
+        title={crdsTitle}
+        onUpdate={updateOperator}
+        field={crdsField}
+        fieldTitle="Display Name"
+        objectPage={objectPage}
+        history={history}
+        objectTitleField="displayName"
+        pagePathField="displayName"
+        objectType={objectType}
+      />
+    </OperatorEditorSubPage>
+  );
+};
+
+OperatorCRDsPage.propTypes = {
+  operator: PropTypes.object,
+  crdsField: PropTypes.string.isRequired,
+  crdsTitle: PropTypes.string.isRequired,
+  crdsDescription: PropTypes.node.isRequired,
+  objectPage: PropTypes.string.isRequired,
+  objectType: PropTypes.string.isRequired,
+  formErrors: PropTypes.object,
+  storeEditorOperator: PropTypes.func,
+  storeEditorFormErrors: PropTypes.func,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }).isRequired
+};
+
+OperatorCRDsPage.defaultProps = {
+  operator: {},
+  formErrors: {},
+  storeEditorFormErrors: helpers.noop,
+  storeEditorOperator: helpers.noop
+};
+
+const mapDispatchToProps = dispatch => ({
+  storeEditorOperator: operator =>
+    dispatch({
+      type: reduxConstants.SET_EDITOR_OPERATOR,
+      operator
+    }),
+  storeEditorFormErrors: formErrors =>
+    dispatch({
+      type: reduxConstants.SET_EDITOR_FORM_ERRORS,
+      formErrors
+    })
+});
+
+const mapStateToProps = state => ({
+  operator: state.editorState.operator,
+  formErrors: state.editorState.formErrors
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(OperatorCRDsPage);
