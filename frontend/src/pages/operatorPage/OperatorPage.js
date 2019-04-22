@@ -1,19 +1,19 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import { Alert, Breadcrumb, EmptyState, Grid } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import { fetchOperator } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
-import Page from '../../components/Page';
-import InstallModal from '../../components/InstallModal';
-import ExampleYamlModal from '../../components/ExampleYamlModal';
+import Page from '../../components/page/Page';
+import InstallModal from '../../components/modals/InstallModal';
+import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
 import * as operatorImg from '../../imgs/operator.svg';
 import { reduxConstants } from '../../redux';
 import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';
-import { OperatorSidePanel } from '../../components/OperatorSidePanel';
+import OperatorSidePanel from '../../components/OperatorSidePanel';
 
 class OperatorPage extends React.Component {
   state = {

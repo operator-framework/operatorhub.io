@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { DropdownButton, MenuItem } from 'patternfly-react';
-import { helpers } from '../common/helpers';
-import hubLogo from '../imgs/operatorhub-header-logo.svg';
-import { InternalLink } from './InternalLink';
+import { helpers } from '../../common/helpers';
+import hubLogo from '../../imgs/operatorhub-header-logo.svg';
+import { InternalLink } from '../InternalLink';
 
 class HeaderTopBar extends React.Component {
   state = {
@@ -23,6 +23,10 @@ class HeaderTopBar extends React.Component {
       this.setState({ searchValue: this.props.searchValue });
     }
   }
+
+  onBuildYourCSV = () => {
+    this.props.history.push('/editor');
+  };
 
   onSubmitYourOperator = () => {
     this.props.history.push('/contribute');
@@ -103,6 +107,9 @@ class HeaderTopBar extends React.Component {
             id="header-contribute-dropdown"
             pullRight
           >
+            <MenuItem eventKey={0} onSelect={this.onBuildYourCSV}>
+              Build your CSV
+            </MenuItem>
             <MenuItem eventKey={0} onSelect={this.onSubmitYourOperator}>
               Submit your Operator
             </MenuItem>
