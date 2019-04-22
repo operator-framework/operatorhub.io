@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { DropdownButton, MenuItem } from 'patternfly-react';
-import { helpers } from '../common/helpers';
-import hubLogo from '../imgs/operatorhub-header-logo.svg';
-import { InternalLink } from './InternalLink';
+import { helpers } from '../../common/helpers';
+import hubLogo from '../../imgs/operatorhub-header-logo.svg';
+import { InternalLink } from '../InternalLink';
 
 class HeaderTopBar extends React.Component {
   state = {
@@ -26,6 +26,10 @@ class HeaderTopBar extends React.Component {
 
   onPreviewYourOperator = () => {
     this.props.history.push('/preview');
+  };
+
+  onBuildYourCSV = () => {
+    this.props.history.push('/editor');
   };
 
   onSubmitYourOperator = () => {
@@ -110,10 +114,13 @@ class HeaderTopBar extends React.Component {
             <MenuItem eventKey={0} onSelect={this.onGettingStarted}>
               Create an Operator with the SDK
             </MenuItem>
-            <MenuItem eventKey={1} onSelect={this.onPreviewYourOperator}>
+            <MenuItem eventKey={1} onSelect={this.onBuildYourCSV}>
+              Build your CSV
+            </MenuItem>
+            <MenuItem eventKey={2} onSelect={this.onPreviewYourOperator}>
               Preview your Operator
             </MenuItem>
-            <MenuItem eventKey={2} onSelect={this.onSubmitYourOperator}>
+            <MenuItem eventKey={3} onSelect={this.onSubmitYourOperator}>
               Submit your Operator
             </MenuItem>
           </DropdownButton>

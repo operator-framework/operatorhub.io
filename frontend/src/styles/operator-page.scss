@@ -118,6 +118,7 @@
 
   &__icon {
     display: none;
+    font-size: 10px;
     cursor: pointer;
     @media (min-width: 915px) {
       display: inline-block;
@@ -249,10 +250,6 @@
 
 .oh-install-expander {
   padding-bottom: 30px;
-
-  .expand-collapse-pf-link-container > .btn-link {
-    margin-left: -6px;
-  }
 }
 
 .oh-install-olm-instructions {

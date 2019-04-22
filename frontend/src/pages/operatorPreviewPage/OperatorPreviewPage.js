@@ -1,17 +1,17 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
 import { Breadcrumb, Grid } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import { MarkdownView } from '../../components/MarkdownView';
-import Page from '../../components/Page';
-import ExampleYamlModal from '../../components/ExampleYamlModal';
+import Page from '../../components/page/Page';
+import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
 import { reduxConstants } from '../../redux';
-import YamlEditor from '../../components/YamlViewer';
+import YamlViewer from '../../components/YamlViewer';
 import { normalizeOperator } from '../../utils/operatorUtils';
-import { OperatorSidePanel } from '../../components/OperatorSidePanel';
+import OperatorSidePanel from '../../components/OperatorSidePanel';
 import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';
 import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';
@@ -112,7 +112,7 @@ class OperatorPreviewPage extends React.Component {
 
     return (
       <div className="oh-preview-page-yaml">
-        <YamlEditor onSave={this.previewYAML} editable error={yamlError} saveButtonText="Preview Operator" />
+        <YamlViewer isPreview onSave={this.previewYAML} editable error={yamlError} saveButtonText="Preview Operator" />
       </div>
     );
   }

@@ -76,14 +76,20 @@ export class OperatorSidePanel extends React.Component {
       this.getVersionString(version, currentVersion)
     );
 
-  renderLinks = links =>
-    _.size(links) && (
-      <React.Fragment>
-        {_.map(links, link => (
-          <ExternalLink key={link.name} block href={link.url} text={link.name} />
-        ))}
-      </React.Fragment>
-    );
+  renderLinks = links => {
+    const validLinks = _.filter(links, link => link.url && link.name);
+    if (_.size(validLinks)) {
+      return (
+        <React.Fragment>
+          {_.map(links, link => (
+            <ExternalLink key={link.name} block href={link.url} text={link.name} />
+          ))}
+        </React.Fragment>
+      );
+    }
+
+    return notAvailable;
+  };
 
   renderMaintainers = maintainers =>
     _.size(maintainers) && (
@@ -259,7 +265,9 @@ OperatorSidePanel.propTypes = {
 
 OperatorSidePanel.defaultProps = {
   operator: {},
-  showInstall: false,
+  showInstall: null,
   updateChannel: helpers.noop,
   updateVersion: helpers.noop
 };
+
+export default OperatorSidePanel;
