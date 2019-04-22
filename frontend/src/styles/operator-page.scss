@@ -3,7 +3,6 @@
 }
 
 .oh-operator-header {
-
   &__content {
     align-items: flex-start;
     display: flex;
@@ -77,7 +76,7 @@
         width: 100%;
       }
 
-      .properties-side-panel-pf-property-label  {
+      .properties-side-panel-pf-property-label {
         color: $oh-color-text-metadata;
         font-size: 10px;
         font-weight: bold;
@@ -119,6 +118,7 @@
 
   &__icon {
     display: none;
+    font-size: 10px;
     cursor: pointer;
     @media (min-width: 915px) {
       display: inline-block;
@@ -205,13 +205,12 @@
 
     &__link {
       font-size: 13px;
-      margin-top: 10px
+      margin-top: 10px;
     }
   }
 }
 
 .oh-install-modal {
-
   .modal-body {
     padding-top: 0;
   }
@@ -247,23 +246,21 @@
     font-weight: 600;
   }
 
-  &__list{
+  &__list {
     padding-left: 20px;
 
-    > li:not(:last-child){
+    > li:not(:last-child) {
       margin-top: 15px;
       margin-bottom: 30px;
     }
+    .oh-install-expander {
+      padding-bottom: 30px;
+    }
 
-    &__olm{
-      .oh-code{
+    &__olm {
+      .oh-code {
         margin-bottom: 0;
       }
     }
-  } 
+  }
 }
-
-
-
-
-

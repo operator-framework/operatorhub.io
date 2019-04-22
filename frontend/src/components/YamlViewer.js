@@ -1,8 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import connect from 'react-redux/es/connect/connect';
-import { Alert, Icon, EmptyState, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { connect } from 'react-redux';
+import { Alert, Icon, OverlayTrigger, Tooltip } from 'patternfly-react';
 import * as ace from 'brace';
 import 'brace/ext/searchbox';
 import 'brace/mode/yaml';
@@ -10,7 +10,7 @@ import 'brace/theme/clouds';
 import 'brace/ext/language_tools';
 import 'brace/snippets/yaml';
 import copy from 'copy-to-clipboard';
-import UploadUrlModal from './UploadUrlModal';
+import UploadUrlModal from './modals/UploadUrlModal';
 import { reduxConstants } from '../redux';
 import { helpers } from '../common/helpers';
 
@@ -31,29 +31,30 @@ class YamlViewer extends React.Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { error } = this.props;
+    const { yaml, error } = this.props;
+    if (yaml !== prevProps.yaml) {
+      this.doc.setValue(yaml);
+    }
+
     if (error && error !== prevProps.error) {
       document.getElementById('yaml-editor-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
   componentDidMount() {
-    const { yaml, initYaml, initYamlChanged, initContentHeight } = this.props;
-    const currentYaml = yaml || initYaml;
-
-    const div = document.createElement('div');
-    const advancedUpload =
-      'draggable' in div || ('ondragstart' in div && 'ondrop' in div && 'FormData' in window && 'FileReader' in window);
+    const { yaml, isPreview, initYaml, initYamlChanged, initContentHeight } = this.props;
+    const currentYaml = yaml || (isPreview && initYaml) || '';
 
     this.initEditor(currentYaml);
     this.setState({
-      contentHeight: initContentHeight || this.contentView.clientHeight,
+      contentHeight: (isPreview && initContentHeight) || this.contentView.clientHeight,
       yamlEntered: !!currentYaml,
-      yamlChanged: initYamlChanged,
-      advancedUpload
+      yamlChanged: isPreview && initYamlChanged,
+      advancedUpload: helpers.advancedUploadAvailable()
     });
 
     if (currentYaml) {
+      this.props.onChange(currentYaml);
       this.props.onSave(currentYaml);
     }
   }
@@ -62,22 +63,35 @@ class YamlViewer extends React.Component {
     if (this.ace) {
       this.ace.destroy();
       this.ace.container.parentNode.removeChild(this.ace.container);
+      this.ace.off('blur', this.onYamlBlur);
       this.ace = null;
       window.ace = null;
     }
 
-    this.doc.off('change', this.onYamlChange);
-    this.doc = null;
+    if (this.doc) {
+      this.doc.off('change', this.onYamlChange);
+      this.doc = null;
+    }
   }
 
   onYamlChange = (event, yamlDoc) => {
-    if (!this.props.editable) {
+    const { editable, isPreview, storePreviewYaml, onChange } = this.props;
+    if (!editable) {
       return;
     }
 
     const yamlEntered = !!yamlDoc.getValue();
     this.setState({ yamlEntered, yamlChanged: true });
-    this.props.storePreviewYaml(yamlDoc.getValue(), true);
+    if (isPreview) {
+      storePreviewYaml(yamlDoc.getValue(), true);
+    }
+    onChange(yamlDoc.getValue());
+  };
+
+  onYamlBlur = (event, yamlDoc) => {
+    const { onBlur } = this.props;
+
+    onBlur(yamlDoc.getValue());
   };
 
   copyToClipboard = e => {
@@ -97,9 +111,13 @@ class YamlViewer extends React.Component {
   };
 
   confirmClearYaml = () => {
+    const { storePreviewYaml, isPreview, hideConfirmModal } = this.props;
+
     this.doc.setValue('');
-    this.props.storePreviewYaml('', false, false);
-    this.props.hideConfirmModal();
+    if (isPreview) {
+      storePreviewYaml('', false, false);
+    }
+    hideConfirmModal();
     this.saveYAML();
   };
 
@@ -140,6 +158,7 @@ class YamlViewer extends React.Component {
       es.setUseWrapMode(true);
       this.doc = es.getDocument();
       this.doc.on('change', this.onYamlChange);
+      this.ace.on('blur', this.onYamlBlur);
     }
 
     this.doc.setValue(currentYaml);
@@ -154,15 +173,20 @@ class YamlViewer extends React.Component {
   }
 
   saveYAML = () => {
-    if (!this.props.editable) {
+    const { editable, onSave, onChange, isPreview, storePreviewYaml } = this.props;
+
+    if (!editable) {
       return;
     }
 
     const yamlEntered = !!this.doc.getValue();
 
-    this.props.onSave(this.doc.getValue());
+    onSave(this.doc.getValue());
+    onChange(this.doc.getValue());
     this.setState({ yamlEntered, yamlChanged: false });
-    this.props.storePreviewYaml(this.doc.getValue(), false);
+    if (isPreview) {
+      storePreviewYaml(this.doc.getValue(), false);
+    }
   };
 
   uploadFile = files => {
@@ -205,7 +229,9 @@ class YamlViewer extends React.Component {
   stopResize = () => {
     if (this.state.isDragging) {
       this.setState({ isDragging: false });
-      this.props.storeContentHeight(this.state.contentHeight);
+      if (this.props.isPreview) {
+        this.props.storeContentHeight(this.state.contentHeight);
+      }
     }
   };
 
@@ -232,7 +258,7 @@ class YamlViewer extends React.Component {
 
     const uploadFileClasses = classNames({
       'oh-yaml-viewer__empty-state': true,
-      'drag-drop': advancedUpload,
+      'oh-drag-drop-box': advancedUpload,
       'drag-over': dragOver
     });
 
@@ -250,8 +276,8 @@ class YamlViewer extends React.Component {
           this.uploadFile(e.dataTransfer.files);
         }}
       >
-        <form
-          className="oh-yaml-viewer__empty-state__form__input oh-yaml-viewer__empty-state__upload-file-box"
+        <div
+          className="oh-drag-drop-box__upload-file-box"
           ref={ref => {
             this.formRef = ref;
           }}
@@ -269,27 +295,27 @@ class YamlViewer extends React.Component {
             this.uploadFile(e.dataTransfer.files);
           }}
         >
-          <div className="oh-yaml-viewer__empty-state__upload-file-box__input">
+          <div>
             <input
-              className="oh-yaml-viewer__empty-state__upload-file-box__file"
+              className="oh-drag-drop-box__upload-file-box__file"
               type="file"
-              name="uploadFile"
-              id="uploadFile"
+              name={`yamlViewerUploadFile-${this.id}`}
+              id={`yamlViewerUploadFile-${this.id}`}
               onChange={e => this.uploadFile(e.target.files)}
             />
             Start typing, paste in your text, {advancedUpload ? 'drag your file here,' : ''}
-            <label htmlFor="uploadFile">
-              <a className="oh-yaml-viewer__empty-state__upload-file-box__link">browse</a>
+            <label htmlFor={`yamlViewerUploadFile-${this.id}`}>
+              <a className="oh-drag-drop-box__upload-file-box__link">browse</a>
             </label>
             to upload, or
             <label>
-              <a href="#" className="oh-yaml-viewer__empty-state__upload-file-box__link" onClick={this.showUploadUrl}>
+              <a href="#" className="oh-drag-drop-box__upload-file-box__link" onClick={this.showUploadUrl}>
                 upload
               </a>
             </label>
             from a URL.
           </div>
-        </form>
+        </div>
       </div>
     );
   };
@@ -299,18 +325,16 @@ class YamlViewer extends React.Component {
     return (
       <div id="yaml-editor-error">
         {error && (
-          <EmptyState className="blank-slate-content-pf">
-            <Alert type="error">
-              <span>{`Error parsing YAML: ${error}`}</span>
-            </Alert>
-          </EmptyState>
+          <Alert className="oh-yaml-viewer__error" type="error">
+            <span>{`Error parsing YAML: ${error}`}</span>
+          </Alert>
         )}
       </div>
     );
   };
 
   render() {
-    const { editable, saveButtonText } = this.props;
+    const { editable, saveButtonText, onSave, allowClear, showRemove, onRemove } = this.props;
     const { yamlEntered, yamlChanged, copied, uploadUrlShown, contentHeight } = this.state;
 
     const toolbarButtonClasses = classNames('oh-yaml-viewer__toolbar__button', { 'oh-disabled': !yamlEntered });
@@ -343,10 +367,16 @@ class YamlViewer extends React.Component {
             </OverlayTrigger>
           )}
           {!copied && copyLink}
-          {editable && (
+          {editable && allowClear && (
             <a href="#" onClick={this.clearYaml} className={toolbarButtonClasses}>
               <Icon type="pf" name="close" />
               Clear Contents
+            </a>
+          )}
+          {showRemove && (
+            <a href="#" onClick={onRemove} className="oh-yaml-viewer__toolbar__button">
+              <Icon type="fa" name="trash" />
+              Remove
             </a>
           )}
         </div>
@@ -378,15 +408,17 @@ class YamlViewer extends React.Component {
             {this.renderEmptyState()}
             <div className="oh-yaml-viewer__resizer" onMouseDown={this.startResize} />
             {this.renderError()}
-            <div className="oh-yaml-viewer__button-bar">
-              <button
-                className="oh-button oh-button-primary"
-                onClick={this.saveYAML}
-                disabled={!yamlChanged || !yamlEntered}
-              >
-                {saveButtonText}
-              </button>
-            </div>
+            {onSave !== helpers.noop && (
+              <div className="oh-yaml-viewer__button-bar">
+                <button
+                  className="oh-button oh-button-primary"
+                  onClick={this.saveYAML}
+                  disabled={!yamlChanged || !yamlEntered}
+                >
+                  {saveButtonText}
+                </button>
+              </div>
+            )}
           </React.Fragment>
         )}
         <UploadUrlModal show={uploadUrlShown} onClose={this.hideUploadUrl} onUpload={this.onUpload} />
@@ -399,8 +431,14 @@ YamlViewer.propTypes = {
   yaml: PropTypes.string,
   minHeight: PropTypes.number,
   editable: PropTypes.bool,
+  isPreview: PropTypes.bool,
   saveButtonText: PropTypes.string,
   onSave: PropTypes.func,
+  allowClear: PropTypes.bool,
+  showRemove: PropTypes.bool,
+  onRemove: PropTypes.func,
+  onChange: PropTypes.func,
+  onBlur: PropTypes.func,
   error: PropTypes.node,
   storePreviewYaml: PropTypes.func,
   storeContentHeight: PropTypes.func,
@@ -414,10 +452,16 @@ YamlViewer.propTypes = {
 
 YamlViewer.defaultProps = {
   yaml: '',
-  minHeight: 225,
+  minHeight: 250,
   editable: false,
+  isPreview: false,
   saveButtonText: 'Save',
   onSave: helpers.noop,
+  allowClear: true,
+  showRemove: false,
+  onRemove: helpers.noop,
+  onChange: helpers.noop,
+  onBlur: helpers.noop,
   error: null,
   storePreviewYaml: helpers.noop,
   storeContentHeight: helpers.noop,

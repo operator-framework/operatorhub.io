@@ -6,8 +6,23 @@ const indexFile = path.resolve(__dirname, '../../frontend/dist/index.html');
 const distFolder = path.resolve(__dirname, '../../frontend/dist/');
 
 module.exports = app => {
-  app.get('/', (request, response) => {
-    response.sendFile(indexFile);
+  // Base Public Routes
+  const uiRoutes = [
+    'operator',
+    'preview',
+    'editor',
+    'about',
+    'contribute',
+    'getting-started',
+    'what-is-an-operator',
+    'how-to-install-an-operator'
+  ];
+
+  app.use(express.static('../frontend/dist'));
+
+  // Page Routes
+  _.forEach(uiRoutes, uiRoute => {
+    addRootRedirect(app, uiRoute);
   });
 
   app.use('/static', express.static(distFolder));

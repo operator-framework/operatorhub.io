@@ -6,37 +6,28 @@ import { store } from './redux/store';
 import { reduxConstants } from './redux';
 
 import OperatorHub from './pages/operatorHub/OperatorHub';
-import ConfirmationModal from './components/ConfirmationModal';
-import asyncComponent from './common/AsyncComponent';
-
-const OperatorPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorPage" */ './pages/operatorPage/OperatorPage').then(module => module.default)
-);
-const OperatorPreviewPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorPreviewPage" */ './pages/operatorPreviewPage/OperatorPreviewPage').then(
-    module => module.default
-  )
-);
-const GettingStarted = asyncComponent(() =>
-  import(/* webpackChunkName: "GettingStarted" */ './pages/documentation/GettingStarted').then(module => module.default)
-);
-const WhatIsAnOperator = asyncComponent(() =>
-  import(/* webpackChunkName: "WhatIsAnOperator" */ './pages/documentation/WhatIsAnOperator').then(
-    module => module.default
-  )
-);
-const Contribute = asyncComponent(() =>
-  import(/* webpackChunkName: "Contribute" */ './pages/documentation/Contribute').then(module => module.default)
-);
-const HowToInstallOperators = asyncComponent(() =>
-  import(/* webpackChunkName: "HowToInstallOperators" */ './pages/documentation/HowToInstallOperators').then(
-    module => module.default
-  )
-);
-const About = asyncComponent(() =>
-  import(/* webpackChunkName: "About" */ './pages/documentation/About').then(module => module.default)
-);
-
+import OperatorPage from './pages/operatorPage/OperatorPage';
+import OperatorPreviewPage from './pages/operatorPreviewPage/OperatorPreviewPage';
+import OperatorFormEditorPage from './pages/OperatorEditorPage/OperatorFormEditorPage';
+import OperatorYamlEditorPage from './pages/OperatorEditorPage/OperatorYamlEditorPage';
+import GettingStarted from './pages/documentation/GettingStarted';
+import WhatIsAnOperator from './pages/documentation/WhatIsAnOperator';
+import Contribute from './pages/documentation/Contribute';
+import HowToInstallOperators from './pages/documentation/HowToInstallOperators';
+import About from './pages/documentation/About';
+import ConfirmationModal from './components/modals/ConfirmationModal';
+import OperatorMetadataPage from './pages/OperatorEditorPage/OperatorMetadataPage';
+import OperatorDeploymentsPage from './pages/OperatorEditorPage/OperatorDeploymentsPage';
+import OperatorInstallModesPage from './pages/OperatorEditorPage/OperatorInstallModesPage';
+import OperatorOwnedCRDsPage from './pages/OperatorEditorPage/OperatorOwnedCRDsPage';
+import OperatorRequiredCRDsPage from './pages/OperatorEditorPage/OperatorRequiredCRDsPage';
+import OperatorPermissionsPage from './pages/OperatorEditorPage/OperatorPermissionsPage';
+import OperatorClusterPermissionsPage from './pages/OperatorEditorPage/OperatorClusterPermissionsPage';
+import OperatorOwnedCRDEditPage from './pages/OperatorEditorPage/OperatorOwnedCRDEditPage';
+import OperatorDeploymentEditPage from './pages/OperatorEditorPage/OperatorDeploymentEditPage';
+import OperatorRequiredCRDEditPage from './pages/OperatorEditorPage/OperatorRequiredCRDEditPage';
+import OperatorPermissionsEditPage from './pages/OperatorEditorPage/OperatorPermissionsEditPage';
+import OperatorClusterPermissionsEditPage from './pages/OperatorEditorPage/OperatorClusterPermissionsEditPage';
 
 class App extends React.Component {
   constructor(props) {
@@ -56,6 +47,23 @@ class App extends React.Component {
           <Route path="/operator/:channel/:operatorId" component={OperatorPage} />
           <Route path="/operator/:packageName" component={OperatorPage} />
           <Route path="/preview" component={OperatorPreviewPage} />
+          <Route path="/editor/metadata" component={OperatorMetadataPage} />
+          <Route path="/editor/owned-crds/:crd" component={OperatorOwnedCRDEditPage} />
+          <Route path="/editor/owned-crds" component={OperatorOwnedCRDsPage} />
+          <Route path="/editor/required-crds/:crd" component={OperatorRequiredCRDEditPage} />
+          <Route path="/editor/required-crds" component={OperatorRequiredCRDsPage} />
+          <Route path="/editor/deployments/:deployment" component={OperatorDeploymentEditPage} />
+          <Route path="/editor/deployments" component={OperatorDeploymentsPage} />
+          <Route path="/editor/permissions/:serviceAccountName" component={OperatorPermissionsEditPage} />
+          <Route path="/editor/permissions" component={OperatorPermissionsPage} />
+          <Route
+            path="/editor/cluster-permissions/:serviceAccountName"
+            component={OperatorClusterPermissionsEditPage}
+          />
+          <Route path="/editor/cluster-permissions" component={OperatorClusterPermissionsPage} />
+          <Route path="/editor/install-modes" component={OperatorInstallModesPage} />
+          <Route path="/editor/yaml" component={OperatorYamlEditorPage} />
+          <Route path="/editor" component={OperatorFormEditorPage} />
           <Route path="/getting-started" component={GettingStarted} />
           <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
           <Route path="/contribute" component={Contribute} />

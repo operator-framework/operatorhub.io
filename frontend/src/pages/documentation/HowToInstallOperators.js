@@ -3,7 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
-import DocumentationPage from '../../components/DocumentationPage';
+import DocumentationPage from '../../components/page/DocumentationPage';
 import { olm, olmArchitecture, manageOperatorWithOlm, operatorGroupDesign } from '../../utils/documentationLinks';
 
 const pageTitle = 'How to install an Operator from OperatorHub.io';
