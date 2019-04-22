@@ -1,4 +1,5 @@
 import * as _ from 'lodash-es';
+import { operatorFieldValidators } from './operatorDescriptors';
 
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');
@@ -78,4 +79,158 @@ const normalizeOperator = operator => {
   };
 };
 
-export { generateIdFromVersionedName, normalizeOperator };
+const defaultOperator = {
+  apiVersion: '',
+  kind: 'ClusterServiceVersion',
+  metadata: {
+    name: '',
+    namespace: 'placeholder',
+    annotations: {
+      'alm-examples': [
+        {
+          apiVersion: '',
+          kind: '',
+          metadata: {
+            name: ''
+          },
+          spec: {}
+        }
+      ],
+      categories: '',
+      certified: false,
+      description: '',
+      containerImage: '',
+      support: '',
+      capabilities: validCapabilityStrings[0],
+      repository: ''
+    }
+  },
+  spec: {
+    displayName: '',
+    description: '',
+    maturity: '',
+    version: '',
+    replaces: '',
+    MinKubeVersion: '',
+    keywords: [],
+    maintainers: [{ name: '', email: '' }],
+    provider: { name: '' },
+    labels: {},
+    selector: {
+      matchLabels: {}
+    },
+    links: [{ name: '', url: '' }],
+    icon: { base64data: '', mediatype: '' },
+    customresourcedefinitions: {
+      owned: [
+        {
+          name: '',
+          displayName: '',
+          kind: '',
+          version: '',
+          description: ''
+        }
+      ],
+      required: [
+        {
+          name: '',
+          displayName: '',
+          kind: '',
+          version: '',
+          description: ''
+        }
+      ]
+    },
+    install: {
+      strategy: 'deployment',
+      spec: {
+        permissions: null,
+        clusterPermissions: null,
+        deployments: ''
+      }
+    },
+    installModes: [
+      { type: 'OwnNamespace', supported: true },
+      { type: 'SingleNamespace', supported: true },
+      { type: 'MultiNamespace', supported: false },
+      { type: 'AllNamespaces', supported: true }
+    ]
+  }
+};
+
+const getFieldValueError = (operator, field) => {
+  const value = _.get(operator, field);
+
+  const fieldRegex = _.get(_.get(operatorFieldValidators, field), 'regex');
+  if (fieldRegex) {
+    if (!fieldRegex.test(value)) {
+      return _.get(_.get(operatorFieldValidators, field), 'regexErrorMessage');
+    }
+  }
+
+  const validator = _.get(_.get(operatorFieldValidators, field), 'validator');
+  if (validator) {
+    return validator(value);
+  }
+
+  if (_.get(operatorFieldValidators, field, {}).required && _.isEmpty(value)) {
+    return 'This field is required';
+  }
+
+  return null;
+};
+
+const areSubFieldValid = (operator, fieldList) => {
+  const validators = _.get(operatorFieldValidators, fieldList);
+  if (!_.isObject(validators)) {
+    return true;
+  }
+
+  const error = _.find(_.keys(validators), key => {
+    const newFieldList = _.clone(fieldList);
+    newFieldList.push(key);
+    const field = newFieldList.join('.');
+
+    if (getFieldValueError(operator, field)) {
+      console.log(`${field}: ${getFieldValueError(operator, field)}`);
+      return true;
+    }
+
+    return !areSubFieldValid(operator, newFieldList);
+  });
+
+  return !error;
+};
+
+const validateOperator = operator => {
+  if (_.isEmpty(operator)) {
+    return false;
+  }
+
+  const error = _.find(_.keys(operatorFieldValidators), key => {
+    if (getFieldValueError(operator, key)) {
+      console.log(`${key}: ${getFieldValueError(operator, key)}`);
+      return true;
+    }
+
+    return !areSubFieldValid(operator, [key]);
+  });
+
+  return !error;
+};
+
+const getFieldMissing = (operator, field) => {
+  const value = _.get(operator, field, '');
+  const required = _.get(_.get(operatorFieldValidators, field), 'required', false);
+  return value === '' && required;
+};
+
+export {
+  generateIdFromVersionedName,
+  normalizeOperator,
+  defaultOperator,
+  validCapabilityStrings,
+  validateOperator,
+  getFieldValueError,
+  getFieldMissing
+};
