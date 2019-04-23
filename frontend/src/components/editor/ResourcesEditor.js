@@ -9,12 +9,7 @@ class ResourcesEditor extends React.Component {
   areResourcesEmpty = () => {
     const { crd } = this.props;
 
-    return (
-      crd.resources.length === 1 &&
-      crd.resources[0].version === '' &&
-      crd.resources[0].kind === '' &&
-      crd.resources[0].name === ''
-    );
+    return crd.resources.length === 1 && crd.resources[0].version === '' && crd.resources[0].kind === '';
   };
 
   componentDidUpdate(prevProps) {
@@ -22,7 +17,7 @@ class ResourcesEditor extends React.Component {
 
     if (crd && !_.isEqual(crd, prevProps.crd)) {
       if (!_.size(_.get(crd, 'resources'))) {
-        crd.resources = [{ version: '', kind: '', name: '' }];
+        crd.resources = [{ version: '', kind: '' }];
         onUpdate(crd);
       }
     }
@@ -32,7 +27,7 @@ class ResourcesEditor extends React.Component {
     const { crd, onUpdate } = this.props;
 
     event.preventDefault();
-    crd.resources = [..._.get(crd, 'resources', []), { version: '', kind: '', name: '' }];
+    crd.resources = [..._.get(crd, 'resources', []), { version: '', kind: '' }];
     onUpdate(crd);
   };
 
@@ -55,7 +50,7 @@ class ResourcesEditor extends React.Component {
     if (!this.areResourcesEmpty()) {
       crd.resources = crd.resources.filter(nextResource => nextResource !== resource);
       if (_.isEmpty(crd.resources)) {
-        crd.resources.push({ version: '', kind: '', name: '' });
+        crd.resources.push({ version: '', kind: '' });
       }
 
       onUpdate(crd);
@@ -63,12 +58,19 @@ class ResourcesEditor extends React.Component {
   };
 
   renderResource = (resource, index) => {
-    const { versionPlaceholder, kindPlaceholder, namePlaceholder } = this.props;
+    const { versionPlaceholder, kindPlaceholder } = this.props;
     const removeResourceClass = classNames('remove-label', { disabled: this.areResourcesEmpty() });
+
+    const fieldErrors = null;
+
+    const versionError = _.get(fieldErrors, 'keyError');
+    const kindError = _.get(fieldErrors, 'valueError');
+    const versionClasses = classNames('form-group col-sm-6', { 'oh-operator-editor-form__field--error': versionError });
+    const kindClasses = classNames('form-group col-sm-6', { 'oh-operator-editor-form__field--error': kindError });
 
     return (
       <div key={index} className="oh-operator-editor-form__field row">
-        <div className="form-group col-sm-4">
+        <div className={versionClasses}>
           <input
             className="form-control"
             type="text"
@@ -78,25 +80,15 @@ class ResourcesEditor extends React.Component {
             placeholder={versionPlaceholder}
           />
         </div>
-        <div className="form-group col-sm-4">
-          <input
-            className="form-control"
-            type="text"
-            value={resource.kind}
-            onChange={e => this.updateResource(resource, 'kind', e.target.value)}
-            onBlur={() => this.onFieldBlur(resource)}
-            placeholder={kindPlaceholder}
-          />
-        </div>
-        <div className="form-group col-sm-4">
+        <div className={kindClasses}>
           <div className="oh-operator-editor-form__label-key-col">
             <input
               className="form-control"
               type="text"
-              value={resource.name}
-              onChange={e => this.updateResource(resource, 'name', e.target.value)}
+              value={resource.kind}
+              onChange={e => this.updateResource(resource, 'kind', e.target.value)}
               onBlur={() => this.onFieldBlur(resource)}
-              placeholder={namePlaceholder}
+              placeholder={kindPlaceholder}
             />
             <a href="#" className={removeResourceClass} onClick={e => this.removeResource(e, resource)}>
               <Icon type="fa" name="trash" />
@@ -119,9 +111,8 @@ class ResourcesEditor extends React.Component {
         <h3>{title}</h3>
         <p>{_.get(operatorFieldDescriptions, field)}</p>
         <div className="oh-operator-editor-form__field row">
-          <span className="col-sm-4">Version</span>
-          <span className="col-sm-4">Kind</span>
-          <span className="col-sm-4">Name</span>
+          <span className="col-sm-6">Version</span>
+          <span className="col-sm-6">Kind</span>
         </div>
         {_.map(crd.resources, (resource, index) => this.renderResource(resource, index))}
         <div className="oh-operator-editor__list__adder">

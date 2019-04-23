@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
 import { ExpandCollapse, Icon } from 'patternfly-react';
+import EditorSelect from './EditorSelect';
 
 class DescriptorsEditor extends React.Component {
   areDescriptorsEmpty = () => {
@@ -66,7 +67,13 @@ class DescriptorsEditor extends React.Component {
   };
 
   renderDescriptor = (descriptor, index) => {
-    const { displayNamePlaceholder, descriptionPlaceholder, pathPlaceholder, xDescriptorsPlaceholder } = this.props;
+    const {
+      descriptorOptions,
+      displayNamePlaceholder,
+      descriptionPlaceholder,
+      pathPlaceholder,
+      xDescriptorsPlaceholder
+    } = this.props;
     const removeDescriptorClass = classNames('remove-label', { disabled: this.areDescriptorsEmpty() });
 
     return (
@@ -110,16 +117,22 @@ class DescriptorsEditor extends React.Component {
           <div className="row">
             <div className="col-sm-6">
               <div>X-Descriptors</div>
-              <input
-                className="form-control"
-                type="text"
-                value={descriptor['x-descriptors']}
-                onChange={e => this.updateDescriptor(descriptor, 'x-descriptors', e.target.value)}
-                onBlur={() => this.onFieldBlur(descriptor)}
+              <EditorSelect
+                id={`x-descriptor-${index}`}
+                values={descriptor['x-descriptors']}
+                options={descriptorOptions}
+                isMulti
+                clearButton
                 placeholder={xDescriptorsPlaceholder}
+                onChange={selections => {
+                  this.updateDescriptor(descriptor, 'x-descriptors', selections);
+                }}
+                onBlur={() => this.onFieldBlur(descriptor)}
+                newSelectionPrefix="Add x-descriptor:"
+                emptyLabel="Add x-descriptor:"
               />
             </div>
-            <span className="form-group col-sm-6">
+            <span className="oh-operator-editor-form__description  col-sm-6">
               Used to determine which {'"capabilities"'} this descriptor has and which UI component to use.
             </span>
           </div>
@@ -162,6 +175,7 @@ DescriptorsEditor.propTypes = {
   singular: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   descriptorsField: PropTypes.string.isRequired,
+  descriptorOptions: PropTypes.array.isRequired,
   noSeparator: PropTypes.bool,
   onUpdate: PropTypes.func.isRequired,
   displayNamePlaceholder: PropTypes.string,

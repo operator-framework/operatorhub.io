@@ -30,7 +30,7 @@ class OperatorFormEditorPage extends React.Component {
       'spec.maturity',
       'spec.version',
       'spec.replaces',
-      'spec.MinKubeVersion',
+      'spec.minKubeVersion',
       'metadata.annotations.capabilities',
       'spec.installModes',
       'spec.labels',

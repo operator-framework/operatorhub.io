@@ -80,7 +80,7 @@ const normalizeOperator = operator => {
 };
 
 const defaultOperator = {
-  apiVersion: '',
+  apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
   metadata: {
     name: '',
@@ -111,7 +111,7 @@ const defaultOperator = {
     maturity: '',
     version: '',
     replaces: '',
-    MinKubeVersion: '',
+    minKubeVersion: '',
     keywords: [],
     maintainers: [{ name: '', email: '' }],
     provider: { name: '' },
@@ -153,28 +153,59 @@ const defaultOperator = {
       { type: 'OwnNamespace', supported: true },
       { type: 'SingleNamespace', supported: true },
       { type: 'MultiNamespace', supported: false },
-      { type: 'AllNamespaces', supported: true }
+      { type: 'AllNamespaces', supported: false }
     ]
   }
 };
 
-const getFieldValueError = (operator, field) => {
-  const value = _.get(operator, field);
+const getValueError = (value, fieldValidator) => {
+  const fieldRegex = _.get(fieldValidator, 'regex');
 
-  const fieldRegex = _.get(_.get(operatorFieldValidators, field), 'regex');
+  if (fieldValidator.required && _.isEmpty(value)) {
+    return 'This field is required';
+  }
+
+  if (!fieldValidator.required && _.isEmpty(value)) {
+    return null;
+  }
+
   if (fieldRegex) {
     if (!fieldRegex.test(value)) {
-      return _.get(_.get(operatorFieldValidators, field), 'regexErrorMessage');
+      return _.get(fieldValidator, 'regexErrorMessage');
     }
   }
 
-  const validator = _.get(_.get(operatorFieldValidators, field), 'validator');
+  const validator = _.get(fieldValidator, 'validator');
   if (validator) {
     return validator(value);
   }
 
-  if (_.get(operatorFieldValidators, field, {}).required && _.isEmpty(value)) {
-    return 'This field is required';
+  return null;
+};
+
+const getFieldValueError = (operator, field) => {
+  const value = _.get(operator, field);
+  const fieldValidator = _.get(operatorFieldValidators, field, {});
+
+  const fieldError = getValueError(value, fieldValidator);
+  if (fieldError) {
+    return fieldError;
+  }
+
+  if (fieldValidator.isObjectProps) {
+    const propErrors = [];
+
+    _.forEach(_.keys(value), key => {
+      const keyError = getValueError(key, _.get(fieldValidator, 'key'));
+      const valueError = getValueError(_.get(value, key), _.get(fieldValidator, 'value'));
+      if (keyError || valueError) {
+        propErrors.push({ key, value: _.get(value, key), keyError, valueError });
+      }
+    });
+
+    if (_.size(propErrors)) {
+      return propErrors;
+    }
   }
 
   return null;
@@ -231,6 +262,7 @@ export {
   defaultOperator,
   validCapabilityStrings,
   validateOperator,
+  getValueError,
   getFieldValueError,
   getFieldMissing
 };

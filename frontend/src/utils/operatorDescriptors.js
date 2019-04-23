@@ -2,7 +2,11 @@
 import * as React from 'react';
 import * as _ from 'lodash-es';
 
+const nameRegExp = /^[a-z][a-z-]*[a-z]$/;
+
 const versionRegExp = /^([v|V])?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
+
+const kubeVersionRegExp = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
 const urlRegExp = new RegExp(
   '^(?:(?:(?:https?|ftp):)?//)' + // protocol
@@ -18,8 +22,13 @@ const emailRegExp = new RegExp(
   "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 );
 
+const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z.-_]*[a-z0-9A-Z]$/;
+const labelRegExpMessage =
+  'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
+
 const operatorFieldDescriptions = {
   metadata: {
+    name: "Name of the operator's cluster service version.",
     annotations: {
       capabilities: 'The level of capabilities provided by this Operator.',
       categories: 'A list of categories that you Operator falls into. Used for categorization within compatible UIs.',
@@ -61,7 +70,7 @@ const operatorFieldDescriptions = {
     maturity: 'The stability of the Operator.',
     replaces:
       "The name of the CSV that will be replaced by this latest version (naming scheme is 'Operator name + semantic version number', e.g. 'etcdoperator.v0.9.0').",
-    MinKubeVersion:
+    minKubeVersion:
       "A minimum version of Kubernetes the server should have for the operator(s) to be deployed. The Kubernetes version must be in the format: 'Major.Minor.Patch'.",
     maintainers:
       'A list of names and email addresses of the maintainers of the Operator code. This can be a list of individuals or a shared email alias.',
@@ -179,6 +188,8 @@ const installModeDescriptors = {
   MultiNamespace: 'If supported, the operator can be a member of an OperatorGroup that selects more than one namespace.'
 };
 
+const maturityOptions = ['planning', 'pre-alpha', 'alpha', 'beta', 'stable', 'mature', 'inactive', 'deprecated'];
+
 const categoryOptions = [
   'AI/Machine Learning',
   'Big Data',
@@ -196,6 +207,7 @@ const categoryOptions = [
 
 const operatorFieldPlaceholders = {
   metadata: {
+    name: 'e.g. my-operator.v0.0.1',
     annotations: {
       description: 'resize this field with the grabber icon at the bottom right corner',
       containerImage: 'e.g. quay.io/example/example-operator:v0.0.1'
@@ -208,7 +220,7 @@ const operatorFieldPlaceholders = {
     version: 'e.g 0.0.2',
     maturity: 'e.g. alpha, beta, or stable',
     replaces: 'e.g. my-operator.v0.0.1',
-    MinKubeVersion: 'e.g. 1.11.0',
+    minKubeVersion: 'e.g. 1.11.0',
     maintainers: {
       name: 'e.g. John Smith',
       email: 'e.g. john_smith@myhost.com'
@@ -227,19 +239,24 @@ const linksValidator = links => {
   if (!links || _.isEmpty(links)) {
     return 'At least one external link is required.';
   }
-  let errors = false;
-  const linkErrors = [];
+
+  const linksErrors = [];
   _.forEach(links, link => {
-    if (!urlRegExp.test(link.url)) {
-      errors = true;
-      linkErrors.push({ key: '', value: 'Must be a valid URL' });
-    } else {
-      linkErrors.push('');
+    const nameError = link.name ? null : 'This field is required.';
+    const urlError = urlRegExp.test(link.url) ? null : 'Must be a valid URL';
+    if (nameError || urlError) {
+      const error = {
+        key: link.name,
+        value: link.url,
+        keyError: nameError,
+        valueError: urlError
+      };
+      linksErrors.push(error);
     }
   });
 
-  if (errors) {
-    return linkErrors;
+  if (_.size(linksErrors)) {
+    return linksErrors;
   }
 
   return null;
@@ -250,19 +267,46 @@ const maintainersValidator = maintainers => {
     return 'At least one maintainer is required.';
   }
 
-  let errors = false;
   const maintainerErrors = [];
   _.forEach(maintainers, maintainer => {
-    if (!emailRegExp.test(maintainer.email)) {
-      errors = true;
-      maintainerErrors.push({ key: '', value: 'Must be a valid email address' });
-    } else {
-      maintainerErrors.push('');
+    const nameError = maintainer.name ? null : 'This field is required.';
+    const emailError = emailRegExp.test(maintainer.email) ? null : 'Must be a valid email address.';
+    if (nameError || emailError) {
+      const error = {
+        key: maintainer.name,
+        value: maintainer.email,
+        keyError: nameError,
+        valueError: emailError
+      };
+      maintainerErrors.push(error);
     }
   });
 
-  if (errors) {
+  if (_.size(maintainerErrors)) {
     return maintainerErrors;
+  }
+
+  return null;
+};
+
+const nameValidator = name => {
+  if (!name) {
+    return 'This field is required.';
+  }
+
+  const versionStart = name.indexOf('.v');
+  if (versionStart < 0) {
+    return 'The name must end in a valid semantic version, e.g. v0.0.1';
+  }
+
+  const opName = name.slice(0, versionStart);
+  if (!nameRegExp.test(opName)) {
+    return 'The name portion can only contain lower case characters and dashes.';
+  }
+
+  const version = name.slice(versionStart + 1);
+  if (!versionRegExp.test(version)) {
+    return 'The version portion must contain a valid semantic version string.';
   }
 
   return null;
@@ -271,7 +315,11 @@ const maintainersValidator = maintainers => {
 const operatorFieldValidators = {
   metadata: {
     name: {
-      required: true
+      required: true,
+      validator: nameValidator,
+      props: {
+        maxLength: 253
+      }
     },
     annotations: {
       capabilities: {
@@ -280,7 +328,7 @@ const operatorFieldValidators = {
       description: {
         required: true,
         props: {
-          maxLength: 135
+          maxLength: 163
         }
       }
     }
@@ -297,6 +345,16 @@ const operatorFieldValidators = {
       regex: versionRegExp,
       regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)'
     },
+    replaces: {
+      validator: nameValidator,
+      props: {
+        maxLength: 253
+      }
+    },
+    minKubeVersion: {
+      regex: kubeVersionRegExp,
+      regexErrorMessage: "Must be in the format: 'Major.Minor.Patch'. (e.g 0.0.1)"
+    },
     maturity: {
       required: true
     },
@@ -305,6 +363,46 @@ const operatorFieldValidators = {
     },
     icon: {
       required: true
+    },
+    labels: {
+      required: true,
+      isObjectProps: true,
+      key: {
+        required: true,
+        regex: labelRegExp,
+        regexErrorMessage: labelRegExpMessage,
+        props: {
+          maxLength: 63
+        }
+      },
+      value: {
+        regex: labelRegExp,
+        regexErrorMessage: labelRegExpMessage,
+        props: {
+          maxLength: 63
+        }
+      }
+    },
+    selector: {
+      matchLabels: {
+        required: true,
+        isObjectProps: true,
+        key: {
+          required: true,
+          regex: labelRegExp,
+          regexErrorMessage: labelRegExpMessage,
+          props: {
+            maxLength: 63
+          }
+        },
+        value: {
+          regex: labelRegExp,
+          regexErrorMessage: labelRegExpMessage,
+          props: {
+            maxLength: 63
+          }
+        }
+      }
     },
     installModes: {
       required: true
@@ -362,6 +460,7 @@ export {
   operatorFieldDescriptions,
   operatorObjectDescriptions,
   capabilityDescriptions,
+  maturityOptions,
   categoryOptions,
   installModeDescriptors,
   operatorFieldPlaceholders,
