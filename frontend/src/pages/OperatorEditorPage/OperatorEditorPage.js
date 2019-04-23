@@ -4,12 +4,12 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import JSZip from 'jszip';
-import { safeDump } from 'js-yaml';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import { defaultOperator, validateOperator } from '../../utils/operatorUtils';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
+import { operatorNameFromOperator, yamlFromOperator } from './editorPageUtils';
 
 class OperatorEditorPage extends React.Component {
   state = {
@@ -41,16 +41,15 @@ class OperatorEditorPage extends React.Component {
 
     let operatorYaml;
     try {
-      operatorYaml = safeDump(operator);
+      operatorYaml = yamlFromOperator(operator);
     } catch (e) {
       operatorYaml = '';
     }
 
-    const name = _.get(operator, 'spec.displayName');
-    const version = _.get(operator, 'spec,version');
+    const name = operatorNameFromOperator(operator);
 
     const zip = new JSZip();
-    zip.file(`${name}/${name}.${version}.clusterserviceversion.yaml`, operatorYaml);
+    zip.file(`${name}/${name}.clusterserviceversion.yaml`, operatorYaml);
 
     zip.generateAsync({ type: 'base64' }).then(
       base64 => {

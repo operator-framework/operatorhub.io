@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
+import { safeDump, safeLoad } from 'js-yaml';
 
 import {
   operatorFieldDescriptions,
@@ -89,4 +90,42 @@ const updateStoredFormErrors = (operator, formErrors, fields, storeEditorFormErr
   return updatedFormErrors;
 };
 
-export { renderOperatorInput, renderOperatorFormField, renderFormError, EDITOR_STATUS, updateStoredFormErrors };
+const operatorNameFromOperator = operator => {
+  const name = _.get(operator, 'metadata.name');
+  const version = _.get(operator, 'spec.version');
+
+  const versionStart = _.startsWith(version, 'v') || _.startsWith(version, 'V') ? 1 : 0;
+
+  return `${name}.v${version.slice(versionStart)}`;
+};
+
+const normalizeYamlOperator = yaml => {
+  const normalizedOperator = safeLoad(yaml);
+
+  const name = _.get(normalizedOperator, 'metadata.name');
+  if (name) {
+    const versionStart = name.indexOf('.v');
+    const normalizedName = name.slice(0, versionStart);
+    _.set(normalizedOperator, 'metadata.name', normalizedName);
+  }
+  return normalizedOperator;
+};
+
+const yamlFromOperator = operator => {
+  const yamlizedOperator = _.cloneDeep(operator);
+
+  _.set(yamlizedOperator, 'metadata.name', operatorNameFromOperator(operator));
+
+  return safeDump(yamlizedOperator);
+};
+
+export {
+  renderOperatorInput,
+  renderOperatorFormField,
+  renderFormError,
+  EDITOR_STATUS,
+  updateStoredFormErrors,
+  operatorNameFromOperator,
+  normalizeYamlOperator,
+  yamlFromOperator
+};
