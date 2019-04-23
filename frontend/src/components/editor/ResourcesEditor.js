@@ -31,7 +31,7 @@ class ResourcesEditor extends React.Component {
     onUpdate(crd);
   };
 
-  onFieldBlur = resource => {
+  onFieldBlur = () => {
     const { crd, onUpdate } = this.props;
 
     onUpdate(crd);
@@ -132,15 +132,13 @@ ResourcesEditor.propTypes = {
   field: PropTypes.string.isRequired,
   onUpdate: PropTypes.func.isRequired,
   versionPlaceholder: PropTypes.string,
-  kindPlaceholder: PropTypes.string,
-  namePlaceholder: PropTypes.string
+  kindPlaceholder: PropTypes.string
 };
 
 ResourcesEditor.defaultProps = {
   crd: {},
   versionPlaceholder: 'e.g. v1beta2',
-  kindPlaceholder: 'e.g. StatefulSet',
-  namePlaceholder: 'e.g. ""'
+  kindPlaceholder: 'e.g. StatefulSet'
 };
 
 export default ResourcesEditor;

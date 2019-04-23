@@ -187,11 +187,6 @@ const getFieldValueError = (operator, field) => {
   const value = _.get(operator, field);
   const fieldValidator = _.get(operatorFieldValidators, field, {});
 
-  const fieldError = getValueError(value, fieldValidator);
-  if (fieldError) {
-    return fieldError;
-  }
-
   if (fieldValidator.isObjectProps) {
     const propErrors = [];
 
@@ -206,6 +201,11 @@ const getFieldValueError = (operator, field) => {
     if (_.size(propErrors)) {
       return propErrors;
     }
+  } else {
+    const fieldError = getValueError(value, fieldValidator);
+    if (fieldError) {
+      return fieldError;
+    }
   }
 
   return null;
@@ -214,6 +214,10 @@ const getFieldValueError = (operator, field) => {
 const areSubFieldValid = (operator, fieldList) => {
   const validators = _.get(operatorFieldValidators, fieldList);
   if (!_.isObject(validators)) {
+    return true;
+  }
+
+  if (validators.isObjectProps) {
     return true;
   }
 
