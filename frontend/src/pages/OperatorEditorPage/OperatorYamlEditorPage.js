@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { safeLoad, safeDump } from 'js-yaml';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import YamlViewer from '../../components/YamlViewer';
 import OperatorEditorPage from './OperatorEditorPage';
+import { normalizeYamlOperator, yamlFromOperator } from './editorPageUtils';
 
 class OperatorYamlEditorPage extends React.Component {
   state = {
@@ -22,7 +22,7 @@ class OperatorYamlEditorPage extends React.Component {
     let yaml;
     let yamlError = null;
     try {
-      yaml = safeDump(operator);
+      yaml = yamlFromOperator(operator);
     } catch (e) {
       yamlError = e;
     }
@@ -35,7 +35,7 @@ class OperatorYamlEditorPage extends React.Component {
 
     let yamlError;
     try {
-      const updatedOperator = safeLoad(yaml);
+      const updatedOperator = normalizeYamlOperator(yaml);
       yamlError = '';
       storeEditorOperator(updatedOperator);
     } catch (e) {

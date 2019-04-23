@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as _ from 'lodash-es';
 
 const nameRegExp = /^[a-z][a-z-]*[a-z]$/;
+const nameRegExpMessage =
+  'This field must begin and end with a lower case character with only dashes or lower case characters between.';
 
 const versionRegExp = /^([v|V])?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
@@ -22,7 +24,7 @@ const emailRegExp = new RegExp(
   "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 );
 
-const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z.-_]*[a-z0-9A-Z]$/;
+const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z]$/;
 const labelRegExpMessage =
   'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
 
@@ -316,7 +318,8 @@ const operatorFieldValidators = {
   metadata: {
     name: {
       required: true,
-      validator: nameValidator,
+      regex: nameRegExp,
+      regexErrorMessage: nameRegExpMessage,
       props: {
         maxLength: 253
       }
