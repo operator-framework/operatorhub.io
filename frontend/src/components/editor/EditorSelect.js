@@ -16,14 +16,13 @@ const EditorSelect = ({
   onBlur,
   ...otherProps
 }) => (
-  <span className="oh-operator-editor-form__select">
+  <div className="oh-operator-editor-form__select">
     <TypeAheadSelect
       id={id}
       multiple={isMulti}
       options={options}
       selected={values}
       allowNew={customSelect}
-      clearButton
       dropup={dropup}
       placeholder={placeholder}
       onChange={onChange}
@@ -31,7 +30,7 @@ const EditorSelect = ({
       positionFixed
       {...otherProps}
     />
-  </span>
+  </div>
 );
 
 EditorSelect.propTypes = {
