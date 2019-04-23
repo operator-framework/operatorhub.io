@@ -2,12 +2,12 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
-import { safeLoad } from 'js-yaml';
 import classNames from 'classnames';
 import { Grid, Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import UploadUrlModal from '../modals/UploadUrlModal';
 import { reduxConstants } from '../../redux';
+import { normalizeYamlOperator } from '../../pages/OperatorEditorPage/editorPageUtils';
 
 const validFileTypes = ['.yaml'];
 
@@ -29,7 +29,7 @@ class ManifestUploader extends React.Component {
 
     let updatedOperator = {};
     try {
-      updatedOperator = safeLoad(upload.contents) || {};
+      updatedOperator = normalizeYamlOperator(upload.contents) || {};
     } catch (e) {
       upload.status = (
         <span className="oh-operator-editor-upload__uploads__status">
