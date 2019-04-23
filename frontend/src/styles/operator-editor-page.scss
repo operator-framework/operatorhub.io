@@ -270,17 +270,42 @@
     }
 
     &__select {
+      background-color: $color-pf-white;
       color: $oh-color-text-body;
       font-size: 14px;
       padding-top: 1px;
 
-      .form-control {
+      .rbt-input-hint-container, .rbt-input-multi {
         background-color: transparent;
         border-radius: 4px;
         border-color: #dededf;
         color: $oh-color-text-body;
-        height: 40px;
         z-index: 5;
+
+        .form-control {
+          background-color: transparent;
+        }
+      }
+
+      .rbt-input-multi {
+        min-height: 40px;
+
+        .rbt-input-wrapper {
+          display: flex;
+          flex-wrap: wrap;
+          vertical-align: middle;
+          align-items: center;
+
+          input {
+            height: initial;
+          }
+        }
+      }
+
+      .rbt-token.rbt-token-removeable {
+        height: initial;
+        margin-top: 3px;
+        max-height: 22px;
       }
 
       &::placeholder {

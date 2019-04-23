@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
 import { Icon } from 'patternfly-react';
-import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
+import { operatorFieldDescriptions, operatorFieldValidators } from '../../utils/operatorDescriptors';
 
 class LabelsEditor extends React.Component {
   constructor(props) {
@@ -19,12 +19,15 @@ class LabelsEditor extends React.Component {
     }
   }
 
-  areLabelsEmpty = () => {
+  isEmptyLabel = label => {
     const { keyField, valueField } = this.props;
+    return label[keyField] === '' && label[valueField] === '';
+  };
 
+  areLabelsEmpty = () => {
     const { labels } = this.state;
 
-    return labels.length === 1 && labels[0][keyField] === '' && labels[0][valueField] === '';
+    return labels.length === 1 && this.isEmptyLabel(labels[0]);
   };
 
   createNewLabel = (key, value) => {
@@ -38,24 +41,23 @@ class LabelsEditor extends React.Component {
   };
 
   getOperatorLabels = () => {
-    const { operator, field, valueField } = this.props;
+    const { operator, field, isPropsField } = this.props;
     const labels = _.get(this.state, 'labels');
 
-    const emptyLabels = _.filter(labels, { key: '' });
+    const emptyLabels = _.filter(labels, label => this.isEmptyLabel(label));
 
-    const currentLabels = _.get(operator, field, []);
-    const operatorLabels = _.reduce(
-      currentLabels,
-      (existingLabels, value, key) => {
-        if (!_.isEmpty(value[valueField])) {
-          existingLabels.push(_.clone(value));
-        } else {
-          existingLabels.push(this.createNewLabel(key, value));
-        }
-        return existingLabels;
-      },
-      []
-    );
+    let currentLabels = _.get(operator, field);
+    if (isPropsField) {
+      if (currentLabels) {
+        currentLabels = _.map(_.keys(currentLabels), key => this.createNewLabel(key, currentLabels[key]));
+      }
+    }
+
+    if (!currentLabels) {
+      currentLabels = [];
+    }
+
+    const operatorLabels = _.filter(currentLabels, label => !this.isEmptyLabel(label));
 
     operatorLabels.push(...emptyLabels);
 
@@ -113,9 +115,10 @@ class LabelsEditor extends React.Component {
     const removeLabelClass = classNames('remove-label', { disabled: this.areLabelsEmpty() });
 
     const errors = _.get(formErrors, field, []);
+    const fieldErrors = _.find(errors, { key: operatorLabel[keyField], value: operatorLabel[valueField] });
 
-    const keyError = _.get(errors, [0, 'key']);
-    const valueError = _.get(errors, [0, 'value']);
+    const keyError = _.get(fieldErrors, 'keyError');
+    const valueError = _.get(fieldErrors, 'valueError');
     const keyClasses = classNames('form-group col-sm-6', { 'oh-operator-editor-form__field--error': keyError });
     const valueClasses = classNames('form-group col-sm-6', { 'oh-operator-editor-form__field--error': valueError });
 
@@ -129,8 +132,9 @@ class LabelsEditor extends React.Component {
             onChange={e => this.updateOperatorLabel(operatorLabel, e.target.value, operatorLabel[valueField])}
             onBlur={() => this.onFieldBlur(operatorLabel)}
             placeholder={keyPlaceholder}
+            {..._.get(operatorFieldValidators, `${field}.${keyField}.props`)}
           />
-          {keyError && <div className="oh-operator-editor-form__error-block">keyError</div>}
+          {keyError && <div className="oh-operator-editor-form__error-block">{keyError}</div>}
         </div>
         <div className={valueClasses}>
           <div className="oh-operator-editor-form__label-key-col">
@@ -141,6 +145,7 @@ class LabelsEditor extends React.Component {
               onChange={e => this.updateOperatorLabel(operatorLabel, operatorLabel[keyField], e.target.value)}
               onBlur={() => this.onFieldBlur(operatorLabel)}
               placeholder={valuePlaceholder}
+              {..._.get(operatorFieldValidators, `${field}.${valueField}.props`)}
             />
             <a href="#" className={removeLabelClass} onClick={e => this.removeOperatorLabel(e, operatorLabel)}>
               <Icon type="fa" name="trash" />
@@ -188,6 +193,7 @@ LabelsEditor.propTypes = {
   valueField: PropTypes.string,
   valueLabel: PropTypes.string,
   valuePlaceholder: PropTypes.string,
+  isPropsField: PropTypes.bool,
   formErrors: PropTypes.object
 };
 
@@ -198,6 +204,7 @@ LabelsEditor.defaultProps = {
   valueField: 'value',
   valueLabel: 'Value',
   valuePlaceholder: 'e.g. VALUE',
+  isPropsField: false,
   formErrors: {}
 };
 

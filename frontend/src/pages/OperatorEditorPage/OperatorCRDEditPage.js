@@ -17,6 +17,29 @@ import {
 import DescriptorsEditor from '../../components/editor/DescriptorsEditor';
 import YamlViewer from '../../components/YamlViewer';
 
+const specCapabilities = [
+  'urn:alm:descriptor:com.tectonic.ui:podCount',
+  'urn:alm:descriptor:com.tectonic.ui:endpointList',
+  'urn:alm:descriptor:com.tectonic.ui:label',
+  'urn:alm:descriptor:com.tectonic.ui:resourceRequirements',
+  'urn:alm:descriptor:com.tectonic.ui:selector:',
+  'urn:alm:descriptor:com.tectonic.ui:namespaceSelector',
+  'urn:alm:descriptor:io.kubernetes:',
+  'urn:alm:descriptor:com.tectonic.ui:booleanSwitch'
+];
+
+const statusCapabilities = [
+  'urn:alm:descriptor:com.tectonic.ui:podStatuses',
+  'urn:alm:descriptor:com.tectonic.ui:podCount',
+  'urn:alm:descriptor:org.w3:link',
+  'urn:alm:descriptor:io.kubernetes.conditions',
+  'urn:alm:descriptor:text',
+  'urn:alm:descriptor:prometheusEndpoint',
+  'urn:alm:descriptor:io.kubernetes.phase',
+  'urn:alm:descriptor:io.kubernetes.phase:reason',
+  'urn:alm:descriptor:io.kubernetes:'
+];
+
 class OperatorCRDEditPage extends React.Component {
   state = {
     crd: null,
@@ -271,6 +294,7 @@ class OperatorCRDEditPage extends React.Component {
           description="A reference to fields in the spec block of an object."
           onUpdate={this.updateCrdSpecDescriptors}
           descriptorsField="specDescriptors"
+          descriptorOptions={specCapabilities}
         />
         <DescriptorsEditor
           crd={crd}
@@ -279,15 +303,7 @@ class OperatorCRDEditPage extends React.Component {
           description="A reference to fields in the status block of an object."
           onUpdate={this.updateCrdStatusDescriptors}
           descriptorsField="statusDescriptors"
-        />
-        <DescriptorsEditor
-          crd={crd}
-          title="ActionDescriptors"
-          singular="ActionDescriptor"
-          description="A reference to fields in the action block of an object."
-          noSeparator
-          onUpdate={this.updateCrdActionDescriptors}
-          descriptorsField="actionDescriptors"
+          descriptorOptions={statusCapabilities}
         />
       </div>
     );

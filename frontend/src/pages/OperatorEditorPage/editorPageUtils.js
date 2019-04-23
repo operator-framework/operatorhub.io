@@ -89,10 +89,4 @@ const updateStoredFormErrors = (operator, formErrors, fields, storeEditorFormErr
   return updatedFormErrors;
 };
 
-export {
-  renderOperatorInput,
-  renderOperatorFormField,
-  renderFormError,
-  EDITOR_STATUS,
-  updateStoredFormErrors
-};
+export { renderOperatorInput, renderOperatorFormField, renderFormError, EDITOR_STATUS, updateStoredFormErrors };
