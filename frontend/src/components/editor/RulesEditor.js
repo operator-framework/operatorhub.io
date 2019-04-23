@@ -139,6 +139,7 @@ class RulesEditor extends React.Component {
             id="resource-select"
             values={_.get(rule, 'resources')}
             options={RESOURCES}
+            clearButton
             customSelect
             placeholder="Select resources"
             onChange={(selections, e) => this.updateRuleSelections(rule, 'resources', selections)}
@@ -152,6 +153,7 @@ class RulesEditor extends React.Component {
               id="verbs-select"
               values={_.get(rule, 'verbs')}
               options={VERBS}
+              clearButton
               placeholder="Select verbs"
               onChange={(selections, e) => this.updateRuleSelections(rule, 'verbs', selections)}
               onBlur={() => this.onFieldBlur(rule)}

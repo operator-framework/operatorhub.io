@@ -5,7 +5,7 @@ import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
-import { categoryOptions, operatorFieldPlaceholders } from '../../utils/operatorDescriptors';
+import { categoryOptions, maturityOptions, operatorFieldPlaceholders } from '../../utils/operatorDescriptors';
 import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
 import ImageEditor from '../../components/editor/ImageEditor';
@@ -20,7 +20,7 @@ const METADATA_FIELDS = [
   'spec.maturity',
   'spec.version',
   'spec.replaces',
-  'spec.MinKubeVersion',
+  'spec.minKubeVersion',
   'spec.description',
   'metadata.annotations.capabilities',
   'spec.labels',
@@ -75,6 +75,7 @@ class OperatorMetadataPage extends React.Component {
     const errors = updateStoredFormErrors(workingOperator, formErrors, field, storeEditorFormErrors);
     const metadataErrors = _.some(METADATA_FIELDS, metadataField => _.get(errors, metadataField));
 
+    console.dir(errors);
     storeEditorOperator(_.cloneDeep(workingOperator));
 
     if (metadataErrors) {
@@ -111,7 +112,7 @@ class OperatorMetadataPage extends React.Component {
     const labels = {};
 
     _.forEach(operatorLabels, operatorLabel => {
-      if (!_.isEmpty(operatorLabel.key) && !_.isEmpty(operatorLabel.value)) {
+      if (!_.isEmpty(operatorLabel.key) || !_.isEmpty(operatorLabel.value)) {
         _.set(labels, operatorLabel.key, operatorLabel.value);
       }
     });
@@ -123,7 +124,7 @@ class OperatorMetadataPage extends React.Component {
     const matchLabels = {};
 
     _.forEach(operatorLabels, operatorLabel => {
-      if (!_.isEmpty(operatorLabel.key) && !_.isEmpty(operatorLabel.value)) {
+      if (!_.isEmpty(operatorLabel.key) || !_.isEmpty(operatorLabel.value)) {
         _.set(matchLabels, operatorLabel.key, operatorLabel.value);
       }
     });
@@ -174,6 +175,33 @@ class OperatorMetadataPage extends React.Component {
     );
   };
 
+  renderMaturity = () => {
+    const { formErrors } = this.props;
+    const { workingOperator } = this.state;
+    const field = 'spec.maturity';
+
+    const maturity = _.get(workingOperator, field);
+    const values = maturity ? [maturity] : [];
+
+    const inputComponent = (
+      <EditorSelect
+        id={_.camelCase(field)}
+        values={values}
+        isMulti={false}
+        noClear
+        options={maturityOptions}
+        placeholder={_.get(operatorFieldPlaceholders, field, `Select maturity`)}
+        onChange={selection => {
+          this.updateOperator(selection[0], field);
+        }}
+        onBlur={() => this.validateField(field)}
+        filterBy={() => true}
+      />
+    );
+
+    return renderOperatorInput('Maturity', field, inputComponent, formErrors);
+  };
+
   renderCategories = () => {
     const { formErrors } = this.props;
     const { workingOperator } = this.state;
@@ -187,6 +215,7 @@ class OperatorMetadataPage extends React.Component {
         id={_.camelCase(field)}
         values={values}
         isMulti
+        clearButton
         options={categoryOptions}
         placeholder={_.get(operatorFieldPlaceholders, field, `Select Categories`)}
         onChange={selections => {
@@ -209,6 +238,7 @@ class OperatorMetadataPage extends React.Component {
         id={_.camelCase(field)}
         values={_.get(workingOperator, field)}
         isMulti
+        clearButton
         customSelect
         placeholder={_.get(operatorFieldPlaceholders, field, `Add Keywords`)}
         onChange={selections => {
@@ -230,27 +260,30 @@ class OperatorMetadataPage extends React.Component {
     return (
       <form className="oh-operator-editor-form">
         {this.renderFormField('Display Name', 'spec.displayName', 'text')}
+        {this.renderFormField('Name', 'metadata.name', 'text')}
         {this.renderFormField('Short Description', 'metadata.annotations.description', 'text-area')}
-        {this.renderFormField('Maturity', 'spec.maturity', 'text')}
+        {this.renderMaturity()}
         {this.renderFormField('Version', 'spec.version', 'text')}
         {this.renderFormField('Replaces (optional)', 'spec.replaces', 'text')}
-        {this.renderFormField('Minimum Kubernetes Version (optional)', 'spec.MinKubeVersion', 'text')}
+        {this.renderFormField('Minimum Kubernetes Version (optional)', 'spec.minKubeVersion', 'text')}
         <DescriptionEditor operator={workingOperator} onUpdate={this.updateOperator} onValidate={this.validateField} />
         <CapabilityEditor operator={workingOperator} onUpdate={this.updateOperatorCapability} />
         <LabelsEditor
           operator={workingOperator}
           onUpdate={this.updateOperatorLabels}
-          title="Labels (optional)"
+          title="Labels"
           singular="Label"
           field="spec.labels"
+          isPropsField
           formErrors={formErrors}
         />
         <LabelsEditor
           operator={workingOperator}
           onUpdate={this.updateOperatorSelectors}
-          title="Selectors (optional)"
+          title="Selectors"
           singular="Selector"
           field="spec.selector.matchLabels"
+          isPropsField
           formErrors={formErrors}
         />
         <h3>Categories and Keywords</h3>
