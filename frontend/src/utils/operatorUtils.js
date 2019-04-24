@@ -190,11 +190,17 @@ const getFieldValueError = (operator, field) => {
   if (fieldValidator.isObjectProps) {
     const propErrors = [];
 
+    if (fieldValidator.required && _.isEmpty(value)) {
+      return 'This field is required';
+    }
+
     _.forEach(_.keys(value), key => {
-      const keyError = getValueError(key, _.get(fieldValidator, 'key'));
-      const valueError = getValueError(_.get(value, key), _.get(fieldValidator, 'value'));
-      if (keyError || valueError) {
-        propErrors.push({ key, value: _.get(value, key), keyError, valueError });
+      if (key || value[key]) {
+        const keyError = getValueError(key, _.get(fieldValidator, 'key'));
+        const valueError = getValueError(_.get(value, key), _.get(fieldValidator, 'value'));
+        if (keyError || valueError) {
+          propErrors.push({ key, value: _.get(value, key), keyError, valueError });
+        }
       }
     });
 

@@ -238,7 +238,7 @@ const operatorFieldPlaceholders = {
 };
 
 const linksValidator = links => {
-  if (!links || _.isEmpty(links)) {
+  if (!links || _.isEmpty(links) || (links.length === 1 && !links.name && !links.url)) {
     return 'At least one external link is required.';
   }
 
@@ -368,7 +368,6 @@ const operatorFieldValidators = {
       required: true
     },
     labels: {
-      required: true,
       isObjectProps: true,
       key: {
         required: true,
@@ -388,7 +387,6 @@ const operatorFieldValidators = {
     },
     selector: {
       matchLabels: {
-        required: true,
         isObjectProps: true,
         key: {
           required: true,
