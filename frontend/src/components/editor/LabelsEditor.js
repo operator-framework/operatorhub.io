@@ -114,7 +114,7 @@ class LabelsEditor extends React.Component {
     const { field, keyField, keyPlaceholder, valueField, valuePlaceholder, formErrors } = this.props;
     const removeLabelClass = classNames('remove-label', { disabled: this.areLabelsEmpty() });
 
-    const errors = _.get(formErrors, field, []);
+    const errors = this.isEmptyLabel(operatorLabel) ? [] : _.get(formErrors, field, []);
     const fieldErrors = _.find(errors, { key: operatorLabel[keyField], value: operatorLabel[valueField] });
 
     const keyError = _.get(fieldErrors, 'keyError');
@@ -159,8 +159,10 @@ class LabelsEditor extends React.Component {
   };
 
   render() {
-    const { title, singular, field, keyLabel, valueLabel } = this.props;
+    const { title, singular, field, keyLabel, valueLabel, formErrors } = this.props;
     const { labels } = this.state;
+    const labelsError = _.get(formErrors, field, []);
+
     return (
       <React.Fragment>
         <h3>{title}</h3>
@@ -176,6 +178,7 @@ class LabelsEditor extends React.Component {
             <span>{`Add ${singular}`}</span>
           </a>
         </div>
+        {_.isString(labelsError) && <div className="oh-operator-editor-form__error-block">{labelsError}</div>}
       </React.Fragment>
     );
   }
