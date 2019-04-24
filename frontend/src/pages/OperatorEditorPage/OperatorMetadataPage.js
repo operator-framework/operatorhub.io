@@ -58,8 +58,13 @@ class OperatorMetadataPage extends React.Component {
   }
 
   componentDidMount() {
-    const { sectionStatus } = this.props;
+    const { sectionStatus, formErrors, storeEditorFormErrors } = this.props;
+    const { workingOperator } = this.state;
+
     this.originalStatus = sectionStatus.metadata;
+    if (this.originalStatus !== EDITOR_STATUS.empty) {
+      updateStoredFormErrors(workingOperator, formErrors, METADATA_FIELDS, storeEditorFormErrors);
+    }
   }
 
   updateOperator = (value, field) => {
