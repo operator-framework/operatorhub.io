@@ -137,7 +137,7 @@ class LabelsEditor extends React.Component {
           {keyError && <div className="oh-operator-editor-form__error-block">{keyError}</div>}
         </div>
         <div className={valueClasses}>
-          <div className="oh-operator-editor-form__label-key-col">
+          <div className="oh-operator-editor-form__label-value-col">
             <input
               className="form-control"
               type="text"

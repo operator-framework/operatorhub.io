@@ -51,10 +51,12 @@ const OperatorCRDsPage = ({
         field={crdsField}
         fieldTitle="Display Name"
         objectPage={objectPage}
+        formErrors={formErrors}
         history={history}
         objectTitleField="displayName"
-        pagePathField="displayName"
+        pagePathField="name"
         objectType={objectType}
+        addName="new-crd"
       />
     </OperatorEditorSubPage>
   );
