@@ -12,14 +12,14 @@ class SimpleMdeWrapper extends React.Component {
 
     this.simpleMDE = new SimpleMDE(
       _.assign({}, options, {
-        element: this.simpleMdeTextArea
+        element: this.simpleMdeTextArea        
       })
-    );
+    );    
 
     if (!this.simpleMDE) {
       return;
     }
-
+   
     this.simpleMDE.value(markdown);
 
     this.simpleMDE.codemirror.on('change', this.onMarkdownChange);

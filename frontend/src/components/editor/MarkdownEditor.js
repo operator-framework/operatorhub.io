@@ -12,6 +12,33 @@ class MarkdownEditor extends React.Component {
     initialPos: 0
   };
 
+  static mdeOptions = {
+    spellChecker: false,
+    status: false,
+    showIcons: ['code', 'table'],
+    hideIcons: ['side-by-side', 'fullscreen'],
+    previewRender: helpers.markdownConverter.makeHtml
+  };
+
+  static ToolbarWithLevel3Headline = [
+    'bold', 'italic',
+    {
+      name: "heading-smaller",
+      action: (editor) => {
+        const cm = editor.codemirror;
+        const text = cm.getLine(cm.getCursor("start").line);
+        const currHeadingLevel = text.search(/[^#]/);
+  
+        currHeadingLevel < 3 ?  editor.toggleHeading3() : editor.toggleHeadingSmaller();
+      },
+      className: "fa fa-header",
+      title: "Smaller Heading",
+    },
+    '|', 'code', 'quote', 'unordered-list', 'ordered-list',
+    '|', 'link', 'image', 'table',
+    '|', 'preview', 'guide'
+  ];
+
   onMarkdownChange = value => {
     this.props.onChange(value);
   };
@@ -46,16 +73,14 @@ class MarkdownEditor extends React.Component {
   };
 
   render() {
-    const { title, description, markdown } = this.props;
+    const { title, description, markdown, minHeadlineLevel3 } = this.props;
     const { contentHeight } = this.state;
 
-    const mdeOptions = {
-      spellChecker: false,
-      status: false,
-      showIcons: ['code', 'table'],
-      hideIcons: ['side-by-side', 'fullscreen'],
-      previewRender: helpers.markdownConverter.makeHtml
-    };
+    const mdeConfig = MarkdownEditor.mdeOptions;
+
+    if(minHeadlineLevel3){
+      mdeConfig.toolbar = MarkdownEditor.ToolbarWithLevel3Headline;
+    }
 
     return (
       <div
@@ -75,7 +100,7 @@ class MarkdownEditor extends React.Component {
         >
           <SimpleMdeWrapper
             markdown={markdown}
-            options={mdeOptions}
+            options={mdeConfig}
             onChange={this.onMarkdownChange}
             onBlur={this.onMarkdownBlur}
           />
@@ -90,6 +115,7 @@ MarkdownEditor.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   markdown: PropTypes.string,
+  minHeadlineLevel3: PropTypes.bool,
   onChange: PropTypes.func,
   onValidate: PropTypes.func
 };
@@ -97,7 +123,8 @@ MarkdownEditor.propTypes = {
 MarkdownEditor.defaultProps = {
   markdown: '',
   onChange: helpers.noop,
-  onValidate: helpers.noop
+  onValidate: helpers.noop,
+  minHeadlineLevel3: false
 };
 
 export default MarkdownEditor;
