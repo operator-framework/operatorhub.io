@@ -230,6 +230,12 @@
         .form-control {
           background-color: transparent;
         }
+
+        .rbt-input-hint {
+          padding-top: 0 !important;
+          padding-bottom: 0 !important;
+          border-width: 0 !important;
+        }
       }
 
       .rbt-input-multi {
@@ -282,7 +288,7 @@
     }
 
     .oh-operator-editor-form__field--error {
-      input, textarea, &__select {
+      input, textarea, &__select, .rbt-input {
         border-color: $color-pf-red;
       }
     }
@@ -386,18 +392,14 @@
       font-weight: 700;
     }
 
-    &__label-key-col {
-      position: relative;
-      margin-right: 20px;
+    &__label-value-col {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
 
-      .form-control {
-        width: calc(100% - 25px);
-      }
-
-      .remove-label {
-        position: absolute;
-        top: 7.5px;
-        right: 0;
+      .form-control, .oh-operator-editor-form__select {
+        flex: 1;
+        margin-right: 10px;
       }
     }
 
