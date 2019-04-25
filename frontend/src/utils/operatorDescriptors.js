@@ -8,7 +8,11 @@ const nameRegExpMessage =
 
 const versionRegExp = /^([v|V])?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
-const kubeVersionRegExp = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
+const kubeVersionRegExp = /^([v|V])(0|[1-9])+(alpha|beta)?(0|[1-9])*/;
+const kubeVersionRegExpMessage =
+  'Must start with a v, followed by a version number, and optionally a alpha or beta version';
+
+const majorMinorPatchVersionRegExp = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
 const urlRegExp = new RegExp(
   '^(?:(?:(?:https?|ftp):)?//)' + // protocol
@@ -26,6 +30,10 @@ const emailRegExp = new RegExp(
 
 const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z]$/;
 const labelRegExpMessage =
+  'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
+
+const yamlPathRegExp = /^[a-z0-9A-Z][a-z0-9A-Z_][[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z][a-z0-9A-Z_]$/;
+const yamlPathRegExpMessage =
   'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
 
 const operatorFieldDescriptions = {
@@ -111,7 +119,6 @@ const operatorFieldDescriptions = {
         displayName: 'A human readable version of your CRD name, e.g. "MongoDB Standalone".',
         description:
           'A short description of how this CRD is used by the Operator or a description of the functionality provided by the CRD.',
-        group: 'The API group that this CRD belongs to, e.g. mongodb.com.',
         kind: 'The machine readable name of your CRD.',
         name: 'The full name of your CRD, e.g. mongodbstandalones.mongodb.com.',
         version: 'The version of the object API.',
@@ -131,8 +138,14 @@ const operatorFieldDescriptions = {
           user. If your CRD contains the name of a Secret or ConfigMap that the user must provide, you can specify that
           here. These items will be linked and highlited in compatible UIs.`
       },
-      required: `Relying on other "required" CRDs is completely optional and only exists to reduce the scope of
-         individual Operators and provide a way to compose multiple Operators together to solve an end-to-end use case.`
+      required: {
+        displayName: 'A human readable version of the CRD name, e.g. etcd Cluster.',
+        description:
+          'A summary of how the component fits in your larger architecture, e.g. Represents a cluster of etcd nodes.',
+        kind: 'The Kubernetes object kind.',
+        name: 'The full name of the CRD you require, e.g. etcdclusters.etcd.database.coreos.com',
+        version: 'The version of the object API.'
+      }
     }
   }
 };
@@ -207,6 +220,55 @@ const categoryOptions = [
   'Streaming & Messaging'
 ];
 
+const kindOptions = [
+  'APIService',
+  'CertificateSigningRequest',
+  'ClusterRole',
+  'ClusterRoleBinding',
+  'ComponentStatus',
+  'ConfigMap',
+  'ControllerRevision',
+  'CronJob',
+  'CustomResourceDefinition',
+  'DaemonSet',
+  'Deployment',
+  'Endpoints',
+  'Event',
+  'HorizontalPodAutoscaler',
+  'Ingress',
+  'Job',
+  'Lease',
+  'LimitRange',
+  'LocalSubjectAccessReview',
+  'MutatingWebhookConfiguration',
+  'Namespace',
+  'NetworkPolicy',
+  'Node',
+  'PersistentVolume',
+  'PersistentVolumeClaim',
+  'Pod',
+  'PodDisruptionBudget',
+  'PodSecurityPolicy',
+  'PodTemplate',
+  'PriorityClass',
+  'ReplicaSet',
+  'ReplicationController',
+  'ResourceQuota',
+  'Role',
+  'RoleBinding',
+  'Secret',
+  'SelfSubjectAccessReview',
+  'SelfSubjectRulesReview',
+  'Service',
+  'ServiceAccount',
+  'StatefulSet',
+  'StorageClass',
+  'SubjectAccessReview',
+  'TokenReview',
+  'ValidatingWebhookConfiguration',
+  'VolumeAttachment'
+];
+
 const operatorFieldPlaceholders = {
   metadata: {
     name: 'e.g. my-operator.v0.0.1',
@@ -233,6 +295,22 @@ const operatorFieldPlaceholders = {
     links: {
       name: 'e.g. Latest Operator Blog',
       url: 'e.g https://myoperatorsite.com/blog'
+    },
+    customresourcedefinitions: {
+      owned: {
+        name: 'e.g. mongodbstandalones.mongodb.com',
+        version: 'e.g. v1beta2',
+        kind: 'e.g. MongoDB',
+        displayName: 'e.g. MongoDB Standalone',
+        description: 'resize this field with the grabber icon at the bottom right corner.'
+      },
+      required: {
+        name: 'e.g. etcdclusters.etcd.database.coreos.com',
+        version: 'e.g. v1beta2',
+        kind: 'e.g. EtcdCluster',
+        displayName: 'e.g. etcd Cluster',
+        description: 'resize this field with the grabber icon at the bottom right corner.'
+      }
     }
   }
 };
@@ -355,7 +433,7 @@ const operatorFieldValidators = {
       }
     },
     minKubeVersion: {
-      regex: kubeVersionRegExp,
+      regex: majorMinorPatchVersionRegExp,
       regexErrorMessage: "Must be in the format: 'Major.Minor.Patch'. (e.g 0.0.1)"
     },
     maturity: {
@@ -410,41 +488,102 @@ const operatorFieldValidators = {
     },
     customresourcedefinitions: {
       owned: {
-        name: {
-          required: true
-        },
-        version: {
-          required: true,
-          regex: versionRegExp,
-          regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)'
-        },
-        kind: {
-          required: true
-        },
-        displayName: {
-          required: true
-        },
-        description: {
-          required: true
+        isArray: true,
+        itemValidator: {
+          name: {
+            required: true
+          },
+          version: {
+            required: true,
+            regex: kubeVersionRegExp,
+            regexErrorMessage: kubeVersionRegExpMessage
+          },
+          kind: {
+            required: true,
+            regex: labelRegExp,
+            regexErrorMessage: labelRegExpMessage
+          },
+          displayName: {
+            required: true
+          },
+          description: {
+            required: true
+          },
+          resources: {
+            isArray: true,
+            itemValidator: {
+              version: {
+                required: true,
+                regex: kubeVersionRegExp,
+                regexErrorMessage: kubeVersionRegExpMessage
+              },
+              kind: {
+                required: true
+              }
+            }
+          },
+          specDescriptors: {
+            isArray: true,
+            itemValidator: {
+              displayName: {
+                required: true
+              },
+              description: {
+                required: true
+              },
+              path: {
+                required: true,
+                regex: yamlPathRegExp,
+                regexErrorMessage: yamlPathRegExpMessage
+              },
+              'x-descriptors': {
+                required: true
+              }
+            }
+          },
+          statusDescriptors: {
+            isArray: true,
+            itemValidator: {
+              displayName: {
+                required: true
+              },
+              description: {
+                required: true
+              },
+              path: {
+                required: true,
+                regex: yamlPathRegExp,
+                regexErrorMessage: yamlPathRegExpMessage
+              },
+              'x-descriptors': {
+                required: true
+              }
+            }
+          }
         }
       },
       required: {
-        name: {
-          required: true
-        },
-        version: {
-          required: true,
-          regex: versionRegExp,
-          regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)'
-        },
-        kind: {
-          required: true
-        },
-        displayName: {
-          required: true
-        },
-        description: {
-          required: true
+        isArray: true,
+        itemValidator: {
+          name: {
+            required: true
+          },
+          version: {
+            required: true,
+            regex: kubeVersionRegExp,
+            regexErrorMessage: kubeVersionRegExpMessage
+          },
+          kind: {
+            required: true,
+            regex: labelRegExp,
+            regexErrorMessage: labelRegExpMessage
+          },
+          displayName: {
+            required: true
+          },
+          description: {
+            required: true
+          }
         }
       }
     },
@@ -463,6 +602,7 @@ export {
   capabilityDescriptions,
   maturityOptions,
   categoryOptions,
+  kindOptions,
   installModeDescriptors,
   operatorFieldPlaceholders,
   operatorFieldValidators
