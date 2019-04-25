@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
+import { operatorFieldValidators } from '../../utils/operatorDescriptors';
 
 class ListObjectEditor extends React.Component {
   constructor(props) {
@@ -25,10 +26,11 @@ class ListObjectEditor extends React.Component {
   };
 
   addOperatorObject = event => {
-    const { history, objectPage, objectType } = this.props;
+    const { history, objectPage, objectType, addName } = this.props;
+    const addNamePath = addName || `Add ${objectType}`;
 
     event.preventDefault();
-    history.push(`/editor/${objectPage}/Add ${objectType}`);
+    history.push(`/editor/${objectPage}/${addNamePath}`);
   };
 
   editOperatorObject = operatorObject => {
@@ -49,9 +51,10 @@ class ListObjectEditor extends React.Component {
     onUpdate(updatedObjects);
   };
 
-  renderObject = (operatorObject, index) => {
+  renderObject = (operatorObject, errors, index) => {
     const { objectTitleField } = this.props;
     const title = _.get(operatorObject, objectTitleField);
+    const error = _.find(errors, { index });
 
     if (!title) {
       return null;
@@ -61,6 +64,12 @@ class ListObjectEditor extends React.Component {
       <div key={index} className="oh-operator-editor__list__item">
         <h3>{title}</h3>
         <div className="oh-operator-editor__list__item__actions">
+          {error && (
+            <span className="oh-operator-editor-page__section__status">
+              <Icon type="fa" name="minus-circle" />
+              Invalid Entries
+            </span>
+          )}
           <button
             className="oh-operator-button oh-button-secondary"
             onClick={() => this.editOperatorObject(operatorObject)}
@@ -77,8 +86,10 @@ class ListObjectEditor extends React.Component {
   };
 
   render() {
-    const { title, fieldTitle, objectType } = this.props;
+    const { title, fieldTitle, objectType, formErrors, field } = this.props;
     const { operatorObjects } = this.state;
+    const errors = _.get(formErrors, field);
+    const validators = _.get(operatorFieldValidators, field);
 
     return (
       <div className="oh-operator-editor__list">
@@ -87,7 +98,7 @@ class ListObjectEditor extends React.Component {
           <React.Fragment>
             <span className="oh-tiny">{fieldTitle}</span>
             <div className="oh-operator-editor__list__items-container">
-              {_.map(operatorObjects, (operatorObject, index) => this.renderObject(operatorObject, index))}
+              {_.map(operatorObjects, (operatorObject, index) => this.renderObject(operatorObject, errors, index))}
             </div>
           </React.Fragment>
         )}
@@ -112,6 +123,8 @@ ListObjectEditor.propTypes = {
   pagePathField: PropTypes.string,
   onUpdate: PropTypes.func.isRequired,
   objectPage: PropTypes.string.isRequired,
+  addName: PropTypes.string,
+  formErrors: PropTypes.object.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired
@@ -119,7 +132,8 @@ ListObjectEditor.propTypes = {
 
 ListObjectEditor.defaultProps = {
   operator: {},
-  pagePathField: 'name'
+  pagePathField: 'name',
+  addName: null
 };
 
 export default ListObjectEditor;
