@@ -127,12 +127,12 @@ class OperatorEditorSubPage extends React.Component {
     }
 
     if (secondary) {
-      const allSetClasses = classNames('oh-operator-editor-toolbar__button primary', { disabled: pageErrors });
+      const allSetClasses = classNames('oh-button oh-button-primary', { disabled: pageErrors });
 
       return (
         <div className="oh-operator-editor-page__button-bar">
           <div>
-            <button className="oh-operator-editor-toolbar__button" onClick={e => this.onEditor(e)}>
+            <button className="oh-button oh-button-secondary" onClick={e => this.onEditor(e)}>
               Back to Operator Editor
             </button>
           </div>
@@ -150,7 +150,7 @@ class OperatorEditorSubPage extends React.Component {
         <div className="oh-operator-editor-page__button-bar">
           <span />
           <div>
-            <button className="oh-operator-editor-toolbar__button primary" onClick={e => this.onBack(e)}>
+            <button className="oh-button oh-button-primary" onClick={e => this.onBack(e)}>
               {`Back to ${this.props.lastPageTitle}`}
             </button>
           </div>

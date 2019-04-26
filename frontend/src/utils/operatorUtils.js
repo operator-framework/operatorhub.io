@@ -27,7 +27,7 @@ const getExampleYAML = (kind, operator) => {
     const yamlExamples = JSON.parse(examples);
     return _.find(yamlExamples, { kind });
   } catch (e) {
-    throw new Error(`Unable to parse alm-examples. ${e.message}`);
+    return null;
   }
 };
 
