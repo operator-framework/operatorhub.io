@@ -62,7 +62,7 @@ class ListObjectEditor extends React.Component {
         <h3>{title}</h3>
         <div className="oh-operator-editor__list__item__actions">
           <button
-            className="oh-operator-editor-page__section__edit-button"
+            className="oh-operator-button oh-button-secondary"
             onClick={() => this.editOperatorObject(operatorObject)}
           >
             Edit

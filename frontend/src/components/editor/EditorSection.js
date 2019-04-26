@@ -51,11 +51,11 @@ const EditorSection = ({ sectionStatus, title, description, sectionLocation, his
         <div className="oh-operator-editor-page__section__status">
           {renderSectionStatus()}
           {!status || status === EDITOR_STATUS.empty ? (
-            <button className="oh-operator-editor-page__section__edit-button primary" onClick={onEdit}>
+            <button className="oh-button oh-button-primary" onClick={onEdit}>
               Start
             </button>
           ) : (
-            <button className="oh-operator-editor-page__section__edit-button" onClick={onEdit}>
+            <button className="oh-button oh-button-secondary" onClick={onEdit}>
               Edit
             </button>
           )}

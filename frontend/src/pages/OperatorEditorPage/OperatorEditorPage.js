@@ -102,9 +102,9 @@ class OperatorEditorPage extends React.Component {
     const isDefault = _.isEqual(operator, defaultOperator);
     const okToDownload = validCSV && (sectionsValid || (!isForm && okToPreview));
 
-    const downloadClasses = classNames('oh-operator-editor-toolbar__button primary', { disabled: !okToDownload });
-    const previewClasses = classNames('oh-operator-editor-toolbar__button', { disabled: !okToPreview });
-    const clearClasses = classNames('oh-operator-editor-toolbar__button', { disabled: isDefault });
+    const downloadClasses = classNames('oh-button oh-button-primary', { disabled: !okToDownload });
+    const previewClasses = classNames('oh-button oh-button-secondary', { disabled: !okToPreview });
+    const clearClasses = classNames('oh-button oh-button-secondary', { disabled: isDefault });
 
     return (
       <div className="oh-operator-editor-page__button-bar">
@@ -112,7 +112,7 @@ class OperatorEditorPage extends React.Component {
           <button className={downloadClasses} disabled={!okToDownload} onClick={this.generateCSV}>
             Download Operator Bundle
           </button>
-          <button className="oh-operator-editor-toolbar__button" onClick={this.onSwitchView}>
+          <button className="oh-button oh-button-secondary" onClick={this.onSwitchView}>
             {`Edit CSV in ${isForm ? 'YAML' : 'Forms'}`}
           </button>
           <button className={previewClasses} disabled={!okToPreview} onClick={this.showPreviewOperator}>
