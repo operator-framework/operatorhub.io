@@ -107,7 +107,7 @@ class OperatorEditorSubPage extends React.Component {
       </Breadcrumb.Item>
       {(this.props.secondary || this.props.tertiary) && (
         <Breadcrumb.Item onClick={e => this.onEditor(e)} href={`${window.location.origin}/editor`}>
-          Operator Editor
+          Package your Operator
         </Breadcrumb.Item>
       )}
       {this.props.tertiary && (
@@ -133,7 +133,7 @@ class OperatorEditorSubPage extends React.Component {
         <div className="oh-operator-editor-page__button-bar">
           <div>
             <button className="oh-button oh-button-secondary" onClick={e => this.onEditor(e)}>
-              Back to Operator Editor
+              Back to Package your Operator
             </button>
           </div>
           <div>
