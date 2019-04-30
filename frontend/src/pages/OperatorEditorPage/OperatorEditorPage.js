@@ -9,23 +9,29 @@ import { reduxConstants } from '../../redux';
 import { defaultOperator, validateOperator } from '../../utils/operatorUtils';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { operatorNameFromOperator, yamlFromOperator } from './editorPageUtils';
+import { EDITOR_STATUS, operatorNameFromOperator, yamlFromOperator } from './editorPageUtils';
 
 class OperatorEditorPage extends React.Component {
   state = {
     validCSV: false,
+    sectionsValid: false,
     previewShown: false
   };
 
   componentDidMount() {
-    const { operator } = this.props;
-    this.setState({ validCSV: validateOperator(operator) });
+    const { operator, sectionStatus } = this.props;
+    const sectionsValid = _.every(_.keys(sectionStatus), key => sectionStatus[key] === EDITOR_STATUS.complete);
+    this.setState({ validCSV: validateOperator(operator), sectionsValid });
   }
 
   componentDidUpdate(prevProps) {
-    const { operator } = this.props;
+    const { operator, sectionStatus } = this.props;
     if (!_.isEqual(operator, prevProps.operator)) {
       this.setState({ validCSV: validateOperator(operator) });
+    }
+    if (!_.isEqual(sectionStatus, prevProps.sectionStatus)) {
+      const sectionsValid = _.every(_.keys(sectionStatus), key => sectionStatus[key] === EDITOR_STATUS.complete);
+      this.setState({ sectionsValid });
     }
   }
 
@@ -91,14 +97,14 @@ class OperatorEditorPage extends React.Component {
 
   renderButtonBar() {
     const { operator, isForm, okToPreview } = this.props;
-    const { validCSV } = this.state;
+    const { validCSV, sectionsValid } = this.state;
 
     const isDefault = _.isEqual(operator, defaultOperator);
-    const okToDownload = validCSV && okToPreview;
+    const okToDownload = validCSV && (sectionsValid || (!isForm && okToPreview));
 
-    const downloadClasses = classNames('oh-operator-editor-toolbar__button primary', { disabled: !okToDownload });
-    const previewClasses = classNames('oh-operator-editor-toolbar__button', { disabled: !okToPreview });
-    const clearClasses = classNames('oh-operator-editor-toolbar__button', { disabled: isDefault });
+    const downloadClasses = classNames('oh-button oh-button-primary', { disabled: !okToDownload });
+    const previewClasses = classNames('oh-button oh-button-secondary', { disabled: !okToPreview });
+    const clearClasses = classNames('oh-button oh-button-secondary', { disabled: isDefault });
 
     return (
       <div className="oh-operator-editor-page__button-bar">
@@ -106,7 +112,7 @@ class OperatorEditorPage extends React.Component {
           <button className={downloadClasses} disabled={!okToDownload} onClick={this.generateCSV}>
             Download Operator Bundle
           </button>
-          <button className="oh-operator-editor-toolbar__button" onClick={this.onSwitchView}>
+          <button className="oh-button oh-button-secondary" onClick={this.onSwitchView}>
             {`Edit CSV in ${isForm ? 'YAML' : 'Forms'}`}
           </button>
           <button className={previewClasses} disabled={!okToPreview} onClick={this.showPreviewOperator}>
@@ -141,6 +147,7 @@ OperatorEditorPage.propTypes = {
   isForm: PropTypes.bool,
   okToPreview: PropTypes.bool,
   children: PropTypes.node,
+  sectionStatus: PropTypes.object,
   resetEditorOperator: PropTypes.func,
   showConfirmModal: PropTypes.func,
   hideConfirmModal: PropTypes.func,
@@ -155,6 +162,7 @@ OperatorEditorPage.defaultProps = {
   isForm: true,
   okToPreview: true,
   children: null,
+  sectionStatus: {},
   resetEditorOperator: helpers.noop,
   showConfirmModal: helpers.noop,
   hideConfirmModal: helpers.noop
@@ -181,7 +189,8 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  operator: state.editorState.operator
+  operator: state.editorState.operator,
+  sectionStatus: state.editorState.sectionStatus
 });
 
 export default connect(
