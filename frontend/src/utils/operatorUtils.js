@@ -1,5 +1,6 @@
 import * as _ from 'lodash-es';
 import { operatorFieldValidators } from './operatorDescriptors';
+import { OPERATOR_DESCRIPTION_ABOUT_HEADER, OPERATOR_DESCRIPTION_APPLICATION_HEADER, OPERATOR_DESCRIPTION_PREREQUISITES_HEADER } from './contants';
 
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');
@@ -24,7 +25,12 @@ const getExampleYAML = (kind, operator) => {
   }
 
   try {
-    const yamlExamples = JSON.parse(examples);
+    let yamlExamples = examples;
+
+    if (typeof yamlExamples === 'string') {
+      yamlExamples = JSON.parse(examples);
+    }
+
     return _.find(yamlExamples, { kind });
   } catch (e) {
     throw new Error(`Unable to parse alm-examples. ${e.message}`);
@@ -79,6 +85,14 @@ const normalizeOperator = operator => {
   };
 };
 
+function getDefaultDescription() {
+  return (
+    OPERATOR_DESCRIPTION_APPLICATION_HEADER + '\n' +
+    OPERATOR_DESCRIPTION_ABOUT_HEADER + '\n' +
+    OPERATOR_DESCRIPTION_PREREQUISITES_HEADER + '\n'
+  );
+}
+
 const defaultOperator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
@@ -107,7 +121,7 @@ const defaultOperator = {
   },
   spec: {
     displayName: '',
-    description: '',
+    description: getDefaultDescription(),
     maturity: '',
     version: '',
     replaces: '',

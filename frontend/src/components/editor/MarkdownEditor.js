@@ -20,7 +20,7 @@ class MarkdownEditor extends React.Component {
     previewRender: helpers.markdownConverter.makeHtml
   };
 
-  static ToolbarWithLevel3Headline = [
+  static ToolbarWithLevel2Headline = [
     'bold', 'italic',
     {
       name: "heading-smaller",
@@ -29,7 +29,7 @@ class MarkdownEditor extends React.Component {
         const text = cm.getLine(cm.getCursor("start").line);
         const currHeadingLevel = text.search(/[^#]/);
   
-        currHeadingLevel < 3 ?  editor.toggleHeading3() : editor.toggleHeadingSmaller();
+        currHeadingLevel < 2 ?  editor.toggleHeading2() : editor.toggleHeadingSmaller();
       },
       className: "fa fa-header",
       title: "Smaller Heading",
@@ -73,18 +73,18 @@ class MarkdownEditor extends React.Component {
   };
 
   render() {
-    const { title, description, markdown, minHeadlineLevel3 } = this.props;
+    const { title, description, markdown, validationError, minHeadlineLevel } = this.props;
     const { contentHeight } = this.state;
 
     const mdeConfig = MarkdownEditor.mdeOptions;
 
-    if(minHeadlineLevel3){
-      mdeConfig.toolbar = MarkdownEditor.ToolbarWithLevel3Headline;
+    if(minHeadlineLevel){
+      mdeConfig.toolbar = MarkdownEditor.ToolbarWithLevel2Headline;
     }
 
     return (
       <div
-        className="oh-markdown-viewer"
+        className={"oh-markdown-viewer" + (validationError ? " oh-markdown-viewer--validationError" : "")}
         onMouseMove={this.resizeViewer}
         onMouseUp={this.stopResize}
         onMouseLeave={this.stopResize}
@@ -106,6 +106,7 @@ class MarkdownEditor extends React.Component {
           />
         </div>
         <div className="oh-markdown-viewer__resizer" onMouseDown={this.startResize} />
+        {validationError && <div className="oh-markdown-viewer__error-block">{validationError}</div>}
       </div>
     );
   }
@@ -115,16 +116,17 @@ MarkdownEditor.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   markdown: PropTypes.string,
-  minHeadlineLevel3: PropTypes.bool,
+  validationError: PropTypes.string,
   onChange: PropTypes.func,
-  onValidate: PropTypes.func
+  onValidate: PropTypes.func,
+  minHeadlineLevel: PropTypes.bool
 };
 
 MarkdownEditor.defaultProps = {
   markdown: '',
   onChange: helpers.noop,
   onValidate: helpers.noop,
-  minHeadlineLevel3: false
+  minHeadlineLevel: false
 };
 
 export default MarkdownEditor;

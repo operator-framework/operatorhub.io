@@ -16,7 +16,7 @@ const urlRegExp = new RegExp(
   '((\\d{1,3}\\.){3}\\d{1,3}))' + // ip (v4) address
   '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port
   '(\\?[;&amp;a-z\\d%_.~+=-]*)?' + // query string
-    '(\\#[-a-z\\d_]*)?$',
+  '(\\#[-a-z\\d_]*)?$',
   'i'
 );
 
@@ -341,7 +341,8 @@ const operatorFieldValidators = {
       required: true
     },
     description: {
-      required: true
+      // please note, that more detailed validation is done inside of DescriptionEditor
+      validator: text => /(^# [^\r?\n]+)/m.test(text) ? true : null
     },
     version: {
       required: true,
