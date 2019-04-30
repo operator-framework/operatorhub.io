@@ -46,6 +46,7 @@ const OperatorPermissionsPage = ({
     >
       <ListObjectEditor
         operator={operator}
+        formErrors={formErrors}
         title={title}
         onUpdate={updateOperator}
         field={field}
