@@ -34,6 +34,7 @@ const OperatorDeploymentsPage = ({ operator, formErrors, storeEditorOperator, st
       <ListObjectEditor
         operator={operator}
         title="Deployments"
+        formErrors={formErrors}
         onUpdate={updateOperator}
         field="spec.install.spec.deployments"
         fieldTitle="Name"

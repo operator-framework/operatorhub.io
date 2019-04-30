@@ -32,10 +32,6 @@ const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z]$/;
 const labelRegExpMessage =
   'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
 
-const yamlPathRegExp = /^[a-z0-9A-Z][a-z0-9A-Z_][[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z][a-z0-9A-Z_]$/;
-const yamlPathRegExpMessage =
-  'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
-
 const operatorFieldDescriptions = {
   metadata: {
     name: "Name of the operator's cluster service version.",
@@ -533,8 +529,8 @@ const operatorFieldValidators = {
               },
               path: {
                 required: true,
-                regex: yamlPathRegExp,
-                regexErrorMessage: yamlPathRegExpMessage
+                regex: labelRegExp,
+                regexErrorMessage: labelRegExpMessage
               },
               'x-descriptors': {
                 required: true
@@ -552,8 +548,8 @@ const operatorFieldValidators = {
               },
               path: {
                 required: true,
-                regex: yamlPathRegExp,
-                regexErrorMessage: yamlPathRegExpMessage
+                regex: labelRegExp,
+                regexErrorMessage: labelRegExpMessage
               },
               'x-descriptors': {
                 required: true
