@@ -78,14 +78,17 @@ const renderOperatorFormField = (operator, formErrors, updateOperator, commitFie
   return renderOperatorInput(title, field, inputComponent, formErrors);
 };
 
-const updateStoredFormErrors = (operator, formErrors, fields, storeEditorFormErrors) => {
+const getUpdatedFormErrors = (operator, formErrors, fields) => {
+  if (!formErrors) {
+    throw new Error('FormErrors is undefined!');
+  }
+
   const fieldsArray = _.castArray(fields);
-  const updatedFormErrors = _.clone(formErrors);
+  const updatedFormErrors = _.cloneDeep(formErrors);
+
   _.forEach(fieldsArray, field => {
-    const error = getFieldValueError(operator, field);
-    _.set(updatedFormErrors, field, error);
+    _.set(updatedFormErrors, field, getFieldValueError(operator, field));
   });
-  storeEditorFormErrors(updatedFormErrors);
 
   return updatedFormErrors;
 };
@@ -124,7 +127,7 @@ export {
   renderOperatorFormField,
   renderFormError,
   EDITOR_STATUS,
-  updateStoredFormErrors,
+  getUpdatedFormErrors,
   operatorNameFromOperator,
   normalizeYamlOperator,
   yamlFromOperator

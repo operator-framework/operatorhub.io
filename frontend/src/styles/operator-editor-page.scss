@@ -105,29 +105,8 @@
           color: $color-pf-red;
         }
       }
-      .oh-operator-editor-toolbar__button {
+      .oh-button {
         margin-left: 10px;
-      }
-    }
-    &__edit-button {
-      background-color: $color-pf-black-200;
-      color: $oh-color-text-primary;
-      border: none;
-      border-radius: 4px;
-      margin-left: 10px;
-      padding: 5px 10px;
-
-      &:hover, &:focus {
-        background-color: $color-pf-black-300;
-      }
-
-      &.primary {
-        background-color: $color-pf-blue-400;
-        color: $color-pf-white;
-
-        &:hover, &:focus {
-          background-color: #00659c;
-        }
       }
     }
   }
@@ -141,46 +120,12 @@
     flex-direction: row;
     justify-content: space-between;
     margin-top: 20px;
-  }
+    padding-bottom: 5px;
 
-  .oh-operator-editor-toolbar {
-
-    &__button {
-      color: $color-pf-blue-400;
-      border: 2px solid $color-pf-blue-400;
-      border-radius: 4px;
+    .oh-button {
       margin-left: 10px;
-      padding: 5px;
-
       &:first-of-type {
         margin-left: 0;
-      }
-
-      &:hover, &:focus {
-        color: #00659c;
-        border-color: #00659c;
-      }
-      .fa, .pficon {
-        margin-right: 4px;
-      }
-
-      &.primary {
-        background-color: $color-pf-blue-400;
-        color: $color-pf-white;
-
-        &:hover, &:focus {
-          background-color: #00659c;
-        }
-
-        &[disabled] {
-          background-color: $color-pf-black-400;
-          color: $color-pf-white;
-        }
-      }
-
-      &[disabled] {
-        border-color: $color-pf-black-400;
-        color: $color-pf-black-400;
       }
     }
   }
@@ -285,6 +230,12 @@
         .form-control {
           background-color: transparent;
         }
+
+        .rbt-input-hint {
+          padding-top: 0 !important;
+          padding-bottom: 0 !important;
+          border-width: 0 !important;
+        }
       }
 
       .rbt-input-multi {
@@ -337,7 +288,7 @@
     }
 
     .oh-operator-editor-form__field--error {
-      input, textarea, &__select {
+      input, textarea, &__select, .rbt-input {
         border-color: $color-pf-red;
       }
     }
@@ -441,18 +392,14 @@
       font-weight: 700;
     }
 
-    &__label-key-col {
-      position: relative;
-      margin-right: 20px;
+    &__label-value-col {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
 
-      .form-control {
-        width: calc(100% - 25px);
-      }
-
-      .remove-label {
-        position: absolute;
-        top: 7.5px;
-        right: 0;
+      .form-control, .oh-operator-editor-form__select {
+        flex: 1;
+        margin-right: 10px;
       }
     }
 

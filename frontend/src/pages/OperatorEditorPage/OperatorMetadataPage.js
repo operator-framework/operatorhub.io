@@ -9,7 +9,7 @@ import { categoryOptions, maturityOptions, operatorFieldPlaceholders } from '../
 import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
 import ImageEditor from '../../components/editor/ImageEditor';
-import { renderOperatorFormField, updateStoredFormErrors, EDITOR_STATUS, renderOperatorInput } from './editorPageUtils';
+import { renderOperatorFormField, getUpdatedFormErrors, EDITOR_STATUS, renderOperatorInput } from './editorPageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import EditorSelect from '../../components/editor/EditorSelect';
@@ -58,8 +58,13 @@ class OperatorMetadataPage extends React.Component {
   }
 
   componentDidMount() {
-    const { sectionStatus } = this.props;
+    const { sectionStatus, formErrors, storeEditorFormErrors } = this.props;
+    const { workingOperator } = this.state;
+
     this.originalStatus = sectionStatus.metadata;
+    if (this.originalStatus !== EDITOR_STATUS.empty) {
+      updateStoredFormErrors(workingOperator, formErrors, METADATA_FIELDS, storeEditorFormErrors);
+    }
   }
 
   updateOperator = (value, field) => {
@@ -72,7 +77,8 @@ class OperatorMetadataPage extends React.Component {
     const { storeEditorOperator, formErrors, storeEditorFormErrors, setSectionStatus } = this.props;
     const { workingOperator } = this.state;
 
-    const errors = updateStoredFormErrors(workingOperator, formErrors, field, storeEditorFormErrors);
+    const errors = getUpdatedFormErrors(workingOperator, formErrors, field);
+    storeEditorFormErrors(errors);
     const metadataErrors = _.some(METADATA_FIELDS, metadataField => _.get(errors, metadataField));
 
     console.dir(errors);
@@ -259,8 +265,8 @@ class OperatorMetadataPage extends React.Component {
 
     return (
       <form className="oh-operator-editor-form">
-        {this.renderFormField('Display Name', 'spec.displayName', 'text')}
         {this.renderFormField('Name', 'metadata.name', 'text')}
+        {this.renderFormField('Display Name', 'spec.displayName', 'text')}
         {this.renderFormField('Short Description', 'metadata.annotations.description', 'text-area')}
         {this.renderMaturity()}
         {this.renderFormField('Version', 'spec.version', 'text')}

@@ -27,7 +27,7 @@ const getExampleYAML = (kind, operator) => {
     const yamlExamples = JSON.parse(examples);
     return _.find(yamlExamples, { kind });
   } catch (e) {
-    throw new Error(`Unable to parse alm-examples. ${e.message}`);
+    return null;
   }
 };
 
@@ -86,16 +86,16 @@ const defaultOperator = {
     name: '',
     namespace: 'placeholder',
     annotations: {
-      'alm-examples': [
+      'alm-examples': `[
         {
-          apiVersion: '',
-          kind: '',
-          metadata: {
-            name: ''
+          "apiVersion": "",
+          "kind": "",
+          "metadata": {
+            "name": ""
           },
-          spec: {}
+          "spec": {}
         }
-      ],
+      ]`,
       categories: '',
       certified: false,
       description: '',
@@ -107,7 +107,10 @@ const defaultOperator = {
   },
   spec: {
     displayName: '',
-    description: '',
+    description:
+      '## About the Managed Application\n\n' +
+      '## About this Operator\n\n' +
+      '## Prerequisites for enabling this Operator\n',
     maturity: '',
     version: '',
     replaces: '',
@@ -158,26 +161,74 @@ const defaultOperator = {
   }
 };
 
-const getValueError = (value, fieldValidator) => {
-  const fieldRegex = _.get(fieldValidator, 'regex');
+const getObjectPropsErrors = (value, fieldValidator) => {
+  const propErrors = [];
 
   if (fieldValidator.required && _.isEmpty(value)) {
     return 'This field is required';
   }
 
-  if (!fieldValidator.required && _.isEmpty(value)) {
+  _.forEach(_.keys(value), key => {
+    if (key || value[key]) {
+      const keyError = getValueError(key, _.get(fieldValidator, 'key'));
+      const valueError = getValueError(_.get(value, key), _.get(fieldValidator, 'value'));
+      if (keyError || valueError) {
+        propErrors.push({ key, value: _.get(value, key), keyError, valueError });
+      }
+    }
+  });
+
+  return _.size(propErrors) ? propErrors : null;
+};
+
+const getArrayValueErrors = (value, fieldValidator) => {
+  const fieldErrors = [];
+
+  _.forEach(value, (nextValue, index) => {
+    const valueErrors = {};
+    _.forEach(_.keys(fieldValidator.itemValidator), key => {
+      const valueError = getValueError(nextValue[key], fieldValidator.itemValidator[key]);
+      if (valueError) {
+        valueErrors[key] = valueError;
+      }
+    });
+    if (!_.isEmpty(valueErrors)) {
+      fieldErrors.push({ index, errors: valueErrors });
+    }
+  });
+
+  if (_.size(fieldErrors)) {
+    return fieldErrors;
+  }
+
+  return null;
+};
+
+const getValueError = (value, fieldValidator) => {
+  if (!fieldValidator) {
     return null;
   }
 
-  if (fieldRegex) {
-    if (!fieldRegex.test(value)) {
+  if (fieldValidator.isObjectProps) {
+    return getObjectPropsErrors(value, fieldValidator);
+  }
+
+  if (fieldValidator.isArray) {
+    return getArrayValueErrors(value, fieldValidator);
+  }
+
+  if (_.isEmpty(value)) {
+    return fieldValidator.required ? 'This field is required' : null;
+  }
+
+  if (fieldValidator.regex) {
+    if (!fieldValidator.regex.test(value)) {
       return _.get(fieldValidator, 'regexErrorMessage');
     }
   }
 
-  const validator = _.get(fieldValidator, 'validator');
-  if (validator) {
-    return validator(value);
+  if (fieldValidator.validator) {
+    return fieldValidator.validator(value);
   }
 
   return null;
@@ -188,27 +239,14 @@ const getFieldValueError = (operator, field) => {
   const fieldValidator = _.get(operatorFieldValidators, field, {});
 
   if (fieldValidator.isObjectProps) {
-    const propErrors = [];
-
-    _.forEach(_.keys(value), key => {
-      const keyError = getValueError(key, _.get(fieldValidator, 'key'));
-      const valueError = getValueError(_.get(value, key), _.get(fieldValidator, 'value'));
-      if (keyError || valueError) {
-        propErrors.push({ key, value: _.get(value, key), keyError, valueError });
-      }
-    });
-
-    if (_.size(propErrors)) {
-      return propErrors;
-    }
-  } else {
-    const fieldError = getValueError(value, fieldValidator);
-    if (fieldError) {
-      return fieldError;
-    }
+    return getObjectPropsErrors(value, fieldValidator);
   }
 
-  return null;
+  if (fieldValidator.isArray) {
+    return getArrayValueErrors(value, fieldValidator);
+  }
+
+  return getValueError(value, fieldValidator);
 };
 
 const areSubFieldValid = (operator, fieldList) => {

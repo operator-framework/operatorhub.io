@@ -3,14 +3,30 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
 import { Icon } from 'patternfly-react';
-import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
+import { kindOptions, operatorFieldDescriptions } from '../../utils/operatorDescriptors';
+import EditorSelect from './EditorSelect';
 
 class ResourcesEditor extends React.Component {
+  dirtyResources = [];
+
+  isResourceEmpty = resource => resource.version === '' && resource.kind === '';
+
   areResourcesEmpty = () => {
     const { crd } = this.props;
 
-    return crd.resources.length === 1 && crd.resources[0].version === '' && crd.resources[0].kind === '';
+    return crd.resources.length === 1 && this.isResourceEmpty(crd.resources[0]);
   };
+
+  componentDidMount() {
+    const { crd } = this.props;
+    const existingResources = _.get(crd, 'resources');
+    _.forEach(existingResources, (nextResource, index) => {
+      if (!this.isResourceEmpty(nextResource)) {
+        _.set(this.dirtyResources, [index, 'version'], true);
+        _.set(this.dirtyResources, [index, 'kjnd'], true);
+      }
+    });
+  }
 
   componentDidUpdate(prevProps) {
     const { crd, onUpdate } = this.props;
@@ -31,9 +47,10 @@ class ResourcesEditor extends React.Component {
     onUpdate(crd);
   };
 
-  onFieldBlur = () => {
+  onFieldBlur = (field, index) => {
     const { crd, onUpdate } = this.props;
 
+    _.set(this.dirtyResources, [index, field], true);
     onUpdate(crd);
   };
 
@@ -58,13 +75,13 @@ class ResourcesEditor extends React.Component {
   };
 
   renderResource = (resource, index) => {
-    const { versionPlaceholder, kindPlaceholder } = this.props;
+    const { versionPlaceholder, kindPlaceholder, crdErrors } = this.props;
     const removeResourceClass = classNames('remove-label', { disabled: this.areResourcesEmpty() });
 
-    const fieldErrors = null;
+    const fieldErrors = _.find(_.get(crdErrors, 'resources'), { index });
 
-    const versionError = _.get(fieldErrors, 'keyError');
-    const kindError = _.get(fieldErrors, 'valueError');
+    const versionError = _.get(this.dirtyResources, [index, 'version'], false) && _.get(fieldErrors, 'errors.version');
+    const kindError = _.get(this.dirtyResources, [index, 'kind'], false) && _.get(fieldErrors, 'errors.kind');
     const versionClasses = classNames('form-group col-sm-6', { 'oh-operator-editor-form__field--error': versionError });
     const kindClasses = classNames('form-group col-sm-6', { 'oh-operator-editor-form__field--error': kindError });
 
@@ -76,25 +93,31 @@ class ResourcesEditor extends React.Component {
             type="text"
             value={resource.version}
             onChange={e => this.updateResource(resource, 'version', e.target.value)}
-            onBlur={() => this.onFieldBlur(resource)}
+            onBlur={() => this.onFieldBlur('version', index)}
             placeholder={versionPlaceholder}
           />
+          {versionError && <div className="oh-operator-editor-form__error-block">{versionError}</div>}
         </div>
         <div className={kindClasses}>
-          <div className="oh-operator-editor-form__label-key-col">
-            <input
-              className="form-control"
-              type="text"
-              value={resource.kind}
-              onChange={e => this.updateResource(resource, 'kind', e.target.value)}
-              onBlur={() => this.onFieldBlur(resource)}
+          <div className="oh-operator-editor-form__label-value-col">
+            <EditorSelect
+              id={`kind-${index}`}
+              values={resource.kind ? [resource.kind] : []}
+              options={kindOptions}
+              isMulti={false}
+              noClear
               placeholder={kindPlaceholder}
+              onChange={selections => {
+                this.updateResource(resource, 'kind', selections[0]);
+              }}
+              onBlur={() => this.onFieldBlur('kind', index)}
             />
             <a href="#" className={removeResourceClass} onClick={e => this.removeResource(e, resource)}>
               <Icon type="fa" name="trash" />
               <span className="sr-only">Remove Label</span>
             </a>
           </div>
+          {kindError && <div className="oh-operator-editor-form__error-block">{kindError}</div>}
         </div>
       </div>
     );
@@ -128,6 +151,7 @@ class ResourcesEditor extends React.Component {
 
 ResourcesEditor.propTypes = {
   crd: PropTypes.object,
+  crdErrors: PropTypes.object,
   title: PropTypes.string.isRequired,
   field: PropTypes.string.isRequired,
   onUpdate: PropTypes.func.isRequired,
@@ -137,6 +161,7 @@ ResourcesEditor.propTypes = {
 
 ResourcesEditor.defaultProps = {
   crd: {},
+  crdErrors: {},
   versionPlaceholder: 'e.g. v1beta2',
   kindPlaceholder: 'e.g. StatefulSet'
 };
