@@ -6,9 +6,7 @@ import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 import { OPERATOR_DESCRIPTION_ABOUT_HEADER, OPERATOR_DESCRIPTION_PREREQUISITES_HEADER } from '../../utils/contants';
 import MarkdownEditor from './MarkdownEditor';
 
-
 class DescriptionEditor extends React.Component {
-
   state = {
     application: '',
     about: '',
@@ -131,9 +129,7 @@ class DescriptionEditor extends React.Component {
   };
 
   render() {
-    const {
-      about, application, prerequisites, aboutError, applicationError, prerequisitesError
-    } = this.state;
+    const { about, application, prerequisites, aboutError, applicationError, prerequisitesError } = this.state;
 
     return (
       <React.Fragment>
@@ -172,7 +168,6 @@ class DescriptionEditor extends React.Component {
     );
   }
 }
-
 
 DescriptionEditor.propTypes = {
   operator: PropTypes.object.isRequired,

@@ -1,6 +1,10 @@
 import * as _ from 'lodash-es';
 import { operatorFieldValidators } from './operatorDescriptors';
-import { OPERATOR_DESCRIPTION_ABOUT_HEADER, OPERATOR_DESCRIPTION_APPLICATION_HEADER, OPERATOR_DESCRIPTION_PREREQUISITES_HEADER } from './contants';
+import {
+  OPERATOR_DESCRIPTION_ABOUT_HEADER,
+  OPERATOR_DESCRIPTION_APPLICATION_HEADER,
+  OPERATOR_DESCRIPTION_PREREQUISITES_HEADER
+} from './contants';
 
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');
@@ -86,11 +90,7 @@ const normalizeOperator = operator => {
 };
 
 function getDefaultDescription() {
-  return (
-    OPERATOR_DESCRIPTION_APPLICATION_HEADER + '\n' +
-    OPERATOR_DESCRIPTION_ABOUT_HEADER + '\n' +
-    OPERATOR_DESCRIPTION_PREREQUISITES_HEADER + '\n'
-  );
+  return `${OPERATOR_DESCRIPTION_APPLICATION_HEADER}\n${OPERATOR_DESCRIPTION_ABOUT_HEADER}\n${OPERATOR_DESCRIPTION_PREREQUISITES_HEADER}\n`;
 }
 
 const defaultOperator = {

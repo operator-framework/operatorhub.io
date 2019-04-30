@@ -21,22 +21,32 @@ class MarkdownEditor extends React.Component {
   };
 
   static ToolbarWithLevel2Headline = [
-    'bold', 'italic',
+    'bold',
+    'italic',
     {
-      name: "heading-smaller",
-      action: (editor) => {
+      name: 'heading-smaller',
+      action: editor => {
         const cm = editor.codemirror;
-        const text = cm.getLine(cm.getCursor("start").line);
+        const text = cm.getLine(cm.getCursor('start').line);
         const currHeadingLevel = text.search(/[^#]/);
-  
-        currHeadingLevel < 2 ?  editor.toggleHeading2() : editor.toggleHeadingSmaller();
+
+        currHeadingLevel < 2 ? editor.toggleHeading2() : editor.toggleHeadingSmaller();
       },
-      className: "fa fa-header",
-      title: "Smaller Heading",
+      className: 'fa fa-header',
+      title: 'Smaller Heading'
     },
-    '|', 'code', 'quote', 'unordered-list', 'ordered-list',
-    '|', 'link', 'image', 'table',
-    '|', 'preview', 'guide'
+    '|',
+    'code',
+    'quote',
+    'unordered-list',
+    'ordered-list',
+    '|',
+    'link',
+    'image',
+    'table',
+    '|',
+    'preview',
+    'guide'
   ];
 
   onMarkdownChange = value => {
@@ -78,13 +88,13 @@ class MarkdownEditor extends React.Component {
 
     const mdeConfig = MarkdownEditor.mdeOptions;
 
-    if(minHeadlineLevel){
+    if (minHeadlineLevel) {
       mdeConfig.toolbar = MarkdownEditor.ToolbarWithLevel2Headline;
     }
 
     return (
       <div
-        className={"oh-markdown-viewer" + (validationError ? " oh-markdown-viewer--validationError" : "")}
+        className={`oh-markdown-viewer${validationError ? ' oh-markdown-viewer--validationError' : ''}`}
         onMouseMove={this.resizeViewer}
         onMouseUp={this.stopResize}
         onMouseLeave={this.stopResize}
@@ -124,6 +134,7 @@ MarkdownEditor.propTypes = {
 
 MarkdownEditor.defaultProps = {
   markdown: '',
+  validationError: null,
   onChange: helpers.noop,
   onValidate: helpers.noop,
   minHeadlineLevel: false

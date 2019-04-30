@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
- 
+
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import { categoryOptions, maturityOptions, operatorFieldPlaceholders } from '../../utils/operatorDescriptors';
@@ -63,6 +63,8 @@ class OperatorMetadataPage extends React.Component {
 
     this.originalStatus = sectionStatus.metadata;
     if (this.originalStatus !== EDITOR_STATUS.empty) {
+      // ?? what it is supposed to do
+      // eslint-disable-next-line no-undef
       updateStoredFormErrors(workingOperator, formErrors, METADATA_FIELDS, storeEditorFormErrors);
     }
   }
@@ -272,9 +274,9 @@ class OperatorMetadataPage extends React.Component {
         {this.renderFormField('Version', 'spec.version', 'text')}
         {this.renderFormField('Replaces (optional)', 'spec.replaces', 'text')}
         {this.renderFormField('Minimum Kubernetes Version (optional)', 'spec.minKubeVersion', 'text')}
-        <DescriptionEditor 
-          operator={workingOperator} 
-          onUpdate={this.updateOperator} 
+        <DescriptionEditor
+          operator={workingOperator}
+          onUpdate={this.updateOperator}
           onValidate={this.validateField}
           formErrors={formErrors}
         />
