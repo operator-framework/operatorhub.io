@@ -2,8 +2,39 @@ const express = require('express');
 const path = require('path');
 
 const testRouteFile = path.resolve(__dirname, '../../test-route/akamai-sureroute-test-object.html');
-const indexFile = path.resolve(__dirname, '../../frontend/dist/index.html');
-const distFolder = path.resolve(__dirname, '../../frontend/dist/');
+
+const getDistFilePath = fileName => {
+  const distDir = path.resolve(__dirname, '../../frontend/dist');
+  if (!fileName) {
+    fileName = 'index.html';
+  }
+  const filePath = path.join(distDir, fileName);
+  if (fs.existsSync(filePath)) {
+    return filePath;
+  }
+
+  let subFileName = fileName;
+  while (subFileName.indexOf('/') !== -1) {
+    subFileName = subFileName.slice(fileName.indexOf('/') + 1);
+    const subfilePath = path.join(distDir, subFileName);
+    if (fs.existsSync(subfilePath)) {
+      return subfilePath;
+    }
+  }
+
+  return path.join(distDir, 'index.html');
+};
+
+const addRootRedirect = (app, pathName) => {
+  app.get(`*/${pathName}`, (request, response) => {
+    const distFilePath = getDistFilePath(request.url.slice(pathName.length + 2));
+    response.sendFile(distFilePath);
+  });
+  app.get(`*/${pathName}/*`, (request, response) => {
+    const distFilePath = getDistFilePath(request.url.slice(pathName.length + 2));
+    response.sendFile(distFilePath);
+  });
+};
 
 module.exports = app => {
   // Base Public Routes

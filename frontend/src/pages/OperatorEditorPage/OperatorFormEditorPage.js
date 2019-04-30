@@ -1,23 +1,106 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
+import JSZip from 'jszip';
 import { Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import EditorSection from '../../components/editor/EditorSection';
 import ManifestUploader from '../../components/editor/ManifestUploader';
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
-import OperatorEditorPage from './OperatorEditorPage';
+import OperatorEditorSubPage from './OperatorEditorSubPage';
+import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
+import { EDITOR_STATUS, operatorNameFromOperator, yamlFromOperator } from './editorPageUtils';
+import { defaultOperator, validateOperator } from '../../utils/operatorUtils';
 
 class OperatorFormEditorPage extends React.Component {
   state = {
-    uploadExpanded: false
+    uploadExpanded: false,
+    validCSV: false,
+    sectionsValid: false,
+    previewShown: false
   };
+
+  componentDidMount() {
+    const { operator, sectionStatus } = this.props;
+    const sectionsValid = _.every(_.keys(sectionStatus), key => sectionStatus[key] === EDITOR_STATUS.complete);
+    this.setState({ validCSV: validateOperator(operator), sectionsValid });
+  }
+
+  componentDidUpdate(prevProps) {
+    const { operator, sectionStatus } = this.props;
+    if (!_.isEqual(operator, prevProps.operator)) {
+      this.setState({ validCSV: validateOperator(operator) });
+    }
+    if (!_.isEqual(sectionStatus, prevProps.sectionStatus)) {
+      const sectionsValid = _.every(_.keys(sectionStatus), key => sectionStatus[key] === EDITOR_STATUS.complete);
+      this.setState({ sectionsValid });
+    }
+  }
 
   toggleUploadExpanded = event => {
     event.preventDefault();
     this.setState({ uploadExpanded: !this.state.uploadExpanded });
+  };
+
+  onEditCSVYaml = e => {
+    e.preventDefault();
+    this.props.history.push('/editor/yaml');
+  };
+
+  generateCSV = () => {
+    const { operator } = this.props;
+
+    let operatorYaml;
+    try {
+      operatorYaml = yamlFromOperator(operator);
+    } catch (e) {
+      operatorYaml = '';
+    }
+
+    const name = operatorNameFromOperator(operator);
+
+    const zip = new JSZip();
+    zip.file(`${name}/${name}.clusterserviceversion.yaml`, operatorYaml);
+
+    zip.generateAsync({ type: 'base64' }).then(
+      base64 => {
+        this.generateAction.href = `data:application/zip;base64,${base64}`;
+        this.generateAction.download = `${_.get(operator, 'spec.displayName')}.bundle.zip`;
+        this.generateAction.click();
+      },
+      err => {
+        console.error(err);
+      }
+    );
+  };
+
+  hidePreviewOperator = () => {
+    this.setState({ previewShown: false });
+  };
+
+  showPreviewOperator = () => {
+    this.setState({ previewShown: true });
+  };
+
+  doClearContents = () => {
+    const { resetEditorOperator, hideConfirmModal } = this.props;
+    resetEditorOperator();
+    this.setState({
+      validCSV: false
+    });
+    hideConfirmModal();
+  };
+
+  clearContents = () => {
+    const { showConfirmModal } = this.props;
+    showConfirmModal(this.doClearContents);
+  };
+
+  setGenerateAction = ref => {
+    this.generateAction = ref;
   };
 
   renderMetadataSection() {
@@ -200,7 +283,7 @@ class OperatorFormEditorPage extends React.Component {
   renderHeader = () => (
     <React.Fragment>
       <div className="oh-operator-editor-page__header">
-        <h1>Build the Cluster Service Version (CSV) for your Operator</h1>
+        <h1>Create your Operator Bundle</h1>
       </div>
       <p>
         This editor is aimed to assist in creating and editing a Cluster Service Version (CSV) for your operator. Start
@@ -210,16 +293,54 @@ class OperatorFormEditorPage extends React.Component {
     </React.Fragment>
   );
 
-  render() {
-    const { history } = this.props;
+  renderButtonBar() {
+    const { operator } = this.props;
+    const { validCSV, sectionsValid } = this.state;
+
+    const isDefault = _.isEqual(operator, defaultOperator);
+    const okToDownload = validCSV && sectionsValid;
+
+    const downloadClasses = classNames('oh-button oh-button-primary', { disabled: !okToDownload });
+    const clearClasses = classNames('oh-button oh-button-secondary', { disabled: isDefault });
 
     return (
-      <OperatorEditorPage title="Operator Editor" header={this.renderHeader()} history={history}>
+      <div className="oh-operator-editor-page__button-bar">
+        <div>
+          <button className={downloadClasses} disabled={!okToDownload} onClick={this.generateCSV}>
+            Download Operator Bundle
+          </button>
+          <button className="oh-button oh-button-secondary" onClick={this.onEditCSVYaml}>
+            Edit CSV in YAML
+          </button>
+          <button className="oh-button oh-button-secondary" onClick={this.showPreviewOperator}>
+            Preview
+          </button>
+        </div>
+        <button className={clearClasses} disabled={isDefault} onClick={this.clearContents}>
+          Clear Content
+        </button>
+      </div>
+    );
+  }
+
+  render() {
+    const { operator, history } = this.props;
+    const { previewShown } = this.state;
+
+    return (
+      <OperatorEditorSubPage
+        title="Package your Operator"
+        header={this.renderHeader()}
+        buttonBar={this.renderButtonBar()}
+        history={history}
+      >
         {this.renderManifests()}
         {this.renderGeneralInfo()}
         {this.renderCustomResourceDefinitions()}
         {this.renderOperatorInstallation()}
-      </OperatorEditorPage>
+        <PreviewOperatorModal show={previewShown} yamlOperator={operator} onClose={this.hidePreviewOperator} />
+        <a className="oh-operator-editor-page__download-link" ref={this.setGenerateAction} />
+      </OperatorEditorSubPage>
     );
   }
 }
@@ -227,6 +348,10 @@ class OperatorFormEditorPage extends React.Component {
 OperatorFormEditorPage.propTypes = {
   operator: PropTypes.object,
   storeEditorOperator: PropTypes.func,
+  sectionStatus: PropTypes.object,
+  resetEditorOperator: PropTypes.func,
+  showConfirmModal: PropTypes.func,
+  hideConfirmModal: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired
@@ -234,7 +359,11 @@ OperatorFormEditorPage.propTypes = {
 
 OperatorFormEditorPage.defaultProps = {
   operator: {},
-  storeEditorOperator: helpers.noop
+  storeEditorOperator: helpers.noop,
+  sectionStatus: {},
+  resetEditorOperator: helpers.noop,
+  showConfirmModal: helpers.noop,
+  hideConfirmModal: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -242,11 +371,29 @@ const mapDispatchToProps = dispatch => ({
     dispatch({
       type: reduxConstants.SET_EDITOR_OPERATOR,
       operator
+    }),
+  resetEditorOperator: () =>
+    dispatch({
+      type: reduxConstants.RESET_EDITOR_OPERATOR
+    }),
+  showConfirmModal: onConfirm =>
+    dispatch({
+      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+      title: 'Clear Content',
+      heading: <span>Are you sure you want to clear the current content of the editor?</span>,
+      confirmButtonText: 'Clear',
+      cancelButtonText: 'Cancel',
+      onConfirm
+    }),
+  hideConfirmModal: () =>
+    dispatch({
+      type: reduxConstants.CONFIRMATION_MODAL_HIDE
     })
 });
 
 const mapStateToProps = state => ({
-  operator: state.editorState.operator
+  operator: state.editorState.operator,
+  sectionStatus: state.editorState.sectionStatus
 });
 
 export default connect(
