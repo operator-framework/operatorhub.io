@@ -24,7 +24,7 @@ class HeaderTopBar extends React.Component {
     }
   }
 
-  onBuildYourCSV = () => {
+  onPackageYourOperator = () => {
     this.props.history.push('/editor');
   };
 
@@ -107,14 +107,14 @@ class HeaderTopBar extends React.Component {
             id="header-contribute-dropdown"
             pullRight
           >
-            <MenuItem eventKey={0} onSelect={this.onBuildYourCSV}>
-              Build your CSV
+            <MenuItem eventKey={1} onSelect={this.onGettingStarted}>
+              Create an Operator with the SDK
+            </MenuItem>
+            <MenuItem eventKey={0} onSelect={this.onPackageYourOperator}>
+              Package your Operator
             </MenuItem>
             <MenuItem eventKey={0} onSelect={this.onSubmitYourOperator}>
               Submit your Operator
-            </MenuItem>
-            <MenuItem eventKey={1} onSelect={this.onGettingStarted}>
-              Create an Operator with the SDK
             </MenuItem>
           </DropdownButton>
         </div>

@@ -17,7 +17,7 @@ const getDistFilePath = fileName => {
 
   let subFileName = fileName;
   while (subFileName.indexOf('/') !== -1) {
-    subFileName = subFileName.slice(fileName.indexOf('/'));
+    subFileName = subFileName.slice(fileName.indexOf('/') + 1);
     const subfilePath = path.join(distDir, subFileName);
     if (fs.existsSync(subfilePath)) {
       return subfilePath;
@@ -28,11 +28,11 @@ const getDistFilePath = fileName => {
 };
 
 const addRootRedirect = (app, pathName) => {
-  app.get(`*${pathName}`, (request, response) => {
+  app.get(`*/${pathName}`, (request, response) => {
     const distFilePath = getDistFilePath(request.url.slice(pathName.length + 2));
     response.sendFile(distFilePath);
   });
-  app.get(`*${pathName}/*`, (request, response) => {
+  app.get(`*/${pathName}/*`, (request, response) => {
     const distFilePath = getDistFilePath(request.url.slice(pathName.length + 2));
     response.sendFile(distFilePath);
   });
