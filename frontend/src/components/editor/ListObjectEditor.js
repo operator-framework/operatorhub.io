@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
-import { operatorFieldValidators } from '../../utils/operatorDescriptors';
 
 class ListObjectEditor extends React.Component {
   constructor(props) {
@@ -71,7 +70,7 @@ class ListObjectEditor extends React.Component {
             </span>
           )}
           <button
-            className="oh-operator-button oh-button-secondary"
+            className="oh-button oh-button-secondary"
             onClick={() => this.editOperatorObject(operatorObject)}
           >
             Edit
@@ -89,7 +88,6 @@ class ListObjectEditor extends React.Component {
     const { title, fieldTitle, objectType, formErrors, field } = this.props;
     const { operatorObjects } = this.state;
     const errors = _.get(formErrors, field);
-    const validators = _.get(operatorFieldValidators, field);
 
     return (
       <div className="oh-operator-editor__list">
