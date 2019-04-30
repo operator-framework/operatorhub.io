@@ -566,7 +566,7 @@
 
   .oh-markdown-viewer__content {
     .CodeMirror, .CodeMirror-scroll {
-      min-height: initial;
+      min-height: initial;     
     }
 
     .CodeMirror {
@@ -610,6 +610,17 @@
         border-bottom: 1px solid $color-pf-black-200;
         vertical-align: top;
       }
+    }    
+  }
+
+  &--validationError{
+    .oh-markdown-viewer__content{
+      border: 1px solid $color-pf-red;
+    }
+
+    .oh-markdown-viewer__error-block {
+      margin-top: 5px;
+      color: $color-pf-red;
     }
   }
 

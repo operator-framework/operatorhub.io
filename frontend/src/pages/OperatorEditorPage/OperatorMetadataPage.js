@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
-
+ 
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import { categoryOptions, maturityOptions, operatorFieldPlaceholders } from '../../utils/operatorDescriptors';
@@ -272,7 +272,12 @@ class OperatorMetadataPage extends React.Component {
         {this.renderFormField('Version', 'spec.version', 'text')}
         {this.renderFormField('Replaces (optional)', 'spec.replaces', 'text')}
         {this.renderFormField('Minimum Kubernetes Version (optional)', 'spec.minKubeVersion', 'text')}
-        <DescriptionEditor operator={workingOperator} onUpdate={this.updateOperator} onValidate={this.validateField} />
+        <DescriptionEditor 
+          operator={workingOperator} 
+          onUpdate={this.updateOperator} 
+          onValidate={this.validateField}
+          formErrors={formErrors}
+        />
         <CapabilityEditor operator={workingOperator} onUpdate={this.updateOperatorCapability} />
         <LabelsEditor
           operator={workingOperator}
