@@ -28,7 +28,7 @@ class HeaderTopBar extends React.Component {
     this.props.history.push('/preview');
   };
 
-  onBuildYourCSV = () => {
+  onPackageYourOperator = () => {
     this.props.history.push('/editor');
   };
 
@@ -114,8 +114,8 @@ class HeaderTopBar extends React.Component {
             <MenuItem eventKey={0} onSelect={this.onGettingStarted}>
               Create an Operator with the SDK
             </MenuItem>
-            <MenuItem eventKey={1} onSelect={this.onBuildYourCSV}>
-              Build your CSV
+            <MenuItem eventKey={1} onSelect={this.onPackageYourOperator}>
+              Package your Operator
             </MenuItem>
             <MenuItem eventKey={2} onSelect={this.onPreviewYourOperator}>
               Preview your Operator
