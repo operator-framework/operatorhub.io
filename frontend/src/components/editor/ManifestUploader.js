@@ -7,7 +7,7 @@ import { Grid, Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import UploadUrlModal from '../modals/UploadUrlModal';
 import { reduxConstants } from '../../redux';
-import { normalizeYamlOperator } from '../../pages/OperatorEditorPage/editorPageUtils';
+import { normalizeYamlOperator, EDITOR_STATUS } from '../../pages/OperatorEditorPage/editorPageUtils';
 
 const validFileTypes = ['.yaml'];
 
@@ -25,7 +25,7 @@ class ManifestUploader extends React.Component {
   validateUpload = () => true;
 
   applyUpload = upload => {
-    const { operator, onUpdate } = this.props;
+    const { operator, onUpdate, markSectionsForReview } = this.props;
 
     let updatedOperator = {};
     try {
@@ -44,7 +44,10 @@ class ManifestUploader extends React.Component {
 
     if (validContents) {
       const mergedOperator = _.merge({}, operator, updatedOperator);
+
+      markSectionsForReview();
       onUpdate(mergedOperator);
+
       upload.status = (
         <span className="oh-operator-editor-upload__uploads__status">
           <Icon type="fa" name="check-circle" />
@@ -264,11 +267,13 @@ class ManifestUploader extends React.Component {
 ManifestUploader.propTypes = {
   operator: PropTypes.object.isRequired,
   onUpdate: PropTypes.func.isRequired,
-  showErrorModal: PropTypes.func
+  showErrorModal: PropTypes.func,
+  markSectionsForReview: PropTypes.func
 };
 
 ManifestUploader.defaultProps = {
-  showErrorModal: helpers.noop
+  showErrorModal: helpers.noop,
+  markSectionsForReview: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -279,6 +284,11 @@ const mapDispatchToProps = dispatch => ({
       icon: <Icon type="pf" name="error-circle-o" />,
       heading: error,
       confirmButtonText: 'OK'
+    }),
+  markSectionsForReview: () =>
+    dispatch({
+      type: reduxConstants.SET_EDITOR_ALL_SECTIONS_STATUS,
+      status: EDITOR_STATUS.pending
     })
 });
 
