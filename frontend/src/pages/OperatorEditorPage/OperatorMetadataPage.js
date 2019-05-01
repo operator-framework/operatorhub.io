@@ -21,7 +21,9 @@ const METADATA_FIELDS = [
   'spec.version',
   'spec.replaces',
   'spec.minKubeVersion',
-  'spec.description',
+  'spec.description.aboutApplication',
+  'spec.description.aboutOperator',
+  'spec.description.prerequisites',
   'metadata.annotations.capabilities',
   'spec.labels',
   'spec.selector.matchLabels',
@@ -273,7 +275,12 @@ class OperatorMetadataPage extends React.Component {
         {this.renderFormField('Version', 'spec.version', 'text')}
         {this.renderFormField('Replaces (optional)', 'spec.replaces', 'text')}
         {this.renderFormField('Minimum Kubernetes Version (optional)', 'spec.minKubeVersion', 'text')}
-        <DescriptionEditor operator={workingOperator} onUpdate={this.updateOperator} onValidate={this.validateField} />
+        <DescriptionEditor
+          operator={workingOperator}
+          onUpdate={this.updateOperator}
+          onValidate={this.validateField}
+          formErrors={formErrors}
+        />
         <CapabilityEditor operator={workingOperator} onUpdate={this.updateOperatorCapability} />
         <LabelsEditor
           operator={workingOperator}
