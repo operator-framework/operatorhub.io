@@ -388,6 +388,13 @@ const nameValidator = name => {
   return null;
 };
 
+const descriptionValidator = text => {
+  const errorText =
+    'Heading level 1 is discouraged in the description as it collides with the rest of the page. Please use heading level 2 or higher.';
+
+  return /(^# [^\r?\n]+)/m.test(text) ? errorText : null;
+};
+
 const operatorFieldValidators = {
   metadata: {
     name: {
@@ -415,7 +422,18 @@ const operatorFieldValidators = {
       required: true
     },
     description: {
-      required: true
+      aboutApplication: {
+        required: true,
+        validator: descriptionValidator
+      },
+      aboutOperator: {
+        required: true,
+        validator: descriptionValidator
+      },
+      prerequisites: {
+        required: true,
+        validator: descriptionValidator
+      }
     },
     version: {
       required: true,
