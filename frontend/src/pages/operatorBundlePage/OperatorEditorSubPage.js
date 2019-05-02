@@ -9,7 +9,7 @@ import { helpers } from '../../common/helpers';
 import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
-import { EDITOR_STATUS } from './editorPageUtils';
+import { EDITOR_STATUS } from './bundlePageUtils';
 
 class OperatorEditorSubPage extends React.Component {
   state = {
@@ -44,12 +44,12 @@ class OperatorEditorSubPage extends React.Component {
 
   onEditor = e => {
     e.preventDefault();
-    this.props.history.push('/editor');
+    this.props.history.push('/bundle');
   };
 
   onBack = e => {
     e.preventDefault();
-    this.props.history.push(`/editor/${this.props.lastPage}`);
+    this.props.history.push(`/bundle/${this.props.lastPage}`);
   };
 
   allSet = e => {
