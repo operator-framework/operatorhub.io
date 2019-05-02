@@ -41,7 +41,7 @@ module.exports = app => {
   const uiRoutes = [
     'operator',
     'preview',
-    'editor',
+    'bundle',
     'about',
     'contribute',
     'getting-started',

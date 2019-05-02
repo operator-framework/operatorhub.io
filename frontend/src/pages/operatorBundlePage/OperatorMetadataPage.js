@@ -15,7 +15,7 @@ import {
   EDITOR_STATUS,
   renderOperatorInput,
   sectionsFields
-} from './editorPageUtils';
+} from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import EditorSelect from '../../components/editor/EditorSelect';

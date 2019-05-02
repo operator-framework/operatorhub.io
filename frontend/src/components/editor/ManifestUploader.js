@@ -7,7 +7,7 @@ import { Grid, Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import UploadUrlModal from '../modals/UploadUrlModal';
 import { reduxConstants } from '../../redux';
-import { normalizeYamlOperator, EDITOR_STATUS, sectionsFields } from '../../pages/OperatorEditorPage/editorPageUtils';
+import { normalizeYamlOperator, EDITOR_STATUS, sectionsFields } from '../../pages/operatorBundlePage/bundlePageUtils';
 
 const validFileTypes = ['.yaml'];
 

@@ -6,51 +6,40 @@ import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import { getFieldValueError } from '../../utils/operatorUtils';
+import InstallModeEditor from '../../components/editor/InstallModeEditor';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { sectionsFields } from './editorPageUtils';
+import { sectionsFields } from './bundlePageUtils';
 
-const deploymentFields = sectionsFields.deployments;
+const installModesFields = sectionsFields['install-modes'];
 
-const OperatorDeploymentsPage = ({ operator, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => {
-  const updateOperator = deployments => {
-    const updatedOperator = _.cloneDeep(operator);
-    _.set(updatedOperator, deploymentFields, deployments);
-    storeEditorOperator(updatedOperator);
-    validateField(deploymentFields);
-  };
-
+const OperatorInstallModesPage = ({ operator, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => {
   const validateField = field => {
     const error = getFieldValueError(operator, field);
     _.set(formErrors, field, error);
     storeEditorFormErrors(formErrors);
   };
 
+  const updateInstallModes = installModes => {
+    const updatedOperator = _.cloneDeep(operator);
+    _.set(updatedOperator, installModesFields, installModes);
+    storeEditorOperator(updatedOperator);
+    validateField('spec.install.spec.deployments');
+  };
+
   return (
     <OperatorEditorSubPage
-      title="Deployments"
-      field={deploymentFields}
+      title="Install Modes"
+      field={installModesFields}
       secondary
       history={history}
-      section="deployments"
+      section="install-modes"
     >
-      <ListObjectEditor
-        operator={operator}
-        title="Deployments"
-        formErrors={formErrors}
-        onUpdate={updateOperator}
-        field={deploymentFields}
-        fieldTitle="Name"
-        objectPage="deployments"
-        history={history}
-        objectTitleField="name"
-        objectType="Deployment"
-      />
+      <InstallModeEditor operator={operator} onUpdate={updateInstallModes} />
     </OperatorEditorSubPage>
   );
 };
 
-OperatorDeploymentsPage.propTypes = {
+OperatorInstallModesPage.propTypes = {
   operator: PropTypes.object,
   formErrors: PropTypes.object,
   storeEditorOperator: PropTypes.func,
@@ -60,7 +49,7 @@ OperatorDeploymentsPage.propTypes = {
   }).isRequired
 };
 
-OperatorDeploymentsPage.defaultProps = {
+OperatorInstallModesPage.defaultProps = {
   operator: {},
   formErrors: {},
   storeEditorFormErrors: helpers.noop,
@@ -88,4 +77,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(OperatorDeploymentsPage);
+)(OperatorInstallModesPage);

@@ -29,7 +29,7 @@ class HeaderTopBar extends React.Component {
   };
 
   onPackageYourOperator = () => {
-    this.props.history.push('/editor');
+    this.props.history.push('/bundle');
   };
 
   onSubmitYourOperator = () => {
