@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import OperatorCRDsPage from './OperatorCRDsPage';
-import { sectionsFields } from './editorPageUtils';
+import { sectionsFields } from './bundlePageUtils';
 
-const OperatorOwnedCRDsPage = ({ operator, history }) => {
+const OperatorRequiredCRDsPage = ({ operator, history }) => {
   const description = (
     <span>
       {"It's"} common for your Operator to use multiple CRDs to link together concepts, such as top-level database
@@ -13,30 +13,31 @@ const OperatorOwnedCRDsPage = ({ operator, history }) => {
       Checkout more in <ExternalLink href="#" text="Owned CRDs" />.
     </span>
   );
-  const crdsField = sectionsFields['owned-crds'];
+
+  const crdsField = sectionsFields['required-crds'];
 
   return (
     <OperatorCRDsPage
       operator={operator}
       crdsField={crdsField}
-      crdsTitle="Owned CRDs"
+      crdsTitle="Required CRDs"
       crdsDescription={description}
-      objectPage="owned-crds"
-      objectType="Owned CRD"
+      objectPage="required-crds"
+      objectType="Required CRD"
       history={history}
     />
   );
 };
 
-OperatorOwnedCRDsPage.propTypes = {
+OperatorRequiredCRDsPage.propTypes = {
   operator: PropTypes.object,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired
 };
 
-OperatorOwnedCRDsPage.defaultProps = {
+OperatorRequiredCRDsPage.defaultProps = {
   operator: {}
 };
 
-export default OperatorOwnedCRDsPage;
+export default OperatorRequiredCRDsPage;

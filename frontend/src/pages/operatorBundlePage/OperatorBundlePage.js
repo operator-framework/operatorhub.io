@@ -12,10 +12,10 @@ import ManifestUploader from '../../components/editor/ManifestUploader';
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
-import { EDITOR_STATUS, operatorNameFromOperator, yamlFromOperator } from './editorPageUtils';
+import { EDITOR_STATUS, operatorNameFromOperator, yamlFromOperator } from './bundlePageUtils';
 import { defaultOperator, validateOperator } from '../../utils/operatorUtils';
 
-class OperatorFormEditorPage extends React.Component {
+class OperatorBundlePage extends React.Component {
   state = {
     uploadExpanded: false,
     validCSV: false,
@@ -47,7 +47,7 @@ class OperatorFormEditorPage extends React.Component {
 
   onEditCSVYaml = e => {
     e.preventDefault();
-    this.props.history.push('/editor/yaml');
+    this.props.history.push('/bundle/yaml');
   };
 
   generateCSV = () => {
@@ -345,7 +345,7 @@ class OperatorFormEditorPage extends React.Component {
   }
 }
 
-OperatorFormEditorPage.propTypes = {
+OperatorBundlePage.propTypes = {
   operator: PropTypes.object,
   storeEditorOperator: PropTypes.func,
   sectionStatus: PropTypes.object,
@@ -357,7 +357,7 @@ OperatorFormEditorPage.propTypes = {
   }).isRequired
 };
 
-OperatorFormEditorPage.defaultProps = {
+OperatorBundlePage.defaultProps = {
   operator: {},
   storeEditorOperator: helpers.noop,
   sectionStatus: {},
@@ -399,4 +399,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(OperatorFormEditorPage);
+)(OperatorBundlePage);

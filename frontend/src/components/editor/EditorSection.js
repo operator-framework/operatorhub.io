@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
-import { EDITOR_STATUS } from '../../pages/OperatorEditorPage/editorPageUtils';
+import { EDITOR_STATUS } from '../../pages/operatorBundlePage/bundlePageUtils';
 
 const EditorSection = ({ sectionStatus, title, description, sectionLocation, history }) => {
   const status = _.get(sectionStatus, sectionLocation);
 
   const onEdit = () => {
-    history.push(`/editor/${sectionLocation}`);
+    history.push(`/bundle/${sectionLocation}`);
   };
 
   const renderSectionStatus = () => {

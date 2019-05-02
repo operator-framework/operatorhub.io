@@ -9,7 +9,7 @@ import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
 import { getFieldValueError } from '../../utils/operatorUtils';
 import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
-import { sectionsFields } from './editorPageUtils';
+import { sectionsFields } from './bundlePageUtils';
 
 const permissionFields = sectionsFields.permissions;
 

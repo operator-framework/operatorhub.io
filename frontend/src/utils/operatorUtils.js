@@ -5,7 +5,7 @@ import {
   OPERATOR_DESCRIPTION_APPLICATION_HEADER,
   OPERATOR_DESCRIPTION_PREREQUISITES_HEADER
 } from './constants';
-import { mergeDescriptions } from '../pages/OperatorEditorPage/editorPageUtils';
+import { mergeDescriptions } from '../pages/operatorBundlePage/bundlePageUtils';
 
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');

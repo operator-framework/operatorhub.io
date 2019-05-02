@@ -8,7 +8,7 @@ import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import YamlViewer from '../../components/YamlViewer';
-import { sectionsFields } from './editorPageUtils';
+import { sectionsFields } from './bundlePageUtils';
 
 const deploymentFields = sectionsFields.deployments;
 
