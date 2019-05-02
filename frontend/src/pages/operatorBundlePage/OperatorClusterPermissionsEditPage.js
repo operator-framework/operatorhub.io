@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import OperatorPermissionsEditPage from './OperatorPermissionsEditPage';
-import { sectionsFields } from './editorPageUtils';
+import { sectionsFields } from './bundlePageUtils';
 
 const permissionFields = sectionsFields['cluster-permissions'];
 

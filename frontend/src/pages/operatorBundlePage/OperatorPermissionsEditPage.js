@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { renderFormError, sectionsFields } from './editorPageUtils';
+import { renderFormError, sectionsFields } from './bundlePageUtils';
 import {
   operatorFieldDescriptions,
   operatorFieldPlaceholders,

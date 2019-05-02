@@ -6,7 +6,7 @@ import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import YamlViewer from '../../components/YamlViewer';
-import { normalizeYamlOperator, yamlFromOperator } from './editorPageUtils';
+import { normalizeYamlOperator, yamlFromOperator } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { defaultOperator } from '../../utils/operatorUtils';
@@ -25,7 +25,7 @@ class OperatorYamlEditorPage extends React.Component {
 
   backToPackageYourOperator = e => {
     e.preventDefault();
-    this.props.history.push('/editor');
+    this.props.history.push('/bundle');
   };
 
   hidePreviewOperator = () => {
