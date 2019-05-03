@@ -27,10 +27,9 @@ const capabilityLevelImages = {
 };
 
 export class OperatorSidePanel extends React.Component {
-
   state = {
     copied: false
-  }
+  };
 
   copyToClipboard = (e, command) => {
     e.preventDefault();
@@ -57,8 +56,8 @@ export class OperatorSidePanel extends React.Component {
         ))}
       </DropdownButton>
     ) : (
-        channel
-      );
+      channel
+    );
 
   renderVersion = (versions, version, currentVersion) =>
     _.size(versions) > 1 ? (
@@ -74,10 +73,10 @@ export class OperatorSidePanel extends React.Component {
         ))}
       </DropdownButton>
     ) : (
-        this.getVersionString(version, currentVersion)
-      );
+      this.getVersionString(version, currentVersion)
+    );
 
-  renderLinks = (links) =>
+  renderLinks = links =>
     _.size(links) && (
       <React.Fragment>
         {_.map(links, link => (
@@ -86,7 +85,7 @@ export class OperatorSidePanel extends React.Component {
       </React.Fragment>
     );
 
-  renderMaintainers = (maintainers) =>
+  renderMaintainers = maintainers =>
     _.size(maintainers) && (
       <React.Fragment>
         {_.map(maintainers, maintainer => (
@@ -98,7 +97,7 @@ export class OperatorSidePanel extends React.Component {
       </React.Fragment>
     );
 
-  renderCapabilityLevel = (capabilityLevel) => (
+  renderCapabilityLevel = capabilityLevel => (
     <span>
       <span className="sr-only">{capabilityLevel}</span>
       <img
@@ -109,7 +108,7 @@ export class OperatorSidePanel extends React.Component {
     </span>
   );
 
-  renderCategories = (categories) => {
+  renderCategories = categories => {
     if (!_.size(categories)) {
       return <div>Other</div>;
     }
@@ -123,7 +122,7 @@ export class OperatorSidePanel extends React.Component {
     );
   };
 
-  renderCreatedAt = (createdAt) => {
+  renderCreatedAt = createdAt => {
     if (!createdAt) {
       return notAvailable;
     }
@@ -137,7 +136,7 @@ export class OperatorSidePanel extends React.Component {
   };
 
   render() {
-    const { operator, showInstall } = this.props
+    const { operator, showInstall } = this.props;
 
     const {
       name,
@@ -164,7 +163,7 @@ export class OperatorSidePanel extends React.Component {
       <span className="oh-nowrap" key="nowrap">
         {tooltipText}
       </span>
-    ]
+    ];
     const tooltipOverrides = Object.freeze({
       wrapper: {
         cursor: 'pointer',
@@ -174,10 +173,11 @@ export class OperatorSidePanel extends React.Component {
         maxWidth: '170px',
         minWidth: 'auto'
       }
-    })
+    });
 
-    const imageLink = containerImage ?
-      <span>{containerImage}
+    const imageLink = containerImage ? (
+      <span>
+        {containerImage}
         <Tooltip content={tooltipContent} styles={tooltipOverrides}>
           <a
             href="#"
@@ -189,7 +189,10 @@ export class OperatorSidePanel extends React.Component {
             <span className="sr-only">Copy</span>
           </a>
         </Tooltip>
-      </span> : notAvailable
+      </span>
+    ) : (
+      notAvailable
+    );
 
     const capabilityLevelLabel = (
       <span>
@@ -225,10 +228,10 @@ export class OperatorSidePanel extends React.Component {
             <button className="oh-button oh-button-primary oh-disabled">Install</button>
           </OverlayTrigger>
         ) : (
-            <button className="oh-button oh-button-primary" disabled={!showInstall} onClick={showInstall}>
-              Install
-    </button>
-          )}
+          <button className="oh-button oh-button-primary" disabled={!showInstall} onClick={showInstall}>
+            Install
+          </button>
+        )}
         <div className="oh-operator-page__side-panel__separator" />
         <PropertiesSidePanel>
           {this.renderPropertyItem('Channel', this.renderChannel(channels, channel))}
@@ -243,13 +246,20 @@ export class OperatorSidePanel extends React.Component {
           {this.renderPropertyItem('Categories', this.renderCategories(categories))}
         </PropertiesSidePanel>
       </div>
-    )
-  };
-};
+    );
+  }
+}
 
 OperatorSidePanel.propTypes = {
   operator: PropTypes.object,
   showInstall: PropTypes.func,
   updateChannel: PropTypes.func,
   updateVersion: PropTypes.func
+};
+
+OperatorSidePanel.defaultProps = {
+  operator: {},
+  showInstall: false,
+  updateChannel: helpers.noop,
+  updateVersion: helpers.noop
 };
