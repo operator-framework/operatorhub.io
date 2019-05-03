@@ -11,12 +11,11 @@ const olm = `${operatorsFramework}/operator-lifecycle-manager`;
 const olmGettingStarted = `${olm}#getting-started`;
 const gettingStarted = `${operatorsFramework}/getting-started`;
 const operatorRegistry = `${operatorsFramework}/operator-registry`;
-const operatorRegistrySteps = `${operatorRegistry}#using-the-catalog-with-operator-lifecycle-manager`;
+const manualTestingOnKubernetes = `${operatorsRepo}/blob/master/docs/testing-operators.md#manual-testing-on-kubernetes`;
 const marketplaceRef = `${operatorsFramework}/operator-marketplace`;
 const prometheusOperator = `${contributions}/prometheus`;
 const olmArchitecture = `${olm}/blob/master/Documentation/design/architecture.md`;
 const buildYourCSV = `${olm}/blob/master/Documentation/design/building-your-csv.md`;
-const installInstructions = `${olm}/blob/master/Documentation/install/install.md`;
 const discoveryCatalogs = `${olm}#discovery-catalogs-and-automated-upgrades`;
 const introBlog = `https://coreos.com/blog/introducing-operators.html`;
 const sampleCode = `${operatorsFramework}/operator-sdk-samples/blob/master/memcached-operator/pkg/controller/memcached/memcached_controller.go#L77`;
@@ -44,12 +43,11 @@ const DocmentationLinks = {
   olmGettingStarted,
   gettingStarted,
   operatorRegistry,
-  operatorRegistrySteps,
+  manualTestingOnKubernetes,
   marketplaceRef,
   prometheusOperator,
   olmArchitecture,
   buildYourCSV,
-  installInstructions,
   discoveryCatalogs,
   introBlog,
   sampleCode,
@@ -79,12 +77,11 @@ export {
   olmGettingStarted,
   gettingStarted,
   operatorRegistry,
-  operatorRegistrySteps,
+  manualTestingOnKubernetes,
   marketplaceRef,
   prometheusOperator,
   olmArchitecture,
   buildYourCSV,
-  installInstructions,
   introBlog,
   discoveryCatalogs,
   sampleCode,
