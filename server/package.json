@@ -10,6 +10,8 @@
     "child_process": "^1.0.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
+    "eslint": "^4.19.1",
+    "eslint-plugin-patternfly-react": "^0.2.0",
     "express-force-ssl": "^0.3.2",
     "express-session": "^1.15.6",
     "fs": "^0.0.1-security",
@@ -18,11 +20,13 @@
     "js-yaml": "^3.12.1",
     "lodash": "^4.17.11",
     "path": "^0.12.7",
+    "prettier": "^1.14.2",
     "self-signed-https": "^1.0.5",
     "sqlite3": "^4.0.6"
   },
   "devDependencies": {},
   "scripts": {
-    "server": "node server.js"
+    "server": "node server.js",
+    "lint": "eslint ./"
   }
 }
