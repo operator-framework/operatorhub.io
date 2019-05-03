@@ -14,11 +14,10 @@ import {
   prometheusOperator,
   olmArchitecture,
   buildYourCSV,
-  installInstructions,
   operatorRegistry,
-  operatorRegistrySteps,
   operatorCourier,
-  operatorBundle
+  operatorBundle,
+  manualTestingOnKubernetes
 } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
 
@@ -208,12 +207,14 @@ const Contribute = ({ history, ...props }) => {
       content: (
         <React.Fragment>
           <p>
-            Before contributing it may be useful to register and deploy your Operator through OLM. To install OLM on
-            your Kubernetes cluster follow these{' '}
-            <ExternalLink href={installInstructions} text="instructions" indicator={false} /> or check the “Install”
-            instructions for an Operator from the index for a one-line install command. When ready, register your
-            Operator using the catalog data above following these{' '}
-            <ExternalLink href={operatorRegistrySteps} text="steps" indicator={false} />.
+            Before contributing it may be useful to register and deploy your Operator through OLM. To install OLM on a
+            local Kubernetes cluster follow the{' '}
+            <ExternalLink
+              href={manualTestingOnKubernetes}
+              text="instruction for manual, local testing"
+              indicator={false}
+            />
+            . This will speed up the submission process significantly.
           </p>
         </React.Fragment>
       )
