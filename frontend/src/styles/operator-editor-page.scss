@@ -100,6 +100,7 @@
 
     &__status {
       .fa, .pficon {
+        margin-left: 10px;
         margin-right: 4px;
         &.fa-minus-circle {
           color: $color-pf-red;
@@ -510,8 +511,8 @@
       }
 
       &__actions {
-        .oh-operator-editor-page__section__edit-button {
-          margin-right: 10px;
+        .oh-button {
+          margin: 0 10px;
         }
       }
     }
@@ -566,7 +567,7 @@
 
   .oh-markdown-viewer__content {
     .CodeMirror, .CodeMirror-scroll {
-      min-height: initial;     
+      min-height: initial;
     }
 
     .CodeMirror {
