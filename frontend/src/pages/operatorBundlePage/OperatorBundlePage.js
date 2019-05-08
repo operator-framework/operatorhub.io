@@ -253,11 +253,15 @@ class OperatorBundlePage extends React.Component {
         <div className="oh-operator-editor-page__section">
           <div className="oh-operator-editor-page__section__header">
             <div className="oh-operator-editor-page__section__header__text">
-              <h2>Upload your operator manifests</h2>
+              <h2>Upload your Kubernetes manifests</h2>
               <p>
-                The CRDs, deployments, or RBAC related objects defined in those manifests will be used to populate
-                fields in the CSV file. YOu can also upload an existing CSV file. Alternatively, you can simply fill in
-                the form entries below.
+                Upload your existing YAML manifests of your Operators deployment. We support <code>Deployments</code>,
+                <code>(Cluster)Roles</code>, <code>(Cluster)RoleBindings</code>, <code>ServiceAccounts</code> and{' '}
+                <code>CustomResourceDefinition</code> objects. The information from these objects will be used to
+                populate your Operator metadata. Alternatively, you can also upload an existing CSV.
+                <br />
+                <br />
+                <b>Note:</b> For a complete bundle the CRDs manifests are required.
               </p>
             </div>
             <div className="oh-operator-editor-page__section__status">
@@ -286,9 +290,9 @@ class OperatorBundlePage extends React.Component {
         <h1>Create your Operator Bundle</h1>
       </div>
       <p>
-        This editor is aimed to assist in creating and editing a Cluster Service Version (CSV) for your operator. Start
-        by uploading your operator manifests for deployments, RBAC, CRDs, or an existing ClusterServiceVersion file. The
-        forms below will be populated with all valid information and used to create the CSV file for your operator.
+        This page will assist you in the creation or modification of your Operator bundle. Start by uploading your
+        Kubernetes manifest files. The forms below will be populated with all valid information and used to create the
+        new Operator bundle. You can modify or add properties through these forms as well.
       </p>
     </React.Fragment>
   );
