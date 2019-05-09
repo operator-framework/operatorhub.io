@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import OperatorCRDsPage from './OperatorCRDsPage';
+import { sectionsFields } from './editorPageUtils';
 
 const OperatorOwnedCRDsPage = ({ operator, history }) => {
   const description = (
@@ -12,11 +13,12 @@ const OperatorOwnedCRDsPage = ({ operator, history }) => {
       Checkout more in <ExternalLink href="#" text="Owned CRDs" />.
     </span>
   );
+  const crdsField = sectionsFields['owned-crds'];
 
   return (
     <OperatorCRDsPage
       operator={operator}
-      crdsField="spec.customresourcedefinitions.owned"
+      crdsField={crdsField}
       crdsTitle="Owned CRDs"
       crdsDescription={description}
       objectPage="owned-crds"

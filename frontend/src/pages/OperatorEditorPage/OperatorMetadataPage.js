@@ -9,29 +9,16 @@ import { categoryOptions, maturityOptions, operatorFieldPlaceholders } from '../
 import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
 import ImageEditor from '../../components/editor/ImageEditor';
-import { renderOperatorFormField, getUpdatedFormErrors, EDITOR_STATUS, renderOperatorInput } from './editorPageUtils';
+import {
+  renderOperatorFormField,
+  getUpdatedFormErrors,
+  EDITOR_STATUS,
+  renderOperatorInput,
+  sectionsFields
+} from './editorPageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import EditorSelect from '../../components/editor/EditorSelect';
-
-const METADATA_FIELDS = [
-  'spec.displayName',
-  'metadata.annotations.description',
-  'spec.maturity',
-  'spec.version',
-  'spec.replaces',
-  'spec.minKubeVersion',
-  'spec.description',
-  'metadata.annotations.capabilities',
-  'spec.labels',
-  'spec.selector.matchLabels',
-  'metadata.annotations.categories',
-  'spec.keywords',
-  'spec.icon',
-  'spec.links',
-  'spec.provider.name',
-  'spec.maintainers'
-];
 
 const metadataDescription = `
   The metadata section contains general metadata around the name, version, and other info that aids users in the
@@ -63,7 +50,7 @@ class OperatorMetadataPage extends React.Component {
 
     this.originalStatus = sectionStatus.metadata;
     if (this.originalStatus !== EDITOR_STATUS.empty) {
-      const errors = getUpdatedFormErrors(workingOperator, formErrors, METADATA_FIELDS);
+      const errors = getUpdatedFormErrors(workingOperator, formErrors, sectionsFields.metadata);
       storeEditorFormErrors(errors);
     }
   }
@@ -80,7 +67,7 @@ class OperatorMetadataPage extends React.Component {
 
     const errors = getUpdatedFormErrors(workingOperator, formErrors, field);
     storeEditorFormErrors(errors);
-    const metadataErrors = _.some(METADATA_FIELDS, metadataField => _.get(errors, metadataField));
+    const metadataErrors = _.some(sectionsFields.metadata, metadataField => _.get(errors, metadataField));
 
     console.dir(errors);
     storeEditorOperator(_.cloneDeep(workingOperator));
@@ -95,7 +82,7 @@ class OperatorMetadataPage extends React.Component {
   validatePage = () => {
     const { formErrors, setSectionStatus } = this.props;
 
-    const metadataErrors = _.some(METADATA_FIELDS, metadataField => _.get(formErrors, metadataField));
+    const metadataErrors = _.some(sectionsFields.metadata, metadataField => _.get(formErrors, metadataField));
     if (metadataErrors) {
       this.originalStatus = EDITOR_STATUS.errors;
       setSectionStatus(EDITOR_STATUS.errors);
@@ -335,7 +322,7 @@ class OperatorMetadataPage extends React.Component {
   render() {
     const { formErrors, operator, history } = this.props;
 
-    const metadataErrorFields = _.filter(METADATA_FIELDS, metadataField => _.get(formErrors, metadataField));
+    const metadataErrorFields = _.filter(sectionsFields.metadata, metadataField => _.get(formErrors, metadataField));
     const pageErrors = _.some(
       metadataErrorFields,
       errorField => this.originalStatus !== EDITOR_STATUS.empty || _.get(operator, errorField) !== undefined

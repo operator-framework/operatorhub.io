@@ -8,6 +8,9 @@ import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import YamlViewer from '../../components/YamlViewer';
+import { sectionsFields } from './editorPageUtils';
+
+const deploymentFields = sectionsFields.deployments;
 
 class OperatorDeploymentEditPage extends React.Component {
   state = {
@@ -19,7 +22,7 @@ class OperatorDeploymentEditPage extends React.Component {
     const { operator, storeEditorOperator } = this.props;
     const name = helpers.transformPathedName(_.get(this.props.match, 'params.deployment', ''));
 
-    let operatorDeployments = _.get(operator, 'spec.install.spec.deployments');
+    let operatorDeployments = _.get(operator, deploymentFields);
 
     let deployment = _.find(operatorDeployments, { name });
 
@@ -31,7 +34,7 @@ class OperatorDeploymentEditPage extends React.Component {
 
       operatorDeployments.push(deployment);
       const updatedOperator = _.cloneDeep(operator);
-      _.set(updatedOperator, 'spec.install.spec.deployments', operatorDeployments);
+      _.set(updatedOperator, deploymentFields, operatorDeployments);
       storeEditorOperator(updatedOperator);
     }
 
@@ -53,14 +56,14 @@ class OperatorDeploymentEditPage extends React.Component {
     const { deployment } = this.state;
 
     const updatedOperator = _.cloneDeep(operator);
-    const deployments = _.get(updatedOperator, 'spec.install.spec.deployments');
+    const deployments = _.get(updatedOperator, deploymentFields);
     const deploymentIndex = _.findIndex(deployments, { name: deployment.name });
     const updatedDeployments = [
       ...deployments.slice(0, deploymentIndex),
       updatedDeployment,
       ...deployments.slice(deploymentIndex + 1)
     ];
-    _.set(updatedOperator, 'spec.install.spec.deployments', updatedDeployments);
+    _.set(updatedOperator, deploymentFields, updatedDeployments);
 
     this.setState({ deployment: updatedDeployment });
     storeEditorOperator(updatedOperator);
@@ -84,7 +87,7 @@ class OperatorDeploymentEditPage extends React.Component {
     return (
       <OperatorEditorSubPage
         title="Edit Deployment"
-        field="spec.install.spec.deployments"
+        field={deploymentFields}
         tertiary
         lastPage="deployments"
         lastPageTitle="Deployments"

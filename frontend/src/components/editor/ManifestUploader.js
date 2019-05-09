@@ -7,7 +7,7 @@ import { Grid, Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import UploadUrlModal from '../modals/UploadUrlModal';
 import { reduxConstants } from '../../redux';
-import { normalizeYamlOperator, EDITOR_STATUS } from '../../pages/OperatorEditorPage/editorPageUtils';
+import { normalizeYamlOperator, EDITOR_STATUS, sectionsFields } from '../../pages/OperatorEditorPage/editorPageUtils';
 
 const validFileTypes = ['.yaml'];
 
@@ -25,7 +25,7 @@ class ManifestUploader extends React.Component {
   validateUpload = () => true;
 
   applyUpload = upload => {
-    const { operator, onUpdate, markSectionsForReview } = this.props;
+    const { operator, onUpdate } = this.props;
 
     let updatedOperator = {};
     try {
@@ -45,7 +45,7 @@ class ManifestUploader extends React.Component {
     if (validContents) {
       const mergedOperator = _.merge({}, operator, updatedOperator);
 
-      markSectionsForReview();
+      this.compareSections(operator, mergedOperator);
       onUpdate(mergedOperator);
 
       upload.status = (
@@ -62,6 +62,28 @@ class ManifestUploader extends React.Component {
         </span>
       );
     }
+  };
+
+  compareSections = (operator, merged) => {
+    const { markSectionForReview } = this.props;
+
+    Object.keys(sectionsFields).forEach(sectionName => {
+      const fields = sectionsFields[sectionName];
+      let same = true;
+
+      // check if operator fields are same as before upload
+      if (typeof sectionsFields[sectionName] === 'string') {
+        same = _.isEqual(_.get(operator, fields), _.get(merged, fields));
+        console.log(fields, _.get(operator, fields), _.get(merged, fields));
+      } else {
+        same = fields.every(path => _.isEqual(_.get(operator, path), _.get(merged, path)));
+      }
+
+      if (!same) {
+        // if not mark section as needing review
+        markSectionForReview(sectionName);
+      }
+    });
   };
 
   doUploadUrl = (contents, url) => {
@@ -268,12 +290,12 @@ ManifestUploader.propTypes = {
   operator: PropTypes.object.isRequired,
   onUpdate: PropTypes.func.isRequired,
   showErrorModal: PropTypes.func,
-  markSectionsForReview: PropTypes.func
+  markSectionForReview: PropTypes.func
 };
 
 ManifestUploader.defaultProps = {
   showErrorModal: helpers.noop,
-  markSectionsForReview: helpers.noop
+  markSectionForReview: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -285,9 +307,10 @@ const mapDispatchToProps = dispatch => ({
       heading: error,
       confirmButtonText: 'OK'
     }),
-  markSectionsForReview: () =>
+  markSectionForReview: sectionName =>
     dispatch({
-      type: reduxConstants.SET_EDITOR_ALL_SECTIONS_STATUS,
+      type: reduxConstants.SET_EDITOR_SECTION_STATUS,
+      section: sectionName,
       status: EDITOR_STATUS.pending
     })
 });

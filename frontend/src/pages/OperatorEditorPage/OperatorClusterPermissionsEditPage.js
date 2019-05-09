@@ -1,13 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import OperatorPermissionsEditPage from './OperatorPermissionsEditPage';
+import { sectionsFields } from './editorPageUtils';
+
+const permissionFields = sectionsFields['cluster-permissions'];
 
 const OperatorClusterPermissionsEditPage = ({ operator, history, match }) => (
   <OperatorPermissionsEditPage
     operator={operator}
     history={history}
     match={match}
-    field="spec.install.spec.clusterPermissions"
+    field={permissionFields}
     objectType="Cluster Permissions"
     objectsTitle="Cluster Permissions"
     objectPage="cluster-permissions"
