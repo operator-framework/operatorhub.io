@@ -16,9 +16,9 @@ import {
 } from '../../utils/operatorDescriptors';
 import DescriptorsEditor from '../../components/editor/DescriptorsEditor';
 import YamlViewer from '../../components/YamlViewer';
-import { EDITOR_STATUS, getUpdatedFormErrors } from './editorPageUtils';
+import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './editorPageUtils';
 
-const crdsField = 'spec.customresourcedefinitions.owned';
+const crdsField = sectionsFields['owned-crds'];
 
 const specCapabilities = [
   'urn:alm:descriptor:com.tectonic.ui:podCount',

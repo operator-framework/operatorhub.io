@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { renderFormError } from './editorPageUtils';
+import { renderFormError, sectionsFields } from './editorPageUtils';
 import {
   operatorFieldDescriptions,
   operatorFieldPlaceholders,
@@ -15,6 +15,8 @@ import {
   operatorObjectDescriptions
 } from '../../utils/operatorDescriptors';
 import RulesEditor from '../../components/editor/RulesEditor';
+
+const permissionFields = sectionsFields.permissions;
 
 class OperatorPermissionsEditPage extends React.Component {
   state = {
@@ -157,7 +159,7 @@ OperatorPermissionsEditPage.propTypes = {
 
 OperatorPermissionsEditPage.defaultProps = {
   operator: {},
-  field: 'spec.install.spec.permissions',
+  field: permissionFields,
   objectType: 'Permission',
   objectsTitle: 'Permissions',
   objectPage: 'permissions',

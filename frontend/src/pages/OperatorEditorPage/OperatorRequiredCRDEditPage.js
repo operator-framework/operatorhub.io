@@ -12,9 +12,9 @@ import {
   operatorFieldPlaceholders,
   operatorFieldValidators
 } from '../../utils/operatorDescriptors';
-import { EDITOR_STATUS, getUpdatedFormErrors } from './editorPageUtils';
+import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './editorPageUtils';
 
-const crdsField = 'spec.customresourcedefinitions.required';
+const crdsField = sectionsFields['required-crds'];
 
 class OperatorRequiredCRDEditPage extends React.Component {
   state = {

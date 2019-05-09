@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import OperatorCRDsPage from './OperatorCRDsPage';
+import { sectionsFields } from './editorPageUtils';
 
 const OperatorRequiredCRDsPage = ({ operator, history }) => {
   const description = (
@@ -13,10 +14,12 @@ const OperatorRequiredCRDsPage = ({ operator, history }) => {
     </span>
   );
 
+  const crdsField = sectionsFields['required-crds'];
+
   return (
     <OperatorCRDsPage
       operator={operator}
-      crdsField="spec.customresourcedefinitions.required"
+      crdsField={crdsField}
       crdsTitle="Required CRDs"
       crdsDescription={description}
       objectPage="required-crds"
