@@ -8,6 +8,9 @@ import { reduxConstants } from '../../redux';
 import { getFieldValueError } from '../../utils/operatorUtils';
 import InstallModeEditor from '../../components/editor/InstallModeEditor';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
+import { sectionsFields } from './editorPageUtils';
+
+const installModesFields = sectionsFields['install-modes'];
 
 const OperatorInstallModesPage = ({ operator, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => {
   const validateField = field => {
@@ -18,7 +21,7 @@ const OperatorInstallModesPage = ({ operator, formErrors, storeEditorOperator, s
 
   const updateInstallModes = installModes => {
     const updatedOperator = _.cloneDeep(operator);
-    _.set(updatedOperator, 'spec.installModes', installModes);
+    _.set(updatedOperator, installModesFields, installModes);
     storeEditorOperator(updatedOperator);
     validateField('spec.install.spec.deployments');
   };
@@ -26,7 +29,7 @@ const OperatorInstallModesPage = ({ operator, formErrors, storeEditorOperator, s
   return (
     <OperatorEditorSubPage
       title="Install Modes"
-      field="spec.installModes"
+      field={installModesFields}
       secondary
       history={history}
       section="install-modes"

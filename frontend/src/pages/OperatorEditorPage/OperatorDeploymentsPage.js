@@ -8,13 +8,16 @@ import { reduxConstants } from '../../redux';
 import { getFieldValueError } from '../../utils/operatorUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
+import { sectionsFields } from './editorPageUtils';
+
+const deploymentFields = sectionsFields.deployments;
 
 const OperatorDeploymentsPage = ({ operator, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => {
   const updateOperator = deployments => {
     const updatedOperator = _.cloneDeep(operator);
-    _.set(updatedOperator, 'spec.install.spec.deployments', deployments);
+    _.set(updatedOperator, deploymentFields, deployments);
     storeEditorOperator(updatedOperator);
-    validateField('spec.install.spec.deployments');
+    validateField(deploymentFields);
   };
 
   const validateField = field => {
@@ -26,7 +29,7 @@ const OperatorDeploymentsPage = ({ operator, formErrors, storeEditorOperator, st
   return (
     <OperatorEditorSubPage
       title="Deployments"
-      field="spec.install.spec.deployments"
+      field={deploymentFields}
       secondary
       history={history}
       section="deployments"
@@ -36,7 +39,7 @@ const OperatorDeploymentsPage = ({ operator, formErrors, storeEditorOperator, st
         title="Deployments"
         formErrors={formErrors}
         onUpdate={updateOperator}
-        field="spec.install.spec.deployments"
+        field={deploymentFields}
         fieldTitle="Name"
         objectPage="deployments"
         history={history}
