@@ -27,17 +27,6 @@ const editorReducer = (state = initialState, action) => {
       sectionStatus[action.section] = action.status;
       return Object.assign({}, state, { sectionStatus });
 
-    case reduxConstants.SET_EDITOR_ALL_SECTIONS_STATUS:
-      sectionStatus = Object.keys(state.sectionStatus).reduce((aggregator, key) => {
-        aggregator[key] = action.status;
-
-        return aggregator;
-      }, {});
-
-      return Object.assign({}, state, {
-        sectionStatus
-      });
-
     case reduxConstants.RESET_EDITOR_OPERATOR:
       return Object.assign({}, state, getInitialState());
 
