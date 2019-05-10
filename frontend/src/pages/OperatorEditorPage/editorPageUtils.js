@@ -17,14 +17,6 @@ const EDITOR_STATUS = {
   errors: 'errors'
 };
 
-// metadata: 'empty',
-// 'owned-crds': 'empty',
-// 'required-crds': 'empty',
-// deployments: 'empty',
-// permissions: 'empty',
-// 'cluster-permissions': 'empty',
-// 'install-modes': 'empty'
-
 const sectionsFields = {
   metadata: [
     'spec.displayName',
