@@ -72,9 +72,8 @@ class ManifestUploader extends React.Component {
       let same = true;
 
       // check if operator fields are same as before upload
-      if (typeof sectionsFields[sectionName] === 'string') {
+      if (typeof fields === 'string') {
         same = _.isEqual(_.get(operator, fields), _.get(merged, fields));
-        console.log(fields, _.get(operator, fields), _.get(merged, fields));
       } else {
         same = fields.every(path => _.isEqual(_.get(operator, path), _.get(merged, path)));
       }
