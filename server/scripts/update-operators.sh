@@ -26,6 +26,20 @@ fi
 pushd community-operators
 git fetch origin $OPERATORS_BRANCH
 git pull origin $OPERATORS_BRANCH
+
+pushd upstream-community-operators
+
+# remove if exist from previous run
+rm -r nested-structure
+
+for f in */ ; do
+    if [ -d "$f" ]; then
+        echo "$f"
+        operator-courier nest "$f" "nested-structure/$f"
+    fi
+done
+
+popd
 popd
 
 popd
