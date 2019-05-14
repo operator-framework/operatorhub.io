@@ -128,7 +128,21 @@ const normalizeCRDs = operator => {
   return _.map(customResourceDefinitions, crd => normalizeCRD(crd, operator));
 };
 
-const generateIdFromVersionedName = name => name.slice(0, name.indexOf('.'));
+/**
+ * Returns operator name without version as operator Id
+ * Cover case when there is no version in name
+ * @param {string} name
+ */
+const generateIdFromVersionedName = name => {
+  let operatorId = name;
+
+  // use method only if there is dot
+  if (operatorId.indexOf('.') > -1) {
+    operatorId = operatorId.slice(0, name.indexOf('.'));
+  }
+
+  return operatorId;
+};
 
 const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamespaces', supported: true });
 
