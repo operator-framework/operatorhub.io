@@ -17,6 +17,33 @@ const EDITOR_STATUS = {
   errors: 'errors'
 };
 
+const sectionsFields = {
+  metadata: [
+    'spec.displayName',
+    'metadata.annotations.description',
+    'spec.maturity',
+    'spec.version',
+    'spec.replaces',
+    'spec.minKubeVersion',
+    'spec.description',
+    'metadata.annotations.capabilities',
+    'spec.labels',
+    'spec.selector.matchLabels',
+    'metadata.annotations.categories',
+    'spec.keywords',
+    'spec.icon',
+    'spec.links',
+    'spec.provider.name',
+    'spec.maintainers'
+  ],
+  'owned-crds': 'spec.customresourcedefinitions.owned',
+  'required-crds': 'spec.customresourcedefinitions.required',
+  deployments: 'spec.install.spec.deployments',
+  permissions: 'spec.install.spec.permissions',
+  'cluster-permissions': 'spec.install.spec.clusterPermissions',
+  'install-modes': 'spec.installModes'
+};
+
 const renderFormError = (field, formErrors) => {
   const error = _.get(formErrors, field);
   if (!error) {
@@ -123,6 +150,7 @@ const yamlFromOperator = operator => {
 };
 
 export {
+  sectionsFields,
   renderOperatorInput,
   renderOperatorFormField,
   renderFormError,

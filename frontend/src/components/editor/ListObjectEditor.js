@@ -69,10 +69,7 @@ class ListObjectEditor extends React.Component {
               Invalid Entries
             </span>
           )}
-          <button
-            className="oh-button oh-button-secondary"
-            onClick={() => this.editOperatorObject(operatorObject)}
-          >
+          <button className="oh-button oh-button-secondary" onClick={() => this.editOperatorObject(operatorObject)}>
             Edit
           </button>
           <a href="#" onClick={e => this.removeOperatorObject(e, operatorObject)}>

@@ -9,6 +9,9 @@ import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
 import { getFieldValueError } from '../../utils/operatorUtils';
 import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
+import { sectionsFields } from './editorPageUtils';
+
+const permissionFields = sectionsFields.permissions;
 
 const OperatorPermissionsPage = ({
   operator,
@@ -78,7 +81,7 @@ OperatorPermissionsPage.propTypes = {
 
 OperatorPermissionsPage.defaultProps = {
   operator: {},
-  field: 'spec.install.spec.permissions',
+  field: permissionFields,
   title: 'Permissions',
   section: 'permissions',
   objectType: 'Permission',

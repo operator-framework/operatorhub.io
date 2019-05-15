@@ -7,7 +7,7 @@ import { Grid, Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import UploadUrlModal from '../modals/UploadUrlModal';
 import { reduxConstants } from '../../redux';
-import { normalizeYamlOperator } from '../../pages/OperatorEditorPage/editorPageUtils';
+import { normalizeYamlOperator, EDITOR_STATUS, sectionsFields } from '../../pages/OperatorEditorPage/editorPageUtils';
 
 const validFileTypes = ['.yaml'];
 
@@ -44,7 +44,10 @@ class ManifestUploader extends React.Component {
 
     if (validContents) {
       const mergedOperator = _.merge({}, operator, updatedOperator);
+
+      this.compareSections(operator, mergedOperator);
       onUpdate(mergedOperator);
+
       upload.status = (
         <span className="oh-operator-editor-upload__uploads__status">
           <Icon type="fa" name="check-circle" />
@@ -59,6 +62,27 @@ class ManifestUploader extends React.Component {
         </span>
       );
     }
+  };
+
+  compareSections = (operator, merged) => {
+    const { markSectionForReview } = this.props;
+
+    Object.keys(sectionsFields).forEach(sectionName => {
+      const fields = sectionsFields[sectionName];
+      let same = true;
+
+      // check if operator fields are same as before upload
+      if (typeof fields === 'string') {
+        same = _.isEqual(_.get(operator, fields), _.get(merged, fields));
+      } else {
+        same = fields.every(path => _.isEqual(_.get(operator, path), _.get(merged, path)));
+      }
+
+      if (!same) {
+        // if not mark section as needing review
+        markSectionForReview(sectionName);
+      }
+    });
   };
 
   doUploadUrl = (contents, url) => {
@@ -264,11 +288,13 @@ class ManifestUploader extends React.Component {
 ManifestUploader.propTypes = {
   operator: PropTypes.object.isRequired,
   onUpdate: PropTypes.func.isRequired,
-  showErrorModal: PropTypes.func
+  showErrorModal: PropTypes.func,
+  markSectionForReview: PropTypes.func
 };
 
 ManifestUploader.defaultProps = {
-  showErrorModal: helpers.noop
+  showErrorModal: helpers.noop,
+  markSectionForReview: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -279,6 +305,12 @@ const mapDispatchToProps = dispatch => ({
       icon: <Icon type="pf" name="error-circle-o" />,
       heading: error,
       confirmButtonText: 'OK'
+    }),
+  markSectionForReview: sectionName =>
+    dispatch({
+      type: reduxConstants.SET_EDITOR_SECTION_STATUS,
+      section: sectionName,
+      status: EDITOR_STATUS.pending
     })
 });
 
