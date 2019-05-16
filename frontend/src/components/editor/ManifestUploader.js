@@ -8,6 +8,7 @@ import { helpers } from '../../common/helpers';
 import UploadUrlModal from '../modals/UploadUrlModal';
 import { reduxConstants } from '../../redux';
 import { normalizeYamlOperator, EDITOR_STATUS, sectionsFields } from '../../pages/operatorBundlePage/bundlePageUtils';
+import { defaultOperator } from '../../utils/operatorUtils';
 
 const validFileTypes = ['.yaml'];
 
@@ -45,7 +46,7 @@ class ManifestUploader extends React.Component {
     if (validContents) {
       const mergedOperator = _.merge({}, operator, updatedOperator);
 
-      this.compareSections(operator, mergedOperator);
+      this.compareSections(operator, mergedOperator, updatedOperator);
       onUpdate(mergedOperator);
 
       upload.status = (
@@ -64,26 +65,32 @@ class ManifestUploader extends React.Component {
     }
   };
 
-  compareSections = (operator, merged) => {
+  compareSections = (operator, merged, uploaded) => {
     const { markSectionForReview } = this.props;
 
     Object.keys(sectionsFields).forEach(sectionName => {
       const fields = sectionsFields[sectionName];
-      let same = true;
+      let updated = false;
 
       // check if operator fields are same as before upload
       if (typeof fields === 'string') {
-        same = _.isEqual(_.get(operator, fields), _.get(merged, fields));
+        updated = this.operatorFieldWasUpdated(fields, operator, uploaded, merged);
       } else {
-        same = fields.every(path => _.isEqual(_.get(operator, path), _.get(merged, path)));
+        updated = fields.some(path => this.operatorFieldWasUpdated(path, operator, uploaded, merged));
       }
 
-      if (!same) {
-        // if not mark section as needing review
+      if (updated) {
+        // mark section as review needed
         markSectionForReview(sectionName);
       }
     });
   };
+
+  operatorFieldWasUpdated = (fieldName, operator, uploadedOperator, mergedOperator) =>
+    // field changed when either its value changed
+    // or uploaded operator was same as default values
+    !_.isEqual(_.get(operator, fieldName), _.get(mergedOperator, fieldName)) ||
+    _.isEqual(_.get(defaultOperator, fieldName), _.get(uploadedOperator, fieldName));
 
   doUploadUrl = (contents, url) => {
     const { uploads } = this.state;
