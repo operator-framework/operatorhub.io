@@ -1,5 +1,11 @@
 import * as _ from 'lodash-es';
 import { operatorFieldValidators } from './operatorDescriptors';
+import {
+  OPERATOR_DESCRIPTION_ABOUT_HEADER,
+  OPERATOR_DESCRIPTION_APPLICATION_HEADER,
+  OPERATOR_DESCRIPTION_PREREQUISITES_HEADER
+} from './constants';
+import { mergeDescriptions } from '../pages/OperatorEditorPage/editorPageUtils';
 
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');
@@ -24,7 +30,12 @@ const getExampleYAML = (kind, operator) => {
   }
 
   try {
-    const yamlExamples = JSON.parse(examples);
+    let yamlExamples = examples;
+
+    if (typeof yamlExamples === 'string') {
+      yamlExamples = JSON.parse(examples);
+    }
+
     return _.find(yamlExamples, { kind });
   } catch (e) {
     return null;
@@ -55,12 +66,19 @@ const normalizeOperator = operator => {
   const categoriesString = _.get(annotations, 'categories');
   const packageInfo = _.get(operator, 'packageInfo', {});
 
+  const description = _.get(spec, 'description');
+  let longDescription = annotations.description;
+
+  if (typeof description === 'object') {
+    longDescription = mergeDescriptions(operator);
+  }
+
   return {
     id: generateIdFromVersionedName(operator.metadata.name),
     name: operator.metadata.name,
     displayName: _.get(spec, 'displayName', operator.metadata.name),
     imgUrl: iconObj ? `data:${iconObj.mediatype};base64,${iconObj.base64data}` : '',
-    longDescription: _.get(spec, 'description', annotations.description),
+    longDescription,
     provider: _.get(spec, 'provider.name'),
     version: spec.version,
     versionForCompare: normalizeVersion(spec.version),
@@ -78,6 +96,14 @@ const normalizeOperator = operator => {
     globalOperator: isGlobalOperator(_.get(spec, 'installModes'))
   };
 };
+
+function getDefaultDescription() {
+  return {
+    aboutApplication: `${OPERATOR_DESCRIPTION_APPLICATION_HEADER}\n`,
+    aboutOperator: `${OPERATOR_DESCRIPTION_ABOUT_HEADER}\n`,
+    prerequisites: `${OPERATOR_DESCRIPTION_PREREQUISITES_HEADER}\n`
+  };
+}
 
 const defaultOperator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
@@ -107,10 +133,7 @@ const defaultOperator = {
   },
   spec: {
     displayName: '',
-    description:
-      '## About the Managed Application\n\n' +
-      '## About this Operator\n\n' +
-      '## Prerequisites for enabling this Operator\n',
+    description: getDefaultDescription(),
     maturity: '',
     version: '',
     replaces: '',
@@ -300,6 +323,7 @@ const getFieldMissing = (operator, field) => {
 
 export {
   generateIdFromVersionedName,
+  getDefaultDescription,
   normalizeOperator,
   defaultOperator,
   validCapabilityStrings,
