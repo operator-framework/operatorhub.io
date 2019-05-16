@@ -149,7 +149,52 @@ const defaultOperator = {
       spec: {
         permissions: null,
         clusterPermissions: null,
-        deployments: ''
+        deployments: [
+          {
+            name: 'example-operator',
+            spec: {
+              replicas: 1,
+              selector: {
+                matchLabels: {
+                  'k8s-app': 'example-operator'
+                }
+              },
+              template: {
+                metadata: {
+                  labels: {
+                    'k8s-app': 'example-operator'
+                  }
+                },
+                spec: {
+                  containers: {
+                    image: 'quay.io/example/example-operator:v0.0.1',
+                    imagePullPolicy: 'Always',
+                    name: 'example-operator',
+                    resources: {
+                      limits: {
+                        cpu: '200m',
+                        memory: '100Mi'
+                      },
+                      requests: {
+                        cpu: '100m',
+                        memory: '50Mi'
+                      }
+                    }
+                  },
+                  imagePullSecrets: [
+                    {
+                      name: ''
+                    }
+                  ],
+                  nodeSelector: {
+                    'beta.kubernetes.io/os': 'linux',
+                    serviceAccountName: 'example-operator'
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     },
     installModes: [
