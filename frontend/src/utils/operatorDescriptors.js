@@ -312,7 +312,7 @@ const operatorFieldPlaceholders = {
 };
 
 const linksValidator = links => {
-  if (!links || _.isEmpty(links) || (links.length === 1 && !links.name && !links.url)) {
+  if (!links || _.isEmpty(links) || (links.length === 1 && !links[0].name && !links[0].url)) {
     return 'At least one external link is required.';
   }
 
