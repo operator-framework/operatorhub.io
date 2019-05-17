@@ -5,6 +5,12 @@ import classNames from 'classnames';
 import { ExpandCollapse, Icon } from 'patternfly-react';
 import EditorSelect from './EditorSelect';
 
+const isDescriptorEmpty = descriptor =>
+  descriptor.displayName === '' &&
+  descriptor.description === '' &&
+  descriptor.path === '' &&
+  _.isEmpty(descriptor['x-descriptors']);
+
 class DescriptorsEditor extends React.Component {
   dirtyDescriptors = [];
 
@@ -12,7 +18,7 @@ class DescriptorsEditor extends React.Component {
     const { crd, descriptorsField } = this.props;
     const existingDescriptors = _.get(crd, descriptorsField);
     _.forEach(existingDescriptors, (nextDescriptor, index) => {
-      if (!this.isDescriptorEmpty(nextDescriptor)) {
+      if (!isDescriptorEmpty(nextDescriptor)) {
         _.set(this.dirtyDescriptors, [index, 'displayName'], true);
         _.set(this.dirtyDescriptors, [index, 'description'], true);
         _.set(this.dirtyDescriptors, [index, 'path'], true);
@@ -32,16 +38,10 @@ class DescriptorsEditor extends React.Component {
     }
   }
 
-  isDescriptorEmpty = descriptor =>
-    descriptor.displayName === '' &&
-    descriptor.description === '' &&
-    descriptor.path === '' &&
-    _.isEmpty(descriptor['x-descriptors']);
-
   areDescriptorsEmpty = () => {
     const { crd, descriptorsField } = this.props;
 
-    return crd[descriptorsField].length === 1 && this.isDescriptorEmpty(crd[descriptorsField][0]);
+    return crd[descriptorsField].length === 1 && isDescriptorEmpty(crd[descriptorsField][0]);
   };
 
   addDescriptor = event => {
@@ -73,7 +73,8 @@ class DescriptorsEditor extends React.Component {
     event.preventDefault();
 
     if (!this.areDescriptorsEmpty()) {
-      crd.descriptors = crd[descriptorsField].filter(nextDescriptor => nextDescriptor !== descriptor);
+      crd[descriptorsField] = crd[descriptorsField].filter(nextDescriptor => descriptor !== nextDescriptor);
+
       if (_.isEmpty(crd[descriptorsField])) {
         crd[descriptorsField].push({ displayName: '', description: '', path: '', 'x-descriptors': [] });
       }
@@ -236,3 +237,4 @@ DescriptorsEditor.defaultProps = {
 };
 
 export default DescriptorsEditor;
+export { isDescriptorEmpty };

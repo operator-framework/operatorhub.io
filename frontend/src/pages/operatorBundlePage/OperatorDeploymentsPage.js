@@ -45,6 +45,7 @@ const OperatorDeploymentsPage = ({ operator, formErrors, storeEditorOperator, st
         history={history}
         objectTitleField="name"
         objectType="Deployment"
+        addName="add-deployment"
       />
     </OperatorEditorSubPage>
   );
