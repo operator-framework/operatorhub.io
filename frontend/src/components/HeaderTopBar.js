@@ -24,6 +24,10 @@ class HeaderTopBar extends React.Component {
     }
   }
 
+  onPreviewYourOperator = () => {
+    this.props.history.push('/preview');
+  };
+
   onSubmitYourOperator = () => {
     this.props.history.push('/contribute');
   };
@@ -103,11 +107,14 @@ class HeaderTopBar extends React.Component {
             id="header-contribute-dropdown"
             pullRight
           >
-            <MenuItem eventKey={0} onSelect={this.onSubmitYourOperator}>
-              Submit your Operator
-            </MenuItem>
-            <MenuItem eventKey={1} onSelect={this.onGettingStarted}>
+            <MenuItem eventKey={0} onSelect={this.onGettingStarted}>
               Create an Operator with the SDK
+            </MenuItem>
+            <MenuItem eventKey={1} onSelect={this.onPreviewYourOperator}>
+              Preview your Operator
+            </MenuItem>
+            <MenuItem eventKey={2} onSelect={this.onSubmitYourOperator}>
+              Submit your Operator
             </MenuItem>
           </DropdownButton>
         </div>
