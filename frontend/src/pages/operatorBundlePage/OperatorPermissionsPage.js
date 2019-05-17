@@ -59,6 +59,7 @@ const OperatorPermissionsPage = ({
         history={history}
         objectTitleField="serviceAccountName"
         pagePathField="serviceAccountName"
+        addName="add-permission"
       />
     </OperatorEditorSubPage>
   );
