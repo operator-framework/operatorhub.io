@@ -42,7 +42,6 @@ class OperatorRequiredCRDEditPage extends React.Component {
       operatorCRDs.push(crd);
     } else if (crd.name === '') {
       this.isNewCRD = true;
-      crd.name = name;
     }
 
     this.originalName = crd.name;
@@ -54,7 +53,7 @@ class OperatorRequiredCRDEditPage extends React.Component {
 
     this.setState({ crd });
 
-    if (crd.name === 'new-crd') {
+    if (crd.name === '') {
       setTimeout(() => {
         this.nameInput.focus();
         this.nameInput.select();
