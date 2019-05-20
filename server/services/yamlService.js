@@ -1,54 +1,23 @@
 /* eslint-disable prefer-destructuring */
 const _ = require('lodash');
 const persistentStore = require('../store/persistentStore');
+const generateIdFromVersionedName = require('../utils/operatorUtils').generateIdFromVersionedName;
 
-const generateInstallYaml = (serverRequest, serverResponse) => {
-  try {
-    let operatorChannel;
-    let operatorName;
+const createYaml = (packageName, operatorChannel, globalOperator) => {
+  if (globalOperator) {
+    return `apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: my-${packageName}
+  namespace: operators
+spec:
+  channel: ${operatorChannel}
+  name: ${packageName}
+  source: operatorhubio-catalog
+  sourceNamespace: olm`;
+  }
 
-    const fields = serverRequest.url.split('/');
-    if (fields.length === 4) {
-      operatorChannel = fields[2];
-      operatorName = fields[3].replace('.yaml', '');
-    } else if (fields.length === 3) {
-      operatorName = fields[2].replace('.yaml', '');
-    } else {
-      serverResponse.status(500).send(`Invalid request, you must provide the <operator-name>.yaml`);
-      return;
-    }
-
-    persistentStore.getOperator(operatorName, (operator, err) => {
-      if (err) {
-        serverResponse.status(500).send(err);
-        return;
-      }
-
-      const { packageName, globalOperator } = operator;
-      if (!packageName) {
-        serverResponse.status(500).send(`Operator ${operatorName} has invalid or no package information.`);
-        return;
-      }
-
-      persistentStore.getPackage(packageName, (operatorPackage, packageError) => {
-        if (err) {
-          serverResponse.status(500).send(packageError);
-          return;
-        }
-        if (!operatorChannel) {
-          const { defaultChannel } = operatorPackage;
-          if (!defaultChannel) {
-            serverResponse.status(500).send(`Operator ${operatorName} has invalid or no default channel information.`);
-          }
-          operatorChannel = defaultChannel;
-        }
-
-        if (!_.find(operatorPackage.channels, { name: operatorChannel })) {
-          serverResponse.status(500).send(`Channel ${operatorChannel} is invalid for operator ${operatorName}`);
-          return;
-        }
-
-        const installYaml = `apiVersion: v1
+  return `apiVersion: v1
 kind: Namespace
 metadata:
   name: my-${packageName}
@@ -72,19 +41,74 @@ spec:
   name: ${packageName}
   source: operatorhubio-catalog
   sourceNamespace: olm`;
+};
 
-        const globalInstallYaml = `apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: my-${packageName}
-  namespace: operators
-spec:
-  channel: ${operatorChannel}
-  name: ${packageName}
-  source: operatorhubio-catalog
-  sourceNamespace: olm`;
+const generateInstallYaml = (serverRequest, serverResponse) => {
+  try {
+    let operatorChannelName;
+    let operatorName;
 
-        serverResponse.send(globalOperator ? globalInstallYaml : installYaml);
+    const fields = serverRequest.url.split('/');
+    if (fields.length === 4) {
+      operatorChannelName = fields[2];
+      operatorName = fields[3].replace('.yaml', '');
+    } else if (fields.length === 3) {
+      operatorName = fields[2].replace('.yaml', '');
+    } else {
+      serverResponse.status(500).send(`Invalid request, you must provide the <operator-name>.yaml`);
+      return;
+    }
+
+    const operatorId = generateIdFromVersionedName(operatorName);
+
+    // only latest operator can be installed using this service
+    // therefore we always pick latest version for channel
+    // no point in supporting old syntax
+
+    persistentStore.getOperatorsById(operatorId, (operators, err) => {
+      if (err) {
+        serverResponse.status(500).send(err);
+        return;
+      } else if (operators.length === 0) {
+        serverResponse.status(500).send(`No operator with id ${operatorName} found.`);
+        return;
+      }
+
+      // use first operator as package name should be always same!
+      const packageName = operators[0].packageName;
+      let operator;
+
+      if (!packageName) {
+        serverResponse.status(500).send(`Operator ${operatorName} has invalid or no package information.`);
+        return;
+      }
+
+      persistentStore.getPackage(packageName, (operatorPackage, packageError) => {
+        if (err) {
+          serverResponse.status(500).send(packageError);
+          return;
+        }
+        if (!operatorChannelName) {
+          const { defaultChannel } = operatorPackage;
+
+          if (!defaultChannel) {
+            serverResponse.status(500).send(`Operator ${operatorName} has invalid or no default channel information.`);
+          }
+          operatorChannelName = defaultChannel;
+        }
+
+        const channel = _.find(operatorPackage.channels, { name: operatorChannelName });
+
+        if (!channel) {
+          serverResponse.status(500).send(`Channel ${operatorChannelName} is invalid for operator ${operatorName}`);
+          return;
+        }
+
+        const latestOperatorName = _.get(channel, 'currentCSV');
+        // assign correct operator based on latest operator in channel
+        operator = operators.find(op => op.name === latestOperatorName);
+
+        serverResponse.send(createYaml(packageName, operatorChannelName, operator.globalOperator));
       });
     });
   } catch (e) {

@@ -145,6 +145,28 @@ exports.getOperator = (operatorName, callback) => {
   });
 };
 
+/**
+ * Find all operator (versions) by operator id
+ * @param {string} operatorId
+ * @param {Function} callback
+ */
+exports.getOperatorsById = (operatorId, callback) => {
+  db.all(`SELECT * FROM ${OPERATOR_TABLE} where id = '${operatorId}'`, (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      callback(null, err.message);
+      return;
+    }
+
+    if (!_.size(rows)) {
+      callback(null, `operator ${operatorId} is not found.`);
+      return;
+    }
+    
+    callback(rows.map(normalizeOperatorRow));
+  });
+};
+
 exports.getOperators = callback => {
   db.all(`SELECT * FROM ${OPERATOR_TABLE}`, (err, rows) => {
     if (err) {
