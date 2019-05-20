@@ -9,7 +9,7 @@ import { helpers } from '../../common/helpers';
 import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
-import { EDITOR_STATUS } from './editorPageUtils';
+import { EDITOR_STATUS } from './bundlePageUtils';
 
 class OperatorEditorSubPage extends React.Component {
   state = {
@@ -44,12 +44,12 @@ class OperatorEditorSubPage extends React.Component {
 
   onEditor = e => {
     e.preventDefault();
-    this.props.history.push('/editor');
+    this.props.history.push('/bundle');
   };
 
   onBack = e => {
     e.preventDefault();
-    this.props.history.push(`/editor/${this.props.lastPage}`);
+    this.props.history.push(`/bundle/${this.props.lastPage}`);
   };
 
   allSet = e => {
@@ -107,7 +107,7 @@ class OperatorEditorSubPage extends React.Component {
       </Breadcrumb.Item>
       {(this.props.secondary || this.props.tertiary) && (
         <Breadcrumb.Item onClick={e => this.onEditor(e)} href={`${window.location.origin}/editor`}>
-          Operator Editor
+          Package your Operator
         </Breadcrumb.Item>
       )}
       {this.props.tertiary && (
@@ -133,7 +133,7 @@ class OperatorEditorSubPage extends React.Component {
         <div className="oh-operator-editor-page__button-bar">
           <div>
             <button className="oh-button oh-button-secondary" onClick={e => this.onEditor(e)}>
-              Back to Operator Editor
+              Back to Package your Operator
             </button>
           </div>
           <div>

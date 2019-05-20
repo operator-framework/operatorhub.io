@@ -14,11 +14,10 @@ import {
   prometheusOperator,
   olmArchitecture,
   buildYourCSV,
-  installInstructions,
   operatorRegistry,
-  operatorRegistrySteps,
   operatorCourier,
-  operatorBundle
+  operatorBundle,
+  manualTestingOnKubernetes
 } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
 
@@ -73,9 +72,9 @@ const Contribute = ({ history, ...props }) => {
         <React.Fragment>
           <p>
             OperatorHub.io is the front-end for the{' '}
-            <ExternalLink href={operatorsRepo} text={"Community Operators Repository"} indicator={false} />
-            This is an open source community project aiming to curate and collect Kubernetes Operators. Community
-            contributions live in:
+            <ExternalLink href={operatorsRepo} text="Community Operators Repository" indicator={false} />. This is an
+            open source community project aiming to curate and collect Kubernetes Operators. Community contributions
+            live in:
           </p>
           <p>
             <ExternalLink href={contributions} text={contributions} indicator={false} />
@@ -83,17 +82,17 @@ const Contribute = ({ history, ...props }) => {
           <p>
             If you have an Operator you would like to contribute to OperatorHub.io, feel free to create a pull request
             against the above directory. Please read the pull request{' '}
-            <ExternalLink href={operatorsRepoBeforePR} text="requirements" indicator={false} />
-            before creating one to ensure all required files are present.
+            <ExternalLink href={operatorsRepoBeforePR} text="requirements" indicator={false} /> before creating one to
+            ensure all required files are present.
           </p>
           <p>
             The easiest way to package your Operator for OperatorHub.io is to build it with the{' '}
             <ExternalLink href={operatorSdk} text="Operator SDK" indicator={false} />, however it is not a requirement.
             To publish your Operator, it must be built as a binary within a container, and that container must be hosted
-            on a publicly accessible{' '}
-            <ExternalLink href={operatorRegistry} text="registry" indicator={false} />. It should be accompanied by
-            some{' '} <ExternalLink href={operatorsRepoRequirements} text="metadata" indicator={false} /> that is
-            used for deploying the Operator using the{' '}
+            on a publicly accessible <ExternalLink href={operatorRegistry} text="registry" indicator={false} />. It
+            should be accompanied by some{' '}
+            <ExternalLink href={operatorsRepoRequirements} text="metadata" indicator={false} /> that is used for
+            deploying the Operator using the{' '}
             <ExternalLink href={olm} text="Operator Lifecycle Manager" indicator={false} /> in addition to rendering the
             Operator’s detail page on OperatorHub.io.
           </p>
@@ -123,36 +122,39 @@ const Contribute = ({ history, ...props }) => {
           </p>
           {renderTable()}
           <p>
-            This catalog data will enable OLM to serve, install, and update your Operator in a predictable way instead of
-            requiring cluster maintainers to manually deploy (e.g. <code>kubectl create -f ...</code>) required manifests
-            that contain CRDs, RBAC rules, Service Accounts, Deployments etc. If you want to learn more about how OLM does
-            this, read about it{' '}<ExternalLink href={olmArchitecture} text="here" indicator={false} />.
+            This catalog data will enable OLM to serve, install, and update your Operator in a predictable way instead
+            of requiring cluster maintainers to manually deploy (e.g. <code>kubectl create -f ...</code>) required
+            manifests that contain CRDs, RBAC rules, Service Accounts, Deployments etc. If you want to learn more about
+            how OLM does this, read about it <ExternalLink href={olmArchitecture} text="here" indicator={false} />.
           </p>
           <h3>Custom Resource Definitions:</h3>
           <p>
-            These should already exist if your Operator watches CRDs. Place each CRD that your
-            Operator owns in it’s own YAML file. CRDs that your Operator does not own but watches are handled by OLMs
-            dependency management.
+            These should already exist if your Operator watches CRDs. Place each CRD that your Operator owns in it’s own
+            YAML file. CRDs that your Operator does not own but watches are handled by OLMs dependency management.
           </p>
           <h3>Cluster Service Version:</h3>
           <p>
+            {`
             The bulk of your Operator's catalog metadata will reside in a CSV file, of which there is one per version of
-            your Operator. This file contains the specifications of how to deploy your Operator, and information on which
-            CRDs it owns and those it depends on from other Operators. In addition this is where you put a description, logo,
-            version, maturity level, authoring info, links etc. for your Operator. This information will be used to render
-            the detail page on OperatorHub.io. Follow{' '}
-            <ExternalLink href={buildYourCSV} text={"these instructions"} indicator={false} /> to create this file.
+            your Operator. This file contains the specifications of how to deploy your Operator, and information on
+            which CRDs it owns and those it depends on from other Operators. In addition this is where you put a
+            description, logo, version, maturity level, authoring info, links etc. for your Operator. This information
+            will be used to render the detail page on OperatorHub.io. Follow${' '}
+            `}
+            <ExternalLink href={buildYourCSV} text="these instructions" indicator={false} /> to create this file.
           </p>
           <p>
-            If you add CSV files for newer versions of your Operator, don’t forget to use the <code>spec.replaces</code>
+            If you add CSV files for newer versions of your Operator, don’t forget to use the <code>spec.replaces</code>{' '}
             property to point to the previous version.
           </p>
           <h3>Package Manifest:</h3>
           <p>
-            The package manifest is a simple list of channels that point to a particular CSV name. This allows
-            OLM to serve the Operator from multiple channels, each named to convey that CSV versions' stability and update
+            {`
+            The package manifest is a simple list of channels that point to a particular CSV name. This allows OLM to
+            serve the Operator from multiple channels, each named to convey that CSV versions' stability and update
             frequency, e.g. stable and alpha. Your package manifest must have at least one channel. For reference, use
-            one of the examples in the{' '}
+            one of the examples in the${' '}
+            `}
             <ExternalLink href={contributions} text="community repository" indicator={false} />.
           </p>
           <p>Feel free to use existing Community Operators catalog data as a template.</p>
@@ -184,13 +186,13 @@ const Contribute = ({ history, ...props }) => {
             running the following command:
           </p>
           <p>
-            <code>
-              $ operator-sdk olm-catalog gen-csv --csv-version xx.yy.zz
-            </code>
+            <code>$ operator-sdk olm-catalog gen-csv --csv-version xx.yy.zz</code>
           </p>
           <p>
-            This will scaffold a CSV within the <code>xx.yy.zz</code> subdirectory of your Operator's <code>deploy</code>
-            directory.
+            {`
+            This will scaffold a CSV within the <code>xx.yy.zz</code> subdirectory of your Operator's${' '}
+            `}
+            <code>deploy</code> directory.
           </p>
           <p>
             To version your CRDs alongside your CSV, pass the <code>--update-crds</code> flag to the above command. This
@@ -205,12 +207,14 @@ const Contribute = ({ history, ...props }) => {
       content: (
         <React.Fragment>
           <p>
-            Before contributing it may be useful to register and deploy your Operator through OLM. To install OLM on
-            your Kubernetes cluster follow these{' '}
-            <ExternalLink href={installInstructions} text="instructions" indicator={false} /> or check the “Install”
-            instructions for an Operator from the index for a one-line install command. When ready, register your
-            Operator using the catalog data above following these{' '}
-            <ExternalLink href={operatorRegistrySteps} text="steps" indicator={false} />.
+            Before contributing it may be useful to register and deploy your Operator through OLM. To install OLM on a
+            local Kubernetes cluster follow the{' '}
+            <ExternalLink
+              href={manualTestingOnKubernetes}
+              text="instruction for manual, local testing"
+              indicator={false}
+            />
+            . This will speed up the submission process significantly.
           </p>
         </React.Fragment>
       )

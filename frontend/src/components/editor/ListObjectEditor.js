@@ -29,13 +29,13 @@ class ListObjectEditor extends React.Component {
     const addNamePath = addName || `Add ${objectType}`;
 
     event.preventDefault();
-    history.push(`/editor/${objectPage}/${addNamePath}`);
+    history.push(`/bundle/${objectPage}/${addNamePath}`);
   };
 
   editOperatorObject = operatorObject => {
     const { history, objectPage, pagePathField } = this.props;
     const transformedName = helpers.transformNameForPath(_.get(operatorObject, pagePathField));
-    history.push(`/editor/${objectPage}/${transformedName}`);
+    history.push(`/bundle/${objectPage}/${transformedName}`);
   };
 
   removeOperatorObject = (event, operatorObject) => {
