@@ -13,7 +13,7 @@ import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../uti
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { EDITOR_STATUS, operatorNameFromOperator, yamlFromOperator } from './bundlePageUtils';
-import { defaultOperator, validateOperator } from '../../utils/operatorUtils';
+import { defaultOperator, validateOperator, removeEmptyOptionalValuesFromOperator } from '../../utils/operatorUtils';
 
 class OperatorBundlePage extends React.Component {
   state = {
@@ -53,14 +53,17 @@ class OperatorBundlePage extends React.Component {
   generateCSV = () => {
     const { operator } = this.props;
 
+    // remove values which are part of default operator, but are invalid
+    const cleanedOperator = removeEmptyOptionalValuesFromOperator(operator);
+
     let operatorYaml;
     try {
-      operatorYaml = yamlFromOperator(operator);
+      operatorYaml = yamlFromOperator(cleanedOperator);
     } catch (e) {
       operatorYaml = '';
     }
 
-    const name = operatorNameFromOperator(operator);
+    const name = operatorNameFromOperator(cleanedOperator);
 
     const zip = new JSZip();
     zip.file(`${name}/${name}.clusterserviceversion.yaml`, operatorYaml);
@@ -68,7 +71,7 @@ class OperatorBundlePage extends React.Component {
     zip.generateAsync({ type: 'base64' }).then(
       base64 => {
         this.generateAction.href = `data:application/zip;base64,${base64}`;
-        this.generateAction.download = `${_.get(operator, 'spec.displayName')}.bundle.zip`;
+        this.generateAction.download = `${_.get(cleanedOperator, 'spec.displayName')}.bundle.zip`;
         this.generateAction.click();
       },
       err => {
