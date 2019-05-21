@@ -47,7 +47,7 @@ class OperatorRequiredCRDEditPage extends React.Component {
     this.originalName = crd.name;
     this.crdIndex = operatorCRDs.indexOf(crd);
 
-    const errors = getUpdatedFormErrors(operator, formErrors, crdsField, storeEditorFormErrors);
+    const errors = getUpdatedFormErrors(operator, formErrors, crdsField);
     this.updateCrdErrors(errors);
     storeEditorFormErrors(errors);
 

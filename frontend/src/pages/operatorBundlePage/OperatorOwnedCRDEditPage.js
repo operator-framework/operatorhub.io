@@ -89,10 +89,9 @@ class OperatorOwnedCRDEditPage extends React.Component {
       }
     }
 
-    this.section = crdsField === 'owned' ? 'owned-crds' : 'required-crds';
     this.originalName = crd.name;
 
-    const errors = getUpdatedFormErrors(operator, formErrors, crdsField, storeEditorFormErrors);
+    const errors = getUpdatedFormErrors(operator, formErrors, crdsField);
     this.updateCrdErrors(errors);
     storeEditorFormErrors(errors);
 
@@ -121,9 +120,9 @@ class OperatorOwnedCRDEditPage extends React.Component {
     this.setState({ crdErrors: _.get(crdErrors, 'errors') });
 
     if (crdErrors) {
-      setSectionStatus(EDITOR_STATUS.errors, this.section);
+      setSectionStatus(EDITOR_STATUS.errors, 'owned-crds');
     } else {
-      setSectionStatus(EDITOR_STATUS.pending, this.section);
+      setSectionStatus(EDITOR_STATUS.pending, 'owned-crds');
     }
   };
 
