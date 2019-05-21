@@ -132,7 +132,12 @@ const operatorNameFromOperator = operator => {
   return `${name}.v${version.slice(versionStart)}`;
 };
 
+/**
+ * Split operator description into 3 subsections
+ * @param {*} operator
+ */
 const splitDescriptionIntoSections = operator => {
+  /** @type {string} */
   const description = _.get(operator, 'spec.description', '');
 
   let aboutApplication = description;
@@ -180,11 +185,11 @@ const splitDescriptionIntoSections = operator => {
     }
   }
 
-  _.set(operator, 'spec.description', {
+  return {
     aboutApplication,
     aboutOperator,
     prerequisites
-  });
+  };
 };
 
 const normalizeYamlOperator = yaml => {
@@ -200,7 +205,7 @@ const normalizeYamlOperator = yaml => {
   }
 
   if (description) {
-    splitDescriptionIntoSections(normalizedOperator);
+    _.set(normalizedOperator, 'spec.description', splitDescriptionIntoSections(normalizedOperator));
 
     // if no description is available provide default one
   } else {
@@ -210,6 +215,11 @@ const normalizeYamlOperator = yaml => {
   return normalizedOperator;
 };
 
+/**
+ * Merge operator description subsections into single string
+ * @param {*} operator
+ * @returns {string}
+ */
 const mergeDescriptions = operator => {
   const description = [
     _.get(operator, 'spec.description.aboutApplication', ''),
