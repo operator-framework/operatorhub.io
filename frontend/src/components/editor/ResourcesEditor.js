@@ -23,7 +23,7 @@ class ResourcesEditor extends React.Component {
     _.forEach(existingResources, (nextResource, index) => {
       if (!this.isResourceEmpty(nextResource)) {
         _.set(this.dirtyResources, [index, 'version'], true);
-        _.set(this.dirtyResources, [index, 'kjnd'], true);
+        _.set(this.dirtyResources, [index, 'kind'], true);
       }
     });
   }

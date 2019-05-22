@@ -14,7 +14,7 @@ import {
   operatorFieldPlaceholders,
   operatorFieldValidators
 } from '../../utils/operatorDescriptors';
-import DescriptorsEditor from '../../components/editor/DescriptorsEditor';
+import DescriptorsEditor, { isDescriptorEmpty } from '../../components/editor/DescriptorsEditor';
 import YamlViewer from '../../components/YamlViewer';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
 
@@ -71,7 +71,6 @@ class OperatorOwnedCRDEditPage extends React.Component {
       operatorCRDs.push(crd);
     } else if (crd.name === '') {
       this.isNewCRD = true;
-      crd.name = name;
     }
 
     this.crdIndex = operatorCRDs.indexOf(crd);
@@ -90,16 +89,15 @@ class OperatorOwnedCRDEditPage extends React.Component {
       }
     }
 
-    this.section = crdsField === 'owned' ? 'owned-crds' : 'required-crds';
     this.originalName = crd.name;
 
-    const errors = getUpdatedFormErrors(operator, formErrors, crdsField, storeEditorFormErrors);
+    const errors = getUpdatedFormErrors(operator, formErrors, crdsField);
     this.updateCrdErrors(errors);
     storeEditorFormErrors(errors);
 
     this.setState({ crd, crdTemplateYaml });
 
-    if (crd.name === 'new-crd') {
+    if (crd.name === '') {
       setTimeout(() => {
         this.nameInput.focus();
         this.nameInput.select();
@@ -122,9 +120,9 @@ class OperatorOwnedCRDEditPage extends React.Component {
     this.setState({ crdErrors: _.get(crdErrors, 'errors') });
 
     if (crdErrors) {
-      setSectionStatus(EDITOR_STATUS.errors, this.section);
+      setSectionStatus(EDITOR_STATUS.errors, 'owned-crds');
     } else {
-      setSectionStatus(EDITOR_STATUS.pending, this.section);
+      setSectionStatus(EDITOR_STATUS.pending, 'owned-crds');
     }
   };
 
@@ -178,6 +176,25 @@ class OperatorOwnedCRDEditPage extends React.Component {
     }
   };
 
+  /**
+   * CRD editor populates CRD with empty samples of descriptors so they appear in form
+   * However they can't leak outside of local state as they break validation
+   * and malform CSV yaml with empty values
+   * Therefore we need to clean them up
+   */
+  cleanEmptySampleFields = crd => {
+    const cleanedCrd = _.cloneDeep(crd);
+
+    if (cleanedCrd.specDescriptors) {
+      cleanedCrd.specDescriptors = cleanedCrd.specDescriptors.filter(descriptor => !isDescriptorEmpty(descriptor));
+    }
+    if (cleanedCrd.statusDescriptors) {
+      cleanedCrd.statusDescriptors = cleanedCrd.statusDescriptors.filter(descriptor => !isDescriptorEmpty(descriptor));
+    }
+
+    return cleanedCrd;
+  };
+
   validateField = field => {
     const { operator, formErrors, storeEditorOperator, storeEditorFormErrors } = this.props;
     const { crd } = this.state;
@@ -186,22 +203,23 @@ class OperatorOwnedCRDEditPage extends React.Component {
     _.set(this.dirtyFields, field, true);
 
     const updatedOperator = _.cloneDeep(operator);
+    const cleanedCrd = this.cleanEmptySampleFields(crd);
 
     // if we only have the placeholder CRD, replace it with this CRD
     if (operatorCRDs.length === 1 && !operatorCRDs[0].name) {
-      _.set(updatedOperator, crdsField, [crd]);
+      _.set(updatedOperator, crdsField, [cleanedCrd]);
       this.crdIndex = 0;
     } else {
       // update the operator's version of this CRD
       const existingCRDs = _.get(updatedOperator, crdsField);
       this.crdIndex = _.findIndex(existingCRDs, { name: this.originalName });
       if (this.crdIndex < 0) {
-        existingCRDs.push(crd);
+        existingCRDs.push(cleanedCrd);
         this.crdIndex = 0;
       } else {
         _.set(updatedOperator, crdsField, [
           ...existingCRDs.slice(0, this.crdIndex),
-          crd,
+          cleanedCrd,
           ...existingCRDs.slice(this.crdIndex + 1)
         ]);
       }
