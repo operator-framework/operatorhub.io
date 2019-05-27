@@ -79,6 +79,24 @@ class OperatorMetadataPage extends React.Component {
     }
   };
 
+  validateFields = fields => {
+    const { storeEditorOperator, formErrors, storeEditorFormErrors, setSectionStatus } = this.props;
+    const { workingOperator } = this.state;
+
+    const errors = getUpdatedFormErrors(workingOperator, formErrors, fields);
+    storeEditorFormErrors(errors);
+    const metadataErrors = _.some(sectionsFields.metadata, metadataField => _.get(errors, metadataField));
+
+    console.dir(errors);
+    storeEditorOperator(_.cloneDeep(workingOperator));
+
+    if (metadataErrors) {
+      setSectionStatus(EDITOR_STATUS.errors);
+    } else {
+      setSectionStatus(EDITOR_STATUS.pending);
+    }
+  };
+
   validatePage = () => {
     const { formErrors, setSectionStatus } = this.props;
 
@@ -149,7 +167,7 @@ class OperatorMetadataPage extends React.Component {
     });
 
     this.updateOperator(maintainers, 'spec.maintainers');
-    this.validateField('spec.maintainers');
+    this.validateFields(['spec.maintainers', 'spec.provider.name']);
   };
 
   renderFormField = (title, field, fieldType) => {
@@ -166,6 +184,26 @@ class OperatorMetadataPage extends React.Component {
       title,
       field,
       fieldType
+    );
+  };
+  renderProviderName = () => {
+    const { operator, formErrors } = this.props;
+    const { workingOperator } = this.state;
+    const field = 'spec.provider.name';
+
+    const errs = this.originalStatus === EDITOR_STATUS.empty && _.get(operator, field) === undefined ? {} : formErrors;
+
+    return renderOperatorFormField(
+      workingOperator,
+      errs,
+      this.updateOperator,
+      () => {
+        // validate both fields as they are interconnected
+        this.validateFields(['spec.maintainers', 'spec.provider.name']);
+      },
+      'Provider Name',
+      field,
+      'text'
     );
   };
 
@@ -305,7 +343,7 @@ class OperatorMetadataPage extends React.Component {
           formErrors={formErrors}
         />
         <h3>Contact Information</h3>
-        {this.renderFormField('Provider Name', 'spec.provider.name', 'text')}
+        {this.renderProviderName()}
         <LabelsEditor
           operator={workingOperator}
           onUpdate={this.updateOperatorMaintainers}

@@ -338,6 +338,23 @@ const linksValidator = links => {
   return null;
 };
 
+/**
+ * Validates provider name using context of other fields
+ * @param {string} value
+ * @param {*} operator
+ * @returns {string | null}
+ */
+const providerContextualValidator = (value, operator) => {
+  const maintainers = _.get(operator, 'spec.maintainers');
+  const maintainersValidatorObject = operatorFieldValidators.spec.maintainers;
+
+  if (!maintainersValidatorObject.isEmpty(maintainers) || value) {
+    return null;
+  }
+
+  return 'At least one provider or maintainer is required.';
+};
+
 const maintainersValidator = maintainers => {
   if (!maintainers || _.isEmpty(maintainers)) {
     return 'At least one maintainer is required.';
@@ -363,6 +380,32 @@ const maintainersValidator = maintainers => {
   }
 
   return null;
+};
+
+/**
+ * @typedef Maintainer
+ * @prop {string} Maintainer.name
+ * @prop {string} Maintainer.email
+ */
+
+/**
+ * Validates fields in context of other fields to catch field cross dependancies
+ * @param {Maintainer[]} value
+ * @param {*} operator
+ * @param {*} fieldValidator
+ */
+const maintainersContextualValidator = (value, operator, fieldValidator) => {
+  const provider = _.get(operator, 'spec.provider.name');
+  const { validator } = fieldValidator;
+
+  // Check for other alternatives if there is no or empty value
+  // otherwise initial empty value will not be marked as invalid!
+  if (value.length > 0 && !fieldValidator.isEmpty(value)) {
+    return validator(value);
+  } else if (provider) {
+    return null;
+  }
+  return 'At least one provider or maintainer is required.';
 };
 
 const nameValidator = name => {
@@ -453,8 +496,16 @@ const operatorFieldValidators = {
     maturity: {
       required: true
     },
+    provider: {
+      name: {
+        contextualValidator: providerContextualValidator
+      }
+    },
     maintainers: {
-      validator: maintainersValidator
+      validator: maintainersValidator,
+      contextualValidator: maintainersContextualValidator,
+      isEmpty: maintaners =>
+        !maintaners || maintaners.length === 0 || maintaners.every(maintaner => !maintaner.name && !maintaner.email)
     },
     icon: {
       required: true
