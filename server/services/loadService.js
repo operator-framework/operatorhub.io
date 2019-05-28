@@ -12,6 +12,10 @@ const loadOperators = callback => {
   const csvFileList = [];
   const packages = [];
 
+  /**
+   * Scan nested folders until all CSVs are found
+   * @param {string} dir
+   */
   const allCSVFilesSync = dir => {
     fs.readdirSync(dir).forEach(file => {
       const filePath = path.join(dir, file);
@@ -25,18 +29,24 @@ const loadOperators = callback => {
 
   allCSVFilesSync(operatorsFrameworkDirectory);
 
+  /**
+   * Build operators array
+   */
   const operators = _.reduce(
     csvFileList,
     (parsedOperators, { filePath, dir }) => {
       try {
         const operator = yaml.safeLoad(fs.readFileSync(filePath));
-        const packageFile = fs.readdirSync(dir).filter(fn => fn.endsWith('.package.yaml'));
+        const packageRootFolder = path.join(dir, '..');
+        const packageFile = fs.readdirSync(packageRootFolder).filter(fn => fn.endsWith('.package.yaml'));
+
+        // add package info into operator
         if (packageFile.length === 1) {
-          const packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
+          const packageInfo = yaml.safeLoad(fs.readFileSync(path.join(packageRootFolder, packageFile[0])));
           if (!_.find(packages, { packageName: packageInfo.packageName })) {
             packages.push(packageInfo);
           }
-          operator.packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
+          operator.packageInfo = packageInfo;
         }
         parsedOperators.push(operator);
       } catch (e) {
@@ -49,6 +59,8 @@ const loadOperators = callback => {
   );
 
   const normalizedOperators = normalizeOperators(operators);
+  // based on package default version find previous versions of operators
+  // so we know which versions belongs to the package
   const normalizedPackages = normalizePackages(packages, normalizedOperators);
 
   persistentStore.setPackages(normalizedPackages, packagesErr => {
