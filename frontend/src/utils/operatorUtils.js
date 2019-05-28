@@ -113,6 +113,73 @@ const defaultCRD = {
   description: ''
 };
 
+const defaultDeployment = {
+  name: 'example-operator',
+  spec: {
+    replicas: 1,
+    selector: {
+      matchLabels: {
+        'k8s-app': 'example-operator'
+      }
+    },
+    template: {
+      metadata: {
+        labels: {
+          'k8s-app': 'example-operator'
+        }
+      },
+      spec: {
+        containers: {
+          image: 'quay.io/example/example-operator:v0.0.1',
+          imagePullPolicy: 'Always',
+          name: 'example-operator',
+          resources: {
+            limits: {
+              cpu: '200m',
+              memory: '100Mi'
+            },
+            requests: {
+              cpu: '100m',
+              memory: '50Mi'
+            }
+          },
+          env: [
+            {
+              name: 'WATCH_NAMESPACE',
+              valueFrom: {
+                fieldRef: {
+                  fieldPath: "metadata.annotations['olm.targetNamespaces']"
+                }
+              }
+            },
+            {
+              name: 'POD_NAME',
+              valueFrom: {
+                fieldRef: {
+                  fieldPath: 'metadata.name'
+                }
+              }
+            },
+            {
+              name: 'OPERATOR_NAME',
+              value: 'example-operator'
+            }
+          ]
+        },
+        imagePullSecrets: [
+          {
+            name: ''
+          }
+        ],
+        nodeSelector: {
+          'beta.kubernetes.io/os': 'linux'
+        },
+        serviceAccountName: 'example-operator'
+      }
+    }
+  }
+};
+
 const defaultOperator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
@@ -164,52 +231,7 @@ const defaultOperator = {
       spec: {
         permissions: null,
         clusterPermissions: null,
-        deployments: [
-          {
-            name: 'example-operator',
-            spec: {
-              replicas: 1,
-              selector: {
-                matchLabels: {
-                  'k8s-app': 'example-operator'
-                }
-              },
-              template: {
-                metadata: {
-                  labels: {
-                    'k8s-app': 'example-operator'
-                  }
-                },
-                spec: {
-                  containers: {
-                    image: 'quay.io/example/example-operator:v0.0.1',
-                    imagePullPolicy: 'Always',
-                    name: 'example-operator',
-                    resources: {
-                      limits: {
-                        cpu: '200m',
-                        memory: '100Mi'
-                      },
-                      requests: {
-                        cpu: '100m',
-                        memory: '50Mi'
-                      }
-                    }
-                  },
-                  imagePullSecrets: [
-                    {
-                      name: ''
-                    }
-                  ],
-                  nodeSelector: {
-                    'beta.kubernetes.io/os': 'linux'
-                  },
-                  serviceAccountName: 'example-operator'
-                }
-              }
-            }
-          }
-        ]
+        deployments: [_.cloneDeep(defaultDeployment)]
       }
     },
     installModes: [
@@ -303,6 +325,7 @@ const getArrayValueErrors = (value, fieldValidator, operator) => {
  * @prop {boolean=} FieldValidator.isArray
  * @prop {FieldValidator=} FieldValidator.itemValidator
  * @prop {boolean=} FieldValidator.required
+ * @prop {string=} FieldValidator.requiredError
  * @prop {function=} FieldValidator.validator
  * @prop {function=} FieldValidator.contextualValidator
  * @prop {function=} FieldValidator.isEmpty
@@ -325,6 +348,9 @@ const getValueError = (value, fieldValidator, operator) => {
   }
 
   if (fieldValidator.isArray) {
+    if (fieldValidator.required && _.isEmpty(value)) {
+      return fieldValidator.requiredError || 'At least one value is required.';
+    }
     return getArrayValueErrors(value, fieldValidator, operator);
   }
 
@@ -450,6 +476,7 @@ export {
   getDefaultDescription,
   normalizeOperator,
   defaultOperator,
+  defaultDeployment,
   removeEmptyOptionalValuesFromOperator,
   validCapabilityStrings,
   validateOperator,

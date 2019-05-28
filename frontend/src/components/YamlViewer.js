@@ -324,9 +324,9 @@ class YamlViewer extends React.Component {
     const { error } = this.props;
     return (
       <div id="yaml-editor-error">
-        {error && (
+        {error && error.length && (
           <Alert className="oh-yaml-viewer__error" type="error">
-            <span>{`Error parsing YAML: ${error}`}</span>
+            {Array.isArray(error) ? error : <span> {`Error parsing YAML: ${error}`}</span>}
           </Alert>
         )}
       </div>
