@@ -97,6 +97,7 @@ class ListObjectEditor extends React.Component {
             </div>
           </React.Fragment>
         )}
+        {typeof errors === 'string' && <div className="oh-operator-editor-form__error-block">{errors}</div>}
         <div className="oh-operator-editor__list__adder">
           <a href="#" className="oh-operator-editor-form__label-adder" onClick={e => this.addOperatorObject(e)}>
             <Icon type="fa" name="plus-circle" />
