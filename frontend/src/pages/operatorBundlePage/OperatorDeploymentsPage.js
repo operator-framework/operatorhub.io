@@ -12,44 +12,62 @@ import { sectionsFields } from './bundlePageUtils';
 
 const deploymentFields = sectionsFields.deployments;
 
-const OperatorDeploymentsPage = ({ operator, formErrors, storeEditorOperator, storeEditorFormErrors, history }) => {
-  const updateOperator = deployments => {
-    const updatedOperator = _.cloneDeep(operator);
-    _.set(updatedOperator, deploymentFields, deployments);
-    storeEditorOperator(updatedOperator);
-    validateField(deploymentFields);
-  };
+class OperatorDeploymentsPage extends React.Component {
+  componentDidMount() {
+    const { operator } = this.props;
 
-  const validateField = field => {
+    if (operator) {
+      // validate
+      this.validateField(operator, deploymentFields);
+    }
+  }
+
+  validateField = (operator, field) => {
+    const { formErrors, storeEditorFormErrors } = this.props;
+
     const error = getFieldValueError(operator, field);
     _.set(formErrors, field, error);
     storeEditorFormErrors(formErrors);
   };
 
-  return (
-    <OperatorEditorSubPage
-      title="Deployments"
-      field={deploymentFields}
-      secondary
-      history={history}
-      section="deployments"
-    >
-      <ListObjectEditor
-        operator={operator}
+  updateOperator = deployments => {
+    const { operator, storeEditorOperator } = this.props;
+
+    const updatedOperator = _.cloneDeep(operator);
+    _.set(updatedOperator, deploymentFields, deployments);
+
+    storeEditorOperator(updatedOperator);
+    this.validateField(updatedOperator, deploymentFields);
+  };
+
+  render() {
+    const { operator, formErrors, history } = this.props;
+
+    return (
+      <OperatorEditorSubPage
         title="Deployments"
-        formErrors={formErrors}
-        onUpdate={updateOperator}
         field={deploymentFields}
-        fieldTitle="Name"
-        objectPage="deployments"
+        secondary
         history={history}
-        objectTitleField="name"
-        objectType="Deployment"
-        addName="add-deployment"
-      />
-    </OperatorEditorSubPage>
-  );
-};
+        section="deployments"
+      >
+        <ListObjectEditor
+          operator={operator}
+          title="Deployments"
+          formErrors={formErrors}
+          onUpdate={this.updateOperator}
+          field={deploymentFields}
+          fieldTitle="Name"
+          objectPage="deployments"
+          history={history}
+          objectTitleField="name"
+          objectType="Deployment"
+          addName="add-deployment"
+        />
+      </OperatorEditorSubPage>
+    );
+  }
+}
 
 OperatorDeploymentsPage.propTypes = {
   operator: PropTypes.object,
