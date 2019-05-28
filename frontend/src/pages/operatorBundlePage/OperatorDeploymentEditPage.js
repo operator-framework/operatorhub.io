@@ -9,6 +9,8 @@ import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import YamlViewer from '../../components/YamlViewer';
 import { sectionsFields } from './bundlePageUtils';
+import { getValueError, defaultDeployment } from '../../utils/operatorUtils';
+import { operatorFieldValidators } from '../../utils/operatorDescriptors';
 
 const deploymentFields = sectionsFields.deployments;
 
@@ -22,15 +24,15 @@ class OperatorDeploymentEditPage extends React.Component {
     const { operator, storeEditorOperator } = this.props;
     const name = helpers.transformPathedName(_.get(this.props.match, 'params.deployment', ''));
 
-    let operatorDeployments = _.get(operator, deploymentFields);
+    const operatorDeployments = _.get(operator, deploymentFields, []);
 
     let deployment = _.find(operatorDeployments, { name });
 
     if (!deployment) {
-      deployment = { name: 'Add Deployment' };
-      if (!_.size(operatorDeployments)) {
-        operatorDeployments = [];
-      }
+      deployment = _.cloneDeep(defaultDeployment);
+
+      // override name so its obvious that its new
+      deployment.name = 'Add Deployment';
 
       operatorDeployments.push(deployment);
       const updatedOperator = _.cloneDeep(operator);
@@ -69,11 +71,32 @@ class OperatorDeploymentEditPage extends React.Component {
     storeEditorOperator(updatedOperator);
   };
 
+  validateDeployment = deployment => {
+    const { operator } = this.props;
+
+    const deploymentValidator = _.get(operatorFieldValidators, 'spec.install.spec.deployments.itemValidator');
+
+    const errs = Object.keys(deploymentValidator)
+      .map(key => getValueError(deployment[key], deploymentValidator[key], operator))
+      .filter(err => err !== null);
+
+    const errsText = [];
+
+    errs.forEach((err, index) => {
+      index > 0 && errsText.push(<br key={index} />);
+      errsText.push(<span key={index}>{err}</span>);
+    });
+
+    return errsText.length > 0 ? errsText : null;
+  };
+
   onYamlChange = yaml => {
-    let yamlError;
+    let yamlError = '';
     try {
       const updatedDeployment = safeLoad(yaml);
-      yamlError = '';
+
+      yamlError = this.validateDeployment(updatedDeployment);
+
       this.updateOperator(updatedDeployment);
     } catch (e) {
       yamlError = e.message;

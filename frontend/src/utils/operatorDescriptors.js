@@ -408,6 +408,30 @@ const maintainersContextualValidator = (value, operator, fieldValidator) => {
   return 'At least one provider or maintainer is required.';
 };
 
+/**
+ * Validates deployment spec in context of entire operator
+ * @param {*} value
+ * @param {*} operator
+ */
+const deploymentSpecContextualValidator = (value, operator) => {
+  const serviceAccountName = _.get(value, 'template.spec.serviceAccountName');
+  // merge both permissions before search
+  const permissions = (_.get(operator, 'spec.install.spec.permissions') || []).concat(
+    _.get(operator, 'spec.install.spec.clusterPermissions') || []
+  );
+
+  if (!serviceAccountName) {
+    return 'Spec.template.spec.serviceAccountName property is required';
+  }
+  const found = permissions && permissions.some(permission => permission.serviceAccountName === serviceAccountName);
+
+  if (!found && serviceAccountName !== 'default') {
+    return 'Spec.template.spec.serviceAccountName property should match defined service account or be set as "default"';
+  }
+
+  return null;
+};
+
 const nameValidator = name => {
   if (!name) {
     return 'This field is required.';
@@ -648,6 +672,33 @@ const operatorFieldValidators = {
           },
           description: {
             required: true
+          }
+        }
+      }
+    },
+    install: {
+      spec: {
+        deployments: {
+          isArray: true,
+          required: true,
+          requiredError: 'At least one deployment is required.',
+          itemValidator: {
+            name: {
+              required: true
+            },
+            apiVersion: {
+              // contextual validatior is used to catch case when property is present but empty
+              // validator can't catch this case :/
+              contextualValidator: value =>
+                typeof value !== 'undefined' ? 'API version property is invalid in operator deployment' : null
+            },
+            kind: {
+              contextualValidator: value =>
+                typeof value !== 'undefined' ? 'Kind property is invalid in operator deployment' : null
+            },
+            spec: {
+              contextualValidator: deploymentSpecContextualValidator
+            }
           }
         }
       }
