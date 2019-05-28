@@ -689,10 +689,12 @@ const operatorFieldValidators = {
             apiVersion: {
               // contextual validatior is used to catch case when property is present but empty
               // validator can't catch this case :/
-              contextualValidator: value => (value ? 'Api version property is invalid in operator deployment' : null)
+              contextualValidator: value =>
+                typeof value !== 'undefined' ? 'API version property is invalid in operator deployment' : null
             },
             kind: {
-              contextualValidator: value => (value ? 'Kind property is invalid in operator deployment' : null)
+              contextualValidator: value =>
+                typeof value !== 'undefined' ? 'Kind property is invalid in operator deployment' : null
             },
             spec: {
               contextualValidator: deploymentSpecContextualValidator

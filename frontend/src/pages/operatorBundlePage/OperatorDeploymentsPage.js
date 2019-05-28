@@ -28,7 +28,6 @@ class OperatorDeploymentsPage extends React.Component {
     const error = getFieldValueError(operator, field);
     _.set(formErrors, field, error);
     storeEditorFormErrors(formErrors);
-    console.warn(formErrors);
   };
 
   updateOperator = deployments => {
