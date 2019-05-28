@@ -90,9 +90,9 @@ class ManifestUploader extends React.Component {
     // field changed when either its value changed
     // or uploaded operator was same as default values
     !_.isEqual(_.get(operator, fieldName), _.get(mergedOperator, fieldName)) ||
-    (_.isEqual(_.get(defaultOperator, fieldName), _.get(uploadedOperator, fieldName)) &&
-      // do not consider updated if value is empty - no real change was doen
-      !_.isEmpty(_.get(defaultOperator, fieldName)));
+    // do not consider updated if value is empty - no real change was doen
+    (!_.isEmpty(_.get(defaultOperator, fieldName)) &&
+      _.isEqual(_.get(defaultOperator, fieldName), _.get(uploadedOperator, fieldName)));
 
   doUploadUrl = (contents, url) => {
     const { uploads } = this.state;
