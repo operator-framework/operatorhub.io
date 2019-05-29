@@ -48,14 +48,15 @@ const loadOperators = callback => {
     []
   );
 
-  const normalizedOperators = normalizeOperators(operators);
-  const normalizedPackages = normalizePackages(packages, normalizedOperators);
+  normalizeOperators(operators).then(normalizedOperators => {
+    const normalizedPackages = normalizePackages(packages, normalizedOperators);
 
-  persistentStore.setPackages(normalizedPackages, packagesErr => {
-    if (packagesErr) {
-      console.error(packagesErr.message);
-    }
-    persistentStore.setOperators(normalizedOperators, callback);
+    persistentStore.setPackages(normalizedPackages, packagesErr => {
+      if (packagesErr) {
+        console.error(packagesErr.message);
+      }
+      persistentStore.setOperators(normalizedOperators, callback);
+    });
   });
 };
 

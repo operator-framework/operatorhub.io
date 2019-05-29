@@ -15,6 +15,7 @@ const PROVIDER_FIELD = 'provider TEXT';
 const DESCRIPTION_FIELD = 'description TEXT';
 const LONG_DESCRIPTION_FIELD = 'longDescription TEXT';
 const IMG_FIELD = 'imgUrl TEXT';
+const THUMB_FIELD = 'thumbUrl TEXT';
 const CAPABILITY_LEVEL_FIELD = 'capabilityLevel BLOB';
 const LINKS_FIELD = 'links BLOB';
 const REPOSITORY_FIELD = 'repository TEXT';
@@ -43,6 +44,7 @@ const operatorFields = [
   'description',
   'longDescription',
   'imgUrl',
+  'thumbUrl',
   'capabilityLevel',
   'links',
   'repository',
@@ -84,6 +86,7 @@ exports.initialize = callback => {
         ${DESCRIPTION_FIELD},
         ${LONG_DESCRIPTION_FIELD},
         ${IMG_FIELD},
+        ${THUMB_FIELD},
         ${CAPABILITY_LEVEL_FIELD},
         ${LINKS_FIELD},
         ${REPOSITORY_FIELD},
@@ -162,7 +165,7 @@ exports.getOperatorsById = (operatorId, callback) => {
       callback(null, `operator ${operatorId} is not found.`);
       return;
     }
-    
+
     callback(rows.map(normalizeOperatorRow));
   });
 };
@@ -204,6 +207,7 @@ exports.setOperators = (operators, callback) => {
           operator.description,
           operator.longDescription,
           operator.imgUrl,
+          operator.thumbUrl,
           operator.capabilityLevel || null,
           JSON.stringify(operator.links),
           operator.repository,
