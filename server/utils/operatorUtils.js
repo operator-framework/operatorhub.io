@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const sharp = require('sharp');
 
 const normalizeVersion = version =>
   version
@@ -146,18 +147,44 @@ const generateIdFromVersionedName = name => {
 
 const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamespaces', supported: true });
 
-const normalizeOperator = operator => {
+const normalizeOperator = async operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
   const iconObj = _.get(spec, 'icon[0]');
   const categoriesString = _.get(annotations, 'categories');
   const packageInfo = _.get(operator, 'packageInfo', {});
 
+  let thumbBase64;
+
+  if (iconObj) {
+    try {
+      const imageBuffer = Buffer.from(iconObj.base64data, 'base64');
+
+      const resizedBuffer = await sharp(imageBuffer)
+        .resize({
+          height: 80,
+          fit: 'inside',
+          background: 'rgb(255,255,255)'
+        })
+        .flatten({ background: 'rgb(255,255,255)' })
+        .sharpen()
+        .toFormat('jpeg')
+        .toBuffer();
+
+      const resizedBase64 = resizedBuffer.toString('base64');
+      thumbBase64 = `data:image/jpeg;base64,${resizedBase64}`;
+    } catch (e) {
+      console.warn(`Can't create thumbnail for operator ${operator.metadata.name} using original as fallback`);
+      thumbBase64 = iconObj ? `data:${iconObj.mediatype};base64,${iconObj.base64data}` : '';
+    }
+  }
+
   return {
     id: generateIdFromVersionedName(operator.metadata.name),
     name: operator.metadata.name,
     displayName: _.get(spec, 'displayName', operator.metadata.name),
     imgUrl: iconObj ? `data:${iconObj.mediatype};base64,${iconObj.base64data}` : '',
+    thumbUrl: thumbBase64 || '',
     longDescription: _.get(spec, 'description', annotations.description),
     provider: _.get(spec, 'provider.name'),
     version: spec.version,
@@ -178,7 +205,7 @@ const normalizeOperator = operator => {
   };
 };
 
-const normalizeOperators = operators => _.map(operators, operator => normalizeOperator(operator));
+const normalizeOperators = operators => Promise.all(operators.map(operator => normalizeOperator(operator)));
 
 const normalizePackage = (operatorPackage, operators) => {
   const channels = getPackageChannels(operatorPackage, operators);
