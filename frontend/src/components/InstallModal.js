@@ -102,7 +102,7 @@ class InstallModal extends React.Component {
                     <div className="oh-code">
                       {`$ ${INSTALL_OLM_COMMANDS[0]}`}
                       <br />
-                      {INSTALL_OLM_COMMANDS[1]}
+                      {`$ ${INSTALL_OLM_COMMANDS[1]}`}
                     </div>
                     <Tooltip content={tooltipContent} styles={tooltipOverrides}>
                       <a
