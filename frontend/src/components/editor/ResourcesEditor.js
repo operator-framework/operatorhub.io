@@ -28,17 +28,6 @@ class ResourcesEditor extends React.Component {
     });
   }
 
-  componentDidUpdate(prevProps) {
-    const { crd, onUpdate } = this.props;
-
-    if (crd && !_.isEqual(crd, prevProps.crd)) {
-      if (!_.size(_.get(crd, 'resources'))) {
-        crd.resources = [{ version: '', kind: '' }];
-        onUpdate(crd);
-      }
-    }
-  }
-
   addResource = event => {
     const { crd, onUpdate } = this.props;
 
