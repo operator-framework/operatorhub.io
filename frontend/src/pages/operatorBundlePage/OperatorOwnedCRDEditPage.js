@@ -17,6 +17,7 @@ import {
 import DescriptorsEditor, { isDescriptorEmpty } from '../../components/editor/DescriptorsEditor';
 import YamlViewer from '../../components/YamlViewer';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
+import { getDefaultOnwedCRD } from '../../utils/operatorUtils';
 
 const crdsField = sectionsFields['owned-crds'];
 
@@ -63,7 +64,8 @@ class OperatorOwnedCRDEditPage extends React.Component {
 
     if (!crd) {
       this.isNewCRD = true;
-      crd = { name };
+      crd = getDefaultOnwedCRD();
+      crd.name = name;
 
       if (!_.size(operatorCRDs)) {
         operatorCRDs = [];
@@ -71,6 +73,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
 
       operatorCRDs.push(crd);
     } else if (crd.name === '') {
+      crd = getDefaultOnwedCRD();
       this.isNewCRD = true;
     }
 

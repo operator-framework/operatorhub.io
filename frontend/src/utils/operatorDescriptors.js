@@ -128,6 +128,10 @@ const operatorFieldDescriptions = {
             {"It's"} recommended to only list out the objects what are important to a human, not an exhaustive list of
             everything you orchestrate. For example, ConfigMaps that store internal state that {"shouldn't"} be modified
             by a user {"shouldn't"} appear here.
+            <br />
+            <br />
+            Please ensure that resources added here are appropriately tagged with <code>ownerReferences</code> by your
+            Operator.
           </React.Fragment>
         ),
         descriptors: `These are a way to hint UIs with certain inputs or outputs of your Operator that are most important to an end
