@@ -105,13 +105,25 @@ function getDefaultDescription() {
   };
 }
 
-const defaultCRD = {
+const getDefaultRequiredCRD = () => ({
   name: '',
   displayName: '',
   kind: '',
   version: '',
   description: ''
-};
+});
+
+const getDefaultOnwedCRD = () => ({
+  ...getDefaultRequiredCRD(),
+  resources: [
+    { version: 'v1', kind: 'Deployment' },
+    { version: 'v1', kind: 'Service' },
+    { version: 'v1', kind: 'ReplicaSet' },
+    { version: 'v1', kind: 'Pod' },
+    { version: 'v1', kind: 'Secret' },
+    { version: 'v1', kind: 'ConfigMap' }
+  ]
+});
 
 const defaultDeployment = {
   name: 'example-operator',
@@ -223,8 +235,8 @@ const defaultOperator = {
     links: [{ name: '', url: '' }],
     icon: { base64data: '', mediatype: '' },
     customresourcedefinitions: {
-      owned: [_.clone(defaultCRD)],
-      required: [_.clone(defaultCRD)]
+      owned: [getDefaultOnwedCRD()],
+      required: [getDefaultRequiredCRD()]
     },
     install: {
       strategy: 'deployment',
@@ -243,7 +255,8 @@ const defaultOperator = {
   }
 };
 
-const isCrdDefault = crd => _.isEqual(crd, defaultCRD);
+const isOwnedCrdDefault = crd => _.isEqual(crd, getDefaultOnwedCRD());
+const isRequiredCrdDefault = crd => _.isEqual(crd, getDefaultRequiredCRD());
 
 /**
  * @typedef PropError
@@ -435,10 +448,12 @@ const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
 const removeEmptyOptionalValuesFromOperator = operator => {
   const clonedOperator = _.cloneDeep(operator);
 
-  const ownedCRDs = _.get(clonedOperator, sectionsFields['owned-crds'], []).filter(crd => !isCrdDefault(crd));
+  const ownedCRDs = _.get(clonedOperator, sectionsFields['owned-crds'], []).filter(crd => !isOwnedCrdDefault(crd));
   _.set(clonedOperator, sectionsFields['owned-crds'], ownedCRDs);
 
-  const requiredCRDs = _.get(clonedOperator, sectionsFields['required-crds'], []).filter(crd => !isCrdDefault(crd));
+  const requiredCRDs = _.get(clonedOperator, sectionsFields['required-crds'], []).filter(
+    crd => !isRequiredCrdDefault(crd)
+  );
   _.set(clonedOperator, sectionsFields['required-crds'], requiredCRDs);
 
   return clonedOperator;
@@ -477,6 +492,7 @@ export {
   normalizeOperator,
   defaultOperator,
   defaultDeployment,
+  getDefaultOnwedCRD,
   removeEmptyOptionalValuesFromOperator,
   validCapabilityStrings,
   validateOperator,
