@@ -1,9 +1,5 @@
 const _ = require('lodash');
 
-/**
- * Converts version into string as "100000.100000.100000" (for version 0.0.0)
- * @param {string} version
- */
 const normalizeVersion = version =>
   version
     .split('.')
@@ -20,10 +16,6 @@ const normalizeVersion = version =>
 
 const validCapabilityStrings = ['Basic Install', 'Seamless Upgrades', 'Full Lifecycle', 'Deep Insights', 'Auto Pilot'];
 
-/**
- * Convert capability level into one of known
- * @param {string} capability
- */
 const normalizeCapabilityLevel = capability => {
   if (validCapabilityStrings.includes(capability)) {
     return capability;
@@ -46,13 +38,6 @@ const getExampleYAML = (kind, operator) => {
   return null;
 };
 
-/**
- * Recursively adds operator name and version into package channel
- * Checks on operator for property stating which version current operator replaces
- * @param {*} packageChannel
- * @param {*} currentOperator
- * @param {*} operators
- */
 const addReplacedOperators = (packageChannel, currentOperator, operators) => {
   const replacedOperatorName = _.get(currentOperator, 'replaces');
   if (!replacedOperatorName) {
@@ -66,11 +51,6 @@ const addReplacedOperators = (packageChannel, currentOperator, operators) => {
   }
 };
 
-/**
- * Convert package informations into internal format
- * @param {*} operatorPackage
- * @param {*} operators
- */
 const getPackageChannels = (operatorPackage, operators) => {
   const { channels } = operatorPackage;
 
@@ -99,19 +79,6 @@ const getPackageChannels = (operatorPackage, operators) => {
   return _.compact(packageChannels);
 };
 
-/**
- * @typedef PackageChannel
- * @property {string} PackageChannel.name
- * @property {string} PackageChannel.version
- */
-
-/**
- * Extracts default channel for package
- * @param {*} operatorPackage
- * @param {*} channels
- * @param {*} operators
- * @returns {PackageChannel}
- */
 const getDefaultChannel = (operatorPackage, channels, operators) => {
   // if we have a set default channel use it
   const defaultChannelName = _.get(operatorPackage, 'defaultChannel');
@@ -213,21 +180,6 @@ const normalizeOperator = operator => {
 
 const normalizeOperators = operators => _.map(operators, operator => normalizeOperator(operator));
 
-/**
- * @typedef Package
- * @property {string} Package.id
- * @property {string} Package.name
- * @property {*[]} Package.channels
- * @property {string} Package.defaultChannel name of the default channel
- * @property {string} Package.defaultOperatorId id of the default channel
- */
-
-/**
- * Converts package into internal format
- * @param {*} operatorPackage
- * @param {*} operators
- * @returns {Package}
- */
 const normalizePackage = (operatorPackage, operators) => {
   const channels = getPackageChannels(operatorPackage, operators);
   const defaultChannel = getDefaultChannel(operatorPackage, channels, operators);
