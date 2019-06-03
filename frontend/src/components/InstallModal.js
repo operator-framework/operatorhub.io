@@ -11,9 +11,11 @@ import * as operatorImg from '../imgs/operator.svg';
 import { InternalLink } from './InternalLink';
 
 const olmRepo = 'https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager';
-const olmYAMLFile = `${olmRepo}/master/deploy/upstream/quickstart/olm.yaml`;
 
-const INSTALL_OLM_COMMAND = `kubectl create -f ${olmYAMLFile}`;
+const INSTALL_OLM_COMMANDS = [
+  `kubectl apply -f ${olmRepo}/releases/download/0.10.0/crds.yaml`,
+  `kubectl apply -f ${olmRepo}/releases/download/0.10.0/olm.yaml`
+];
 
 class InstallModal extends React.Component {
   state = { installCommand: '', copied: false };
@@ -97,11 +99,15 @@ class InstallModal extends React.Component {
                     cluster. Platforms like OpenShift / OKD will have it pre-installed.
                   </p>
                   <div className="oh-install-modal__install-command-container">
-                    <div className="oh-code">{`$ ${INSTALL_OLM_COMMAND}`}</div>
+                    <div className="oh-code">
+                      {`$ ${INSTALL_OLM_COMMANDS[0]}`}
+                      <br />
+                      {INSTALL_OLM_COMMANDS[1]}
+                    </div>
                     <Tooltip content={tooltipContent} styles={tooltipOverrides}>
                       <a
                         href="#"
-                        onClick={e => this.copyToClipboard(e, INSTALL_OLM_COMMAND)}
+                        onClick={e => this.copyToClipboard(e, INSTALL_OLM_COMMANDS.join(' \n'))}
                         className="oh-install-modal__install-command-copy"
                         onMouseEnter={this.onCopyEnter}
                       >
