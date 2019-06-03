@@ -8,7 +8,7 @@ import { helpers } from '../../common/helpers';
 import UploadUrlModal from '../modals/UploadUrlModal';
 import { reduxConstants } from '../../redux';
 import { normalizeYamlOperator, EDITOR_STATUS, sectionsFields } from '../../pages/operatorBundlePage/bundlePageUtils';
-import { defaultOperator } from '../../utils/operatorUtils';
+import { defaultOperator, getDefaultOnwedCRD } from '../../utils/operatorUtils';
 
 const validFileTypes = ['.yaml'];
 
@@ -97,6 +97,27 @@ class ManifestUploader extends React.Component {
         </span>
       );
     }
+  };
+
+  augmentOperator = operator => {
+    const clonedOperator = _.cloneDeep(operator);
+    const ownedCrds = _.get(clonedOperator, sectionsFields['owned-crds'], []);
+
+    _.set(
+      clonedOperator,
+      sectionsFields['owned-crds'],
+      ownedCrds.map(crd => this.addDefaultResourceStructureToCrd(crd))
+    );
+
+    return clonedOperator;
+  };
+
+  addDefaultResourceStructureToCrd = crd => {
+    const resources = crd.resources && crd.resources.length > 0 ? crd.resources : getDefaultOnwedCRD().resources;
+    return {
+      ...crd,
+      resources
+    };
   };
 
   compareSections = (operator, merged, uploaded) => {
