@@ -23,14 +23,30 @@ class ManifestUploader extends React.Component {
     this.setState({ advancedUpload: helpers.advancedUploadAvailable() });
   }
 
-  validateUpload = () => true;
+  getFileType = (content, fileName) => {
+    if (content.kind && content.apiVersion) {
+      const apiName = content.apiVersion.substring(0, content.apiVersion.indexOf('/'));
+
+      if (content.kind === 'ClusterServiceVersion' && apiName === 'operators.coreos.com') {
+        return 'CSV';
+      } else if (content.kind === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
+        return 'CRD';
+      }
+      // package file is different with no kind and API
+    } else if (content.packageName && content.channels) {
+      return 'PKG';
+    }
+
+    console.warn(`Unknown file ${fileName}. Can't use it.`);
+    return 'Unknown';
+  };
 
   applyUpload = upload => {
     const { operator, onUpdate } = this.props;
 
-    let updatedOperator = {};
+    let uploadedFile = {};
     try {
-      updatedOperator = normalizeYamlOperator(upload.contents) || {};
+      uploadedFile = normalizeYamlOperator(upload.contents) || {};
     } catch (e) {
       upload.status = (
         <span className="oh-operator-editor-upload__uploads__status">
@@ -39,23 +55,41 @@ class ManifestUploader extends React.Component {
         </span>
       );
     }
+    const fileType = this.getFileType(uploadedFile, upload);
 
-    // TODO: Determine what from the file can be used for the Operator
-    const validContents = this.validateUpload(updatedOperator);
-
-    if (validContents) {
-      const mergedOperator = _.merge({}, operator, updatedOperator);
-
-      this.compareSections(operator, mergedOperator, updatedOperator);
-      onUpdate(mergedOperator);
-
+    if (fileType === 'Unknown') {
       upload.status = (
         <span className="oh-operator-editor-upload__uploads__status">
-          <Icon type="fa" name="check-circle" />
-          <span className="oh-operator-editor-upload__uploads__status__message">Supported File</span>
+          <Icon type="fa" name="times-circle" />
+          <span className="oh-operator-editor-upload__uploads__status__message">Unsupported File</span>
         </span>
       );
-    } else {
+
+      return;
+    }
+
+    upload.status = (
+      <span className="oh-operator-editor-upload__uploads__status">
+        <Icon type="fa" name="check-circle" />
+        <span className="oh-operator-editor-upload__uploads__status__message">Supported File</span>
+      </span>
+    );
+
+    if (fileType === 'CSV') {
+      // only CSV.yaml is used to populate operator in editor. Other files have special roles
+      const mergedOperator = _.merge({}, operator, uploadedFile);
+
+      this.compareSections(operator, mergedOperator, uploadedFile);
+      onUpdate(mergedOperator);
+    }
+
+    /**
+     * @TODO: Determine what from the file can be used for the Operator
+     * Should we do upfront validation?
+     */
+    const validContents = true;
+
+    if (!validContents) {
       upload.status = (
         <span className="oh-operator-editor-upload__uploads__status">
           <Icon type="fa" name="times-circle" />
