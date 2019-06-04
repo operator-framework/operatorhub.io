@@ -39,7 +39,7 @@
     font-size: 32px;
 
     .title {
-      font-family: $oh-code-font-family;
+      font-family: $ks-code-font-family;
       padding-left: 8px;
     }
   }
@@ -59,7 +59,7 @@
 
     &__separator {
       margin: 30px 0;
-      border-top: 1px solid $oh-color-rule;
+      border-top: 1px solid $ks-color-rule;
     }
 
     .oh-button {
@@ -77,7 +77,7 @@
       }
 
       .properties-side-panel-pf-property-label  {
-        color: $oh-color-text-metadata;
+        color: $ks-color-text-metadata;
         font-size: 10px;
         font-weight: bold;
         letter-spacing: 1px;
@@ -145,7 +145,7 @@
   }
 
   .oh-crd-tile {
-    background: $oh-color-background;
+    background: $ks-color-background;
     border-radius: 3px;
     color: inherit;
     flex: 0 0 auto;
@@ -154,7 +154,7 @@
     width: 265px;
 
     &__title {
-      color: $oh-color-text-primary;
+      color: $ks-color-text-primary;
       font-size: 14px;
       font-weight: 600;
       overflow: hidden;
@@ -176,7 +176,7 @@
     }
 
     &__rule {
-      border-bottom: 2px solid $oh-color-accent;
+      border-bottom: 2px solid $ks-color-accent;
       margin-bottom: 15px;
       margin-top: 10px;
       width: 60px;
@@ -186,7 +186,7 @@
       height: 60px;
       min-height: 60px;
       font-size: 12px;
-      color: $oh-color-text-body;
+      color: $ks-color-text-body;
       overflow: hidden;
       position: relative;
 
@@ -224,7 +224,7 @@
   .oh-code {
     margin: 20px 10px 15px 0;
     padding: 10px;
-    background-color: $oh-color-background;
+    background-color: $ks-color-background;
     border-radius: 3px;
     flex: 1;
     word-break: break-all;
@@ -238,7 +238,7 @@
   }
 
   &__install-command-copy {
-    color: $oh-color-text-body;
+    color: $ks-color-text-body;
   }
 
   &__namespace-text {
@@ -257,5 +257,5 @@
 
 .oh-install-olm-instructions {
   margin-top: 15px;
-  border-bottom: 1px solid $oh-color-rule;
+  border-bottom: 1px solid $ks-color-rule;
 }

@@ -18,39 +18,39 @@ a:focus {
 
 h1, .h1 {
   font-size: 26px;
-  color: $oh-color-text-primary;
+  color: $ks-color-text-primary;
   letter-spacing: 1.44px;
   font-weight: 400;
   margin-bottom: 20px;
 }
 h2, .h2 {
   font-size: 22px;
-  color: $oh-color-text-primary;
+  color: $ks-color-text-primary;
   letter-spacing: 1.22px;
   font-weight: 400;
   margin-top: 60px;
   margin-bottom: 20px;
   padding-top: 60px;
-  border-top: 1px solid $oh-color-rule;
+  border-top: 1px solid $ks-color-rule;
 }
 h3, .h3 {
   font-size: 18px;
-  color: $oh-color-text-primary;
+  color: $ks-color-text-primary;
   letter-spacing: 1px;
 }
 h4, .h4 {
   font-size: 16px;
-  color: $oh-color-text-primary;
+  color: $ks-color-text-primary;
   letter-spacing: 0.89px;
 }
 h5, .h5 {
   font-size: 15px;
-  color: $oh-color-text-primary;
+  color: $ks-color-text-primary;
   letter-spacing: 0.83px;
 }
 p {
   font-size: 14px;
-  color: $oh-color-text-body;
+  color: $ks-color-text-body;
 }
 
 .dropdown-menu {
@@ -79,18 +79,12 @@ p {
 .modal-header {
   padding: 20px;
   background-color: #fff;
-  border-bottom: 1px solid $oh-color-rule;
+  border-bottom: 1px solid $ks-color-rule;
 }
 
 .modal-body {
   padding: 20px;
 }
 
-.catalog-tile-pf {
-  border: none;
-  border-radius: 5px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-  &:hover, &:focus {
-    box-shadow: 0 6px 12px rgba(0,0,0,0.12)
-  }
-}
+
+

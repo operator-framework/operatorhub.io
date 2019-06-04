@@ -8,7 +8,7 @@
   h1 {
     text-align: center;
     .title {
-      font-family: $oh-code-font-family;
+      font-family: $ks-code-font-family;
       padding-left: 8px;
       width: fit-content;
     }
@@ -84,7 +84,7 @@
   }
 
   &__toolbar {
-    border-bottom: 1px solid $oh-color-rule;
+    border-bottom: 1px solid $ks-color-rule;
     display: flex;
     flex-direction: row;
     margin-bottom: ($grid-gutter-width / 2);
@@ -128,7 +128,7 @@
   }
 
   &__filters {
-    width: $oh-filters-width;
+    width: $ks-filters-width;
     margin: 0 ($grid-gutter-width / 2) 0 0;
     display: none;
     @media (min-width: $screen-xs-min) {
@@ -142,7 +142,7 @@
 
     .filter-panel-pf-category-title {
       margin-bottom: 10px;
-      color: $oh-color-text-metadata;
+      color: $ks-color-text-metadata;
       font-size: 10px;
       font-weight: bold;
       letter-spacing: 1px;
@@ -161,6 +161,50 @@
   }
 }
 
+.ks-card {
+  height: 320px;
+  width: 320px;
+  border-radius: 5px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  &:hover, &:focus {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.12)
+  }
+  display: flex;
+  flex-flow: column;
+
+  &__heading {
+    background-color: #e8f6f9;
+    position: relative;
+    height: 40%;
+
+    &__left {
+      display: inline-block;
+    }
+
+    &__logo {
+      width: 30%;
+      background-color: $card-pf-bg-color;
+      display: inline-block;
+      position: absolute;
+      top: 20px;
+      right: 10px;
+      clip-path: circle(50% at 50% 50%);
+    }
+  }
+
+  &__body {
+    flex-grow: 1;
+  }
+
+  &__footer {
+
+    &__tag {
+      margin: 2px;
+      display: inline-block;
+    }
+  }
+
+}
 
 .oh-no-filter-results-title {
   color: $color-pf-black-800;
@@ -179,7 +223,7 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    height: $oh-list-item-height;
+    height: $ks-list-item-height;
     margin: 0 15px $catalog-tile-pf-margin-bottom 0;
     padding: 15px;
 
@@ -246,15 +290,15 @@
 
   &__deselect {
     &:focus, &:hover {
-      color: $oh-color-primary;
+      color: $ks-color-primary;
     }
   }
 
   &.selected, &:hover {
-    background-color: $oh-color-rule;
+    background-color: $ks-color-rule;
 
     .oh-category-item__select {
-      color: $oh-color-primary;
+      color: $ks-color-primary;
     }
   }
 }

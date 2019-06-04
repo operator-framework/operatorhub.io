@@ -8,7 +8,7 @@ const keysDirectory = process.env.KEYDIR || '';
 const mockMode = process.env.MOCK === 'true';
 
 const operatorsDirectory =
-  process.env.OPERATORS_DIR === undefined ? 'upstream-community-operators' : process.env.OPERATORS_DIR;
+  process.env.OPERATORS_DIR === undefined ? 'example-apps' : process.env.OPERATORS_DIR;
 
 const constants = {
   serverPort,

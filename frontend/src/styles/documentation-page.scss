@@ -9,7 +9,7 @@
     margin-top: 20px;
 
     &__content {
-      background-color: $oh-color-background;
+      background-color: $ks-color-background;
       padding: 25px 15px;
     }
 
@@ -18,7 +18,7 @@
     }
 
     &__content-fixed {
-      background-color: $oh-color-background;
+      background-color: $ks-color-background;
       padding: 25px 15px;
       position: fixed;
       right: 15px;
@@ -32,39 +32,39 @@
         max-width: calc((100% / 4) - (2 * #{$sidebar-content-fixed-padding}));
       }
 
-      @media (min-width: $oh-width-3-tile-min) {
-        right: calc((100% - #{$oh-content-width-3-tiles}) / 2 + #{$sidebar-content-fixed-padding});
+      @media (min-width: $ks-width-3-tile-min) {
+        right: calc((100% - #{$ks-content-width-3-tiles}) / 2 + #{$sidebar-content-fixed-padding});
 
         @media (min-width: $screen-sm-min) {
-          max-width: calc((#{$oh-content-width-3-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
+          max-width: calc((#{$ks-content-width-3-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
         }
 
         @media (min-width: $screen-md-min) {
-          max-width: calc((#{$oh-content-width-3-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
+          max-width: calc((#{$ks-content-width-3-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
         }
       }
 
-      @media (min-width: $oh-width-4-tile-min) {
-        right: calc((100% - #{$oh-content-width-4-tiles}) / 2 + #{$sidebar-content-fixed-padding});
+      @media (min-width: $ks-width-4-tile-min) {
+        right: calc((100% - #{$ks-content-width-4-tiles}) / 2 + #{$sidebar-content-fixed-padding});
 
         @media (min-width: $screen-sm-min) {
-          max-width: calc((#{$oh-content-width-4-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
+          max-width: calc((#{$ks-content-width-4-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
         }
 
         @media (min-width: $screen-md-min) {
-          max-width: calc((#{$oh-content-width-4-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
+          max-width: calc((#{$ks-content-width-4-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
         }
       }
 
-      @media (min-width: $oh-width-5-tile-min) {
-        right: calc((100% - #{$oh-content-width-5-tiles}) / 2 + #{$sidebar-content-fixed-padding});
+      @media (min-width: $ks-width-5-tile-min) {
+        right: calc((100% - #{$ks-content-width-5-tiles}) / 2 + #{$sidebar-content-fixed-padding});
 
         @media (min-width: $screen-sm-min) {
-          max-width: calc((#{$oh-content-width-5-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
+          max-width: calc((#{$ks-content-width-5-tiles} / 3) - (2 * #{$sidebar-content-fixed-padding}));
         }
 
         @media (min-width: $screen-md-min) {
-          max-width: calc((#{$oh-content-width-5-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
+          max-width: calc((#{$ks-content-width-5-tiles} / 4) - (2 * #{$sidebar-content-fixed-padding}));
         }
       }
     }
@@ -74,7 +74,7 @@
     margin: 15px 0 25px;
 
     th, td {
-      border: 1px solid $oh-color-text-primary;
+      border: 1px solid $ks-color-text-primary;
       padding: 15px;
       text-align: left;
     }
@@ -107,6 +107,6 @@
   .oh-documentation-page__code_snippet {
     margin: 0 20px;
     padding: 10px;
-    background-color: $oh-color-background;
+    background-color: $ks-color-background;
   }
 }

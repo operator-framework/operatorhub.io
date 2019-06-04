@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as _ from 'lodash-es';
 import { helpers } from '../common/helpers';
 import { reduxConstants } from '../redux';
-import { mockOperators } from '../__mock__/operators';
+import { mockOperators } from '../__mock__/apps';
 
 const serverHost = process.env.DEV_HOST || 'localhost';
 const serverPort = process.env.DEV_PORT || 8080;

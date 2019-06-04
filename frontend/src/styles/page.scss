@@ -8,20 +8,20 @@
     align-items: center;
     overflow: hidden;
     width: 100%;
-    min-height: calc(100vh - #{$oh-header-footer-height});
+    min-height: calc(100vh - #{$ks-header-footer-height});
 
     &__inner {
       padding: 0 15px;
       width: 100%;
 
-      @media (min-width: $oh-width-3-tile-min) {
-        width: $oh-content-width-3-tiles;
+      @media (min-width: $ks-width-3-tile-min) {
+        width: $ks-content-width-3-tiles;
       }
-      @media (min-width: $oh-width-4-tile-min) {
-        width: $oh-content-width-4-tiles;
+      @media (min-width: $ks-width-4-tile-min) {
+        width: $ks-content-width-4-tiles;
       }
-      @media (min-width: $oh-width-5-tile-min) {
-        width: $oh-content-width-5-tiles;
+      @media (min-width: $ks-width-5-tile-min) {
+        width: $ks-content-width-5-tiles;
       }
 
       > .blank-slate-pf {
@@ -55,7 +55,7 @@
   right: 0;
   z-index: 1020;
   &.scrolled {
-    background: linear-gradient(to right, #134F77, #2C95B5);
+    background: linear-gradient(to right, #820000, #a30000);
   }
 
   &__inner {
@@ -64,14 +64,14 @@
     display: flex;
     flex-direction: row;
 
-    @media (min-width: $oh-width-3-tile-min) {
-      width: $oh-content-width-3-tiles;
+    @media (min-width: $ks-width-3-tile-min) {
+      width: $ks-content-width-3-tiles;
     }
-    @media (min-width: $oh-width-4-tile-min) {
-      width: $oh-content-width-4-tiles;
+    @media (min-width: $ks-width-4-tile-min) {
+      width: $ks-content-width-4-tiles;
     }
-    @media (min-width: $oh-width-5-tile-min) {
-      width: $oh-content-width-5-tiles;
+    @media (min-width: $ks-width-5-tile-min) {
+      width: $ks-content-width-5-tiles;
     }
 
     .dropdown-menu {
@@ -83,16 +83,16 @@
         top: 55px;
       }
 
-      @media (min-width: $oh-width-3-tile-min) {
-        right: calc(((100% - #{$oh-content-width-3-tiles}) / 2) + 15px);
+      @media (min-width: $ks-width-3-tile-min) {
+        right: calc(((100% - #{$ks-content-width-3-tiles}) / 2) + 15px);
       }
-      @media (min-width: $oh-width-4-tile-min) {
-        right: calc(100% - #{$oh-content-width-4-tiles});
-        right: calc(((100% - #{$oh-content-width-4-tiles}) / 2) + 15px);
+      @media (min-width: $ks-width-4-tile-min) {
+        right: calc(100% - #{$ks-content-width-4-tiles});
+        right: calc(((100% - #{$ks-content-width-4-tiles}) / 2) + 15px);
       }
-      @media (min-width: $oh-width-5-tile-min) {
-        right: calc(100% - #{$oh-content-width-5-tiles});
-        right: calc(((100% - #{$oh-content-width-5-tiles}) / 2) + 15px);
+      @media (min-width: $ks-width-5-tile-min) {
+        right: calc(100% - #{$ks-content-width-5-tiles});
+        right: calc(((100% - #{$ks-content-width-5-tiles}) / 2) + 15px);
       }
     }
   }
@@ -115,7 +115,7 @@
   }
 
   &__logo {
-    font-family: $oh-code-font-family;
+    font-family: $ks-code-font-family;
     height: 14px;
   }
 
@@ -178,11 +178,12 @@
 }
 
 .oh-header {
-  background-image: url("../imgs/header-bg.png");
-  background-image: url("../imgs/header-bg.png"), linear-gradient(to right, #134F77, #2C95B5);
-  background-repeat: repeat;
+  background-image: url("../imgs/header-bg-new.png");
+  background-image: url("../imgs/header-bg-new.png"), linear-gradient(to right, #820000, #a30000);
+  background-repeat: no-repeat;
   background-position-x: left;
-  background-position-y : top;
+  background-position-y : bottom;
+  background-size: cover;
   color: $color-pf-white;
   display: flex;
   flex-direction: column;
@@ -197,14 +198,14 @@
     padding: 0 15px;
     width: 100%;
 
-    @media (min-width: $oh-width-3-tile-min) {
-      width: $oh-content-width-3-tiles;
+    @media (min-width: $ks-width-3-tile-min) {
+      width: $ks-content-width-3-tiles;
     }
-    @media (min-width: $oh-width-4-tile-min) {
-      width: $oh-content-width-4-tiles;
+    @media (min-width: $ks-width-4-tile-min) {
+      width: $ks-content-width-4-tiles;
     }
-    @media (min-width: $oh-width-5-tile-min) {
-      width: $oh-content-width-5-tiles;
+    @media (min-width: $ks-width-5-tile-min) {
+      width: $ks-content-width-5-tiles;
     }
   }
 }
@@ -213,7 +214,7 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  border-bottom: 1px solid $oh-color-rule;
+  border-bottom: 1px solid $ks-color-rule;
   background-color: $page-bg-color;
   width: 100%;
 
@@ -229,14 +230,14 @@
     padding: 0 15px;
     width: 100%;
 
-    @media (min-width: $oh-width-3-tile-min) {
-      width: $oh-content-width-3-tiles;
+    @media (min-width: $ks-width-3-tile-min) {
+      width: $ks-content-width-3-tiles;
     }
-    @media (min-width: $oh-width-4-tile-min) {
-      width: $oh-content-width-4-tiles;
+    @media (min-width: $ks-width-4-tile-min) {
+      width: $ks-content-width-4-tiles;
     }
-    @media (min-width: $oh-width-5-tile-min) {
-      width: $oh-content-width-5-tiles;
+    @media (min-width: $ks-width-5-tile-min) {
+      width: $ks-content-width-5-tiles;
     }
   }
   .breadcrumb {
@@ -253,7 +254,7 @@
   width: 100%;
 
   &__top-bar {
-    border-top: 1px solid $oh-color-rule;
+    border-top: 1px solid $ks-color-rule;
     margin-top: 60px;
     padding: 18px 15px;
     background-color: $color-pf-white;
@@ -276,7 +277,7 @@
   }
 
   &__contents {
-    background-color: $oh-color-text-panel;
+    background-color: $ks-color-text-panel;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -297,14 +298,14 @@
         justify-content: space-between;
       }
 
-      @media (min-width: $oh-width-3-tile-min) {
-        width: $oh-content-width-3-tiles;
+      @media (min-width: $ks-width-3-tile-min) {
+        width: $ks-content-width-3-tiles;
       }
-      @media (min-width: $oh-width-4-tile-min) {
-        width: $oh-content-width-4-tiles;
+      @media (min-width: $ks-width-4-tile-min) {
+        width: $ks-content-width-4-tiles;
       }
-      @media (min-width: $oh-width-5-tile-min) {
-        width: $oh-content-width-5-tiles;
+      @media (min-width: $ks-width-5-tile-min) {
+        width: $ks-content-width-5-tiles;
       }
     }
 

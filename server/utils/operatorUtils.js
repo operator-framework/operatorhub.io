@@ -64,7 +64,7 @@ const getPackageChannels = (operatorPackage, operators) => {
     if (!currentOperator) {
       console.error(
         `ERROR: package ${operatorPackage.packageName}, channel ${
-          channel.name
+        channel.name
         } has a missing or invalid currentCSV value.`
       );
       return null;
@@ -168,7 +168,7 @@ const normalizeOperator = operator => {
     repository: annotations.repository,
     maintainers: spec.maintainers,
     description: _.get(annotations, 'description'),
-    categories: categoriesString && _.map(categoriesString.split(','), category => category.trim()),
+    categories: categoriesString.map(category => category.trim()),
     keywords: spec.keywords,
     createdAt: annotations.createdAt,
     containerImage: annotations.containerImage,

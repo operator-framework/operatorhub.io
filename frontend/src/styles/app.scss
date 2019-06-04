@@ -8,12 +8,12 @@
 }
 
 .oh-small {
-  color: $oh-color-text-light;
+  color: $ks-color-text-light;
   font-size: 12px;
 }
 
 .oh-tiny {
-  color: $oh-color-text-metadata;
+  color: $ks-color-text-metadata;
   font-size: 10px;
   font-weight: bold;
   letter-spacing: 1px;
@@ -28,7 +28,7 @@
 }
 
 .oh-code {
-  font-family: $oh-code-font-family;
+  font-family: $ks-code-font-family;
 }
 
 .oh-indent {
@@ -36,7 +36,7 @@
 }
 
 .oh-code {
-  font-family: $oh-code-font-family;
+  font-family: $ks-code-font-family;
 }
 
 .oh-not-visible {
@@ -98,13 +98,13 @@
   padding: 6px 15px 7px 15px;
 
   &.oh-button-primary {
-    background-color: $oh-color-primary;
+    background-color: $ks-color-primary;
     color: $pf-color-white;
   }
 
   &.oh-button-secondary {
-    background-color: $oh-color-secondary;
-    color: $oh-color-text-body;
+    background-color: $ks-color-secondary;
+    color: $ks-color-text-body;
   }
 }
 
@@ -132,7 +132,7 @@
   padding-bottom: 15px;
 
   > pre {
-    background: $oh-color-background;
+    background: $ks-color-background;
     display: block;
     font-size: 12px;
     margin-left: 10px;

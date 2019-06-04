@@ -6,7 +6,7 @@ const { operatorsDirectory } = require('../utils/constants');
 const { normalizeOperators, normalizePackages } = require('../utils/operatorUtils');
 const persistentStore = require('../store/persistentStore');
 
-const operatorsFrameworkDirectory = `./data/community-operators/${operatorsDirectory}`;
+const operatorsFrameworkDirectory = `./data/example-apps/${operatorsDirectory}`;
 
 const loadOperators = callback => {
   const csvFileList = [];
@@ -17,7 +17,7 @@ const loadOperators = callback => {
       const filePath = path.join(dir, file);
       if (fs.statSync(filePath).isDirectory()) {
         allCSVFilesSync(filePath);
-      } else if (file.endsWith('.clusterserviceversion.yaml')) {
+      } else if (file.endsWith('.json')) {
         csvFileList.push({ filePath, dir });
       }
     });
@@ -29,14 +29,14 @@ const loadOperators = callback => {
     csvFileList,
     (parsedOperators, { filePath, dir }) => {
       try {
-        const operator = yaml.safeLoad(fs.readFileSync(filePath));
+        const operator = JSON.parse(fs.readFileSync(filePath));
         const packageFile = fs.readdirSync(dir).filter(fn => fn.endsWith('.package.yaml'));
         if (packageFile.length === 1) {
-          const packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
+          const packageInfo = JSON.parse(fs.readFileSync(path.join(dir, packageFile[0])));
           if (!_.find(packages, { packageName: packageInfo.packageName })) {
             packages.push(packageInfo);
           }
-          operator.packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
+          operator.packageInfo = JSON.parse(fs.readFileSync(path.join(dir, packageFile[0])));
         }
         parsedOperators.push(operator);
       } catch (e) {

@@ -50,17 +50,16 @@ const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamesp
 const normalizeOperator = operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
-  const iconObj = _.get(spec, 'icon[0]');
+  const iconObj = _.get(annotations, 'icon[0]');
   const categoriesString = _.get(annotations, 'categories');
-  const packageInfo = _.get(operator, 'packageInfo', {});
 
   return {
     id: generateIdFromVersionedName(operator.metadata.name),
     name: operator.metadata.name,
     displayName: _.get(spec, 'displayName', operator.metadata.name),
     imgUrl: iconObj ? `data:${iconObj.mediatype};base64,${iconObj.base64data}` : '',
-    longDescription: _.get(spec, 'description', annotations.description),
-    provider: _.get(spec, 'provider.name'),
+    longDescription: _.get(spec, 'long-description', annotations.description),
+    provider: _.get(spec, 'provider'),
     version: spec.version,
     versionForCompare: normalizeVersion(spec.version),
     capabilityLevel: normalizeCapabilityLevel(annotations.capabilities || ''),
@@ -68,13 +67,7 @@ const normalizeOperator = operator => {
     repository: annotations.repository,
     maintainers: spec.maintainers,
     description: _.get(annotations, 'description'),
-    categories: categoriesString && _.map(categoriesString.split(','), category => category.trim()),
-    createdAt: annotations.createdAt && `${annotations.createdAt}`,
-    containerImage: annotations.containerImage,
-    customResourceDefinitions: normalizeCRDs(operator),
-    packageName: packageInfo.packageName,
-    channels: packageInfo.channels,
-    globalOperator: isGlobalOperator(_.get(spec, 'installModes'))
+    categories: categoriesString && _.map(categoriesString.split(','), category => category.trim())
   };
 };
 

@@ -2,17 +2,17 @@
 
 pushd ./data/
 
-if [ ! -d "community-operators" ]; then
+if [ ! -d "example-apps" ]; then
   
   if [ ! $1 ]; then
-    echo "Using default community operators repository"
-    OPERATORS_REPO=https://github.com/operator-framework/community-operators.git
+    echo "Using default community apps repository"
+    OPERATORS_REPO=https://github.com/knative-scout/serverless-apps.git
   else
     OPERATORS_REPO=$1
-    echo "Using $OPERATORS_REPO as community operators repository"
+    echo "Using $OPERATORS_REPO as community app repository"
   fi
 
-  git clone $OPERATORS_REPO community-operators || exit 1
+  git clone $OPERATORS_REPO example-apps || exit 1
 fi
 
 if [ ! $2 ]; then

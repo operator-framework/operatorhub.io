@@ -1,32 +1,32 @@
-$oh-color-primary: #1991eb;
-$oh-color-secondary: #e0e1e2;
-$oh-color-teal: #1cb5ac;
-$oh-color-accent: #4ed4a1;
-$oh-color-background: #fafbfd;
-$oh-color-rule: #eaeaea;
-$oh-color-text-light: #999999;
-$oh-color-text-body: #515151;
-$oh-color-text-panel: #333f52;
-$oh-color-text-primary: #1b1c1d;
-$oh-color-text-metadata: #b6b6b6;
+$ks-color-primary: #820000;
+$ks-color-secondary: #e0e1e2;
+$ks-color-teal: #1cb5ac;
+$ks-color-accent: #ee0000;
+$ks-color-background: #fafbfd;
+$ks-color-rule: #eaeaea;
+$ks-color-text-light: #999999;
+$ks-color-text-body: #515151;
+$ks-color-text-panel: #464646;
+$ks-color-text-primary: #1b1c1d;
+$ks-color-text-metadata: #b6b6b6;
 
-$oh-code-font-family: "Source Code Pro";
+$ks-code-font-family: "Source Code Pro";
 
-$page-bg-color: $oh-color-background;
-$oh-header-height: 185px;
-$oh-footer-height: 349px;
-$oh-header-footer-height: calc(#{$oh-header-height} + #{$oh-footer-height});
-$oh-list-item-height: 100px;
-$oh-filters-width: 220px;
-$oh-card-width: calc(#{$catalog-tile-pf-width} + 15px);
+$page-bg-color: $ks-color-background;
+$ks-header-height: 185px;
+$ks-footer-height: 349px;
+$ks-header-footer-height: calc(#{$ks-header-height} + #{$ks-footer-height});
+$ks-list-item-height: 100px;
+$ks-filters-width: 220px;
+$ks-card-width: calc(#{$catalog-tile-pf-width} + 300px);
 
-$oh-extra-tile-space: 35px; // 15px padding + 20px margin between filters and tiles
-$oh-window-space: calc(#{$oh-extra-tile-space} + 30px); // 15px padding on each side
+$ks-extra-tile-space: 35px; // 15px padding + 20px margin between filters and tiles
+$ks-window-space: calc(#{$ks-extra-tile-space} + 30px); // 15px padding on each side
 
-$oh-width-3-tile-min: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-window-space});
-$oh-width-4-tile-min: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-window-space} + 30px); // at 4-5 tiles, increase padding on each side by 15px
-$oh-width-5-tile-min: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-window-space} + 30px);
-$oh-content-width-3-tiles: calc((3 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-extra-tile-space});
-$oh-content-width-4-tiles: calc((4 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-extra-tile-space});
-$oh-content-width-5-tiles: calc((5 * #{$oh-card-width}) + #{$oh-filters-width} + #{$oh-extra-tile-space});
+$ks-width-3-tile-min: calc((3 * #{$ks-card-width}) + #{$ks-filters-width} + #{$ks-window-space});
+$ks-width-4-tile-min: calc((4 * #{$ks-card-width}) + #{$ks-filters-width} + #{$ks-window-space} + 30px); // at 4-5 tiles, increase padding on each side by 15px
+$ks-width-5-tile-min: calc((5 * #{$ks-card-width}) + #{$ks-filters-width} + #{$ks-window-space} + 30px);
+$ks-content-width-3-tiles: calc((3 * #{$ks-card-width}) + #{$ks-filters-width} + #{$ks-extra-tile-space});
+$ks-content-width-4-tiles: calc((4 * #{$ks-card-width}) + #{$ks-filters-width} + #{$ks-extra-tile-space});
+$ks-content-width-5-tiles: calc((5 * #{$ks-card-width}) + #{$ks-filters-width} + #{$ks-extra-tile-space});
 
