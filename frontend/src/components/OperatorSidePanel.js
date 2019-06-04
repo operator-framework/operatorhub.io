@@ -26,7 +26,7 @@ const capabilityLevelImages = {
   'Auto Pilot': capabilityLevelImgLevel5
 };
 
-export class OperatorSidePanel extends React.Component {
+class OperatorSidePanel extends React.Component {
   state = {
     copied: false
   };
