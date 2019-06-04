@@ -87,6 +87,7 @@ $icon-font-path: '~patternfly/dist/fonts/';
 @import '~patternfly-react/dist/sass/card';
 @import '~patternfly-react/dist/sass/expand-collapse';
 @import '~patternfly-react/dist/sass/breadcrumb';
+@import '~patternfly-react/dist/sass/type-ahead-select';
 
 @import '~patternfly-react-extensions/dist/sass/variables';
 @import '~patternfly-react-extensions/dist/sass/badged-resource';
@@ -98,3 +99,5 @@ $icon-font-path: '~patternfly/dist/fonts/';
 @import '~@patternfly/patternfly-next/sass-utilities/all';
 @import "~@patternfly/patternfly-next/_variables";
 @import "~@patternfly/patternfly-next/_fonts";
+
+@import '~simplemde/dist/simplemde.min.css';
