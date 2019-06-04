@@ -108,6 +108,12 @@ const renderOperatorFormField = (operator, formErrors, updateOperator, commitFie
   return renderOperatorInput(title, field, inputComponent, formErrors);
 };
 
+/**
+ * Takes formErrors object and overrides it with validation result of fields
+ * @param {*} operator
+ * @param {*} formErrors
+ * @param {string | string[]} fields
+ */
 const getUpdatedFormErrors = (operator, formErrors, fields) => {
   if (!formErrors) {
     throw new Error('FormErrors is undefined!');

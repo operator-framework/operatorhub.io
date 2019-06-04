@@ -47,7 +47,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
   state = {
     crd: null,
     crdErrors: null,
-    crdTemplateYaml: '',
+    crdTemplate: null,
     crdTemplateYamlError: ''
   };
 
@@ -58,6 +58,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const name = helpers.transformPathedName(_.get(this.props.match, 'params.crd', ''));
     let operatorCRDs = _.get(operator, crdsField);
 
+    // find crd by name or take default empty one
     let crd = _.find(operatorCRDs, { name }) || _.find(operatorCRDs, { name: '' });
 
     if (!crd) {
@@ -77,25 +78,18 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const kind = _.get(crd, 'kind');
     const examples = _.get(operator, 'metadata.annotations.alm-examples');
     const crdTemplates = this.convertExamplesToObj(examples);
+    const crdTemplate = _.find(crdTemplates, { kind }, null);
 
-    let crdTemplateYaml = '';
-    const crdTemplate = _.find(crdTemplates, { kind });
-    if (crdTemplate) {
-      try {
-        crdTemplateYaml = safeDump(crdTemplate);
-      } catch (e) {
-        console.error(`Unable to convert alm-examples to YAML: ${e}`);
-        crdTemplateYaml = '';
-      }
-    }
-
+    // used to reference CRD when name changes
     this.originalName = crd.name;
 
+    // get existing errors and revalidate CRDs fields
     const errors = getUpdatedFormErrors(operator, formErrors, crdsField);
+
     this.updateCrdErrors(errors);
     storeEditorFormErrors(errors);
 
-    this.setState({ crd, crdTemplateYaml });
+    this.setState({ crd, crdTemplate });
 
     if (crd.name === '') {
       setTimeout(() => {
@@ -113,6 +107,11 @@ class OperatorOwnedCRDEditPage extends React.Component {
     }
   }
 
+  /**
+   * Update local state with errors after they arive from redux
+   * Update CRD section state
+   * @param {*} formErrors
+   */
   updateCrdErrors = formErrors => {
     const { setSectionStatus } = this.props;
 
@@ -126,6 +125,9 @@ class OperatorOwnedCRDEditPage extends React.Component {
     }
   };
 
+  /**
+   * Convert ALM examples to objects so we can find one for current CRD
+   */
   convertExamplesToObj = examples => {
     let crdTemplates;
     if (_.isString(examples)) {
@@ -141,39 +143,73 @@ class OperatorOwnedCRDEditPage extends React.Component {
     return crdTemplates;
   };
 
+  /**
+   * Some field changed so we need to update crd
+   * @param {*} value
+   * @param {string} field
+   */
   updateCRD = (value, field) => {
-    const { crd } = this.state;
+    const { crd, crdTemplate } = this.state;
+    const updateTemplate = _.cloneDeep(crdTemplate || {});
+
+    if (field === 'kind') {
+      updateTemplate.kind = value;
+
+      this.setState({ crdTemplate: updateTemplate });
+      // push changed template to ALM examples
+      this.updateAlmTemplates(updateTemplate);
+    }
 
     _.set(crd, field, value);
     this.forceUpdate();
   };
 
+  /**
+   * Validate YAML examples and update operator
+   */
   onTemplateYamlChange = yaml => {
-    const { operator, storeEditorOperator } = this.props;
     const { crd } = this.state;
+
+    let crdTemplateYamlError = '';
 
     try {
       const template = safeLoad(yaml);
-      const examples = _.get(operator, 'metadata.annotations.alm-examples');
-      const crdTemplates = this.convertExamplesToObj(examples);
-      const index = _.findIndex(crdTemplates, { kind: _.get(crd, 'kind') });
-      let updatedTemplates;
-      if (index >= 0) {
-        updatedTemplates = [...crdTemplates.slice(0, index), template, ...crdTemplates.slice(index + 1)];
-      } else {
-        updatedTemplates = [...crdTemplates, template];
+      this.updateAlmTemplates(template);
+
+      if (template.kind !== crd.kind) {
+        crdTemplateYamlError = 'Yaml kind property has to match CRD kind.';
       }
-      const updatedExamples = JSON.stringify(updatedTemplates);
 
-      const updatedOperator = _.cloneDeep(operator);
-      _.set(updatedOperator, 'metadata.annotations.alm-examples', updatedExamples);
-
-      storeEditorOperator(updatedOperator);
-
-      this.setState({ crdTemplateYaml: yaml, crdTemplateYamlError: '' });
+      this.setState({ crdTemplate: template, crdTemplateYamlError });
     } catch (e) {
-      this.setState({ crdTemplateYaml: yaml, crdTemplateYamlError: e.message });
+      this.setState({ crdTemplateYamlError: e.message });
     }
+  };
+
+  /**
+   * Update ALM examples in operator with example of this CRD
+   */
+  updateAlmTemplates = template => {
+    const { operator, storeEditorOperator } = this.props;
+    const { crd } = this.state;
+
+    const examples = _.get(operator, 'metadata.annotations.alm-examples');
+    const crdTemplates = this.convertExamplesToObj(examples);
+    const index = _.findIndex(crdTemplates, { kind: _.get(crd, 'kind') });
+
+    let updatedTemplates;
+
+    if (index >= 0) {
+      updatedTemplates = [...crdTemplates.slice(0, index), template, ...crdTemplates.slice(index + 1)];
+    } else {
+      updatedTemplates = [...crdTemplates, template];
+    }
+    const updatedExamples = JSON.stringify(updatedTemplates);
+
+    const updatedOperator = _.cloneDeep(operator);
+    _.set(updatedOperator, 'metadata.annotations.alm-examples', updatedExamples);
+
+    storeEditorOperator(updatedOperator);
   };
 
   /**
@@ -203,6 +239,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     _.set(this.dirtyFields, field, true);
 
     const updatedOperator = _.cloneDeep(operator);
+    // do not validate empty sample fields - they are stripped before export
     const cleanedCrd = this.cleanEmptySampleFields(crd);
 
     // if we only have the placeholder CRD, replace it with this CRD
@@ -213,6 +250,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
       // update the operator's version of this CRD
       const existingCRDs = _.get(updatedOperator, crdsField);
       this.crdIndex = _.findIndex(existingCRDs, { name: this.originalName });
+
       if (this.crdIndex < 0) {
         existingCRDs.push(cleanedCrd);
         this.crdIndex = 0;
@@ -228,6 +266,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
     storeEditorFormErrors(errors);
 
+    // update reference name
     this.originalName = _.get(crd, 'name');
 
     storeEditorOperator(updatedOperator);
@@ -240,6 +279,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
   renderCRDInput = (title, field, fieldType, inputRefCallback) => {
     const { crd, crdErrors } = this.state;
 
+    // ignore errors on new CRDs for untouched fields
     const error = !(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && _.get(crdErrors, field);
 
     const formFieldClasses = classNames({
@@ -335,7 +375,17 @@ class OperatorOwnedCRDEditPage extends React.Component {
   };
 
   renderTemplates = () => {
-    const { crdTemplateYaml, crdTemplateYamlError } = this.state;
+    const { crdTemplate, crdTemplateYamlError } = this.state;
+    let crdTemplateYaml;
+
+    if (crdTemplate) {
+      try {
+        crdTemplateYaml = safeDump(crdTemplate);
+      } catch (e) {
+        console.error(`Unable to convert alm-examples to YAML: ${e}`);
+        crdTemplateYaml = '';
+      }
+    }
 
     return (
       <React.Fragment>

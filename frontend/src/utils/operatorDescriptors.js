@@ -338,6 +338,23 @@ const linksValidator = links => {
   return null;
 };
 
+/**
+ * Validates provider name using context of other fields
+ * @param {string} value
+ * @param {*} operator
+ * @returns {string | null}
+ */
+const providerContextualValidator = (value, operator) => {
+  const maintainers = _.get(operator, 'spec.maintainers');
+  const maintainersValidatorObject = operatorFieldValidators.spec.maintainers;
+
+  if (!maintainersValidatorObject.isEmpty(maintainers) || value) {
+    return null;
+  }
+
+  return 'At least one provider or maintainer is required.';
+};
+
 const maintainersValidator = maintainers => {
   if (!maintainers || _.isEmpty(maintainers)) {
     return 'At least one maintainer is required.';
@@ -360,6 +377,56 @@ const maintainersValidator = maintainers => {
 
   if (_.size(maintainerErrors)) {
     return maintainerErrors;
+  }
+
+  return null;
+};
+
+/**
+ * @typedef Maintainer
+ * @prop {string} Maintainer.name
+ * @prop {string} Maintainer.email
+ */
+
+/**
+ * Validates fields in context of other fields to catch field cross dependancies
+ * @param {Maintainer[]} value
+ * @param {*} operator
+ * @param {*} fieldValidator
+ */
+const maintainersContextualValidator = (value, operator, fieldValidator) => {
+  const provider = _.get(operator, 'spec.provider.name');
+  const { validator } = fieldValidator;
+
+  // Check for other alternatives if there is no or empty value
+  // otherwise initial empty value will not be marked as invalid!
+  if (value.length > 0 && !fieldValidator.isEmpty(value)) {
+    return validator(value);
+  } else if (provider) {
+    return null;
+  }
+  return 'At least one provider or maintainer is required.';
+};
+
+/**
+ * Validates deployment spec in context of entire operator
+ * @param {*} value
+ * @param {*} operator
+ */
+const deploymentSpecContextualValidator = (value, operator) => {
+  const serviceAccountName = _.get(value, 'template.spec.serviceAccountName');
+  // merge both permissions before search
+  const permissions = (_.get(operator, 'spec.install.spec.permissions') || []).concat(
+    _.get(operator, 'spec.install.spec.clusterPermissions') || []
+  );
+
+  if (!serviceAccountName) {
+    return 'Spec.template.spec.serviceAccountName property is required';
+  }
+  const found = permissions && permissions.some(permission => permission.serviceAccountName === serviceAccountName);
+
+  if (!found && serviceAccountName !== 'default') {
+    return 'Spec.template.spec.serviceAccountName property should match defined service account or be set as "default"';
   }
 
   return null;
@@ -453,8 +520,16 @@ const operatorFieldValidators = {
     maturity: {
       required: true
     },
+    provider: {
+      name: {
+        contextualValidator: providerContextualValidator
+      }
+    },
     maintainers: {
-      validator: maintainersValidator
+      validator: maintainersValidator,
+      contextualValidator: maintainersContextualValidator,
+      isEmpty: maintaners =>
+        !maintaners || maintaners.length === 0 || maintaners.every(maintaner => !maintaner.name && !maintaner.email)
     },
     icon: {
       required: true
@@ -597,6 +672,33 @@ const operatorFieldValidators = {
           },
           description: {
             required: true
+          }
+        }
+      }
+    },
+    install: {
+      spec: {
+        deployments: {
+          isArray: true,
+          required: true,
+          requiredError: 'At least one deployment is required.',
+          itemValidator: {
+            name: {
+              required: true
+            },
+            apiVersion: {
+              // contextual validatior is used to catch case when property is present but empty
+              // validator can't catch this case :/
+              contextualValidator: value =>
+                typeof value !== 'undefined' ? 'API version property is invalid in operator deployment' : null
+            },
+            kind: {
+              contextualValidator: value =>
+                typeof value !== 'undefined' ? 'Kind property is invalid in operator deployment' : null
+            },
+            spec: {
+              contextualValidator: deploymentSpecContextualValidator
+            }
           }
         }
       }

@@ -113,6 +113,73 @@ const defaultCRD = {
   description: ''
 };
 
+const defaultDeployment = {
+  name: 'example-operator',
+  spec: {
+    replicas: 1,
+    selector: {
+      matchLabels: {
+        'k8s-app': 'example-operator'
+      }
+    },
+    template: {
+      metadata: {
+        labels: {
+          'k8s-app': 'example-operator'
+        }
+      },
+      spec: {
+        containers: {
+          image: 'quay.io/example/example-operator:v0.0.1',
+          imagePullPolicy: 'Always',
+          name: 'example-operator',
+          resources: {
+            limits: {
+              cpu: '200m',
+              memory: '100Mi'
+            },
+            requests: {
+              cpu: '100m',
+              memory: '50Mi'
+            }
+          },
+          env: [
+            {
+              name: 'WATCH_NAMESPACE',
+              valueFrom: {
+                fieldRef: {
+                  fieldPath: "metadata.annotations['olm.targetNamespaces']"
+                }
+              }
+            },
+            {
+              name: 'POD_NAME',
+              valueFrom: {
+                fieldRef: {
+                  fieldPath: 'metadata.name'
+                }
+              }
+            },
+            {
+              name: 'OPERATOR_NAME',
+              value: 'example-operator'
+            }
+          ]
+        },
+        imagePullSecrets: [
+          {
+            name: ''
+          }
+        ],
+        nodeSelector: {
+          'beta.kubernetes.io/os': 'linux'
+        },
+        serviceAccountName: 'example-operator'
+      }
+    }
+  }
+};
+
 const defaultOperator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
@@ -164,52 +231,7 @@ const defaultOperator = {
       spec: {
         permissions: null,
         clusterPermissions: null,
-        deployments: [
-          {
-            name: 'example-operator',
-            spec: {
-              replicas: 1,
-              selector: {
-                matchLabels: {
-                  'k8s-app': 'example-operator'
-                }
-              },
-              template: {
-                metadata: {
-                  labels: {
-                    'k8s-app': 'example-operator'
-                  }
-                },
-                spec: {
-                  containers: {
-                    image: 'quay.io/example/example-operator:v0.0.1',
-                    imagePullPolicy: 'Always',
-                    name: 'example-operator',
-                    resources: {
-                      limits: {
-                        cpu: '200m',
-                        memory: '100Mi'
-                      },
-                      requests: {
-                        cpu: '100m',
-                        memory: '50Mi'
-                      }
-                    }
-                  },
-                  imagePullSecrets: [
-                    {
-                      name: ''
-                    }
-                  ],
-                  nodeSelector: {
-                    'beta.kubernetes.io/os': 'linux',
-                    serviceAccountName: 'example-operator'
-                  }
-                }
-              }
-            }
-          }
-        ]
+        deployments: [_.cloneDeep(defaultDeployment)]
       }
     },
     installModes: [
@@ -235,9 +257,10 @@ const isCrdDefault = crd => _.isEqual(crd, defaultCRD);
  * Validate key - value object type and return array of error objects
  * @param {*} value
  * @param {FieldValidator} fieldValidator
+ * @param {*} operator
  * @returns {string | PropError[] | null}
  */
-const getObjectPropsErrors = (value, fieldValidator) => {
+const getObjectPropsErrors = (value, fieldValidator, operator) => {
   /** @type {PropError[]} */
   const propErrors = [];
 
@@ -248,8 +271,8 @@ const getObjectPropsErrors = (value, fieldValidator) => {
   _.forEach(_.keys(value), key => {
     if (key || value[key]) {
       // check separately key and value
-      const keyError = getValueError(key, _.get(fieldValidator, 'key'));
-      const valueError = getValueError(_.get(value, key), _.get(fieldValidator, 'value'));
+      const keyError = getValueError(key, _.get(fieldValidator, 'key'), operator);
+      const valueError = getValueError(_.get(value, key), _.get(fieldValidator, 'value'), operator);
 
       if (keyError || valueError) {
         propErrors.push({ key, value: _.get(value, key), keyError, valueError });
@@ -270,15 +293,16 @@ const getObjectPropsErrors = (value, fieldValidator) => {
  * Validates array of values and returns array of error objects
  * @param {*} value
  * @param {FieldValidator} fieldValidator
+ * @param {*} operator
  */
-const getArrayValueErrors = (value, fieldValidator) => {
+const getArrayValueErrors = (value, fieldValidator, operator) => {
   /** @type {ArrayError[]} */
   const fieldErrors = [];
 
   _.forEach(value, (nextValue, index) => {
     const valueErrors = {};
     _.forEach(_.keys(fieldValidator.itemValidator), key => {
-      const valueError = getValueError(nextValue[key], fieldValidator.itemValidator[key]);
+      const valueError = getValueError(nextValue[key], fieldValidator.itemValidator[key], operator);
       if (valueError) {
         valueErrors[key] = valueError;
       }
@@ -301,7 +325,10 @@ const getArrayValueErrors = (value, fieldValidator) => {
  * @prop {boolean=} FieldValidator.isArray
  * @prop {FieldValidator=} FieldValidator.itemValidator
  * @prop {boolean=} FieldValidator.required
+ * @prop {string=} FieldValidator.requiredError
  * @prop {function=} FieldValidator.validator
+ * @prop {function=} FieldValidator.contextualValidator
+ * @prop {function=} FieldValidator.isEmpty
  * @prop {any=} FieldValidator.regex
  */
 
@@ -309,18 +336,26 @@ const getArrayValueErrors = (value, fieldValidator) => {
  * Validates single value
  * @param {*} value
  * @param {FieldValidator} fieldValidator
+ * @param {*} operator
  */
-const getValueError = (value, fieldValidator) => {
+const getValueError = (value, fieldValidator, operator) => {
   if (!fieldValidator) {
     return null;
   }
 
   if (fieldValidator.isObjectProps) {
-    return getObjectPropsErrors(value, fieldValidator);
+    return getObjectPropsErrors(value, fieldValidator, operator);
   }
 
   if (fieldValidator.isArray) {
-    return getArrayValueErrors(value, fieldValidator);
+    if (fieldValidator.required && _.isEmpty(value)) {
+      return fieldValidator.requiredError || 'At least one value is required.';
+    }
+    return getArrayValueErrors(value, fieldValidator, operator);
+  }
+
+  if (fieldValidator.contextualValidator) {
+    return fieldValidator.contextualValidator(value, operator, fieldValidator);
   }
 
   if (_.isEmpty(value)) {
@@ -347,25 +382,19 @@ const getValueError = (value, fieldValidator) => {
  */
 const getFieldValueError = (operator, field) => {
   const value = _.get(operator, field);
-  const fieldValidator = _.get(operatorFieldValidators, field, {});
+  const fieldValidator = _.get(operatorFieldValidators, field);
 
-  if (fieldValidator.isObjectProps) {
-    return getObjectPropsErrors(value, fieldValidator);
-  }
-
-  if (fieldValidator.isArray) {
-    return getArrayValueErrors(value, fieldValidator);
-  }
-
-  return getValueError(value, fieldValidator);
+  return getValueError(value, fieldValidator, operator);
 };
 
 /**
  * Check validity of the operator part at defined path
  * @param {*} operatorSubSection
  * @param {*} validators
+ * @param {string[]} path
+ * @param {*} operator
  */
-const areSubFieldValid = (operatorSubSection, validators, path) => {
+const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
   const error = _.find(_.keys(validators), key => {
     const fieldValue = operatorSubSection[key];
     const fieldPath = path.concat([key]);
@@ -373,8 +402,8 @@ const areSubFieldValid = (operatorSubSection, validators, path) => {
     /** @type FieldValidator */
     const validator = validators[key];
 
-    if (getValueError(fieldValue, validator)) {
-      console.log(`${fieldPath.join('.')}:`, getValueError(fieldValue, validator));
+    if (getValueError(fieldValue, validator, operator)) {
+      console.log(`${fieldPath.join('.')}:`, getValueError(fieldValue, validator, operator));
       return true;
     }
 
@@ -390,7 +419,7 @@ const areSubFieldValid = (operatorSubSection, validators, path) => {
 
     // props is used for extended validation data, not a nested field :/
     if (key !== 'props') {
-      return !areSubFieldValid(fieldValue, validator, fieldPath);
+      return !areSubFieldValid(fieldValue, validator, fieldPath, operator);
     }
     return false;
   });
@@ -436,7 +465,7 @@ const validateOperator = operator => {
     }
 
     // if root level is valid continue deeper
-    return !areSubFieldValid(cleanedOperator[key], operatorFieldValidators[key], [key]);
+    return !areSubFieldValid(cleanedOperator[key], operatorFieldValidators[key], [key], operator);
   });
 
   return !error;
@@ -447,6 +476,7 @@ export {
   getDefaultDescription,
   normalizeOperator,
   defaultOperator,
+  defaultDeployment,
   removeEmptyOptionalValuesFromOperator,
   validCapabilityStrings,
   validateOperator,
