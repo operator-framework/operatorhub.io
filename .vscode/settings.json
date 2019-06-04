@@ -3,5 +3,11 @@
   "editor.formatOnSave": true,
   "prettier.eslintIntegration": true,
   "prettier.singleQuote": true,
-  "prettier.trailingComma": "none"
+  "prettier.trailingComma": "none",
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  }
 }

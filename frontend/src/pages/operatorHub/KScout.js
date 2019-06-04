@@ -240,7 +240,7 @@ export const getFilterSearchParam = groupFilter => {
   return _.isEmpty(activeValues) ? '' : JSON.stringify(activeValues);
 };
 
-class OperatorHub extends React.Component {
+class KScout extends React.Component {
   state = {
     filteredItems: [],
     filterCounts: null,
@@ -822,10 +822,9 @@ class OperatorHub extends React.Component {
 
     const headerContent = (
       <div className="oh-hub-header-content">
-        <h1 className="oh-hero">Welcome to OperatorHub.io</h1>
+        <h1 className="oh-hero">Welcome to Knative Scout</h1>
         <p className="oh-header-content__sub-title">
-          OperatorHub.io is a new home for the Kubernetes community to share Operators. Find an existing Operator or
-          list your own today.
+          Knative Scout is a smart serverless app repository. Explore example serverless apps, or post your own.
         </p>
       </div>
     );
@@ -846,7 +845,7 @@ class OperatorHub extends React.Component {
   }
 }
 
-OperatorHub.propTypes = {
+KScout.propTypes = {
   operators: PropTypes.array,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
@@ -869,7 +868,7 @@ OperatorHub.propTypes = {
   storeViewType: PropTypes.func
 };
 
-OperatorHub.defaultProps = {
+KScout.defaultProps = {
   operators: [],
   error: false,
   errorMessage: '',
@@ -925,4 +924,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(OperatorHub);
+)(KScout);

@@ -1177,7 +1177,7 @@ acorn-jsx@^3.0.0:
   dependencies:
     acorn "^3.0.4"
 
-acorn-walk@^6.0.1:
+acorn-walk@^6.0.1, acorn-walk@^6.1.1:
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/acorn-walk/-/acorn-walk-6.1.1.tgz#d363b66f5fac5f018ff9c3a1e7b6f8e310cc3913"
 
@@ -1185,13 +1185,18 @@ acorn@^3.0.4:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-3.3.0.tgz#45e37fb39e8da3f25baee3ff5369e2bb5f22017a"
 
-acorn@^5.5.0, acorn@^5.5.3, acorn@^5.7.3:
+acorn@^5.5.0, acorn@^5.5.3:
   version "5.7.3"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
 
 acorn@^6.0.1, acorn@^6.0.5:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.1.0.tgz#b0a3be31752c97a0f7013c5f4903b71a05db6818"
+
+acorn@^6.0.7:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.1.1.tgz#7d25ae05bb8ad1f9b699108e1094ecd7884adc1f"
+  integrity sha512-jPTiwtOxaHNaAPg/dmrJ/beuzLRnXtB0kQPQ8JpotKJgTB6rX6c8mlf315941pyjBSaPg8NHXS9fhP4u17DpGA==
 
 adjust-sourcemap-loader@^1.1.0:
   version "1.2.0"
@@ -2456,7 +2461,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.2.0, classnames@^2.2.3, classnames@^2.2.5:
+classnames@^2.2.0, classnames@^2.2.3, classnames@^2.2.5, classnames@^2.2.6:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
 
@@ -3234,6 +3239,11 @@ detect-libc@^1.0.2:
 detect-node@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/detect-node/-/detect-node-2.0.4.tgz#014ee8f8f669c5c58023da64b8179c083a28c46c"
+
+diff@^2.2.2:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/diff/-/diff-2.2.3.tgz#60eafd0d28ee906e4e8ff0a52c1229521033bf99"
+  integrity sha1-YOr9DSjukG5Oj/ClLBIpUhAzv5k=
 
 diffie-hellman@^5.0.0:
   version "5.0.3"
@@ -4273,6 +4283,11 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
+gitdiff-parser@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/gitdiff-parser/-/gitdiff-parser-0.1.2.tgz#26a256e05e9c2d5016b512a96c1dacb40862b92a"
+  integrity sha512-glDM6E1AwLYYTOPyI0CqamNEUSuwwAkmwULWpE2sHMpMZNzGJwErt7+eV+yIZcsbDza0pVSlwlBHFWbTf2Wu7A==
+
 glob-parent@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-3.1.0.tgz#9e6af6299d8d3bd2bd40430832bd113df906c5ae"
@@ -5241,6 +5256,11 @@ left-pad@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/left-pad/-/left-pad-1.3.0.tgz#5b8a3a7765dfe001261dde915589e782f8c94d1e"
 
+leven@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/leven/-/leven-2.1.0.tgz#c2e7a9f772094dee9d34202ae8acce4687875580"
+  integrity sha1-wuep93IJTe6dNCAq6KzORoeHVYA=
+
 levn@^0.3.0, levn@~0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/levn/-/levn-0.3.0.tgz#3b09924edf9f083c0490fdd4c0bc4421e04764ee"
@@ -5353,6 +5373,11 @@ lodash.clonedeep@^4.3.2, lodash.clonedeep@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
 
+lodash.debounce@^4:
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
+
 lodash.defaults@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/lodash.defaults/-/lodash.defaults-3.1.2.tgz#c7308b18dbf8bc9372d701a73493c61192bd2e2c"
@@ -5364,9 +5389,19 @@ lodash.defaults@^4.0.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/lodash.defaults/-/lodash.defaults-4.2.0.tgz#d09178716ffea4dde9e5fb7b37f6f0802274580c"
 
+lodash.escape@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/lodash.escape/-/lodash.escape-4.0.1.tgz#c9044690c21e04294beaa517712fded1fa88de98"
+  integrity sha1-yQRGkMIeBClL6qUXcS/e0fqI3pg=
+
 lodash.escaperegexp@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.escaperegexp/-/lodash.escaperegexp-4.1.2.tgz#64762c48618082518ac3df4ccf5d5886dae20347"
+
+lodash.findlastindex@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/lodash.findlastindex/-/lodash.findlastindex-4.6.0.tgz#b8375ac0f02e9b926375cdf8dc3ea814abf9c6ac"
+  integrity sha1-uDdawPAum5Jjdc343D6oFKv5xqw=
 
 lodash.get@^4.4.2:
   version "4.4.2"
@@ -5395,6 +5430,11 @@ lodash.keys@^3.0.0:
     lodash._getnative "^3.0.0"
     lodash.isarguments "^3.0.0"
     lodash.isarray "^3.0.0"
+
+lodash.mapvalues@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/lodash.mapvalues/-/lodash.mapvalues-4.6.0.tgz#1bafa5005de9dd6f4f26668c30ca37230cc9689c"
+  integrity sha1-G6+lAF3p3W9PJmaMMMo3IwzJaJw=
 
 lodash.memoize@^4.1.2:
   version "4.1.2"
@@ -6350,21 +6390,27 @@ patternfly-bootstrap-treeview@~2.1.0:
     bootstrap "3.4.x"
     jquery ">= 2.1.x"
 
-patternfly-react-extensions@2.14.1:
-  version "2.14.1"
-  resolved "https://registry.yarnpkg.com/patternfly-react-extensions/-/patternfly-react-extensions-2.14.1.tgz#86690c80ed8af055649bf8c3de9087ca69c4a8f3"
+patternfly-react-extensions@^2.18.13:
+  version "2.18.13"
+  resolved "https://registry.yarnpkg.com/patternfly-react-extensions/-/patternfly-react-extensions-2.18.13.tgz#b6405505adb3fc16a524e0e7149a20dbf97d2404"
+  integrity sha512-dtYa+iB5HZlGP5UH9kL0FdH3PP/IwA++rptcZ5qqvdNQB30J2QfEo4aeWHrohQOPX5C75rVoKR8Kh2YJ7tsD5A==
   dependencies:
     breakjs "^1.0.0"
     classnames "^2.2.5"
     css-element-queries "^1.0.1"
     patternfly "^3.58.0"
-    patternfly-react "^2.28.1"
+    patternfly-react "^2.35.1"
     react-bootstrap "^0.32.1"
+    react-click-outside "^3.0.1"
+    react-diff-view "^1.8.1"
+    react-ellipsis-with-tooltip "^1.0.8"
     react-virtualized "9.x"
+    unidiff "^1.0.1"
 
-patternfly-react@^2.28.1, patternfly-react@^2.29.1:
-  version "2.29.15"
-  resolved "https://registry.yarnpkg.com/patternfly-react/-/patternfly-react-2.29.15.tgz#621c92b02b899e3d5645717130d6cf782601badc"
+patternfly-react@^2.35.1:
+  version "2.35.1"
+  resolved "https://registry.yarnpkg.com/patternfly-react/-/patternfly-react-2.35.1.tgz#8b7df346fda0a3f1a3d8ad553ee412c8ef5add5a"
+  integrity sha512-/WJP6wxcuOtNmwfst2mx5A9vyS9Pu6VGeRK3HiaLc6O6qTXBU2VrAdJo9Hgv9Mpwu0pkcuOV37HuCGb7HDEMgA==
   dependencies:
     bootstrap-slider-without-jquery "^10.0.0"
     breakjs "^1.0.0"
@@ -6374,10 +6420,12 @@ patternfly-react@^2.28.1, patternfly-react@^2.29.1:
     patternfly "^3.58.0"
     react-bootstrap "^0.32.1"
     react-bootstrap-switch "^15.5.3"
-    react-bootstrap-typeahead "^3.1.3"
+    react-bootstrap-typeahead "^3.4.1"
     react-c3js "^0.1.20"
     react-click-outside "^3.0.1"
     react-collapse "^4.0.3"
+    react-debounce-input "^3.2.0"
+    react-ellipsis-with-tooltip "^1.0.8"
     react-fontawesome "^1.6.1"
     react-motion "^0.5.2"
     reactabular-table "^8.14.0"
@@ -6832,7 +6880,7 @@ prop-types-extra@^1.0.1:
     react-is "^16.3.2"
     warning "^3.0.0"
 
-prop-types@^15.5.10, prop-types@^15.5.6, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2:
+prop-types@^15, prop-types@^15.5.10, prop-types@^15.5.6, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   dependencies:
@@ -6977,9 +7025,10 @@ react-bootstrap-switch@^15.5.3:
   version "15.5.3"
   resolved "https://registry.yarnpkg.com/react-bootstrap-switch/-/react-bootstrap-switch-15.5.3.tgz#97287791d4ec0d1892d142542e7e5248002b1251"
 
-react-bootstrap-typeahead@^3.1.3:
-  version "3.3.5"
-  resolved "https://registry.yarnpkg.com/react-bootstrap-typeahead/-/react-bootstrap-typeahead-3.3.5.tgz#84ce72fa5ff873a021470d4c8cfa9d57bcfbd21b"
+react-bootstrap-typeahead@^3.4.1:
+  version "3.4.4"
+  resolved "https://registry.yarnpkg.com/react-bootstrap-typeahead/-/react-bootstrap-typeahead-3.4.4.tgz#bb8bdc44c9a9abd66edcbffd6af25f4365fe6875"
+  integrity sha512-9v9l3a+GzwpFgBBwl9Rnvg/65LLyStsPuaFOan+XLrsS9pBOp+ukBwEHhgdkwblsT1snur06R8TB1aUtY7f8lg==
   dependencies:
     classnames "^2.2.0"
     create-react-context "^0.2.3"
@@ -7027,6 +7076,27 @@ react-collapse@^4.0.3:
   dependencies:
     prop-types "^15.5.8"
 
+react-debounce-input@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/react-debounce-input/-/react-debounce-input-3.2.0.tgz#6978c6061d898f549f40417fb0d2ebbecf50aaaa"
+  integrity sha1-aXjGBh2Jj1SfQEF/sNLrvs9Qqqo=
+  dependencies:
+    lodash.debounce "^4"
+    prop-types "^15"
+
+react-diff-view@^1.8.1:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/react-diff-view/-/react-diff-view-1.8.1.tgz#0b9b4adcb92de6730d28177d68654dfcc2097f73"
+  integrity sha512-+soJL85Xnsak/VOdxSgiDKhhaFiOkckiswwrXdiWVCxV3LP9POyJR4AqGVFGdkntJ3YT63mtwTYuunFeId+XSA==
+  dependencies:
+    classnames "^2.2.6"
+    gitdiff-parser "^0.1.2"
+    leven "^2.1.0"
+    lodash.escape "^4.0.1"
+    lodash.findlastindex "^4.6.0"
+    lodash.mapvalues "^4.6.0"
+    warning "^4.0.1"
+
 react-dom@^16.4.0:
   version "16.8.3"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.8.3.tgz#ae236029e66210783ac81999d3015dfc475b9c32"
@@ -7035,6 +7105,13 @@ react-dom@^16.4.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     scheduler "^0.13.3"
+
+react-ellipsis-with-tooltip@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/react-ellipsis-with-tooltip/-/react-ellipsis-with-tooltip-1.0.8.tgz#fce2d0c9c4820e85ad7fc8c1a77e9a0b86f429fb"
+  integrity sha512-GdEYrrvS/iPYVAufShdJz8gtwG5kZNxlBh1Kb/LjCwYgNwGmRlCbVEmXS///bHrbhXoSxnzYbymGHFyYKR4Q6A==
+  dependencies:
+    uuid "^3.1.0"
 
 react-fontawesome@^1.6.1:
   version "1.6.1"
@@ -8472,6 +8549,13 @@ unicode-property-aliases-ecmascript@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/unicode-property-aliases-ecmascript/-/unicode-property-aliases-ecmascript-1.0.4.tgz#5a533f31b4317ea76f17d807fa0d116546111dd0"
 
+unidiff@^1.0.1:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/unidiff/-/unidiff-1.0.2.tgz#8706eb36e4aa182a6ca699ecd2f8877f4b906ce0"
+  integrity sha512-2sbEzki5fBmjgAqoafwxRenfMcumMlmVAoJDwYJa3CI4ZVugkdR6qjTw5sVsl29/4JfBBXhWEAd5ars8nRdqXg==
+  dependencies:
+    diff "^2.2.2"
+
 union-value@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/union-value/-/union-value-1.0.0.tgz#5c71c34cb5bad5dcebe3ea0cd08207ba5aa1aea4"
@@ -8587,7 +8671,7 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
 
-uuid@^3.0.1, uuid@^3.3.2:
+uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
 
@@ -8664,11 +8748,13 @@ webidl-conversions@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
 
-webpack-bundle-analyzer@^3.0.3:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/webpack-bundle-analyzer/-/webpack-bundle-analyzer-3.0.4.tgz#095638487a664162f19e3b2fb7e621b7002af4b8"
+webpack-bundle-analyzer@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/webpack-bundle-analyzer/-/webpack-bundle-analyzer-3.3.2.tgz#3da733a900f515914e729fcebcd4c40dde71fc6f"
+  integrity sha512-7qvJLPKB4rRWZGjVp5U1KEjwutbDHSKboAl0IfafnrdXMrgC0tOtZbQD6Rw0u4cmpgRN4O02Fc0t8eAT+FgGzA==
   dependencies:
-    acorn "^5.7.3"
+    acorn "^6.0.7"
+    acorn-walk "^6.1.1"
     bfj "^6.1.1"
     chalk "^2.4.1"
     commander "^2.18.0"

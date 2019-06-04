@@ -5,7 +5,7 @@ import { withRouter } from 'react-router';
 import { store } from './redux/store';
 import { reduxConstants } from './redux';
 
-import OperatorHub from './pages/operatorHub/OperatorHub';
+import KScout from './pages/operatorHub/KScout';
 import OperatorPage from './pages/operatorPage/OperatorPage';
 import OperatorPreviewPage from './pages/operatorPreviewPage/OperatorPreviewPage';
 import GettingStarted from './pages/documentation/GettingStarted';
@@ -37,7 +37,7 @@ class App extends React.Component {
           <Route path="/contribute" component={Contribute} />
           <Route path="/how-to-install-an-operator" component={HowToInstallOperators} />
           <Route path="/about" component={About} />
-          <Route path="/" component={OperatorHub} />
+          <Route path="/" component={KScout} />
           <Redirect from="*" to="/" key="default-route" />
         </Switch>
         <ConfirmationModal key="confirmationModal" />

@@ -60,7 +60,7 @@ class HeaderTopBar extends React.Component {
         <div className="search-pf-input-group">
           <span className="fa fa-search oh-header__top-bar__search-icon" aria-hidden="true" />
           <label htmlFor="search-input" className="sr-only">
-            Search Operator Hub
+            Search Knative Scout
           </label>
           <input
             id="search-input"
@@ -68,7 +68,7 @@ class HeaderTopBar extends React.Component {
             type="search"
             autoComplete="off"
             className="form-control oh-header__top-bar__search--input"
-            placeholder="Search OperatorHub..."
+            placeholder="Search KScout..."
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"
@@ -97,7 +97,7 @@ class HeaderTopBar extends React.Component {
       <div className={topBarClasses} ref={this.props.barRef}>
         <div className="oh-header__top-bar__inner">
           <InternalLink route="/" history={this.props.history} noNavigation={this.props.homePage}>
-            <img className="oh-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />
+            <img className="oh-header__top-bar__logo" src={hubLogo} alt="KScout.io" />
           </InternalLink>
           <span className="oh-header__top-bar__spacer" />
           <form className="oh-header__top-bar__search-form search-pf hidden-xs">{this.renderSearchForm()}</form>
