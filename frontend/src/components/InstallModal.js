@@ -10,7 +10,7 @@ import { helpers } from '../common/helpers';
 import * as operatorImg from '../imgs/operator.svg';
 import { InternalLink } from './InternalLink';
 
-const olmRepo = 'https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager';
+const olmRepo = 'https://github.com/operator-framework/operator-lifecycle-manager';
 
 const INSTALL_OLM_COMMANDS = [
   `kubectl apply -f ${olmRepo}/releases/download/0.10.0/crds.yaml`,
