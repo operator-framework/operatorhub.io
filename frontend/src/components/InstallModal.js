@@ -12,10 +12,7 @@ import { InternalLink } from './InternalLink';
 
 const olmRepo = 'https://github.com/operator-framework/operator-lifecycle-manager';
 
-const INSTALL_OLM_COMMANDS = [
-  `kubectl apply -f ${olmRepo}/releases/download/0.10.0/crds.yaml`,
-  `kubectl apply -f ${olmRepo}/releases/download/0.10.0/olm.yaml`
-];
+const INSTALL_OLM_COMMAND = `curl -sL ${olmRepo}/releases/download/0.10.0/install.sh | bash -s 0.10.0`;
 
 class InstallModal extends React.Component {
   state = { installCommand: '', copied: false };
@@ -99,15 +96,11 @@ class InstallModal extends React.Component {
                     cluster. Platforms like OpenShift / OKD will have it pre-installed.
                   </p>
                   <div className="oh-install-modal__install-command-container">
-                    <div className="oh-code">
-                      {`$ ${INSTALL_OLM_COMMANDS[0]}`}
-                      <br />
-                      {`$ ${INSTALL_OLM_COMMANDS[1]}`}
-                    </div>
+                    <div className="oh-code">{`$ ${INSTALL_OLM_COMMAND}`}</div>
                     <Tooltip content={tooltipContent} styles={tooltipOverrides}>
                       <a
                         href="#"
-                        onClick={e => this.copyToClipboard(e, INSTALL_OLM_COMMANDS.join(' \n'))}
+                        onClick={e => this.copyToClipboard(e, INSTALL_OLM_COMMAND)}
                         className="oh-install-modal__install-command-copy"
                         onMouseEnter={this.onCopyEnter}
                       >
