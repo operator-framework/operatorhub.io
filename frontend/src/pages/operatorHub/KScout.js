@@ -105,9 +105,6 @@ const keywordCompare = (filterString, item) => {
     _.get(item, 'name', '')
       .toLowerCase()
       .includes(filterString) ||
-    _.get(item, 'displayName', '')
-      .toLowerCase()
-      .includes(filterString) ||
     _.some(_.get(item, 'keywords'), keyword => keyword.toLowerCase().includes(filterString))
   );
 };
@@ -171,8 +168,12 @@ const determineAvailableFilters = (initialFilters, items, filterGroups) => {
       if (field === 'provider') {
         value = getProviderValue(value);
         synonyms = _.map(ignoredProviderTails, tail => `${value}${tail}`);
-      }
-      if (value !== undefined) {
+      }/*
+      if (field === 'tags') {
+        value.forEach(tag => {
+          values.push({ label: tag, synonyms, value: tag, active: false });
+        });
+      } else */if (value !== undefined) {
         if (!_.some(values, { value })) {
           values.push({
             label: value || 'N/A',
@@ -465,7 +466,7 @@ class KScout extends React.Component {
 
   sortItems = items => {
     const { sortType } = this.props;
-    const sortedItems = _.sortBy(items, item => item.displayName.toLowerCase());
+    const sortedItems = _.sortBy(items, item => item.name.toLowerCase());
     return sortType === 'descending' ? _.reverse(sortedItems) : sortedItems;
   };
 

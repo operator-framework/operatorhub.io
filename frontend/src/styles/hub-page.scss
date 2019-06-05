@@ -162,9 +162,10 @@
 }
 
 .ks-card {
-  height: 320px;
+  height: 300px;
   width: 320px;
   border-radius: 5px;
+  margin-right: 50px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   &:hover, &:focus {
     box-shadow: 0 6px 12px rgba(0,0,0,0.12)
@@ -173,12 +174,19 @@
   flex-flow: column;
 
   &__heading {
+    margin-top: -5px;
     background-color: #e8f6f9;
     position: relative;
     height: 40%;
 
     &__left {
       display: inline-block;
+
+      &__title {
+        font-weight: bold;
+        font-size: 150%;
+      }
+  
     }
 
     &__logo {

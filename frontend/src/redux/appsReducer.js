@@ -11,7 +11,7 @@ const initialState = {
   operator: {}
 };
 
-const operatorsReducer = (state = initialState, action) => {
+const appsReducer = (state = initialState, action) => {
   switch (action.type) {
     case helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS):
       return Object.assign({}, state, {
@@ -52,6 +52,6 @@ const operatorsReducer = (state = initialState, action) => {
   }
 };
 
-operatorsReducer.initialState = initialState;
+appsReducer.initialState = initialState;
 
-export { initialState, operatorsReducer };
+export { initialState, appsReducer };

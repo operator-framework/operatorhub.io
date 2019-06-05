@@ -5,11 +5,11 @@ import { reduxConstants } from '../redux';
 import { mockOperators } from '../__mock__/apps';
 
 const serverHost = process.env.DEV_HOST || 'localhost';
-const serverPort = process.env.DEV_PORT || 8080;
+const serverPort = process.env.DEV_PORT || 5000;
 const serverURL = `http://${serverHost}:${serverPort}`;
 
-const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/api/operators` : `/api/operators`;
-const operatorRequest = process.env.DEV_MODE ? `${serverURL}/api/operator` : `/api/operator`;
+const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/apps` : `/apps`;
+const operatorRequest = process.env.DEV_MODE ? `${serverURL}/app` : `/apps/`;
 
 const fetchOperator = (operatorName, channel) => dispatch => {
   dispatch({
@@ -60,7 +60,7 @@ const fetchOperators = () => dispatch => {
     .then(response => {
       dispatch({
         type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-        payload: response.data.operators
+        payload: response.data.apps
       });
     })
     .catch(e => {

@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { operatorsReducer } from './operatorsReducer';
+import { appsReducer } from './appsReducer';
 import { viewReducer } from './viewReducer';
 import { previewReducer } from './previewReducer';
 import { confirmationModalReducer } from './confirmationModalReducer';
@@ -37,7 +37,7 @@ const reduxConstants = {
 };
 
 const reducers = {
-  operatorsState: operatorsReducer,
+  operatorsState: appsReducer,
   viewState: viewReducer,
   previewState: previewReducer,
   confirmationModal: confirmationModalReducer

@@ -7,15 +7,15 @@ const OperatorListItem = ({ operator, ...props }) => {
     return null;
   }
 
-  const { name, displayName, imgUrl, provider, description } = operator;
-  const vendor = provider ? `provided by ${provider}` : null;
+  const { name, imgUrl, author, description } = operator;
+  const vendor = author ? `provided by ${author}` : null;
 
   return (
     <a id={name} key={name} className="oh-list-view__item" {...props}>
       <div className="catalog-tile-pf-header">
         <img className="catalog-tile-pf-icon" src={imgUrl || operatorImg} alt="" />
         <span>
-          <div className="catalog-tile-pf-title">{displayName}</div>
+          <div className="catalog-tile-pf-title">{name}</div>
           <div className="catalog-tile-pf-subtitle">{vendor}</div>
         </span>
       </div>
