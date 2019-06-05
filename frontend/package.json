@@ -76,7 +76,7 @@
     "start": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.DEV_MODE='\"true\"'",
     "mock": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.MOCK_MODE='\"true\"'",
     "lint": "eslint ./src/",
-    "build:bundle-profile": "webpack --profile --json > stats.json",
+    "build:bundle-profile": "webpack --config webpack.prod.js --profile --json > stats.json",
     "bundle-profile:analyze": "yarn build:bundle-profile && webpack-bundle-analyzer ./stats.json",
     "clean": "yarn rimraf dist"
   }

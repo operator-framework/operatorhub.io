@@ -28,6 +28,7 @@ import OperatorDeploymentEditPage from './pages/operatorBundlePage/OperatorDeplo
 import OperatorRequiredCRDEditPage from './pages/operatorBundlePage/OperatorRequiredCRDEditPage';
 import OperatorPermissionsEditPage from './pages/operatorBundlePage/OperatorPermissionsEditPage';
 import OperatorClusterPermissionsEditPage from './pages/operatorBundlePage/OperatorClusterPermissionsEditPage';
+import OperatorPackagePage from './pages/operatorBundlePage/OperatorPackagePage';
 
 class App extends React.Component {
   constructor(props) {
@@ -56,6 +57,7 @@ class App extends React.Component {
           <Route path="/bundle/deployments" component={OperatorDeploymentsPage} />
           <Route path="/bundle/permissions/:serviceAccountName" component={OperatorPermissionsEditPage} />
           <Route path="/bundle/permissions" component={OperatorPermissionsPage} />
+          <Route path="/bundle/package" component={OperatorPackagePage} />
           <Route
             path="/bundle/cluster-permissions/:serviceAccountName"
             component={OperatorClusterPermissionsEditPage}
