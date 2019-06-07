@@ -132,7 +132,12 @@ const normalizeOperatorRow = row => {
   return row;
 };
 
-exports.getOperator = (operatorName, callback) => {
+/**
+ * Find operator by full name (with version)
+ * @param {string} operatorName
+ * @param {Function} callback
+ */
+exports.getOperatorByName = (operatorName, callback) => {
   db.all(`SELECT * FROM ${OPERATOR_TABLE} where name = '${operatorName}'`, (err, rows) => {
     if (err) {
       console.error(err.message);
@@ -146,6 +151,32 @@ exports.getOperator = (operatorName, callback) => {
     }
     callback(normalizeOperatorRow(rows[0]));
   });
+};
+
+/**
+ * Find all operator (versions) by operator id
+ * @param {string} packageName name of the package where operator belongs
+ * @param {string} operatorName
+ * @param {Function} callback
+ */
+exports.getOperatorsByPackageName = (packageName, operatorName, callback) => {
+  db.all(
+    `SELECT * FROM ${OPERATOR_TABLE} WHERE packageName = '${packageName}' AND name = '${operatorName}'`,
+    (err, rows) => {
+      if (err) {
+        console.error(err.message);
+        callback(null, err.message);
+        return;
+      }
+
+      if (!_.size(rows)) {
+        callback(null, `No operator in package '${packageName}' found.`);
+        return;
+      }
+
+      callback(normalizeOperatorRow(rows[0]));
+    }
+  );
 };
 
 /**
@@ -170,6 +201,10 @@ exports.getOperatorsById = (operatorId, callback) => {
   });
 };
 
+/**
+ * Get all operators
+ * @param {Function} callback
+ */
 exports.getOperators = callback => {
   db.all(`SELECT * FROM ${OPERATOR_TABLE}`, (err, rows) => {
     if (err) {

@@ -43,8 +43,9 @@ class App extends React.Component {
     return (
       <React.Fragment>
         <Switch>
+          <Route path="/operator/:packageName/:channel/:operatorId" component={OperatorPage} />
           <Route path="/operator/:channel/:operatorId" component={OperatorPage} />
-          <Route path="/operator/:operatorId" component={OperatorPage} />
+          <Route path="/operator/:packageName" component={OperatorPage} />
           <Route path="/preview" component={OperatorPreviewPage} />
           <Route path="/bundle/metadata" component={OperatorMetadataPage} />
           <Route path="/bundle/owned-crds/:crd" component={OperatorOwnedCRDEditPage} />

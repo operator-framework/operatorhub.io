@@ -34,15 +34,21 @@ class InstallModal extends React.Component {
     const { operator, history } = this.props;
     const path = history.location.pathname.split('/');
 
-    let channelName;
-    const operatorId = _.get(operator, 'id');
-
-    if (path.length === 4) {
-      [channelName] = path.slice(2);
-    }
-
     if (operator !== prevProps.operator) {
-      const installPath = `install/${channelName ? `${_.get(operator, 'channel')}/` : ''}${operatorId}.yaml`;
+      let installPath;
+
+      // ["", "operator", packageName] - default path for latest operator in default channel
+      // ["", "operator", channelName, operatorName] - legacy path
+      // ["", "operator", packageName, channelName, operatorName] - full path (version / channel selected)
+
+      if (path.length > 3) {
+        // eslint-disable-next-line prefer-destructuring
+        const channelName = path.length === 5 ? path[3] : path[2];
+
+        installPath = `install/${channelName}/${operator.packageName}.yaml`;
+      } else {
+        installPath = `install/${operator.packageName}.yaml`;
+      }
 
       this.setState({
         installCommand: `kubectl create -f ${window.location.origin}/${installPath}`
