@@ -11,7 +11,7 @@ const serverURL = `http://${serverHost}:${serverPort}`;
 const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/api/operators` : `/api/operators`;
 const operatorRequest = process.env.DEV_MODE ? `${serverURL}/api/operator` : `/api/operator`;
 
-const fetchOperator = (operatorName, channel) => dispatch => {
+const fetchOperator = (operatorName, packageName, channel) => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
@@ -25,7 +25,13 @@ const fetchOperator = (operatorName, channel) => dispatch => {
     return;
   }
 
-  const config = { params: { name: operatorName, channel } };
+  const config = {
+    params: {
+      name: operatorName,
+      channel,
+      packageName
+    }
+  };
   axios
     .get(operatorRequest, config)
     .then(response => {
