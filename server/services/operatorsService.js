@@ -82,7 +82,7 @@ const getOperatorChannels = (packageName, operatorChannel, operatorName, callbac
  * @param {string} [channelName]
  */
 function findOperatorByName(operatorName, serverResponse, channelName) {
-  persistentStore.getOperator(operatorName, (operator, err) => {
+  persistentStore.getOperatorByName(operatorName, (operator, err) => {
     if (err) {
       serverResponse.status(500).send(err);
       return;
@@ -101,37 +101,42 @@ function findOperatorByName(operatorName, serverResponse, channelName) {
 
 /**
  * Finds operator by its id (name without version)
- * @param {string} operatorId
+ * @param {string} packageName
  * @param {*} serverResponse
  * @param {string} channelName
+ * @param {string=} operatorName
  */
-function findOperatorById(operatorId, serverResponse, channelName) {
-  persistentStore.getOperatorsById(operatorId, (operators, err) => {
-    // const sendOperatorResponseWithChannel = (serverResponse, channel, operator, err) => {
-    if (err) {
-      serverResponse.status(500).send(err);
+function findOperatorByPackageName(packageName, serverResponse, channelName, operatorName) {
+  getOperatorChannels(packageName, channelName, operatorName, (packageErr, channelData) => {
+    if (packageErr) {
+      serverResponse.status(500).send(packageErr);
       return;
     }
-    // pick the latest operator with packageName to get metadata
-    let operator = operators.reverse().find(op => op.packageName);
 
-    getOperatorChannels(operator.packageName, channelName, undefined, (packageErr, channelData) => {
-      if (packageErr) {
-        serverResponse.status(500).send(packageErr);
-        return;
-      }
+    // if we have explicit name, we can find operator directly
+    if (operatorName) {
+      persistentStore.getOperatorsByPackageName(packageName, operatorName, (operator, err) => {
+        if (err) {
+          serverResponse.status(500).send(err);
+          return;
+        }
 
-      // replace with default (latest) operator for channel (package)
-      operator = operators.find(op => op.name === channelData.latestOperatorName);
-
-      if (operator) {
         operator.channel = channelData.channel;
         operator.channels = channelData.channels;
         serverResponse.send({ operator });
-      } else {
-        serverResponse.status(500).send(err);
-      }
-    });
+      });
+    } else {
+      persistentStore.getOperatorsByPackageName(packageName, channelData.latestOperatorName, (operator, err) => {
+        if (err) {
+          serverResponse.status(500).send(err);
+          return;
+        }
+
+        operator.channel = channelData.channel;
+        operator.channels = channelData.channels;
+        serverResponse.send({ operator });
+      });
+    }
   });
 }
 
@@ -143,6 +148,7 @@ function findOperatorById(operatorId, serverResponse, channelName) {
 const fetchOperator = (serverRequest, serverResponse) => {
   const operatorName = _.get(serverRequest, 'query.name', '');
   const channelName = _.get(serverRequest, 'query.channel');
+  const packageName = _.get(serverRequest, 'query.packageName');
 
   let operatorId = operatorName;
 
@@ -151,12 +157,20 @@ const fetchOperator = (serverRequest, serverResponse) => {
     operatorId = generateIdFromVersionedName(operatorName);
   }
 
-  // short url is used pointing on latest version (no version in query)
-  if (operatorName === operatorId) {
-    findOperatorById(operatorId, serverResponse, channelName);
+  // use primarily package name as it is only unique identifier for operator, name may vary!
+  if (packageName) {
+    findOperatorByPackageName(
+      packageName,
+      serverResponse,
+      channelName,
+      operatorName === operatorId ? undefined : operatorName
+    );
+
+    // fallback to support old links with channel and name
   } else {
     findOperatorByName(operatorName, serverResponse, channelName);
   }
+  // sadly website can't support old links with id only so no point in supporting them on BE
 };
 
 /**
@@ -190,7 +204,8 @@ const fetchOperators = (serverRequest, serverResponse) => {
             capabilityLevel: packageOperator.capabilityLevel,
             description: packageOperator.description,
             categories: packageOperator.categories,
-            keywords: packageOperator.keywords
+            keywords: packageOperator.keywords,
+            packageName: packageOperator.packageName
           });
         } else {
           console.error(`Unable to find default operator for package ${operatorPackage.name}`);

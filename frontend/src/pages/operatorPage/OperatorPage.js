@@ -43,9 +43,10 @@ class OperatorPage extends React.Component {
 
   refresh() {
     const channel = _.get(this.props.match, 'params.channel');
+    const packageName = _.get(this.props.match, 'params.packageName');
     const operatorName = _.get(this.props.match, 'params.operatorId');
 
-    this.props.fetchOperator(operatorName, channel);
+    this.props.fetchOperator(operatorName, packageName, channel);
   }
 
   onHome = e => {
@@ -72,14 +73,14 @@ class OperatorPage extends React.Component {
     const { operator } = this.props;
 
     if (channel.name !== operator.channel) {
-      this.props.history.push(`/operator/${channel.name}/${channel.currentCSV}`);
+      this.props.history.push(`/operator/${operator.packageName}/${channel.name}/${channel.currentCSV}`);
     }
   };
 
   updateVersion = version => {
     const { operator } = this.props;
 
-    this.props.history.push(`/operator/${operator.channel}/${version.name}`);
+    this.props.history.push(`/operator/${operator.packageName}/${operator.channel}/${version.name}`);
   };
 
   showInstall = e => {
@@ -227,7 +228,7 @@ OperatorPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  fetchOperator: (name, channel) => dispatch(fetchOperator(name, channel)),
+  fetchOperator: (name, packageName, channel) => dispatch(fetchOperator(name, packageName, channel)),
   storeKeywordSearch: keywordSearch =>
     dispatch({
       type: reduxConstants.SET_KEYWORD_SEARCH,

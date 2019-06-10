@@ -39,7 +39,7 @@ const getExampleYAML = (kind, operator) => {
   return null;
 };
 
-const addReplacedOperators = (packageChannel, currentOperator, operators) => {
+const addReplacedOperators = (operatorPackage, packageChannel, currentOperator, operators) => {
   const replacedOperatorName = _.get(currentOperator, 'replaces');
   if (!replacedOperatorName) {
     return;
@@ -48,7 +48,11 @@ const addReplacedOperators = (packageChannel, currentOperator, operators) => {
   const replacedOperator = _.find(operators, { name: replacedOperatorName });
   if (replacedOperator) {
     packageChannel.versions.push({ name: replacedOperator.name, version: replacedOperator.version });
-    addReplacedOperators(packageChannel, replacedOperator, operators);
+
+    // set operator package info
+    currentOperator.packageName = operatorPackage.packageName;
+
+    addReplacedOperators(operatorPackage, packageChannel, replacedOperator, operators);
   }
 };
 
@@ -73,7 +77,10 @@ const getPackageChannels = (operatorPackage, operators) => {
 
     packageChannel.versions = [{ name: currentOperator.name, version: currentOperator.version }];
 
-    addReplacedOperators(packageChannel, currentOperator, operators);
+    // set operator package info
+    currentOperator.packageName = operatorPackage.packageName;
+
+    addReplacedOperators(operatorPackage, packageChannel, currentOperator, operators);
     return packageChannel;
   });
 
@@ -153,6 +160,12 @@ const normalizeOperator = async operator => {
   const iconObj = _.get(spec, 'icon[0]');
   const categoriesString = _.get(annotations, 'categories');
   const packageInfo = _.get(operator, 'packageInfo', {});
+
+  // if (packageInfo.packageName) {
+  //   console.log(packageInfo.packageName, operator.metadata.name);
+  // } else {
+  //   console.error('No package name', operator.metadata.name);
+  // }
 
   let thumbBase64;
 
