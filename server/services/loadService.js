@@ -36,7 +36,7 @@ const loadOperators = callback => {
           if (!_.find(packages, { packageName: packageInfo.packageName })) {
             packages.push(packageInfo);
           }
-          operator.packageInfo = yaml.safeLoad(fs.readFileSync(path.join(dir, packageFile[0])));
+          operator.packageInfo = packageInfo;
         }
         parsedOperators.push(operator);
       } catch (e) {
@@ -55,6 +55,7 @@ const loadOperators = callback => {
       if (packagesErr) {
         console.error(packagesErr.message);
       }
+
       persistentStore.setOperators(normalizedOperators, callback);
     });
   });

@@ -1,7 +1,6 @@
 /* eslint-disable prefer-destructuring */
 const _ = require('lodash');
 const persistentStore = require('../store/persistentStore');
-const generateIdFromVersionedName = require('../utils/operatorUtils').generateIdFromVersionedName;
 
 const createYaml = (packageName, operatorChannel, globalOperator) => {
   if (globalOperator) {
@@ -46,69 +45,63 @@ spec:
 const generateInstallYaml = (serverRequest, serverResponse) => {
   try {
     let operatorChannelName;
-    let operatorName;
+    let operatorPackageName;
 
     const fields = serverRequest.url.split('/');
     if (fields.length === 4) {
       operatorChannelName = fields[2];
-      operatorName = fields[3].replace('.yaml', '');
+      operatorPackageName = fields[3].replace('.yaml', '');
     } else if (fields.length === 3) {
-      operatorName = fields[2].replace('.yaml', '');
+      operatorPackageName = fields[2].replace('.yaml', '');
     } else {
       serverResponse.status(500).send(`Invalid request, you must provide the <operator-name>.yaml`);
       return;
     }
 
-    const operatorId = generateIdFromVersionedName(operatorName);
-
     // only latest operator can be installed using this service
     // therefore we always pick latest version for channel
     // no point in supporting old syntax
 
-    persistentStore.getOperatorsById(operatorId, (operators, err) => {
-      if (err) {
-        serverResponse.status(500).send(err);
-        return;
-      } else if (operators.length === 0) {
-        serverResponse.status(500).send(`No operator with id ${operatorName} found.`);
+    persistentStore.getPackage(operatorPackageName, (operatorPackage, packageError) => {
+      if (packageError) {
+        serverResponse.status(500).send(packageError);
         return;
       }
 
-      // use first operator as package name should be always same!
-      const packageName = operators[0].packageName;
-      let operator;
+      if (!operatorChannelName) {
+        const { defaultChannel } = operatorPackage;
 
-      if (!packageName) {
-        serverResponse.status(500).send(`Operator ${operatorName} has invalid or no package information.`);
+        if (!defaultChannel) {
+          serverResponse
+            .status(500)
+            .send(`Operator package ${operatorPackageName} has invalid or no default channel information.`);
+        }
+        operatorChannelName = defaultChannel;
+      }
+
+      // find latest operator per channel if channel exists in package
+      const channel = _.find(operatorPackage.channels, { name: operatorChannelName });
+
+      if (!channel) {
+        serverResponse
+          .status(500)
+          .send(`Channel ${operatorChannelName} does not exists in package ${operatorPackageName}.`);
         return;
       }
 
-      persistentStore.getPackage(packageName, (operatorPackage, packageError) => {
+      const latestOperatorName = _.get(channel, 'currentCSV');
+
+      // get operator data
+      persistentStore.getOperatorByName(latestOperatorName, (operator, err) => {
         if (err) {
-          serverResponse.status(500).send(packageError);
+          serverResponse.status(500).send(err);
           return;
-        }
-        if (!operatorChannelName) {
-          const { defaultChannel } = operatorPackage;
-
-          if (!defaultChannel) {
-            serverResponse.status(500).send(`Operator ${operatorName} has invalid or no default channel information.`);
-          }
-          operatorChannelName = defaultChannel;
-        }
-
-        const channel = _.find(operatorPackage.channels, { name: operatorChannelName });
-
-        if (!channel) {
-          serverResponse.status(500).send(`Channel ${operatorChannelName} is invalid for operator ${operatorName}`);
+        } else if (!operator) {
+          serverResponse.status(500).send(`No operator with id ${latestOperatorName} found.`);
           return;
         }
 
-        const latestOperatorName = _.get(channel, 'currentCSV');
-        // assign correct operator based on latest operator in channel
-        operator = operators.find(op => op.name === latestOperatorName);
-
-        serverResponse.send(createYaml(packageName, operatorChannelName, operator.globalOperator));
+        serverResponse.send(createYaml(operatorPackageName, operatorChannelName, operator.globalOperator));
       });
     });
   } catch (e) {
