@@ -8,6 +8,7 @@ const getInitialState = () => ({
     name: '',
     channel: ''
   },
+  uploads: [],
   formErrors: {},
   sectionStatus: {
     metadata: 'empty',
@@ -43,6 +44,11 @@ const editorReducer = (state = initialState, action) => {
     case reduxConstants.SET_EDITOR_PACKAGE:
       return Object.assign({}, state, {
         operatorPackage: action.operatorPackage
+      });
+
+    case reduxConstants.SET_EDITOR_UPLOADS:
+      return Object.assign({}, state, {
+        uploads: action.uploads
       });
 
     case reduxConstants.SET_EDITOR_FORM_ERRORS:

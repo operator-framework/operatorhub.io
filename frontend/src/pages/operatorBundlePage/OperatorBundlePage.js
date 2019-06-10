@@ -8,7 +8,7 @@ import { Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux';
 import EditorSection from '../../components/editor/EditorSection';
-import ManifestUploader from '../../components/editor/ManifestUploader';
+import ManifestUploader from '../../components/editor/manfiestUploader/ManifestUploader';
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';

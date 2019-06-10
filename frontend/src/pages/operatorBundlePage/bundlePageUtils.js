@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
-import { safeDump, safeLoad } from 'js-yaml';
+import { safeDump, safeLoad, safeLoadAll } from 'js-yaml';
 
 import {
   operatorFieldDescriptions,
@@ -198,15 +198,26 @@ const splitDescriptionIntoSections = operator => {
   };
 };
 
-const normalizeYamlOperator = yaml => {
-  const normalizedOperator = safeLoad(yaml);
+const parseYamlOperator = (yaml, multiDocument) => {
+  if (multiDocument) {
+    const operators = safeLoadAll(yaml);
 
+    return operators.map(normalizeYamlOperator);
+  }
+  const operator = safeLoad(yaml);
+
+  return normalizeYamlOperator(operator);
+};
+
+const normalizeYamlOperator = operator => {
+  const normalizedOperator = operator;
   const name = _.get(normalizedOperator, 'metadata.name');
   const description = _.get(normalizedOperator, 'spec.description');
 
   if (name) {
     const versionStart = name.indexOf('.v');
-    const normalizedName = name.slice(0, versionStart);
+    // do not remove last character if there is no version e.g. CRD!
+    const normalizedName = versionStart > -1 ? name.slice(0, versionStart) : name;
     _.set(normalizedOperator, 'metadata.name', normalizedName);
   }
 
@@ -255,6 +266,6 @@ export {
   getUpdatedFormErrors,
   mergeDescriptions,
   operatorNameFromOperator,
-  normalizeYamlOperator,
+  parseYamlOperator,
   yamlFromOperator
 };
