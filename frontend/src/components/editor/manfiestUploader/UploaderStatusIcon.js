@@ -9,7 +9,7 @@ export const IconStatus = {
 };
 
 /**
- * Upload result icon with type of 'success' or 'failure'
+ * Upload result icon with type of 'success' or 'failure' or 'missing
  */
 function UploaderStatusIcon({ status, text }) {
   return (
