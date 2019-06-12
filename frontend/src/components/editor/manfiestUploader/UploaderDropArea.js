@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 
 import { helpers } from '../../../common/helpers';
 
+/**
+ * Drop area for uploading files by draging them in
+ */
 class UploaderDropArea extends React.Component {
   state = {
     dragOver: false,
@@ -14,6 +17,9 @@ class UploaderDropArea extends React.Component {
     this.setState({ advancedUpload: helpers.advancedUploadAvailable() });
   }
 
+  /**
+   * Visually notify user where to drop files on drag over
+   */
   highlightOnDragEnter = e => {
     this.handleDragDropEvent(e);
     this.setState({ dragOver: true });
@@ -29,6 +35,9 @@ class UploaderDropArea extends React.Component {
     e.stopPropagation();
   };
 
+  /**
+   * Upload files on drop
+   */
   onDropEvent = e => {
     const { doUploadFile } = this.props;
 
@@ -74,6 +83,8 @@ class UploaderDropArea extends React.Component {
               type="file"
               name="fileModalUploadFile"
               id="fileModalUploadFile"
+              multiple
+              accept=".yaml"
               onChange={e => doUploadFile(e.target.files)}
             />
             {advancedUpload ? 'Drag your file here,' : ''}

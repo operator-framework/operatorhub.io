@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 import { Grid, Icon } from 'patternfly-react';
 import UploaderStatusIcon, { IconStatus } from './UploaderStatusIcon';
 
+/**
+ * List uploaded and missing files
+ * @param {*} param0
+ */
 function UploaderFileList({ uploads, missingUploads, removeUpload, removeAllUploads }) {
   if (uploads.length === 0 && missingUploads.length === 0) {
     return null;
@@ -24,7 +28,7 @@ function UploaderFileList({ uploads, missingUploads, removeUpload, removeAllUplo
           <Grid.Col xs={6}>{upload.uploadFile}</Grid.Col>
           <Grid.Col xs={3}>{upload.status}</Grid.Col>
           <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__actions-col">
-            <a href="#" onClick={e => removeUpload(e, upload)}>
+            <a href="#" onClick={e => removeUpload(e, upload.index)}>
               <Icon type="fa" name="trash" />
               <span className="sr-only">Remove</span>
             </a>

@@ -6,7 +6,12 @@ import { Icon } from 'patternfly-react';
 import { helpers } from '../../../common/helpers';
 import UploadUrlModal from '../../modals/UploadUrlModal';
 import { reduxConstants } from '../../../redux/index';
-import { parseYamlOperator, EDITOR_STATUS, sectionsFields } from '../../../pages/operatorBundlePage/bundlePageUtils';
+import {
+  parseYamlOperator,
+  EDITOR_STATUS,
+  sectionsFields,
+  getMissingCrdUploads
+} from '../../../pages/operatorBundlePage/bundlePageUtils';
 import { defaultOperator, getDefaultOnwedCRD } from '../../../utils/operatorUtils';
 import { default as UploadStatusIcon, IconStatus } from './UploaderStatusIcon';
 import UploaderDropArea from './UploaderDropArea';
@@ -18,20 +23,26 @@ const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\.
 class ManifestUploader extends React.Component {
   state = {
     uploadUrlShown: false,
+    uploadExpanded: false,
     uploadCounter: 0
   };
 
   componentDidMount() {
-    const { uploads } = this.props;
+    const { uploads, operator } = this.props;
 
     // increase found maximal counter
     const counter = 1 + Math.max(0, ...uploads.map(upload => upload.index));
+    const missingCrdUploads = getMissingCrdUploads(uploads, operator).length > 0;
 
     this.setState({
-      uploadCounter: counter
+      uploadCounter: counter,
+      uploadExpanded: missingCrdUploads
     });
   }
 
+  /**
+   * Derive file type from its content
+   */
   getFileType = (content, fileName) => {
     if (content.kind && content.apiVersion) {
       const apiName = content.apiVersion.substring(0, content.apiVersion.indexOf('/'));
@@ -50,10 +61,14 @@ class ManifestUploader extends React.Component {
     return 'Unknown';
   };
 
-  applyUpload = (upload, file) => {
-    const { operator, onUpdate, operatorPackage, updateOperatorPackage, markSectionForReview } = this.props;
-
+  /**
+   * Parse uploaded file
+   * @param {*} upload upload metadata object
+   * @param {*} file
+   */
+  processUploadedFile = (upload, file) => {
     let parsedFile = {};
+
     try {
       parsedFile = parseYamlOperator(file, false);
       upload.data = parsedFile;
@@ -72,27 +87,45 @@ class ManifestUploader extends React.Component {
     upload.status = <UploadStatusIcon text="Supported File" status={IconStatus.SUCCESS} />;
 
     if (fileType === 'CSV') {
-      // only CSV.yaml is used to populate operator in editor. Other files have special roles
-      const mergedOperator = _.merge({}, operator, parsedFile);
-
-      this.compareSections(operator, mergedOperator, parsedFile);
-      this.augmentOperator(mergedOperator);
-      onUpdate(mergedOperator);
-    } else if (fileType === 'CRD') {
-      // kkkk
-      console.log('CRD');
+      this.processCsvFile(parsedFile);
     } else if (fileType === 'PKG') {
-      const channel = parsedFile.channels && parsedFile.channels[0] ? parsedFile.channels[0] : null;
-
-      updateOperatorPackage({
-        name: parsedFile.packageName,
-        channel: channel ? channel.name : operatorPackage.channel
-      });
-
-      markSectionForReview('package');
+      this.processPackageFile(parsedFile);
     }
   };
 
+  /**
+   * Update package data from package file
+   */
+  processPackageFile = parsedFile => {
+    const { operatorPackage, updateOperatorPackage, markSectionForReview } = this.props;
+    const channel = parsedFile.channels && parsedFile.channels[0] ? parsedFile.channels[0] : null;
+
+    updateOperatorPackage({
+      name: parsedFile.packageName,
+      channel: channel ? channel.name : operatorPackage.channel
+    });
+
+    markSectionForReview('package');
+  };
+
+  /**
+   * Pre-process CSV file and store it redux
+   * @param {*} parsedFile
+   */
+  processCsvFile = parsedFile => {
+    const { operator, storeEditorOperator } = this.props;
+
+    // only CSV.yaml is used to populate operator in editor. Other files have special roles
+    const mergedOperator = _.merge({}, operator, parsedFile);
+
+    this.compareSections(operator, mergedOperator, parsedFile);
+    this.augmentOperator(mergedOperator);
+    storeEditorOperator(mergedOperator);
+  };
+
+  /**
+   * Apply modifications on uploaded operator as adding default resources to CRDs
+   */
   augmentOperator = operator => {
     const clonedOperator = _.cloneDeep(operator);
     const ownedCrds = _.get(clonedOperator, sectionsFields['owned-crds'], []);
@@ -106,6 +139,9 @@ class ManifestUploader extends React.Component {
     return clonedOperator;
   };
 
+  /**
+   * Add default list of resources to CRD which have them undefined
+   */
   addDefaultResourceStructureToCrd = crd => {
     const resources = crd.resources && crd.resources.length > 0 ? crd.resources : getDefaultOnwedCRD().resources;
     return {
@@ -114,6 +150,12 @@ class ManifestUploader extends React.Component {
     };
   };
 
+  /**
+   * Check defined editor sections and mark them for review if are affected by upload
+   * @param {*} operator operator state before upload
+   * @param {*} merged operator state after upload is applied
+   * @param {*} uploaded actual uploaded operator
+   */
   compareSections = (operator, merged, uploaded) => {
     const { markSectionForReview } = this.props;
 
@@ -135,6 +177,9 @@ class ManifestUploader extends React.Component {
     });
   };
 
+  /**
+   * Identify if operator field was changed by upload
+   */
   operatorFieldWasUpdated = (fieldName, operator, uploadedOperator, mergedOperator) =>
     // field changed when either its value changed
     // or uploaded operator was same as default values
@@ -143,6 +188,9 @@ class ManifestUploader extends React.Component {
     (!_.isEmpty(_.get(defaultOperator, fieldName)) &&
       _.isEqual(_.get(defaultOperator, fieldName), _.get(uploadedOperator, fieldName)));
 
+  /**
+   * Handle upload using URL dialog
+   */
   doUploadUrl = (contents, url) => {
     const { uploads, setUploads } = this.props;
     const { uploadCounter } = this.state;
@@ -154,58 +202,78 @@ class ManifestUploader extends React.Component {
       uploadFile: url,
       uploadError: false
     };
-    this.applyUpload(upload, contents);
+    this.processUploadedFile(upload, contents);
 
     this.setState({ uploadCounter: uploadCounter + 1, uploadUrlShown: false });
 
     setUploads([...uploads, upload]);
   };
 
-  doUploadFile = files => {
-    const { uploads, setUploads } = this.props;
+  /**
+   * Handle direct multi-file upload using file uploader or drag and drop
+   */
+  doUploadFiles = files => {
     const { uploadCounter } = this.state;
 
-    const fileToUpload = files && files[0];
-
-    if (!fileToUpload) {
+    if (!files) {
       return;
     }
+    let fileIndex = 0;
+    let fileToUpload = files.item(fileIndex);
 
-    const isValidFileType = validFileTypesRegExp.test(fileToUpload.name);
-    if (!isValidFileType) {
-      this.props.showErrorModal('Unable to upload file: Only yaml files are supported');
-      return;
+    while (fileToUpload) {
+      this.readFile(fileToUpload, uploadCounter + fileIndex);
+
+      fileToUpload = files.item(++fileIndex);
     }
 
-    const reader = new FileReader();
-
-    const upload = {
-      index: uploadCounter,
-      type: 'Unkown',
-      data: undefined,
-      uploadFile: fileToUpload.name,
-      uploadError: false
-    };
-    this.setState({ uploadCounter: uploadCounter + 1 });
-
-    reader.onload = () => {
-      this.applyUpload(upload, reader.result);
-
-      setUploads([...uploads, upload]);
-    };
-
-    reader.onerror = () => {
-      upload.uploadError = true;
-      upload.status = <UploadStatusIcon text={reader.error.message} status={IconStatus.ERROR} />;
-
-      setUploads([...uploads, upload]);
-
-      reader.abort();
-    };
-
-    reader.readAsText(fileToUpload);
+    // set counter state so we have correct unique key for uploaded files
+    this.setState({ uploadCounter: uploadCounter + fileIndex });
   };
 
+  /**
+   * Read file if its valid and pass it for processing
+   */
+  readFile = (fileToUpload, index) => {
+    const isValidFileType = validFileTypesRegExp.test(fileToUpload.name);
+
+    if (isValidFileType) {
+      const reader = new FileReader();
+
+      const upload = {
+        index,
+        type: 'Unkown',
+        data: undefined,
+        uploadFile: fileToUpload.name,
+        uploadError: false
+      };
+
+      reader.onload = () => {
+        const { uploads, setUploads } = this.props;
+
+        this.processUploadedFile(upload, reader.result);
+        setUploads([...uploads, upload]);
+      };
+
+      reader.onerror = () => {
+        const { uploads, setUploads } = this.props;
+
+        upload.uploadError = true;
+        upload.status = <UploadStatusIcon text={reader.error.message} status={IconStatus.ERROR} />;
+
+        setUploads([...uploads, upload]);
+
+        reader.abort();
+      };
+      reader.readAsText(fileToUpload);
+    } else {
+      this.props.showErrorModal(`Unable to upload file '${fileToUpload.name}': Only yaml files are supported`);
+    }
+  };
+
+  /**
+   * Remove all uploaded files from the list
+   */
   removeAllUploads = e => {
     const { setUploads } = this.props;
 
@@ -213,11 +281,16 @@ class ManifestUploader extends React.Component {
     setUploads([]);
   };
 
-  removeUpload = (e, upload) => {
+  /**
+   * Remove specific upload by its index
+   * @param {*} e
+   * @param {number} index index (id) of the upload to remove
+   */
+  removeUpload = (e, index) => {
     const { uploads, setUploads } = this.props;
 
     e.preventDefault();
-    setUploads(uploads.filter(up => up.index !== upload.index));
+    setUploads(uploads.filter(upload => upload.index !== index));
   };
 
   showUploadUrl = e => {
@@ -229,51 +302,87 @@ class ManifestUploader extends React.Component {
     this.setState({ uploadUrlShown: false });
   };
 
+  /**
+   * Exapnd / collapse uploader and file list
+   */
+  toggleUploadExpanded = event => {
+    const { uploadExpanded } = this.state;
+
+    event.preventDefault();
+    this.setState({ uploadExpanded: !uploadExpanded });
+  };
+
   render() {
     const { uploads, operator } = this.props;
-    const { uploadUrlShown } = this.state;
-
-    const uploadedCrds = uploads
-      // accept only valid crds
-      .filter(upload => !upload.uploadError && upload.type === 'CRD' && upload.data && upload.data.metadata)
-      .map(upload => upload.data.metadata.name);
-
-    const missingCrds = _.get(operator, sectionsFields['owned-crds']).filter(
-      crd => crd.name && !uploadedCrds.includes(crd.name)
-    );
+    const { uploadUrlShown, uploadExpanded } = this.state;
+    const missingCrds = getMissingCrdUploads(uploads, operator);
 
     return (
-      <React.Fragment>
-        <UploaderDropArea showUploadUrl={this.showUploadUrl} doUploadFile={this.doUploadFile} />
-        <UploaderFileList
-          uploads={uploads}
-          missingUploads={missingCrds}
-          removeUpload={this.removeUpload}
-          removeAllUploads={this.removeAllUploads}
-        />
-        <UploadUrlModal show={uploadUrlShown} onUpload={this.doUploadUrl} onClose={this.hideUploadUrl} />
-      </React.Fragment>
+      <div className="oh-operator-editor-page__section">
+        <div className="oh-operator-editor-page__section__header">
+          <div className="oh-operator-editor-page__section__header__text">
+            <h2 id="oh-operator--editor-page__manifest-uploader">Upload your Kubernetes manifests</h2>
+            <p>
+              Upload your existing YAML manifests of your Operators deployment. We support <code>Deployments</code>,
+              <code>(Cluster)Roles</code>, <code>(Cluster)RoleBindings</code>, <code>ServiceAccounts</code> and{' '}
+              <code>CustomResourceDefinition</code> objects. The information from these objects will be used to populate
+              your Operator metadata. Alternatively, you can also upload an existing CSV.
+              <br />
+              <br />
+              <b>Note:</b> For a complete bundle the CRDs manifests are required.
+            </p>
+          </div>
+          <div className="oh-operator-editor-page__section__status">
+            {uploadExpanded ? (
+              <a onClick={this.toggleUploadExpanded}>
+                <Icon type="fa" name="compress" />
+                Collapse
+              </a>
+            ) : (
+              <a onClick={this.toggleUploadExpanded}>
+                <Icon type="fa" name="expand" />
+                Expand
+              </a>
+            )}
+          </div>
+        </div>
+        {uploadExpanded && (
+          <React.Fragment>
+            <UploaderDropArea showUploadUrl={this.showUploadUrl} doUploadFile={this.doUploadFiles} />
+            <UploaderFileList
+              uploads={uploads}
+              missingUploads={missingCrds}
+              removeUpload={this.removeUpload}
+              removeAllUploads={this.removeAllUploads}
+            />
+            <UploadUrlModal show={uploadUrlShown} onUpload={this.doUploadUrl} onClose={this.hideUploadUrl} />
+          </React.Fragment>
+        )}
+      </div>
     );
   }
 }
 
 ManifestUploader.propTypes = {
-  operator: PropTypes.object.isRequired,
-  onUpdate: PropTypes.func.isRequired,
-  operatorPackage: PropTypes.object.isRequired,
+  operator: PropTypes.object,
+  operatorPackage: PropTypes.object,
   uploads: PropTypes.array,
   showErrorModal: PropTypes.func,
   markSectionForReview: PropTypes.func,
   updateOperatorPackage: PropTypes.func,
-  setUploads: PropTypes.func
+  setUploads: PropTypes.func,
+  storeEditorOperator: PropTypes.func
 };
 
 ManifestUploader.defaultProps = {
+  operator: {},
+  operatorPackage: {},
   uploads: [],
   showErrorModal: helpers.noop,
   markSectionForReview: helpers.noop,
   updateOperatorPackage: helpers.noop,
-  setUploads: helpers.noop
+  setUploads: helpers.noop,
+  storeEditorOperator: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -300,10 +409,16 @@ const mapDispatchToProps = dispatch => ({
     dispatch({
       type: reduxConstants.SET_EDITOR_UPLOADS,
       uploads
+    }),
+  storeEditorOperator: operator =>
+    dispatch({
+      type: reduxConstants.SET_EDITOR_OPERATOR,
+      operator
     })
 });
 
 const mapStateToProps = state => ({
+  operator: state.editorState.operator,
   operatorPackage: state.editorState.operatorPackage,
   uploads: state.editorState.uploads
 });

@@ -257,6 +257,28 @@ const yamlFromOperator = operator => {
   return safeDump(yamlizedOperator);
 };
 
+/**
+ * Get valid CRDs from all uploaded files
+ * @param {*[]} uploads
+ */
+const filterValidCrdUploads = uploads =>
+  uploads.filter(upload => !upload.uploadError && upload.type === 'CRD' && upload.data && upload.data.metadata);
+
+/**
+ * Identify CRDs which needs to be uploaded before we can create bundle
+ * @param {*[]} uploads set of uploaded files with metadata
+ * @param {*} operator
+ */
+const getMissingCrdUploads = (uploads, operator) => {
+  const uploadedCrds = filterValidCrdUploads(uploads).map(upload => upload.data.metadata.name);
+
+  const missingCrds = _.get(operator, sectionsFields['owned-crds']).filter(
+    crd => crd.name && !uploadedCrds.includes(crd.name)
+  );
+
+  return missingCrds;
+};
+
 export {
   sectionsFields,
   renderOperatorInput,
@@ -267,5 +289,7 @@ export {
   mergeDescriptions,
   operatorNameFromOperator,
   parseYamlOperator,
-  yamlFromOperator
+  yamlFromOperator,
+  filterValidCrdUploads,
+  getMissingCrdUploads
 };

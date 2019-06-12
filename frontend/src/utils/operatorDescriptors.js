@@ -502,7 +502,6 @@ const operatorFieldValidators = {
         validator: descriptionValidator
       },
       prerequisites: {
-        required: true,
         validator: descriptionValidator
       }
     },
