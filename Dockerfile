@@ -1,45 +1,41 @@
-FROM registry.access.redhat.com/ubi8/nodejs-10:latest
+FROM python:3.6 as python-build
 
+ARG COURIER_VERSION=2.1.0
 ARG OPERATORS_REPO=https://github.com/operator-framework/community-operators
 ARG OPERATORS_BRANCH=master
 
-ENV APP_ROOT=/app
+RUN pip install operator-courier==$COURIER_VERSION
 
-WORKDIR ${APP_ROOT}
+RUN git clone -b $OPERATORS_BRANCH $OPERATORS_REPO /tmp/community-operators
 
-# root for build stages
-USER root
+RUN cd /tmp/community-operators/upstream-community-operators \
+    && find . -mindepth 1 -maxdepth 1 -type d -exec echo "courier-operator -> {}" \; -exec operator-courier nest {} nested-structure/{} \;  \
+    && echo "Done"
 
-# frontent
-COPY frontend/ ${APP_ROOT}/frontend
-RUN cd ${APP_ROOT}/frontend; npm install \
-    && npm run-script build \
-    && rm -rdf ${APP_ROOT}/frontend/node_modules ${APP_ROOT}/frontend/.cache-loader /opt/app-root/src/.npm /tmp/v8-compile-cache-0
+FROM node:11.15.0 as node-frontend-build
+WORKDIR /app
 
-# server
-COPY server/ ${APP_ROOT}/server
-RUN cd ${APP_ROOT}/server \
-    && npm install \
-    && rm -rdf /opt/app-root/src/.npm /tmp/v8-compile-cache-0
+COPY frontend/package.json .
+RUN npm install
 
-# prepare upstream operators for server processing
-RUN mkdir -p ${APP_ROOT}/server/data/community-operators \
-    && mkdir -p /tmp/community-operators \
-    && git clone -b $OPERATORS_BRANCH $OPERATORS_REPO /tmp/community-operators \
-    && cp -a /tmp/community-operators/upstream-community-operators ${APP_ROOT}/server/data/community-operators/upstream-community-operators \
-    && rm -rfd /tmp/community-operators
+COPY frontend/ /app/
+RUN npm run-script build
 
-### Setup user for build execution and application runtime
-ENV APP_ROOT=/app
-ENV HOME=${APP_ROOT}
-RUN chmod -R u+x ${APP_ROOT}/server/bin && \
-    chgrp -R 0 ${APP_ROOT} && \
-    chmod -R g=u ${APP_ROOT} /etc/passwd
+FROM node:11.15.0 as node-server-build
+WORKDIR /app
 
-### Containers should NOT run as root as a good practice
-USER 1001
+COPY server/package.json .
+RUN npm install
 
-# Finalize
-WORKDIR ${APP_ROOT}/server
-ENTRYPOINT [ "/app/server/bin/uid_entrypoint" ]
+COPY server/ /app
+
+FROM node:11.15.0
+WORKDIR /app/server
+
+ENTRYPOINT [ "node" ]
 EXPOSE 8080
+CMD [ "/app/server/server.js" ]
+
+COPY --from=node-frontend-build /app/ /app/frontend
+COPY --from=node-server-build /app/ /app/server
+COPY --from=python-build /tmp/community-operators /app/server/data/community-operators
