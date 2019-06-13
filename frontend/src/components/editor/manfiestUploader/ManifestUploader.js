@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
+import { safeLoad } from 'js-yaml';
+
 import { helpers } from '../../../common/helpers';
 import UploadUrlModal from '../../modals/UploadUrlModal';
 import { reduxConstants } from '../../../redux/index';
 import {
-  parseYamlOperator,
+  normalizeYamlOperator,
   EDITOR_STATUS,
   sectionsFields,
   getMissingCrdUploads
@@ -70,7 +72,7 @@ class ManifestUploader extends React.Component {
     let parsedFile = {};
 
     try {
-      parsedFile = parseYamlOperator(file, false);
+      parsedFile = safeLoad(file);
       upload.data = parsedFile;
     } catch (e) {
       upload.status = <UploadStatusIcon text="Parsing Errors" status={IconStatus.ERROR} />;
@@ -115,18 +117,20 @@ class ManifestUploader extends React.Component {
   processCsvFile = parsedFile => {
     const { operator, storeEditorOperator } = this.props;
 
-    // only CSV.yaml is used to populate operator in editor. Other files have special roles
-    const mergedOperator = _.merge({}, operator, parsedFile);
+    const normalizedOperator = normalizeYamlOperator(parsedFile);
 
-    this.compareSections(operator, mergedOperator, parsedFile);
-    this.augmentOperator(mergedOperator);
+    // only CSV.yaml is used to populate operator in editor. Other files have special roles
+    const mergedOperator = _.merge({}, operator, normalizedOperator);
+
+    this.compareSections(operator, mergedOperator, normalizedOperator);
+    this.augmentOperator(mergedOperator, normalizedOperator);
     storeEditorOperator(mergedOperator);
   };
 
   /**
    * Apply modifications on uploaded operator as adding default resources to CRDs
    */
-  augmentOperator = operator => {
+  augmentOperator = (operator, uploadedOperator) => {
     const clonedOperator = _.cloneDeep(operator);
     const ownedCrds = _.get(clonedOperator, sectionsFields['owned-crds'], []);
 
@@ -135,6 +139,12 @@ class ManifestUploader extends React.Component {
       sectionsFields['owned-crds'],
       ownedCrds.map(crd => this.addDefaultResourceStructureToCrd(crd))
     );
+
+    // replace example deployments with uploaded as merge might add undesired properties!
+    const deployments = _.get(uploadedOperator, sectionsFields.deployments);
+    if (deployments) {
+      _.set(operator, sectionsFields.deployments, deployments);
+    }
 
     return clonedOperator;
   };

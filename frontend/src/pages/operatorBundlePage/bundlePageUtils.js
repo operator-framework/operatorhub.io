@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
-import { safeDump, safeLoad, safeLoadAll } from 'js-yaml';
+import { safeDump, safeLoad } from 'js-yaml';
 
 import {
   operatorFieldDescriptions,
@@ -198,17 +198,20 @@ const splitDescriptionIntoSections = operator => {
   };
 };
 
-const parseYamlOperator = (yaml, multiDocument) => {
-  if (multiDocument) {
-    const operators = safeLoadAll(yaml);
-
-    return operators.map(normalizeYamlOperator);
-  }
+/**
+ * Parse and normalize yaml operator (not suitable for CRDs!)
+ * @param {*} yaml operator yaml file
+ */
+const parseYamlOperator = yaml => {
   const operator = safeLoad(yaml);
 
   return normalizeYamlOperator(operator);
 };
 
+/**
+ * Convert operator data into standardized form
+ * @param {*} operator
+ */
 const normalizeYamlOperator = operator => {
   const normalizedOperator = operator;
   const name = _.get(normalizedOperator, 'metadata.name');
@@ -289,6 +292,7 @@ export {
   mergeDescriptions,
   operatorNameFromOperator,
   parseYamlOperator,
+  normalizeYamlOperator,
   yamlFromOperator,
   filterValidCrdUploads,
   getMissingCrdUploads
