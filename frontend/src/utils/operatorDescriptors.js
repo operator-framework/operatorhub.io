@@ -502,7 +502,6 @@ const operatorFieldValidators = {
         validator: descriptionValidator
       },
       prerequisites: {
-        required: true,
         validator: descriptionValidator
       }
     },
@@ -713,6 +712,15 @@ const operatorFieldValidators = {
   }
 };
 
+const operatorPackageFieldValidators = {
+  name: {
+    required: true
+  },
+  channel: {
+    required: true
+  }
+};
+
 export {
   versionRegExp,
   emailRegExp,
@@ -725,5 +733,6 @@ export {
   kindOptions,
   installModeDescriptors,
   operatorFieldPlaceholders,
-  operatorFieldValidators
+  operatorFieldValidators,
+  operatorPackageFieldValidators
 };

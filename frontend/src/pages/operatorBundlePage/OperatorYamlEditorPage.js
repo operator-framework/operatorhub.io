@@ -4,9 +4,9 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux';
+import { reduxConstants } from '../../redux/index';
 import YamlViewer from '../../components/YamlViewer';
-import { normalizeYamlOperator, yamlFromOperator } from './bundlePageUtils';
+import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { defaultOperator } from '../../utils/operatorUtils';
@@ -64,7 +64,7 @@ class OperatorYamlEditorPage extends React.Component {
 
     let yamlError;
     try {
-      const updatedOperator = normalizeYamlOperator(yaml);
+      const updatedOperator = parseYamlOperator(yaml);
       yamlError = '';
       storeEditorOperator(updatedOperator);
     } catch (e) {

@@ -3,21 +3,20 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
-import JSZip from 'jszip';
-import { Icon } from 'patternfly-react';
+
 import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux';
+import { reduxConstants } from '../../redux/index';
 import EditorSection from '../../components/editor/EditorSection';
-import ManifestUploader from '../../components/editor/ManifestUploader';
+import ManifestUploader from '../../components/editor/manfiestUploader/ManifestUploader';
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
-import { EDITOR_STATUS, operatorNameFromOperator, yamlFromOperator } from './bundlePageUtils';
-import { defaultOperator, validateOperator, removeEmptyOptionalValuesFromOperator } from '../../utils/operatorUtils';
+import { EDITOR_STATUS } from './bundlePageUtils';
+import { defaultOperator, validateOperator } from '../../utils/operatorUtils';
+import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
 
 class OperatorBundlePage extends React.Component {
   state = {
-    uploadExpanded: false,
     validCSV: false,
     sectionsValid: false,
     previewShown: false
@@ -26,7 +25,11 @@ class OperatorBundlePage extends React.Component {
   componentDidMount() {
     const { operator, sectionStatus } = this.props;
     const sectionsValid = _.every(_.keys(sectionStatus), key => sectionStatus[key] === EDITOR_STATUS.complete);
-    this.setState({ validCSV: validateOperator(operator), sectionsValid });
+
+    this.setState({
+      validCSV: validateOperator(operator),
+      sectionsValid
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -40,44 +43,9 @@ class OperatorBundlePage extends React.Component {
     }
   }
 
-  toggleUploadExpanded = event => {
-    event.preventDefault();
-    this.setState({ uploadExpanded: !this.state.uploadExpanded });
-  };
-
   onEditCSVYaml = e => {
     e.preventDefault();
     this.props.history.push('/bundle/yaml');
-  };
-
-  generateCSV = () => {
-    const { operator } = this.props;
-
-    // remove values which are part of default operator, but are invalid
-    const cleanedOperator = removeEmptyOptionalValuesFromOperator(operator);
-
-    let operatorYaml;
-    try {
-      operatorYaml = yamlFromOperator(cleanedOperator);
-    } catch (e) {
-      operatorYaml = '';
-    }
-
-    const name = operatorNameFromOperator(cleanedOperator);
-
-    const zip = new JSZip();
-    zip.file(`${name}/${name}.clusterserviceversion.yaml`, operatorYaml);
-
-    zip.generateAsync({ type: 'base64' }).then(
-      base64 => {
-        this.generateAction.href = `data:application/zip;base64,${base64}`;
-        this.generateAction.download = `${_.get(cleanedOperator, 'spec.displayName')}.bundle.zip`;
-        this.generateAction.click();
-      },
-      err => {
-        console.error(err);
-      }
-    );
   };
 
   hidePreviewOperator = () => {
@@ -102,191 +70,6 @@ class OperatorBundlePage extends React.Component {
     showConfirmModal(this.doClearContents);
   };
 
-  setGenerateAction = ref => {
-    this.generateAction = ref;
-  };
-
-  renderMetadataSection() {
-    const { operator, history } = this.props;
-
-    const fields = [
-      'spec.displayName',
-      'metadata.annotations.description',
-      'spec.description',
-      'spec.maturity',
-      'spec.version',
-      'spec.replaces',
-      'spec.minKubeVersion',
-      'metadata.annotations.capabilities',
-      'spec.installModes',
-      'spec.labels',
-      'spec.selector.matchLabels',
-      'metadata.annotations.categories',
-      'spec.keywords',
-      'spec.icon'
-    ];
-
-    return (
-      <EditorSection
-        operator={operator}
-        fields={fields}
-        title="Operator Metadata"
-        description="The metadata section contains general metadata around the name, version, and other info that aids users in discovery of your Operator."
-        history={history}
-        sectionLocation="metadata"
-      />
-    );
-  }
-
-  renderGeneralInfo() {
-    return (
-      <React.Fragment>
-        <h2>General Info</h2>
-        {this.renderMetadataSection()}
-      </React.Fragment>
-    );
-  }
-
-  renderOwnedCRDs = () => {
-    const { operator, history } = this.props;
-    return (
-      <EditorSection
-        operator={operator}
-        title="Owned CRDs"
-        description={_.get(operatorObjectDescriptions, 'spec.customresourcedefinitions.owned.description')}
-        history={history}
-        sectionLocation="owned-crds"
-      />
-    );
-  };
-
-  renderRequiredCRDs = () => {
-    const { operator, history } = this.props;
-    return (
-      <EditorSection
-        operator={operator}
-        title="Required CRDs (Optional)"
-        description={_.get(operatorObjectDescriptions, 'spec.customresourcedefinitions.required.description')}
-        history={history}
-        sectionLocation="required-crds"
-      />
-    );
-  };
-
-  renderCustomResourceDefinitions() {
-    return (
-      <React.Fragment>
-        <h2>Custom Resource Definitions</h2>
-        {this.renderOwnedCRDs()}
-        {this.renderRequiredCRDs()}
-      </React.Fragment>
-    );
-  }
-
-  renderDeployments = () => {
-    const { operator, history } = this.props;
-    return (
-      <EditorSection
-        operator={operator}
-        title="Deployments"
-        description={_.get(operatorFieldDescriptions, 'spec.install.spec.deployments')}
-        history={history}
-        sectionLocation="deployments"
-      />
-    );
-  };
-
-  renderPermissions = () => {
-    const { operator, history } = this.props;
-    return (
-      <EditorSection
-        operator={operator}
-        title="Permissions"
-        description={_.get(operatorObjectDescriptions, 'spec.install.spec.permissions.description')}
-        history={history}
-        sectionLocation="permissions"
-      />
-    );
-  };
-
-  renderClusterPermissions = () => {
-    const { operator, history } = this.props;
-    return (
-      <EditorSection
-        operator={operator}
-        title="Cluster Permissions"
-        description={_.get(operatorObjectDescriptions, 'spec.install.spec.clusterPermissions.description')}
-        history={history}
-        sectionLocation="cluster-permissions"
-      />
-    );
-  };
-
-  renderInstallModes = () => {
-    const { operator, history } = this.props;
-    return (
-      <EditorSection
-        operator={operator}
-        title="Install Modes"
-        description={operatorFieldDescriptions.spec.installModes}
-        history={history}
-        sectionLocation="install-modes"
-      />
-    );
-  };
-
-  renderOperatorInstallation() {
-    return (
-      <React.Fragment>
-        <h2>Installation and Permissions</h2>
-        {this.renderDeployments()}
-        {this.renderPermissions()}
-        {this.renderClusterPermissions()}
-        {this.renderInstallModes()}
-      </React.Fragment>
-    );
-  }
-
-  renderManifests() {
-    const { operator, storeEditorOperator } = this.props;
-    const { uploadExpanded } = this.state;
-
-    return (
-      <React.Fragment>
-        <div className="oh-operator-editor-page__section">
-          <div className="oh-operator-editor-page__section__header">
-            <div className="oh-operator-editor-page__section__header__text">
-              <h2>Upload your Kubernetes manifests</h2>
-              <p>
-                Upload your existing YAML manifests of your Operators deployment. We support <code>Deployments</code>,
-                <code>(Cluster)Roles</code>, <code>(Cluster)RoleBindings</code>, <code>ServiceAccounts</code> and{' '}
-                <code>CustomResourceDefinition</code> objects. The information from these objects will be used to
-                populate your Operator metadata. Alternatively, you can also upload an existing CSV.
-                <br />
-                <br />
-                <b>Note:</b> For a complete bundle the CRDs manifests are required.
-              </p>
-            </div>
-            <div className="oh-operator-editor-page__section__status">
-              {uploadExpanded ? (
-                <a onClick={e => this.toggleUploadExpanded(e)}>
-                  <Icon type="fa" name="compress" />
-                  Collapse
-                </a>
-              ) : (
-                <a onClick={e => this.toggleUploadExpanded(e)}>
-                  <Icon type="fa" name="expand" />
-                  Expand
-                </a>
-              )}
-            </div>
-          </div>
-          {uploadExpanded && <ManifestUploader operator={operator} onUpdate={storeEditorOperator} />}
-        </div>
-      </React.Fragment>
-    );
-  }
-
   renderHeader = () => (
     <React.Fragment>
       <div className="oh-operator-editor-page__header">
@@ -301,21 +84,23 @@ class OperatorBundlePage extends React.Component {
   );
 
   renderButtonBar() {
-    const { operator } = this.props;
+    const { operator, uploads, operatorPackage } = this.props;
     const { validCSV, sectionsValid } = this.state;
 
     const isDefault = _.isEqual(operator, defaultOperator);
     const okToDownload = validCSV && sectionsValid;
 
-    const downloadClasses = classNames('oh-button oh-button-primary', { disabled: !okToDownload });
     const clearClasses = classNames('oh-button oh-button-secondary', { disabled: isDefault });
 
     return (
       <div className="oh-operator-editor-page__button-bar">
         <div>
-          <button className={downloadClasses} disabled={!okToDownload} onClick={this.generateCSV}>
-            Download Operator Bundle
-          </button>
+          <OperatorBundleDownloader
+            operator={operator}
+            uploads={uploads}
+            operatorPackage={operatorPackage}
+            disabled={!okToDownload}
+          />
           <button className="oh-button oh-button-secondary" onClick={this.onEditCSVYaml}>
             Edit CSV in YAML
           </button>
@@ -330,6 +115,94 @@ class OperatorBundlePage extends React.Component {
     );
   }
 
+  renderGeneralInfo() {
+    const { history } = this.props;
+
+    return (
+      <React.Fragment>
+        <h2>General Info</h2>
+        <EditorSection
+          title="Operator Metadata"
+          description="The metadata section contains general metadata around the name, version, and other info that aids users in discovery of your Operator."
+          history={history}
+          sectionLocation="metadata"
+        />
+      </React.Fragment>
+    );
+  }
+
+  renderCustomResourceDefinitions() {
+    const { history } = this.props;
+
+    return (
+      <React.Fragment>
+        <h2>Custom Resource Definitions</h2>
+        <EditorSection
+          title="Owned CRDs"
+          description={_.get(operatorObjectDescriptions, 'spec.customresourcedefinitions.owned.description')}
+          history={history}
+          sectionLocation="owned-crds"
+        />
+        <EditorSection
+          title="Required CRDs (Optional)"
+          description={_.get(operatorObjectDescriptions, 'spec.customresourcedefinitions.required.description')}
+          history={history}
+          sectionLocation="required-crds"
+        />
+      </React.Fragment>
+    );
+  }
+
+  renderOperatorInstallation() {
+    const { history } = this.props;
+
+    return (
+      <React.Fragment>
+        <h2>Installation and Permissions</h2>
+        <EditorSection
+          title="Deployments"
+          description={_.get(operatorFieldDescriptions, 'spec.install.spec.deployments')}
+          history={history}
+          sectionLocation="deployments"
+        />
+        <EditorSection
+          title="Permissions"
+          description={_.get(operatorObjectDescriptions, 'spec.install.spec.permissions.description')}
+          history={history}
+          sectionLocation="permissions"
+        />
+        <EditorSection
+          title="Cluster Permissions"
+          description={_.get(operatorObjectDescriptions, 'spec.install.spec.clusterPermissions.description')}
+          history={history}
+          sectionLocation="cluster-permissions"
+        />
+        <EditorSection
+          title="Install Modes"
+          description={operatorFieldDescriptions.spec.installModes}
+          history={history}
+          sectionLocation="install-modes"
+        />
+      </React.Fragment>
+    );
+  }
+
+  renderPackageInfo() {
+    const { history } = this.props;
+
+    return (
+      <React.Fragment>
+        <h2>Package</h2>
+        <EditorSection
+          title="Package definition"
+          description="The package sections contains informations about unique package name and channel where is operator distributed."
+          history={history}
+          sectionLocation="package"
+        />
+      </React.Fragment>
+    );
+  }
+
   render() {
     const { operator, history } = this.props;
     const { previewShown } = this.state;
@@ -341,12 +214,12 @@ class OperatorBundlePage extends React.Component {
         buttonBar={this.renderButtonBar()}
         history={history}
       >
-        {this.renderManifests()}
+        <ManifestUploader />
         {this.renderGeneralInfo()}
         {this.renderCustomResourceDefinitions()}
         {this.renderOperatorInstallation()}
+        {this.renderPackageInfo()}
         <PreviewOperatorModal show={previewShown} yamlOperator={operator} onClose={this.hidePreviewOperator} />
-        <a className="oh-operator-editor-page__download-link" ref={this.setGenerateAction} />
       </OperatorEditorSubPage>
     );
   }
@@ -354,8 +227,9 @@ class OperatorBundlePage extends React.Component {
 
 OperatorBundlePage.propTypes = {
   operator: PropTypes.object,
-  storeEditorOperator: PropTypes.func,
   sectionStatus: PropTypes.object,
+  uploads: PropTypes.array,
+  operatorPackage: PropTypes.object,
   resetEditorOperator: PropTypes.func,
   showConfirmModal: PropTypes.func,
   hideConfirmModal: PropTypes.func,
@@ -366,19 +240,15 @@ OperatorBundlePage.propTypes = {
 
 OperatorBundlePage.defaultProps = {
   operator: {},
-  storeEditorOperator: helpers.noop,
   sectionStatus: {},
+  uploads: [],
+  operatorPackage: {},
   resetEditorOperator: helpers.noop,
   showConfirmModal: helpers.noop,
   hideConfirmModal: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeEditorOperator: operator =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_OPERATOR,
-      operator
-    }),
   resetEditorOperator: () =>
     dispatch({
       type: reduxConstants.RESET_EDITOR_OPERATOR
@@ -400,7 +270,9 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   operator: state.editorState.operator,
-  sectionStatus: state.editorState.sectionStatus
+  sectionStatus: state.editorState.sectionStatus,
+  uploads: state.editorState.uploads,
+  operatorPackage: state.editorState.operatorPackage
 });
 
 export default connect(

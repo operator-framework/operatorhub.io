@@ -198,15 +198,29 @@ const splitDescriptionIntoSections = operator => {
   };
 };
 
-const normalizeYamlOperator = yaml => {
-  const normalizedOperator = safeLoad(yaml);
+/**
+ * Parse and normalize yaml operator (not suitable for CRDs!)
+ * @param {*} yaml operator yaml file
+ */
+const parseYamlOperator = yaml => {
+  const operator = safeLoad(yaml);
 
+  return normalizeYamlOperator(operator);
+};
+
+/**
+ * Convert operator data into standardized form
+ * @param {*} operator
+ */
+const normalizeYamlOperator = operator => {
+  const normalizedOperator = operator;
   const name = _.get(normalizedOperator, 'metadata.name');
   const description = _.get(normalizedOperator, 'spec.description');
 
   if (name) {
     const versionStart = name.indexOf('.v');
-    const normalizedName = name.slice(0, versionStart);
+    // do not remove last character if there is no version e.g. CRD!
+    const normalizedName = versionStart > -1 ? name.slice(0, versionStart) : name;
     _.set(normalizedOperator, 'metadata.name', normalizedName);
   }
 
@@ -246,6 +260,28 @@ const yamlFromOperator = operator => {
   return safeDump(yamlizedOperator);
 };
 
+/**
+ * Get valid CRDs from all uploaded files
+ * @param {*[]} uploads
+ */
+const filterValidCrdUploads = uploads =>
+  uploads.filter(upload => !upload.uploadError && upload.type === 'CRD' && upload.data && upload.data.metadata);
+
+/**
+ * Identify CRDs which needs to be uploaded before we can create bundle
+ * @param {*[]} uploads set of uploaded files with metadata
+ * @param {*} operator
+ */
+const getMissingCrdUploads = (uploads, operator) => {
+  const uploadedCrds = filterValidCrdUploads(uploads).map(upload => upload.data.metadata.name);
+
+  const missingCrds = _.get(operator, sectionsFields['owned-crds']).filter(
+    crd => crd.name && !uploadedCrds.includes(crd.name)
+  );
+
+  return missingCrds;
+};
+
 export {
   sectionsFields,
   renderOperatorInput,
@@ -255,6 +291,9 @@ export {
   getUpdatedFormErrors,
   mergeDescriptions,
   operatorNameFromOperator,
+  parseYamlOperator,
   normalizeYamlOperator,
-  yamlFromOperator
+  yamlFromOperator,
+  filterValidCrdUploads,
+  getMissingCrdUploads
 };

@@ -4,6 +4,11 @@ import { defaultOperator } from '../utils/operatorUtils';
 
 const getInitialState = () => ({
   operator: _.cloneDeep(defaultOperator),
+  operatorPackage: {
+    name: '',
+    channel: ''
+  },
+  uploads: [],
   formErrors: {},
   sectionStatus: {
     metadata: 'empty',
@@ -12,7 +17,8 @@ const getInitialState = () => ({
     deployments: 'empty',
     permissions: 'empty',
     'cluster-permissions': 'empty',
-    'install-modes': 'empty'
+    'install-modes': 'empty',
+    package: 'empty'
   }
 });
 
@@ -33,6 +39,16 @@ const editorReducer = (state = initialState, action) => {
     case reduxConstants.SET_EDITOR_OPERATOR:
       return Object.assign({}, state, {
         operator: action.operator
+      });
+
+    case reduxConstants.SET_EDITOR_PACKAGE:
+      return Object.assign({}, state, {
+        operatorPackage: action.operatorPackage
+      });
+
+    case reduxConstants.SET_EDITOR_UPLOADS:
+      return Object.assign({}, state, {
+        uploads: action.uploads
       });
 
     case reduxConstants.SET_EDITOR_FORM_ERRORS:
