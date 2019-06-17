@@ -19,6 +19,7 @@ import {
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import EditorSelect from '../../components/editor/EditorSelect';
+import { setSectionStatusAction } from '../../redux/actions/editorActions';
 
 const metadataDescription = `
   The metadata section contains general metadata around the name, version, and other info that aids users in the
@@ -419,12 +420,7 @@ const mapDispatchToProps = dispatch => ({
       type: reduxConstants.SET_EDITOR_FORM_ERRORS,
       formErrors
     }),
-  setSectionStatus: status =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_SECTION_STATUS,
-      section: 'metadata',
-      status
-    })
+  setSectionStatus: status => dispatch(setSectionStatusAction('metadata', status))
 });
 
 const mapStateToProps = state => ({

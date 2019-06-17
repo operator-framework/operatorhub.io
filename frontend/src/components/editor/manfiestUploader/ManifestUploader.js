@@ -15,9 +15,10 @@ import {
   getMissingCrdUploads
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import { defaultOperator, getDefaultOnwedCRD } from '../../../utils/operatorUtils';
-import { default as UploadStatusIcon, IconStatus } from './UploaderStatusIcon';
+import { IconStatus } from './UploaderStatusIcon';
 import UploaderDropArea from './UploaderDropArea';
 import UploaderFileList from './UploaderFileList';
+import { setSectionStatusAction } from '../../../redux/actions/editorActions';
 
 const validFileTypes = ['.yaml'];
 const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\./g, '\\.')})$`, 'i');
@@ -75,18 +76,19 @@ class ManifestUploader extends React.Component {
       parsedFile = safeLoad(file);
       upload.data = parsedFile;
     } catch (e) {
-      upload.status = <UploadStatusIcon text="Parsing Errors" status={IconStatus.ERROR} />;
-      upload.uploadError = true;
+      upload.status = 'Parsing Errors';
+      upload.errored = true;
     }
     const fileType = this.getFileType(parsedFile || {}, upload);
     upload.type = fileType;
 
     if (fileType === 'Unknown') {
-      upload.status = <UploadStatusIcon text="Unsupported File" status={IconStatus.ERROR} />;
+      upload.status = 'Unsupported File';
+      upload.errored = true;
       return;
     }
 
-    upload.status = <UploadStatusIcon text="Supported File" status={IconStatus.SUCCESS} />;
+    upload.status = 'Supported File';
 
     if (fileType === 'CSV') {
       this.processCsvFile(parsedFile);
@@ -210,7 +212,7 @@ class ManifestUploader extends React.Component {
       data: undefined,
       type: 'Unknown',
       uploadFile: url,
-      uploadError: false
+      errored: false
     };
     this.processUploadedFile(upload, contents);
 
@@ -255,7 +257,7 @@ class ManifestUploader extends React.Component {
         type: 'Unkown',
         data: undefined,
         uploadFile: fileToUpload.name,
-        uploadError: false
+        errored: false
       };
 
       reader.onload = () => {
@@ -268,8 +270,8 @@ class ManifestUploader extends React.Component {
       reader.onerror = () => {
         const { uploads, setUploads } = this.props;
 
-        upload.uploadError = true;
-        upload.status = <UploadStatusIcon text={reader.error.message} status={IconStatus.ERROR} />;
+        upload.errored = true;
+        upload.status = reader.error.message;
 
         setUploads([...uploads, upload]);
 
@@ -404,12 +406,7 @@ const mapDispatchToProps = dispatch => ({
       heading: error,
       confirmButtonText: 'OK'
     }),
-  markSectionForReview: sectionName =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_SECTION_STATUS,
-      section: sectionName,
-      status: EDITOR_STATUS.pending
-    }),
+  markSectionForReview: sectionName => dispatch(setSectionStatusAction(sectionName, EDITOR_STATUS.pending)),
   updateOperatorPackage: operatorPackage =>
     dispatch({
       type: reduxConstants.SET_EDITOR_PACKAGE,

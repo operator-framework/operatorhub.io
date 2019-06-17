@@ -2,14 +2,16 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import * as _ from 'lodash-es';
 import { Breadcrumb } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import Page from '../../components/page/Page';
-import { reduxConstants } from '../../redux';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 import { EDITOR_STATUS } from './bundlePageUtils';
+import { setSectionStatusAction } from '../../redux/actions/editorActions';
+import { reduxConstants } from '../../redux/index';
 
 class OperatorEditorSubPage extends React.Component {
   state = {
@@ -246,7 +248,7 @@ const mapDispatchToProps = dispatch => ({
       type: reduxConstants.SET_KEYWORD_SEARCH,
       keywordSearch
     }),
-  setSectionStatus: (section, status) => dispatch({ type: reduxConstants.SET_EDITOR_SECTION_STATUS, section, status }),
+  setSectionStatus: (section, status) => dispatch(setSectionStatusAction(section, status)),
   showPageErrorsMessage: () =>
     dispatch({
       type: reduxConstants.CONFIRMATION_MODAL_SHOW,

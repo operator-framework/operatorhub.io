@@ -10,6 +10,7 @@ import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { defaultOperator } from '../../utils/operatorUtils';
+import { resetEditorOperatorAction } from '../../redux/actions/editorActions';
 
 class OperatorYamlEditorPage extends React.Component {
   state = {
@@ -154,10 +155,7 @@ const mapDispatchToProps = dispatch => ({
       type: reduxConstants.SET_EDITOR_OPERATOR,
       operator
     }),
-  resetEditorOperator: () =>
-    dispatch({
-      type: reduxConstants.RESET_EDITOR_OPERATOR
-    }),
+  resetEditorOperator: () => dispatch(resetEditorOperatorAction()),
   showConfirmModal: onConfirm =>
     dispatch({
       type: reduxConstants.CONFIRMATION_MODAL_SHOW,

@@ -26,7 +26,9 @@ function UploaderFileList({ uploads, missingUploads, removeUpload, removeAllUplo
       {uploads.map(upload => (
         <Grid.Row className="oh-operator-editor-upload__uploads__row" key={upload.index}>
           <Grid.Col xs={6}>{upload.uploadFile}</Grid.Col>
-          <Grid.Col xs={3}>{upload.status}</Grid.Col>
+          <Grid.Col xs={3}>
+            <UploaderStatusIcon text={upload.status} status={upload.errored ? IconStatus.ERROR : IconStatus.SUCCESS} />
+          </Grid.Col>
           <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__actions-col">
             <a href="#" onClick={e => removeUpload(e, upload.index)}>
               <Icon type="fa" name="trash" />
@@ -54,8 +56,8 @@ UploaderFileList.propTypes = {
       index: PropTypes.number.isRequired,
       uploadFile: PropTypes.string.isRequired,
       data: PropTypes.object,
-      uploadError: PropTypes.bool.isRequired,
-      status: PropTypes.node.isRequired
+      errored: PropTypes.bool.isRequired,
+      status: PropTypes.string.isRequired
     })
   ).isRequired,
   missingUploads: PropTypes.arrayOf(

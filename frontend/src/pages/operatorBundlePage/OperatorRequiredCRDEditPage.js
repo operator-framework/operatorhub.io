@@ -13,6 +13,7 @@ import {
   operatorFieldValidators
 } from '../../utils/operatorDescriptors';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
+import { setSectionStatusAction } from '../../redux/actions/editorActions';
 
 const crdsField = sectionsFields['required-crds'];
 
@@ -242,12 +243,7 @@ const mapDispatchToProps = dispatch => ({
       type: reduxConstants.SET_EDITOR_FORM_ERRORS,
       formErrors
     }),
-  setSectionStatus: (status, section) =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_SECTION_STATUS,
-      section,
-      status
-    })
+  setSectionStatus: (status, section) => dispatch(setSectionStatusAction(status, section))
 });
 
 const mapStateToProps = state => ({
