@@ -18,6 +18,7 @@ import DescriptorsEditor, { isDescriptorEmpty } from '../../components/editor/De
 import YamlViewer from '../../components/YamlViewer';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
 import { getDefaultOnwedCRD } from '../../utils/operatorUtils';
+import { setSectionStatusAction } from '../../redux/actions/editorActions';
 
 const crdsField = sectionsFields['owned-crds'];
 
@@ -467,12 +468,7 @@ const mapDispatchToProps = dispatch => ({
       type: reduxConstants.SET_EDITOR_FORM_ERRORS,
       formErrors
     }),
-  setSectionStatus: (status, section) =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_SECTION_STATUS,
-      section,
-      status
-    })
+  setSectionStatus: (status, section) => dispatch(setSectionStatusAction(section, status))
 });
 
 const mapStateToProps = state => ({

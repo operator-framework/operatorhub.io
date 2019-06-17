@@ -3,7 +3,8 @@ import { operatorFieldValidators } from './operatorDescriptors';
 import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_APPLICATION_HEADER,
-  OPERATOR_DESCRIPTION_PREREQUISITES_HEADER
+  OPERATOR_DESCRIPTION_PREREQUISITES_HEADER,
+  LOCAL_STORAGE_KEY
 } from './constants';
 import { sectionsFields, mergeDescriptions } from '../pages/operatorBundlePage/bundlePageUtils';
 
@@ -259,6 +260,40 @@ const isOwnedCrdDefault = crd => _.isEqual(crd, getDefaultOnwedCRD());
 const isRequiredCrdDefault = crd => _.isEqual(crd, getDefaultRequiredCRD());
 
 /**
+ * @typedef AutoSavedData
+ * @prop {Object} AutoSavedData.sectionStatus sections status
+ * @prop {Object} AutoSavedData.operator serialized operator state
+ * @prop {Object} AutoSavedData.operatorPackage serialized operator package data
+ * @prop {Object} AutoSavedData.uploads uploaded files for operator
+ */
+
+/**
+ * Load autosaved operator and editor metadata or use default if none is saved
+ * or browser disabled local storage (e.g. some private modes)
+ * @returns {AutoSavedData}
+ */
+const getAutoSavedOperatorData = () => {
+  let savedData = null;
+
+  try {
+    savedData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+  } catch (e) {
+    console.warn("Localstorage is disabled. Autosave won't worker.");
+  }
+
+  return savedData;
+};
+
+const clearAutosavedOperatorData = () => {
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
+/**
  * @typedef PropError
  * @prop {string} PropError.key
  * @prop {string} PropError.value
@@ -497,5 +532,7 @@ export {
   validCapabilityStrings,
   validateOperator,
   getValueError,
-  getFieldValueError
+  getFieldValueError,
+  getAutoSavedOperatorData,
+  clearAutosavedOperatorData
 };
