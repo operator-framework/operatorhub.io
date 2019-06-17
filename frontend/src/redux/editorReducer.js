@@ -27,9 +27,9 @@ const getInitialState = () => {
   };
 
   if (autoSaved) {
-    initialState.operator = autoSaved.operator;
-    initialState.operatorPackage = autoSaved.operatorPackage;
-    initialState.sectionStatus = autoSaved.sectionStatus;
+    initialState.operator = autoSaved.operator || initialState.operator;
+    initialState.operatorPackage = autoSaved.operatorPackage || initialState.operatorPackage;
+    initialState.sectionStatus = autoSaved.sectionStatus || autoSaved.sectionStatus;
     initialState.uploads = autoSaved.uploads || [];
   }
 
