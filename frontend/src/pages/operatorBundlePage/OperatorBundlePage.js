@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
@@ -12,8 +11,9 @@ import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../uti
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { EDITOR_STATUS } from './bundlePageUtils';
-import { defaultOperator, validateOperator } from '../../utils/operatorUtils';
+import { validateOperator } from '../../utils/operatorUtils';
 import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
+import { resetEditorOperatorAction } from '../../redux/actions/editorActions';
 
 class OperatorBundlePage extends React.Component {
   state = {
@@ -87,10 +87,7 @@ class OperatorBundlePage extends React.Component {
     const { operator, uploads, operatorPackage } = this.props;
     const { validCSV, sectionsValid } = this.state;
 
-    const isDefault = _.isEqual(operator, defaultOperator);
     const okToDownload = validCSV && sectionsValid;
-
-    const clearClasses = classNames('oh-button oh-button-secondary', { disabled: isDefault });
 
     return (
       <div className="oh-operator-editor-page__button-bar">
@@ -108,7 +105,7 @@ class OperatorBundlePage extends React.Component {
             Preview
           </button>
         </div>
-        <button className={clearClasses} disabled={isDefault} onClick={this.clearContents}>
+        <button className="oh-button oh-button-secondary" onClick={this.clearContents}>
           Clear Content
         </button>
       </div>
@@ -249,10 +246,7 @@ OperatorBundlePage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  resetEditorOperator: () =>
-    dispatch({
-      type: reduxConstants.RESET_EDITOR_OPERATOR
-    }),
+  resetEditorOperator: () => dispatch(resetEditorOperatorAction()),
   showConfirmModal: onConfirm =>
     dispatch({
       type: reduxConstants.CONFIRMATION_MODAL_SHOW,

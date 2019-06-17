@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { withRouter } from 'react-router';
-import { store } from './redux/store';
+import store from './redux/store';
 import { reduxConstants } from './redux';
 
 import OperatorHub from './pages/operatorHub/OperatorHub';
