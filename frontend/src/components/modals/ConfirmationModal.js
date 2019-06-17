@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Icon } from 'patternfly-react';
 
-import { store } from '../../redux/store';
+import store from '../../redux/store';
 import { reduxConstants } from '../../redux/index';
 import MessageDialog from './MessageDialog';
 

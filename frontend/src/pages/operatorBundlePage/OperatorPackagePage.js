@@ -10,6 +10,7 @@ import { renderOperatorFormField, EDITOR_STATUS } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import { operatorPackageFieldValidators } from '../../utils/operatorDescriptors';
 import { getValueError } from '../../utils/operatorUtils';
+import { setSectionStatusAction } from '../../redux/actions/editorActions';
 
 const FIELDS = ['name', 'channel'];
 
@@ -134,12 +135,7 @@ const mapDispatchToProps = dispatch => ({
       type: reduxConstants.SET_EDITOR_PACKAGE,
       operatorPackage
     }),
-  setSectionStatus: status =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_SECTION_STATUS,
-      section: 'package',
-      status
-    })
+  setSectionStatus: status => dispatch(setSectionStatusAction('package', status))
 });
 
 const mapStateToProps = state => ({
