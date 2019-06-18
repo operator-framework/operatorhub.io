@@ -20,4 +20,12 @@ const reloadReducers = () => {
 
 store.subscribe(autoSaveEditor);
 
+window.onbeforeunload = e => {
+  const state = store.getState();
+  if (state.editorState.operatorModified) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+};
+
 export { store as default, reloadReducers };

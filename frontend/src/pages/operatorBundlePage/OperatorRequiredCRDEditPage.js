@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import {
   operatorFieldDescriptions,
@@ -13,7 +13,11 @@ import {
   operatorFieldValidators
 } from '../../utils/operatorDescriptors';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
-import { setSectionStatusAction } from '../../redux/actions/editorActions';
+import {
+  setSectionStatusAction,
+  storeEditorFormErrorsAction,
+  storeEditorOperatorAction
+} from '../../redux/actions/editorActions';
 
 const crdsField = sectionsFields['required-crds'];
 
@@ -233,17 +237,14 @@ OperatorRequiredCRDEditPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeEditorOperator: operator =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_OPERATOR,
-      operator
-    }),
-  storeEditorFormErrors: formErrors =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_FORM_ERRORS,
-      formErrors
-    }),
-  setSectionStatus: (status, section) => dispatch(setSectionStatusAction(status, section))
+  ...bindActionCreators(
+    {
+      storeEditorOperator: storeEditorOperatorAction,
+      storeEditorFormErrors: storeEditorFormErrorsAction,
+      setSectionStatus: setSectionStatusAction
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({

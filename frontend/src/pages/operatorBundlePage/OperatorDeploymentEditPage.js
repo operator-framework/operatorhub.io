@@ -1,16 +1,17 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
 import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import YamlViewer from '../../components/YamlViewer';
 import { sectionsFields } from './bundlePageUtils';
 import { getValueError, defaultDeployment } from '../../utils/operatorUtils';
 import { operatorFieldValidators } from '../../utils/operatorDescriptors';
+import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
 
 const deploymentFields = sectionsFields.deployments;
 
@@ -139,16 +140,13 @@ OperatorDeploymentEditPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeEditorOperator: operator =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_OPERATOR,
-      operator
-    }),
-  storeEditorFormErrors: formErrors =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_FORM_ERRORS,
-      formErrors
-    })
+  ...bindActionCreators(
+    {
+      storeEditorOperator: storeEditorOperatorAction,
+      storeEditorFormErrors: storeEditorFormErrorsAction
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({
