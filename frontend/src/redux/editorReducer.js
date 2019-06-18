@@ -8,6 +8,7 @@ const getInitialState = () => {
 
   const initialState = {
     operator: _.cloneDeep(defaultOperator),
+    operatorModified: false,
     operatorPackage: {
       name: '',
       channel: ''
@@ -56,7 +57,8 @@ const editorReducer = (state = initialState, action) => {
     case reduxConstants.SET_EDITOR_OPERATOR:
       // save operator on change
       return Object.assign({}, state, {
-        operator: action.operator
+        operator: action.operator,
+        operatorModified: true
       });
 
     case reduxConstants.SET_EDITOR_PACKAGE:
