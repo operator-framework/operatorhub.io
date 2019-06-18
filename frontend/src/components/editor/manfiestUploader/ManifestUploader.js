@@ -1,4 +1,5 @@
 import React from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash-es';
@@ -15,10 +16,14 @@ import {
   getMissingCrdUploads
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import { defaultOperator, getDefaultOnwedCRD } from '../../../utils/operatorUtils';
-import { IconStatus } from './UploaderStatusIcon';
 import UploaderDropArea from './UploaderDropArea';
 import UploaderFileList from './UploaderFileList';
-import { setSectionStatusAction } from '../../../redux/actions/editorActions';
+import {
+  setSectionStatusAction,
+  updateOperatorPackageAction,
+  setUploadsAction,
+  storeEditorOperatorAction
+} from '../../../redux/actions/editorActions';
 
 const validFileTypes = ['.yaml'];
 const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\./g, '\\.')})$`, 'i');
@@ -398,30 +403,22 @@ ManifestUploader.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  showErrorModal: error =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
-      title: 'Error Uploading File',
-      icon: <Icon type="pf" name="error-circle-o" />,
-      heading: error,
-      confirmButtonText: 'OK'
-    }),
-  markSectionForReview: sectionName => dispatch(setSectionStatusAction(sectionName, EDITOR_STATUS.pending)),
-  updateOperatorPackage: operatorPackage =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_PACKAGE,
-      operatorPackage
-    }),
-  setUploads: uploads =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_UPLOADS,
-      uploads
-    }),
-  storeEditorOperator: operator =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_OPERATOR,
-      operator
-    })
+  ...bindActionCreators(
+    {
+      showErrorModal: error => ({
+        type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+        title: 'Error Uploading File',
+        icon: <Icon type="pf" name="error-circle-o" />,
+        heading: error,
+        confirmButtonText: 'OK'
+      }),
+      markSectionForReview: sectionName => setSectionStatusAction(sectionName, EDITOR_STATUS.pending),
+      updateOperatorPackage: updateOperatorPackageAction,
+      setUploads: setUploadsAction,
+      storeEditorOperator: storeEditorOperatorAction
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({

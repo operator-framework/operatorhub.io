@@ -1,15 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
 import { getFieldValueError } from '../../utils/operatorUtils';
 import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import { sectionsFields } from './bundlePageUtils';
+import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
 
 const permissionFields = sectionsFields.permissions;
 
@@ -93,16 +94,13 @@ OperatorPermissionsPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeEditorOperator: operator =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_OPERATOR,
-      operator
-    }),
-  storeEditorFormErrors: formErrors =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_FORM_ERRORS,
-      formErrors
-    })
+  ...bindActionCreators(
+    {
+      storeEditorOperator: storeEditorOperatorAction,
+      storeEditorFormErrors: storeEditorFormErrorsAction
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({

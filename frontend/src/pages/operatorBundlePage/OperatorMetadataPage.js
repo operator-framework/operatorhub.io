@@ -1,10 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux';
 import { categoryOptions, maturityOptions, operatorFieldPlaceholders } from '../../utils/operatorDescriptors';
 import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
@@ -19,7 +19,11 @@ import {
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import EditorSelect from '../../components/editor/EditorSelect';
-import { setSectionStatusAction } from '../../redux/actions/editorActions';
+import {
+  setSectionStatusAction,
+  storeEditorFormErrorsAction,
+  storeEditorOperatorAction
+} from '../../redux/actions/editorActions';
 
 const metadataDescription = `
   The metadata section contains general metadata around the name, version, and other info that aids users in the
@@ -410,17 +414,14 @@ OperatorMetadataPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeEditorOperator: operator =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_OPERATOR,
-      operator
-    }),
-  storeEditorFormErrors: formErrors =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_FORM_ERRORS,
-      formErrors
-    }),
-  setSectionStatus: status => dispatch(setSectionStatusAction('metadata', status))
+  ...bindActionCreators(
+    {
+      storeEditorOperator: storeEditorOperatorAction,
+      storeEditorFormErrors: storeEditorFormErrorsAction,
+      setSectionStatus: status => setSectionStatusAction('metadata', status)
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({
