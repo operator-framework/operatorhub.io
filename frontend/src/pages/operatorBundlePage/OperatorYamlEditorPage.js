@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
@@ -10,7 +11,7 @@ import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { defaultOperator } from '../../utils/operatorUtils';
-import { resetEditorOperatorAction } from '../../redux/actions/editorActions';
+import { resetEditorOperatorAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
 
 class OperatorYamlEditorPage extends React.Component {
   state = {
@@ -150,25 +151,24 @@ OperatorYamlEditorPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeEditorOperator: operator =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_OPERATOR,
-      operator
-    }),
-  resetEditorOperator: () => dispatch(resetEditorOperatorAction()),
-  showConfirmModal: onConfirm =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
-      title: 'Clear Content',
-      heading: <span>Are you sure you want to clear the current content of the editor?</span>,
-      confirmButtonText: 'Clear',
-      cancelButtonText: 'Cancel',
-      onConfirm
-    }),
-  hideConfirmModal: () =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_HIDE
-    })
+  ...bindActionCreators(
+    {
+      storeEditorOperator: storeEditorOperatorAction,
+      resetEditorOperator: resetEditorOperatorAction,
+      showConfirmModal: onConfirm => ({
+        type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+        title: 'Clear Content',
+        heading: <span>Are you sure you want to clear the current content of the editor?</span>,
+        confirmButtonText: 'Clear',
+        cancelButtonText: 'Cancel',
+        onConfirm
+      }),
+      hideConfirmModal: () => ({
+        type: reduxConstants.CONFIRMATION_MODAL_HIDE
+      })
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({

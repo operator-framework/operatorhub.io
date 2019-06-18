@@ -7,6 +7,11 @@ export const setSectionStatusAction = (section, status) => ({
   status
 });
 
+export const storeEditorOperatorAction = operator => ({
+  type: reduxConstants.SET_EDITOR_OPERATOR,
+  operator
+});
+
 export const resetEditorOperatorAction = () => {
   clearAutosavedOperatorData();
 
@@ -14,3 +19,18 @@ export const resetEditorOperatorAction = () => {
     type: reduxConstants.RESET_EDITOR_OPERATOR
   };
 };
+
+export const updateOperatorPackageAction = operatorPackage => ({
+  type: reduxConstants.SET_EDITOR_PACKAGE,
+  operatorPackage
+});
+
+export const setUploadsAction = uploads => ({
+  type: reduxConstants.SET_EDITOR_UPLOADS,
+  uploads
+});
+
+export const storeEditorFormErrorsAction = formErrors => ({
+  type: reduxConstants.SET_EDITOR_FORM_ERRORS,
+  formErrors
+});

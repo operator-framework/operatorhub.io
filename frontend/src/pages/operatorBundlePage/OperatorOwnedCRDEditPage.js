@@ -1,12 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
 import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ResourcesEditor from '../../components/editor/ResourcesEditor';
 import {
@@ -18,7 +18,11 @@ import DescriptorsEditor, { isDescriptorEmpty } from '../../components/editor/De
 import YamlViewer from '../../components/YamlViewer';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
 import { getDefaultOnwedCRD } from '../../utils/operatorUtils';
-import { setSectionStatusAction } from '../../redux/actions/editorActions';
+import {
+  setSectionStatusAction,
+  storeEditorFormErrorsAction,
+  storeEditorOperatorAction
+} from '../../redux/actions/editorActions';
 
 const crdsField = sectionsFields['owned-crds'];
 
@@ -458,17 +462,14 @@ OperatorOwnedCRDEditPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeEditorOperator: operator =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_OPERATOR,
-      operator
-    }),
-  storeEditorFormErrors: formErrors =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_FORM_ERRORS,
-      formErrors
-    }),
-  setSectionStatus: (status, section) => dispatch(setSectionStatusAction(section, status))
+  ...bindActionCreators(
+    {
+      storeEditorOperator: storeEditorOperatorAction,
+      storeEditorFormErrors: storeEditorFormErrorsAction,
+      setSectionStatus: setSectionStatusAction
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({
