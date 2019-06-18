@@ -1,16 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux';
 import { renderOperatorFormField, EDITOR_STATUS } from './bundlePageUtils';
 
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import { operatorPackageFieldValidators } from '../../utils/operatorDescriptors';
 import { getValueError } from '../../utils/operatorUtils';
-import { setSectionStatusAction } from '../../redux/actions/editorActions';
+import { setSectionStatusAction, updateOperatorPackageAction } from '../../redux/actions/editorActions';
 
 const FIELDS = ['name', 'channel'];
 
@@ -130,12 +130,13 @@ OperatorPackagePage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeEditorOperatorPackage: operatorPackage =>
-    dispatch({
-      type: reduxConstants.SET_EDITOR_PACKAGE,
-      operatorPackage
-    }),
-  setSectionStatus: status => dispatch(setSectionStatusAction('package', status))
+  ...bindActionCreators(
+    {
+      storeEditorOperatorPackage: updateOperatorPackageAction,
+      setSectionStatus: status => setSectionStatusAction('package', status)
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({
