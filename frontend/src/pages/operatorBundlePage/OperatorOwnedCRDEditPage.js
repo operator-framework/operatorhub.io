@@ -127,9 +127,9 @@ class OperatorOwnedCRDEditPage extends React.Component {
     this.setState({ crdErrors: _.get(crdErrors, 'errors') });
 
     if (crdErrors) {
-      setSectionStatus(EDITOR_STATUS.errors, 'owned-crds');
+      setSectionStatus('owned-crds', EDITOR_STATUS.errors);
     } else {
-      setSectionStatus(EDITOR_STATUS.pending, 'owned-crds');
+      setSectionStatus('owned-crds', EDITOR_STATUS.pending);
     }
   };
 
