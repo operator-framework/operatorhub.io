@@ -81,9 +81,9 @@ class OperatorRequiredCRDEditPage extends React.Component {
     this.setState({ crdErrors: _.get(crdErrors, 'errors') });
 
     if (crdErrors) {
-      setSectionStatus(EDITOR_STATUS.errors, 'required-crds');
+      setSectionStatus('required-crds', EDITOR_STATUS.errors);
     } else {
-      setSectionStatus(EDITOR_STATUS.pending, 'required-crds');
+      setSectionStatus('required-crds', EDITOR_STATUS.pending);
     }
   };
 
