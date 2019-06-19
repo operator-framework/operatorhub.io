@@ -441,6 +441,9 @@
         border-bottom: 1px solid $oh-color-rule;
         padding-top: 10px;
         padding-bottom: 10px;
+        .upload__overwritten{
+          text-decoration: line-through;
+        }
       }
       &__actions-col {
         display: flex;
