@@ -9,7 +9,9 @@ import {
   operatorsFramework,
   kubernetesSlack,
   fileAnIssue,
-  privacyPolicy
+  privacyPolicy,
+  hubTwitter,
+  hubYoutube
 } from '../../utils/documentationLinks';
 
 const Footer = ({ history, visible, ...props }) => (
@@ -70,6 +72,18 @@ const Footer = ({ history, visible, ...props }) => (
             </div>
             <div className="oh-footer__contents-right__links__list">
               <h4 className="oh-footer__contents-right__links__list__header">NETWORK</h4>
+              <ExternalLink
+                className="oh-footer__contents-right__links__list__link"
+                href={hubTwitter}
+                text="Twitter"
+                indicator={false}
+              />
+              <ExternalLink
+                className="oh-footer__contents-right__links__list__link"
+                href={hubYoutube}
+                text="YouTube"
+                indicator={false}
+              />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
                 href={operatorsFramework}
