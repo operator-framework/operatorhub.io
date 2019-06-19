@@ -15,7 +15,7 @@ import {
   sectionsFields,
   getMissingCrdUploads
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
-import { defaultOperator, getDefaultOnwedCRD } from '../../../utils/operatorUtils';
+import { defaultOperator, getDefaultOnwedCRD, generateIdFromVersionedName } from '../../../utils/operatorUtils';
 import UploaderDropArea from './UploaderDropArea';
 import UploaderFileList from './UploaderFileList';
 import {
@@ -27,6 +27,17 @@ import {
 
 const validFileTypes = ['.yaml'];
 const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\./g, '\\.')})$`, 'i');
+
+/**
+ * @typedef UploadMetadata
+ * @prop {number} UploadMetadata.index
+ * @prop {string} UploadMetadata.uploadFile
+ * @prop {object=} UploadMetadata.data
+ * @prop {string} UploadMetadata.type
+ * @prop {boolean} UploadMetadata.errored
+ * @prop {string} UploadMetadata.status
+ * @prop {boolean} UploadMetadata.overwritten
+ */
 
 class ManifestUploader extends React.Component {
   state = {
@@ -70,8 +81,42 @@ class ManifestUploader extends React.Component {
   };
 
   /**
+   * Detects file upload overwriting other version of same file
+   * @param {UploadMetadata[]} uploads
+   */
+  markReplacedFiles = uploads => {
+    // iterate over uploads backwards
+    for (let i = uploads.length - 1; i >= 0; i--) {
+      const upload = uploads[i];
+
+      if ((!upload.errored && upload.type === 'CSV') || (upload.type === 'CRD' && upload.data)) {
+        const name = _.get(upload.data, 'metadata.name', '');
+        const id = generateIdFromVersionedName(name);
+
+        if (id) {
+          // search for CSVs or CRDs with same name (but not version) and mark them as overriden
+          // as they would be replaced by latest upload
+          uploads.forEach((otherUpload, index) => {
+            // check only older files before current index
+            if (index < i && !otherUpload.errored && otherUpload.data && otherUpload.type === upload.type) {
+              const otherName = _.get(otherUpload.data, 'metadata.name', '');
+              const otherId = generateIdFromVersionedName(otherName);
+
+              if (otherId === id) {
+                otherUpload.overwritten = true;
+              }
+            }
+          });
+        }
+      }
+    }
+
+    return uploads;
+  };
+
+  /**
    * Parse uploaded file
-   * @param {*} upload upload metadata object
+   * @param {UploadMetadata} upload upload metadata object
    * @param {*} file
    */
   processUploadedFile = (upload, file) => {
@@ -212,18 +257,23 @@ class ManifestUploader extends React.Component {
     const { uploads, setUploads } = this.props;
     const { uploadCounter } = this.state;
 
+    /** @type {UploadMetadata} */
     const upload = {
       index: uploadCounter,
       data: undefined,
       type: 'Unknown',
+      status: '',
       uploadFile: url,
-      errored: false
+      errored: false,
+      overwritten: false
     };
     this.processUploadedFile(upload, contents);
 
     this.setState({ uploadCounter: uploadCounter + 1, uploadUrlShown: false });
 
-    setUploads([...uploads, upload]);
+    const newUploads = this.markReplacedFiles([...uploads, upload]);
+
+    setUploads(newUploads);
   };
 
   /**
@@ -257,19 +307,25 @@ class ManifestUploader extends React.Component {
     if (isValidFileType) {
       const reader = new FileReader();
 
+      /** @type {UploadMetadata} */
       const upload = {
         index,
         type: 'Unkown',
         data: undefined,
+        status: '',
         uploadFile: fileToUpload.name,
-        errored: false
+        errored: false,
+        overwritten: false
       };
 
       reader.onload = () => {
         const { uploads, setUploads } = this.props;
 
         this.processUploadedFile(upload, reader.result);
-        setUploads([...uploads, upload]);
+
+        const newUploads = this.markReplacedFiles([...uploads, upload]);
+
+        setUploads(newUploads);
       };
 
       reader.onerror = () => {
@@ -277,6 +333,8 @@ class ManifestUploader extends React.Component {
 
         upload.errored = true;
         upload.status = reader.error.message;
+
+        // skip finding replaced files as this file errored
 
         setUploads([...uploads, upload]);
 
