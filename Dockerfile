@@ -12,7 +12,7 @@ RUN cd /tmp/community-operators/upstream-community-operators \
     && find . -mindepth 1 -maxdepth 1 -type d -exec echo "courier-operator -> {}" \; -exec operator-courier nest {} nested-structure/{} \;  \
     && echo "Done"
 
-FROM node:11.15.0 as node-frontend-build
+FROM node:11.15.0-stretch-slim as node-frontend-build
 WORKDIR /app
 
 COPY frontend/package.json .
@@ -21,7 +21,7 @@ RUN npm install
 COPY frontend/ /app/
 RUN npm run-script build
 
-FROM node:11.15.0 as node-server-build
+FROM node:11.15.0-stretch-slim as node-server-build
 WORKDIR /app
 
 COPY server/package.json .
@@ -29,7 +29,7 @@ RUN npm install
 
 COPY server/ /app
 
-FROM node:11.15.0
+FROM node:11.15.0-stretch-slim
 WORKDIR /app/server
 
 ENTRYPOINT [ "node" ]
