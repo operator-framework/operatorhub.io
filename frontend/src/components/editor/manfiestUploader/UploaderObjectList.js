@@ -5,18 +5,24 @@ import UploaderStatusIcon, { IconStatus } from './UploaderStatusIcon';
 
 /**
  * List uploaded and missing files
- * @param {*} param0
+ * @param {Object} param0
+ * @param {import('./ManifestUploader').UploadMetadata[]} param0.uploads
+ * @param {*} param0.missingUploads
+ * @param {*} param0.removeUpload
+ * @param {*} param0.removeAllUploads
  */
-function UploaderFileList({ uploads, missingUploads, removeUpload, removeAllUploads }) {
+function UploaderObjectList({ uploads, missingUploads, removeUpload, removeAllUploads }) {
   if (uploads.length === 0 && missingUploads.length === 0) {
     return null;
   }
   return (
     <Grid fluid className="oh-operator-editor-upload__uploads">
       <Grid.Row className="oh-operator-editor-upload__uploads__row">
-        <Grid.Col xs={6}>File Name</Grid.Col>
-        <Grid.Col xs={3}>Status</Grid.Col>
-        <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__actions-col">
+        <Grid.Col xs={3}>Object Name</Grid.Col>
+        <Grid.Col xs={3}>File Name</Grid.Col>
+        <Grid.Col xs={3}>Object Type</Grid.Col>
+        <Grid.Col xs={2}>Status</Grid.Col>
+        <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
           <a href="#" onClick={removeAllUploads}>
             <Icon type="fa" name="trash" />
             <span>Remove All</span>
@@ -24,15 +30,26 @@ function UploaderFileList({ uploads, missingUploads, removeUpload, removeAllUplo
         </Grid.Col>
       </Grid.Row>
       {uploads.map(upload => (
-        <Grid.Row className="oh-operator-editor-upload__uploads__row" key={upload.index}>
-          <Grid.Col xs={6} className={upload.overwritten ? 'upload__overwritten' : ''}>
-            {upload.uploadFile}
+        <Grid.Row className="oh-operator-editor-upload__uploads__row" key={upload.id}>
+          <Grid.Col
+            xs={3}
+            className={`oh-operator-editor-upload__uploads__row__name ${
+              upload.overwritten ? 'upload__overwritten' : ''
+            }`}
+          >
+            {upload.name}
           </Grid.Col>
-          <Grid.Col xs={3}>
+          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__file">
+            {upload.fileName}
+          </Grid.Col>
+          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__type">
+            {upload.type}
+          </Grid.Col>
+          <Grid.Col xs={2}>
             <UploaderStatusIcon text={upload.status} status={upload.errored ? IconStatus.ERROR : IconStatus.SUCCESS} />
           </Grid.Col>
-          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__actions-col">
-            <a href="#" onClick={e => removeUpload(e, upload.index)}>
+          <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
+            <a href="#" onClick={e => removeUpload(e, upload.id)}>
               <Icon type="fa" name="trash" />
               <span className="sr-only">Remove</span>
             </a>
@@ -52,15 +69,15 @@ function UploaderFileList({ uploads, missingUploads, removeUpload, removeAllUplo
   );
 }
 
-UploaderFileList.propTypes = {
+UploaderObjectList.propTypes = {
   uploads: PropTypes.arrayOf(
     PropTypes.shape({
-      index: PropTypes.number.isRequired,
-      uploadFile: PropTypes.string.isRequired,
+      fileName: PropTypes.string.isRequired,
       data: PropTypes.object,
       errored: PropTypes.bool.isRequired,
       status: PropTypes.string.isRequired,
-      overwritten: PropTypes.bool.isRequired
+      overwritten: PropTypes.bool.isRequired,
+      id: PropTypes.string.isRequired
     })
   ).isRequired,
   missingUploads: PropTypes.arrayOf(
@@ -72,8 +89,8 @@ UploaderFileList.propTypes = {
   removeAllUploads: PropTypes.func.isRequired
 };
 
-UploaderFileList.defaultProps = {
+UploaderObjectList.defaultProps = {
   missingUploads: []
 };
 
-export default UploaderFileList;
+export default UploaderObjectList;

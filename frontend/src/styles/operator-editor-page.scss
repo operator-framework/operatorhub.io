@@ -441,6 +441,19 @@
         border-bottom: 1px solid $oh-color-rule;
         padding-top: 10px;
         padding-bottom: 10px;
+
+        @media screen and (max-width: $screen-xs){          
+          & > div{
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
+
+        &__name,
+        &__file,
+        &__type{
+          overflow-wrap: break-word;
+        }
         .upload__overwritten{
           text-decoration: line-through;
         }
@@ -448,6 +461,11 @@
       &__actions-col {
         display: flex;
         justify-content: flex-end;
+        white-space: nowrap;
+        @media screen and (max-width: $screen-xs){          
+          text-align: end;   
+          white-space: normal;      
+        }
         .fa, .pficon {
           margin-right: 4px;
         }
