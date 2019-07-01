@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
-import { safeLoad } from 'js-yaml';
+import { safeLoadAll } from 'js-yaml';
 
 import { helpers } from '../../../common/helpers';
 import UploadUrlModal from '../../modals/UploadUrlModal';
@@ -17,7 +17,7 @@ import {
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import { defaultOperator, getDefaultOnwedCRD, generateIdFromVersionedName } from '../../../utils/operatorUtils';
 import UploaderDropArea from './UploaderDropArea';
-import UploaderFileList from './UploaderFileList';
+import UploaderObjectList from './UploaderObjectList';
 import {
   setSectionStatusAction,
   updateOperatorPackageAction,
@@ -30,10 +30,11 @@ const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\.
 
 /**
  * @typedef UploadMetadata
- * @prop {number} UploadMetadata.index
- * @prop {string} UploadMetadata.uploadFile
+ * @prop {string} UploadMetadata.id
+ * @prop {string} UploadMetadata.name
+ * @prop {string} UploadMetadata.fileName
  * @prop {object=} UploadMetadata.data
- * @prop {string} UploadMetadata.type
+ * @prop {ObjectType} UploadMetadata.type
  * @prop {boolean} UploadMetadata.errored
  * @prop {string} UploadMetadata.status
  * @prop {boolean} UploadMetadata.overwritten
@@ -42,56 +43,74 @@ const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\.
 class ManifestUploader extends React.Component {
   state = {
     uploadUrlShown: false,
-    uploadExpanded: false,
-    uploadCounter: 0
+    uploadExpanded: false
   };
 
   componentDidMount() {
     const { uploads, operator } = this.props;
 
-    // increase found maximal counter
-    const counter = 1 + Math.max(0, ...uploads.map(upload => upload.index));
     const missingCrdUploads = getMissingCrdUploads(uploads, operator).length > 0;
 
     this.setState({
-      uploadCounter: counter,
       uploadExpanded: missingCrdUploads
     });
   }
 
   /**
-   * Derive file type from its content
+   * @typedef {'Package'|'ClusterServiceVersion'|'CustomResourceDefinition'|'Unknown'} ObjectType
    */
-  getFileType = (content, fileName) => {
-    if (content.kind && content.apiVersion) {
+
+  /**
+   * @typedef TypeAndName
+   * @prop  {ObjectType} TypeAndName.type
+   * @prop {string} TypeAndName.name
+   */
+
+  /**
+   * Derive file type from its content
+   * @param {*} content
+   * @returns {TypeAndName|null}
+   */
+  getObjectNameAndType = content => {
+    if (content.kind && content.apiVersion && content.metadata) {
       const apiName = content.apiVersion.substring(0, content.apiVersion.indexOf('/'));
 
       if (content.kind === 'ClusterServiceVersion' && apiName === 'operators.coreos.com') {
-        return 'CSV';
+        return {
+          type: 'ClusterServiceVersion',
+          name: content.metadata.name
+        };
       } else if (content.kind === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
-        return 'CRD';
+        return {
+          type: 'CustomResourceDefinition',
+          name: content.metadata.name
+        };
       }
       // package file is different with no kind and API
     } else if (content.packageName && content.channels) {
-      return 'PKG';
+      return {
+        type: 'Package',
+        name: content.packageName
+      };
     }
 
-    console.warn(`Unknown file ${fileName}. Can't use it.`);
-    return 'Unknown';
+    return null;
   };
 
   /**
    * Detects file upload overwriting other version of same file
    * @param {UploadMetadata[]} uploads
    */
-  markReplacedFiles = uploads => {
+  markReplacedObjects = uploads => {
     // iterate over uploads backwards
     for (let i = uploads.length - 1; i >= 0; i--) {
       const upload = uploads[i];
 
-      if ((!upload.errored && upload.type === 'CSV') || (upload.type === 'CRD' && upload.data)) {
-        const name = _.get(upload.data, 'metadata.name', '');
-        const id = generateIdFromVersionedName(name);
+      if (
+        (!upload.errored && upload.type === 'ClusterServiceVersion') ||
+        (upload.type === 'CustomResourceDefinition' && upload.data)
+      ) {
+        const id = generateIdFromVersionedName(upload.name);
 
         if (id) {
           // search for CSVs or CRDs with same name (but not version) and mark them as overriden
@@ -99,10 +118,13 @@ class ManifestUploader extends React.Component {
           uploads.forEach((otherUpload, index) => {
             // check only older files before current index
             if (index < i && !otherUpload.errored && otherUpload.data && otherUpload.type === upload.type) {
-              const otherName = _.get(otherUpload.data, 'metadata.name', '');
-              const otherId = generateIdFromVersionedName(otherName);
+              const otherId = generateIdFromVersionedName(otherUpload.name);
 
               if (otherId === id) {
+                otherUpload.overwritten = true;
+
+                // for CSV mark overriden every previous csv as we can have only single one!
+              } else if (upload.type === otherUpload.type && otherUpload.type === 'ClusterServiceVersion') {
                 otherUpload.overwritten = true;
               }
             }
@@ -117,34 +139,79 @@ class ManifestUploader extends React.Component {
   /**
    * Parse uploaded file
    * @param {UploadMetadata} upload upload metadata object
-   * @param {*} file
    */
-  processUploadedFile = (upload, file) => {
-    let parsedFile = {};
+  processUploadedObject = upload => {
+    const typeAndName = this.getObjectNameAndType(upload.data || {});
+
+    if (!typeAndName) {
+      upload.status = 'Unsupported Object';
+      upload.errored = true;
+      return upload;
+    }
+
+    upload.type = typeAndName.type;
+    upload.name = typeAndName.name;
+    upload.status = 'Supported Object';
+
+    if (upload.type === 'ClusterServiceVersion') {
+      this.processCsvFile(upload.data);
+    } else if (upload.type === 'Package') {
+      this.processPackageFile(upload.data);
+    }
+
+    return upload;
+  };
+
+  /**
+   * @param {string} fileName
+   * @returns {UploadMetadata}
+   */
+  createtUpload = fileName => ({
+    id: `${Date.now()}_${Math.random().toString()}`,
+    name: '',
+    data: undefined,
+    type: 'Unknown',
+    status: '',
+    fileName,
+    errored: false,
+    overwritten: false
+  });
+
+  /**
+   * Creates errored upload status
+   * @param {string} fileName
+   * @param {string} errorStatus
+   */
+  createErroredUpload = (fileName, errorStatus) => {
+    const upload = this.createtUpload(fileName);
+    upload.errored = true;
+    upload.status = errorStatus;
+
+    return upload;
+  };
+
+  /**
+   * Converts file content into separate objects after upload
+   * @param {string} fileContent yaml string to parse
+   * @param {string} fileName
+   */
+  splitUploadedFileToObjects = (fileContent, fileName) => {
+    let parsedObjects = [];
 
     try {
-      parsedFile = safeLoad(file);
-      upload.data = parsedFile;
+      parsedObjects = safeLoadAll(fileContent);
     } catch (e) {
-      upload.status = 'Parsing Errors';
-      upload.errored = true;
-    }
-    const fileType = this.getFileType(parsedFile || {}, upload);
-    upload.type = fileType;
-
-    if (fileType === 'Unknown') {
-      upload.status = 'Unsupported File';
-      upload.errored = true;
-      return;
+      return [this.createErroredUpload(fileName, 'Parsing Errors')];
     }
 
-    upload.status = 'Supported File';
+    const uploads = parsedObjects.map(object => {
+      const upload = this.createtUpload(fileName);
+      upload.data = object;
 
-    if (fileType === 'CSV') {
-      this.processCsvFile(parsedFile);
-    } else if (fileType === 'PKG') {
-      this.processPackageFile(parsedFile);
-    }
+      return this.processUploadedObject(upload);
+    });
+
+    return uploads;
   };
 
   /**
@@ -255,23 +322,12 @@ class ManifestUploader extends React.Component {
    */
   doUploadUrl = (contents, url) => {
     const { uploads, setUploads } = this.props;
-    const { uploadCounter } = this.state;
 
-    /** @type {UploadMetadata} */
-    const upload = {
-      index: uploadCounter,
-      data: undefined,
-      type: 'Unknown',
-      status: '',
-      uploadFile: url,
-      errored: false,
-      overwritten: false
-    };
-    this.processUploadedFile(upload, contents);
+    const recentUploads = this.splitUploadedFileToObjects(contents, url);
 
-    this.setState({ uploadCounter: uploadCounter + 1, uploadUrlShown: false });
+    this.setState({ uploadUrlShown: false });
 
-    const newUploads = this.markReplacedFiles([...uploads, upload]);
+    const newUploads = this.markReplacedObjects([...uploads, ...recentUploads]);
 
     setUploads(newUploads);
   };
@@ -280,8 +336,6 @@ class ManifestUploader extends React.Component {
    * Handle direct multi-file upload using file uploader or drag and drop
    */
   doUploadFiles = files => {
-    const { uploadCounter } = this.state;
-
     if (!files) {
       return;
     }
@@ -289,41 +343,26 @@ class ManifestUploader extends React.Component {
     let fileToUpload = files.item(fileIndex);
 
     while (fileToUpload) {
-      this.readFile(fileToUpload, uploadCounter + fileIndex);
+      this.readFile(fileToUpload);
 
       fileToUpload = files.item(++fileIndex);
     }
-
-    // set counter state so we have correct unique key for uploaded files
-    this.setState({ uploadCounter: uploadCounter + fileIndex });
   };
 
   /**
    * Read file if its valid and pass it for processing
    */
-  readFile = (fileToUpload, index) => {
+  readFile = fileToUpload => {
     const isValidFileType = validFileTypesRegExp.test(fileToUpload.name);
 
     if (isValidFileType) {
       const reader = new FileReader();
 
-      /** @type {UploadMetadata} */
-      const upload = {
-        index,
-        type: 'Unkown',
-        data: undefined,
-        status: '',
-        uploadFile: fileToUpload.name,
-        errored: false,
-        overwritten: false
-      };
-
       reader.onload = () => {
         const { uploads, setUploads } = this.props;
 
-        this.processUploadedFile(upload, reader.result);
-
-        const newUploads = this.markReplacedFiles([...uploads, upload]);
+        const upload = this.splitUploadedFileToObjects(reader.result, fileToUpload.name);
+        const newUploads = this.markReplacedObjects([...uploads, ...upload]);
 
         setUploads(newUploads);
       };
@@ -331,8 +370,7 @@ class ManifestUploader extends React.Component {
       reader.onerror = () => {
         const { uploads, setUploads } = this.props;
 
-        upload.errored = true;
-        upload.status = reader.error.message;
+        const upload = this.createErroredUpload(fileToUpload.name, reader.error.message);
 
         // skip finding replaced files as this file errored
 
@@ -359,13 +397,23 @@ class ManifestUploader extends React.Component {
   /**
    * Remove specific upload by its index
    * @param {*} e
-   * @param {number} index index (id) of the upload to remove
+   * @param {number} id index (id) of the upload to remove
    */
-  removeUpload = (e, index) => {
+  removeUpload = (e, id) => {
     const { uploads, setUploads } = this.props;
 
     e.preventDefault();
-    setUploads(uploads.filter(upload => upload.index !== index));
+
+    // reset overwritten state of uploads and determine new
+    let newUploads = uploads
+      .filter(upload => upload.id !== id)
+      .map(upload => ({
+        ...upload,
+        overwritten: false
+      }));
+    newUploads = this.markReplacedObjects(newUploads);
+
+    setUploads(newUploads);
   };
 
   showUploadUrl = e => {
@@ -424,7 +472,7 @@ class ManifestUploader extends React.Component {
         {uploadExpanded && (
           <React.Fragment>
             <UploaderDropArea showUploadUrl={this.showUploadUrl} doUploadFile={this.doUploadFiles} />
-            <UploaderFileList
+            <UploaderObjectList
               uploads={uploads}
               missingUploads={missingCrds}
               removeUpload={this.removeUpload}
