@@ -6,8 +6,8 @@ import UploaderStatusIcon, { IconStatus } from './UploaderStatusIcon';
 /**
  * List uploaded and missing files
  * @param {Object} param0
- * @param {import('./ManifestUploader').UploadMetadata[]} param0.uploads
- * @param {*} param0.missingUploads
+ * @param {UploadMetadata[]} param0.uploads
+ * @param {MissingCRD[]} param0.missingUploads
  * @param {*} param0.removeUpload
  * @param {*} param0.removeAllUploads
  */
@@ -36,13 +36,14 @@ function UploaderObjectList({ uploads, missingUploads, removeUpload, removeAllUp
             className={`oh-operator-editor-upload__uploads__row__name ${
               upload.overwritten ? 'upload__overwritten' : ''
             }`}
+            title={upload.name}
           >
             {upload.name}
           </Grid.Col>
-          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__file">
+          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__file" title={upload.fileName}>
             {upload.fileName}
           </Grid.Col>
-          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__type">
+          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__type" title={upload.type}>
             {upload.type}
           </Grid.Col>
           <Grid.Col xs={2}>
@@ -58,11 +59,13 @@ function UploaderObjectList({ uploads, missingUploads, removeUpload, removeAllUp
       ))}
       {missingUploads.map(missing => (
         <Grid.Row className="oh-operator-editor-upload__uploads__row" key={missing.name}>
-          <Grid.Col xs={6}>{missing.name}</Grid.Col>
-          <Grid.Col xs={3}>
+          <Grid.Col xs={9} title={missing.name}>
+            {missing.name}
+          </Grid.Col>
+          <Grid.Col xs={2}>
             <UploaderStatusIcon status={IconStatus.MISSING} text="Missing CRD" />
           </Grid.Col>
-          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__actions-col" />
+          <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col" />
         </Grid.Row>
       ))}
     </Grid>

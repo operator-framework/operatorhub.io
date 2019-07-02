@@ -28,18 +28,6 @@ import {
 const validFileTypes = ['.yaml'];
 const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\./g, '\\.')})$`, 'i');
 
-/**
- * @typedef UploadMetadata
- * @prop {string} UploadMetadata.id
- * @prop {string} UploadMetadata.name
- * @prop {string} UploadMetadata.fileName
- * @prop {object=} UploadMetadata.data
- * @prop {ObjectType} UploadMetadata.type
- * @prop {boolean} UploadMetadata.errored
- * @prop {string} UploadMetadata.status
- * @prop {boolean} UploadMetadata.overwritten
- */
-
 class ManifestUploader extends React.Component {
   state = {
     uploadUrlShown: false,
@@ -55,16 +43,6 @@ class ManifestUploader extends React.Component {
       uploadExpanded: missingCrdUploads
     });
   }
-
-  /**
-   * @typedef {'Package'|'ClusterServiceVersion'|'CustomResourceDefinition'|'Unknown'} ObjectType
-   */
-
-  /**
-   * @typedef TypeAndName
-   * @prop  {ObjectType} TypeAndName.type
-   * @prop {string} TypeAndName.name
-   */
 
   /**
    * Derive file type from its content
