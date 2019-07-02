@@ -442,13 +442,16 @@
         padding-top: 10px;
         padding-bottom: 10px;
 
-        @media screen and (max-width: $screen-xs){          
-          & > div{
-            padding-left: 10px;
-            padding-right: 10px;
+        & > div{
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+
+          @media screen and (max-width: $screen-xs){          
+              padding-left: 10px;
+              padding-right: 10px;          
           }
         }
-
         &__name,
         &__file,
         &__type{
