@@ -193,6 +193,15 @@ const defaultDeployment = {
   }
 };
 
+const getDefaultAlmExample = () => ({
+  apiVersion: '',
+  kind: '',
+  metadata: {
+    name: ''
+  },
+  spec: {}
+});
+
 const defaultOperator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
@@ -200,16 +209,7 @@ const defaultOperator = {
     name: '',
     namespace: 'placeholder',
     annotations: {
-      'alm-examples': `[
-        {
-          "apiVersion": "",
-          "kind": "",
-          "metadata": {
-            "name": ""
-          },
-          "spec": {}
-        }
-      ]`,
+      'alm-examples': `[${JSON.stringify(getDefaultAlmExample())}]`,
       categories: '',
       certified: false,
       description: '',
@@ -258,6 +258,24 @@ const defaultOperator = {
 
 const isOwnedCrdDefault = crd => _.isEqual(crd, getDefaultOnwedCRD());
 const isRequiredCrdDefault = crd => _.isEqual(crd, getDefaultRequiredCRD());
+
+/**
+ * Convert ALM examples to objects so we can find one for current CRD
+ */
+const convertExampleYamlToObj = examples => {
+  let crdTemplates;
+  if (_.isString(examples)) {
+    try {
+      crdTemplates = JSON.parse(examples);
+    } catch (e) {
+      console.error(`Unable to convert alm-examples: ${e}`);
+      crdTemplates = [];
+    }
+  } else {
+    crdTemplates = examples;
+  }
+  return crdTemplates;
+};
 
 /**
  * @typedef AutoSavedData
@@ -524,10 +542,13 @@ const validateOperator = operator => {
 export {
   generateIdFromVersionedName,
   getDefaultDescription,
+  getDefaultAlmExample,
   normalizeOperator,
   defaultOperator,
   defaultDeployment,
+  getDefaultRequiredCRD,
   getDefaultOnwedCRD,
+  convertExampleYamlToObj,
   removeEmptyOptionalValuesFromOperator,
   validCapabilityStrings,
   validateOperator,

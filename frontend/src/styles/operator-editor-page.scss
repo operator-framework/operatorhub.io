@@ -534,6 +534,12 @@
         margin: 0;
       }
 
+      &__subtitle{
+        font-size: 0.8em;
+        opacity: 0.8;
+        margin-left: 10px;
+      }
+
       &__actions {
         .oh-button {
           margin: 0 10px;
