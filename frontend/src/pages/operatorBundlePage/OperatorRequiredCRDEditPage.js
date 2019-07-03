@@ -18,47 +18,48 @@ import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../redux/actions/editorActions';
+import { getDefaultRequiredCRD } from '../../utils/operatorUtils';
+import { NEW_CRD_NAME } from '../../utils/constants';
 
 const crdsField = sectionsFields['required-crds'];
 
 class OperatorRequiredCRDEditPage extends React.Component {
-  state = {
-    crd: null,
-    crdErrors: null
-  };
-
   dirtyFields = {};
+  crdIndex;
+  isNewCRD = false;
 
   componentDidMount() {
-    const { operator, formErrors, storeEditorFormErrors } = this.props;
+    const { operator, formErrors, storeEditorFormErrors, storeEditorOperator } = this.props;
     const name = helpers.transformPathedName(_.get(this.props.match, 'params.crd', ''));
-    let operatorCRDs = _.get(operator, crdsField);
+    const clonedOperator = _.cloneDeep(operator);
+    const operatorCRDs = _.get(clonedOperator, crdsField, []);
 
     let crd = _.find(operatorCRDs, { name }) || _.find(operatorCRDs, { name: '' });
 
     if (!crd) {
       this.isNewCRD = true;
-      crd = { name };
 
-      if (!_.size(operatorCRDs)) {
-        operatorCRDs = [];
-      }
+      crd = getDefaultRequiredCRD();
+      crd.name = name;
 
       operatorCRDs.push(crd);
-    } else if (crd.name === '') {
+    } else if (crd.name === '' || crd.name === NEW_CRD_NAME) {
       this.isNewCRD = true;
-    }
 
-    this.originalName = crd.name;
+      crd.name = NEW_CRD_NAME;
+    }
     this.crdIndex = operatorCRDs.indexOf(crd);
 
-    const errors = getUpdatedFormErrors(operator, formErrors, crdsField);
+    const errors = getUpdatedFormErrors(clonedOperator, formErrors, crdsField);
     this.updateCrdErrors(errors);
     storeEditorFormErrors(errors);
 
-    this.setState({ crd });
+    // update operator with crds if they were not existing
+    _.set(clonedOperator, crdsField, operatorCRDs);
+    // update operator as there might be added / changed crd
+    storeEditorOperator(clonedOperator);
 
-    if (crd.name === '') {
+    if (crd.name === '' || crd.name === NEW_CRD_NAME) {
       setTimeout(() => {
         this.nameInput.focus();
         this.nameInput.select();
@@ -78,7 +79,6 @@ class OperatorRequiredCRDEditPage extends React.Component {
     const { setSectionStatus } = this.props;
 
     const crdErrors = _.find(_.get(formErrors, crdsField), { index: this.crdIndex });
-    this.setState({ crdErrors: _.get(crdErrors, 'errors') });
 
     if (crdErrors) {
       setSectionStatus('required-crds', EDITOR_STATUS.errors);
@@ -87,46 +87,27 @@ class OperatorRequiredCRDEditPage extends React.Component {
     }
   };
 
-  updateCRD = (value, field) => {
-    const { crd } = this.state;
-
-    _.set(crd, field, value);
-    this.forceUpdate();
-  };
-
-  validateField = field => {
+  validateField = (field, value) => {
     const { operator, formErrors, storeEditorOperator, storeEditorFormErrors } = this.props;
-    const { crd } = this.state;
-    const operatorCRDs = _.get(operator, crdsField);
+    const updatedOperator = _.cloneDeep(operator);
 
     _.set(this.dirtyFields, field, true);
 
-    const updatedOperator = _.cloneDeep(operator);
+    // update the operator's version of this CRD
+    const existingCRDs = _.get(updatedOperator, crdsField);
+    const crd = existingCRDs[this.crdIndex];
 
-    // if we only have the placeholder CRD, replace it with this CRD
-    if (operatorCRDs.length === 1 && !operatorCRDs[0].name) {
-      _.set(updatedOperator, crdsField, [crd]);
-      this.crdIndex = 0;
-    } else {
-      // update the operator's version of this CRD
-      const existingCRDs = _.get(updatedOperator, crdsField);
-      this.crdIndex = _.findIndex(existingCRDs, { name: this.originalName });
-      if (this.crdIndex < 0) {
-        existingCRDs.push(crd);
-        this.crdIndex = 0;
-      } else {
-        _.set(updatedOperator, crdsField, [
-          ...existingCRDs.slice(0, this.crdIndex),
-          crd,
-          ...existingCRDs.slice(this.crdIndex + 1)
-        ]);
-      }
-    }
+    // update crd field value
+    _.set(crd, field, value);
+
+    _.set(updatedOperator, crdsField, [
+      ...existingCRDs.slice(0, this.crdIndex),
+      crd,
+      ...existingCRDs.slice(this.crdIndex + 1)
+    ]);
 
     const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
     storeEditorFormErrors(errors);
-
-    this.originalName = _.get(crd, 'name');
 
     storeEditorOperator(updatedOperator);
   };
@@ -136,7 +117,12 @@ class OperatorRequiredCRDEditPage extends React.Component {
   };
 
   renderCRDInput = (title, field, fieldType, inputRefCallback) => {
-    const { crd, crdErrors } = this.state;
+    const { operator, formErrors } = this.props;
+    const crdErrors = _.find(_.get(formErrors, crdsField), { index: this.crdIndex });
+
+    // update the operator's version of this CRD
+    const existingCRDs = _.get(operator, crdsField);
+    const crd = existingCRDs[this.crdIndex];
 
     const error = !(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && _.get(crdErrors, field);
 
@@ -155,9 +141,8 @@ class OperatorRequiredCRDEditPage extends React.Component {
           type="text-area"
           rows={3}
           {..._.get(_.get(operatorFieldValidators, `${crdsField}.${field}`), 'props')}
-          onChange={e => this.updateCRD(e.target.value, field)}
-          onBlur={() => this.validateField(field)}
-          value={_.get(crd, field, '')}
+          onBlur={e => this.validateField(field, e.target.value)}
+          defaultValue={_.get(crd, field, '')}
           placeholder={_.get(operatorFieldPlaceholders, `${crdsField}.${field}`)}
           ref={inputRefCallback || helpers.noop}
         />
@@ -169,9 +154,8 @@ class OperatorRequiredCRDEditPage extends React.Component {
           className="form-control"
           type="text"
           {..._.get(_.get(operatorFieldValidators, `${crdsField}.${field}`), 'props')}
-          onChange={e => this.updateCRD(e.target.value, field)}
-          onBlur={() => this.validateField(field)}
-          value={_.get(crd, field, '')}
+          onBlur={e => this.validateField(field, e.target.value)}
+          defaultValue={_.get(crd, field, '')}
           placeholder={_.get(operatorFieldPlaceholders, `${crdsField}.${field}`)}
           ref={inputRefCallback || helpers.noop}
         />
