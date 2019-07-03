@@ -23,6 +23,7 @@ const OperatorOwnedCRDsPage = ({ operator, history }) => {
       crdsDescription={description}
       objectPage="owned-crds"
       objectType="Owned CRD"
+      removeAlmExamples
       history={history}
     />
   );

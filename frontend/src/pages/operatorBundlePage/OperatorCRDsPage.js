@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { getFieldValueError } from '../../utils/operatorUtils';
+import { getFieldValueError, convertExampleYamlToObj } from '../../utils/operatorUtils';
 import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
 
@@ -19,6 +19,7 @@ const OperatorCRDsPage = ({
   objectPage,
   objectType,
   formErrors,
+  removeAlmExamples,
   storeEditorOperator,
   storeEditorFormErrors,
   history
@@ -29,9 +30,13 @@ const OperatorCRDsPage = ({
     storeEditorFormErrors(formErrors);
   };
 
-  const updateOperator = crds => {
+  const updateOperator = (crds, removedCrd) => {
     const updatedOperator = _.cloneDeep(operator);
     _.set(updatedOperator, crdsField, crds);
+
+    // remove alm examples from operator together with crd
+    removeAlmExamples && onRemove(updatedOperator, removedCrd);
+
     storeEditorOperator(updatedOperator);
     validateField(crdsField);
   };
@@ -43,6 +48,15 @@ const OperatorCRDsPage = ({
     </span>
   );
 
+  const onRemove = (operatorToUpdate, crd) => {
+    const almExamples = _.get(operatorToUpdate, 'metadata.annotations.alm-examples');
+
+    const examples = convertExampleYamlToObj(almExamples) || [];
+    const newAlmExamples = examples.filter(example => example.kind !== crd.kind);
+
+    _.set(operatorToUpdate, 'metadata.annotations.alm-examples', JSON.stringify(newAlmExamples));
+  };
+
   return (
     <OperatorEditorSubPage title={crdsTitle} description={description} secondary history={history} section={objectPage}>
       <ListObjectEditor
@@ -50,11 +64,13 @@ const OperatorCRDsPage = ({
         title={crdsTitle}
         onUpdate={updateOperator}
         field={crdsField}
+        fieldFilter={field => field.name}
         fieldTitle="Display Name"
         objectPage={objectPage}
         formErrors={formErrors}
         history={history}
         objectTitleField="displayName"
+        objectSubtitleField="kind"
         pagePathField="name"
         objectType={objectType}
         addName="new-crd"
@@ -73,6 +89,7 @@ OperatorCRDsPage.propTypes = {
   formErrors: PropTypes.object,
   storeEditorOperator: PropTypes.func,
   storeEditorFormErrors: PropTypes.func,
+  removeAlmExamples: PropTypes.bool,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired
@@ -81,6 +98,7 @@ OperatorCRDsPage.propTypes = {
 OperatorCRDsPage.defaultProps = {
   operator: {},
   formErrors: {},
+  removeAlmExamples: false,
   storeEditorFormErrors: helpers.noop,
   storeEditorOperator: helpers.noop
 };

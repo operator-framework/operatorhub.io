@@ -17,12 +17,13 @@ import {
 import DescriptorsEditor, { isDescriptorEmpty } from '../../components/editor/DescriptorsEditor';
 import YamlViewer from '../../components/YamlViewer';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
-import { getDefaultOnwedCRD } from '../../utils/operatorUtils';
+import { getDefaultOnwedCRD, getDefaultAlmExample, convertExampleYamlToObj } from '../../utils/operatorUtils';
 import {
   setSectionStatusAction,
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../redux/actions/editorActions';
+import { NEW_CRD_NAME } from '../../utils/constants';
 
 const crdsField = sectionsFields['owned-crds'];
 
@@ -58,6 +59,8 @@ class OperatorOwnedCRDEditPage extends React.Component {
   };
 
   dirtyFields = {};
+  crdIndex;
+  isNewCRD = false;
 
   componentDidMount() {
     const { operator, formErrors, storeEditorFormErrors } = this.props;
@@ -77,16 +80,18 @@ class OperatorOwnedCRDEditPage extends React.Component {
       }
 
       operatorCRDs.push(crd);
-    } else if (crd.name === '') {
+      // handle default crd name for new crds same way as empty crd
+    } else if (crd.name === '' || crd.name === NEW_CRD_NAME) {
       crd = getDefaultOnwedCRD();
+      crd.name = NEW_CRD_NAME;
       this.isNewCRD = true;
     }
 
     this.crdIndex = operatorCRDs.indexOf(crd);
     const kind = _.get(crd, 'kind');
     const examples = _.get(operator, 'metadata.annotations.alm-examples');
-    const crdTemplates = this.convertExamplesToObj(examples);
-    const crdTemplate = _.find(crdTemplates, { kind }, null);
+    const crdTemplates = convertExampleYamlToObj(examples);
+    const crdTemplate = _.find(crdTemplates, { kind }) || getDefaultAlmExample();
 
     // used to reference CRD when name changes
     this.originalName = crd.name;
@@ -99,7 +104,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
 
     this.setState({ crd, crdTemplate });
 
-    if (crd.name === '') {
+    if (crd.name === '' || crd.name === NEW_CRD_NAME) {
       setTimeout(() => {
         this.nameInput.focus();
         this.nameInput.select();
@@ -131,24 +136,6 @@ class OperatorOwnedCRDEditPage extends React.Component {
     } else {
       setSectionStatus('owned-crds', EDITOR_STATUS.pending);
     }
-  };
-
-  /**
-   * Convert ALM examples to objects so we can find one for current CRD
-   */
-  convertExamplesToObj = examples => {
-    let crdTemplates;
-    if (_.isString(examples)) {
-      try {
-        crdTemplates = JSON.parse(examples);
-      } catch (e) {
-        console.error(`Unable to convert alm-examples: ${e}`);
-        crdTemplates = [];
-      }
-    } else {
-      crdTemplates = examples;
-    }
-    return crdTemplates;
   };
 
   /**
@@ -202,7 +189,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const { crd } = this.state;
 
     const examples = _.get(operator, 'metadata.annotations.alm-examples');
-    const crdTemplates = this.convertExamplesToObj(examples);
+    const crdTemplates = convertExampleYamlToObj(examples);
     const index = _.findIndex(crdTemplates, { kind: _.get(crd, 'kind') });
 
     let updatedTemplates;
@@ -278,6 +265,15 @@ class OperatorOwnedCRDEditPage extends React.Component {
     this.originalName = _.get(crd, 'name');
 
     storeEditorOperator(updatedOperator);
+  };
+
+  onTemplateClear = () => {
+    const { crd } = this.state;
+
+    const example = getDefaultAlmExample();
+    example.kind = crd.kind || '';
+
+    return safeDump(example);
   };
 
   setNameInputRef = ref => {
@@ -404,6 +400,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
           editable
           yaml={crdTemplateYaml}
           error={crdTemplateYamlError}
+          onClear={this.onTemplateClear}
           allowClear
         />
       </React.Fragment>
