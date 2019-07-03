@@ -111,11 +111,12 @@ class YamlViewer extends React.Component {
   };
 
   confirmClearYaml = () => {
-    const { storePreviewYaml, isPreview, hideConfirmModal } = this.props;
+    const { storePreviewYaml, isPreview, hideConfirmModal, onClear } = this.props;
 
-    this.doc.setValue('');
+    const newValue = onClear ? onClear() : '';
+    this.doc.setValue(newValue);
     if (isPreview) {
-      storePreviewYaml('', false, false);
+      storePreviewYaml(newValue, false, false);
     }
     hideConfirmModal();
     this.saveYAML();
@@ -439,6 +440,7 @@ YamlViewer.propTypes = {
   onRemove: PropTypes.func,
   onChange: PropTypes.func,
   onBlur: PropTypes.func,
+  onClear: PropTypes.func,
   error: PropTypes.node,
   storePreviewYaml: PropTypes.func,
   storeContentHeight: PropTypes.func,
@@ -462,6 +464,7 @@ YamlViewer.defaultProps = {
   onRemove: helpers.noop,
   onChange: helpers.noop,
   onBlur: helpers.noop,
+  onClear: null,
   error: null,
   storePreviewYaml: helpers.noop,
   storeContentHeight: helpers.noop,

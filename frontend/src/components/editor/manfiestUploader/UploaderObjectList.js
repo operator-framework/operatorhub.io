@@ -59,11 +59,14 @@ function UploaderObjectList({ uploads, missingUploads, removeUpload, removeAllUp
       ))}
       {missingUploads.map(missing => (
         <Grid.Row className="oh-operator-editor-upload__uploads__row" key={missing.name}>
-          <Grid.Col xs={9} title={missing.name}>
+          <Grid.Col xs={6} className="oh-operator-editor-upload__uploads__row__name" title={missing.name}>
             {missing.name}
           </Grid.Col>
+          <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__type" title="CustomResourceDefinition">
+            CustomResourceDefinition
+          </Grid.Col>
           <Grid.Col xs={2}>
-            <UploaderStatusIcon status={IconStatus.MISSING} text="Missing CRD" />
+            <UploaderStatusIcon status={IconStatus.MISSING} text="Missing" />
           </Grid.Col>
           <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col" />
         </Grid.Row>

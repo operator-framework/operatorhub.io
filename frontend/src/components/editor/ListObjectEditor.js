@@ -5,23 +5,13 @@ import { Icon } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 
 class ListObjectEditor extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { operatorObjects: this.getOperatorObjects() };
-  }
-
-  componentDidUpdate(prevProps) {
-    const { operator } = this.props;
-    if (operator !== prevProps.operator) {
-      this.setState({ operatorObjects: this.getOperatorObjects() });
-    }
-  }
-
+  /**
+   * @returns {*[]}
+   */
   getOperatorObjects = () => {
-    const { operator, field } = this.props;
+    const { operator, field, fieldFilter } = this.props;
 
-    return _.get(operator, field, []);
+    return _.get(operator, field, []).filter(fieldFilter);
   };
 
   addOperatorObject = event => {
@@ -40,28 +30,25 @@ class ListObjectEditor extends React.Component {
 
   removeOperatorObject = (event, operatorObject) => {
     const { onUpdate } = this.props;
-    const { operatorObjects } = this.state;
 
     event.preventDefault();
 
-    const updatedObjects = operatorObjects.filter(nextObject => nextObject !== operatorObject);
-    this.setState({ operatorObjects: updatedObjects });
-
-    onUpdate(updatedObjects);
+    const updatedObjects = this.getOperatorObjects().filter(nextObject => nextObject !== operatorObject);
+    onUpdate(updatedObjects, operatorObject);
   };
 
   renderObject = (operatorObject, errors, index) => {
-    const { objectTitleField } = this.props;
-    const title = _.get(operatorObject, objectTitleField);
+    const { objectTitleField, objectSubtitleField } = this.props;
+    const title = _.get(operatorObject, objectTitleField) || ' ';
+    const subtitle = _.get(operatorObject, objectSubtitleField) || ' ';
     const error = _.find(errors, { index });
-
-    if (!title) {
-      return null;
-    }
 
     return (
       <div key={index} className="oh-operator-editor__list__item">
-        <h3>{title}</h3>
+        <h3>
+          {title}
+          {subtitle && <span className="oh-operator-editor__list__item__subtitle">({operatorObject.name})</span>}
+        </h3>
         <div className="oh-operator-editor__list__item__actions">
           {error && (
             <span className="oh-operator-editor-page__section__status">
@@ -83,7 +70,7 @@ class ListObjectEditor extends React.Component {
 
   render() {
     const { title, fieldTitle, objectType, formErrors, field } = this.props;
-    const { operatorObjects } = this.state;
+    const operatorObjects = this.getOperatorObjects();
     const errors = _.get(formErrors, field);
 
     return (
@@ -112,10 +99,12 @@ class ListObjectEditor extends React.Component {
 ListObjectEditor.propTypes = {
   operator: PropTypes.object,
   field: PropTypes.string.isRequired,
+  fieldFilter: PropTypes.func,
   title: PropTypes.string.isRequired,
   objectType: PropTypes.string.isRequired,
   fieldTitle: PropTypes.string.isRequired,
   objectTitleField: PropTypes.string.isRequired,
+  objectSubtitleField: PropTypes.string,
   pagePathField: PropTypes.string,
   onUpdate: PropTypes.func.isRequired,
   objectPage: PropTypes.string.isRequired,
@@ -128,6 +117,8 @@ ListObjectEditor.propTypes = {
 
 ListObjectEditor.defaultProps = {
   operator: {},
+  objectSubtitleField: '',
+  fieldFilter: () => true,
   pagePathField: 'name',
   addName: null
 };
