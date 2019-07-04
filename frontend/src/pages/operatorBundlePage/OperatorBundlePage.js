@@ -112,22 +112,6 @@ class OperatorBundlePage extends React.Component {
     );
   }
 
-  renderGeneralInfo() {
-    const { history } = this.props;
-
-    return (
-      <React.Fragment>
-        <h2>General Info</h2>
-        <EditorSection
-          title="Operator Metadata"
-          description="The metadata section contains general metadata around the name, version, and other info that aids users in discovery of your Operator."
-          history={history}
-          sectionLocation="metadata"
-        />
-      </React.Fragment>
-    );
-  }
-
   renderCustomResourceDefinitions() {
     const { history } = this.props;
 
@@ -212,7 +196,18 @@ class OperatorBundlePage extends React.Component {
         history={history}
       >
         <ManifestUploader />
-        {this.renderGeneralInfo()}
+        <div className="oh-operator-editor-page__spacer">
+          <h2>General Info</h2>
+          <button className="oh-button oh-button-primary oh-button__new-operator" onClick={this.clearContents}>
+            Start new bundle
+          </button>
+        </div>
+        <EditorSection
+          title="Operator Metadata"
+          description="The metadata section contains general metadata around the name, version, and other info that aids users in discovery of your Operator."
+          history={history}
+          sectionLocation="metadata"
+        />
         {this.renderCustomResourceDefinitions()}
         {this.renderOperatorInstallation()}
         {this.renderPackageInfo()}
