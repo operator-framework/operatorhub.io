@@ -3,17 +3,21 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const extractCSS = new MiniCssExtractPlugin({ filename: 'app-bundle.css' });
-
 module.exports = {
   entry: {
     app: './src/index.js'
+  },
+  output: {
+    filename: '[name].[contenthash].bundle.js',
+    path: path.resolve(__dirname, 'dist')
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html'
     }),
-    extractCSS
+    new MiniCssExtractPlugin({
+      filename: 'app-bundle.[contenthash].css'
+    })
   ],
   module: {
     rules: [
@@ -77,9 +81,5 @@ module.exports = {
         }
       }
     ]
-  },
-  output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
   }
 };
