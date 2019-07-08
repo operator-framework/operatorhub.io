@@ -4,6 +4,7 @@ const http = require('http');
 const https = require('https');
 const selfSignedHttps = require('self-signed-https');
 const _ = require('lodash');
+const compression = require('compression');
 
 const loadService = require('./services/loadService');
 const persistentStore = require('./store/persistentStore');
@@ -13,6 +14,9 @@ const { serverPort, secureServerPort, useSSL, keysDirectory, mockMode } = requir
 const mockOperators = require('./__mock__/operators');
 
 const app = express();
+// gzip content - helps reduce size of REST endpoint
+// as static content is cached by CDN
+app.use(compression());
 
 const setupApp = () => {
   app.set('port', serverPort);

@@ -6,29 +6,112 @@ import store from './redux/store';
 import { reduxConstants } from './redux';
 
 import OperatorHub from './pages/operatorHub/OperatorHub';
-import OperatorPage from './pages/operatorPage/OperatorPage';
-import OperatorPreviewPage from './pages/operatorPreviewPage/OperatorPreviewPage';
-import OperatorBundlePage from './pages/operatorBundlePage/OperatorBundlePage';
-import OperatorYamlEditorPage from './pages/operatorBundlePage/OperatorYamlEditorPage';
-import GettingStarted from './pages/documentation/GettingStarted';
-import WhatIsAnOperator from './pages/documentation/WhatIsAnOperator';
-import Contribute from './pages/documentation/Contribute';
-import HowToInstallOperators from './pages/documentation/HowToInstallOperators';
-import About from './pages/documentation/About';
 import ConfirmationModal from './components/modals/ConfirmationModal';
-import OperatorMetadataPage from './pages/operatorBundlePage/OperatorMetadataPage';
-import OperatorDeploymentsPage from './pages/operatorBundlePage/OperatorDeploymentsPage';
-import OperatorInstallModesPage from './pages/operatorBundlePage/OperatorInstallModesPage';
-import OperatorOwnedCRDsPage from './pages/operatorBundlePage/OperatorOwnedCRDsPage';
-import OperatorRequiredCRDsPage from './pages/operatorBundlePage/OperatorRequiredCRDsPage';
-import OperatorPermissionsPage from './pages/operatorBundlePage/OperatorPermissionsPage';
-import OperatorClusterPermissionsPage from './pages/operatorBundlePage/OperatorClusterPermissionsPage';
-import OperatorOwnedCRDEditPage from './pages/operatorBundlePage/OperatorOwnedCRDEditPage';
-import OperatorDeploymentEditPage from './pages/operatorBundlePage/OperatorDeploymentEditPage';
-import OperatorRequiredCRDEditPage from './pages/operatorBundlePage/OperatorRequiredCRDEditPage';
-import OperatorPermissionsEditPage from './pages/operatorBundlePage/OperatorPermissionsEditPage';
-import OperatorClusterPermissionsEditPage from './pages/operatorBundlePage/OperatorClusterPermissionsEditPage';
-import OperatorPackagePage from './pages/operatorBundlePage/OperatorPackagePage';
+import asyncComponent from './common/AsyncComponent';
+
+const OperatorPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPage" */ './pages/operatorPage/OperatorPage').then(module => module.default)
+);
+const OperatorPreviewPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPreviewPage" */ './pages/operatorPreviewPage/OperatorPreviewPage').then(
+    module => module.default
+  )
+);
+const GettingStarted = asyncComponent(() =>
+  import(/* webpackChunkName: "GettingStarted" */ './pages/documentation/GettingStarted').then(module => module.default)
+);
+const WhatIsAnOperator = asyncComponent(() =>
+  import(/* webpackChunkName: "WhatIsAnOperator" */ './pages/documentation/WhatIsAnOperator').then(
+    module => module.default
+  )
+);
+const Contribute = asyncComponent(() =>
+  import(/* webpackChunkName: "Contribute" */ './pages/documentation/Contribute').then(module => module.default)
+);
+const HowToInstallOperators = asyncComponent(() =>
+  import(/* webpackChunkName: "HowToInstallOperators" */ './pages/documentation/HowToInstallOperators').then(
+    module => module.default
+  )
+);
+const About = asyncComponent(() =>
+  import(/* webpackChunkName: "About" */ './pages/documentation/About').then(module => module.default)
+);
+
+const OperatorBundlePage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorBundlePage" */ './pages/operatorBundlePage/OperatorBundlePage').then(
+    module => module.default
+  )
+);
+const OperatorYamlEditorPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorYamlEditorPage" */ './pages/operatorBundlePage/OperatorYamlEditorPage').then(
+    module => module.default
+  )
+);
+const OperatorMetadataPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorMetadataPage" */ './pages/operatorBundlePage/OperatorMetadataPage').then(
+    module => module.default
+  )
+);
+const OperatorDeploymentsPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorDeploymentsPage" */ './pages/operatorBundlePage/OperatorDeploymentsPage').then(
+    module => module.default
+  )
+);
+const OperatorInstallModesPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorInstallModesPage" */ './pages/operatorBundlePage/OperatorInstallModesPage').then(
+    module => module.default
+  )
+);
+const OperatorOwnedCRDsPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorOwnedCRDsPage" */ './pages/operatorBundlePage/OperatorOwnedCRDsPage').then(
+    module => module.default
+  )
+);
+const OperatorRequiredCRDsPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorRequiredCRDsPage" */ './pages/operatorBundlePage/OperatorRequiredCRDsPage').then(
+    module => module.default
+  )
+);
+const OperatorPermissionsPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPermissionsPage" */ './pages/operatorBundlePage/OperatorPermissionsPage').then(
+    module => module.default
+  )
+);
+const OperatorClusterPermissionsPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorClusterPermissionsPage" */ './pages/operatorBundlePage/OperatorClusterPermissionsPage').then(
+    module => module.default
+  )
+);
+const OperatorOwnedCRDEditPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorOwnedCRDEditPage" */ './pages/operatorBundlePage/OperatorOwnedCRDEditPage').then(
+    module => module.default
+  )
+);
+const OperatorDeploymentEditPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorDeploymentEditPage" */ './pages/operatorBundlePage/OperatorDeploymentEditPage').then(
+    module => module.default
+  )
+);
+const OperatorRequiredCRDEditPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorRequiredCRDEditPage" */ './pages/operatorBundlePage/OperatorRequiredCRDEditPage').then(
+    module => module.default
+  )
+);
+const OperatorPermissionsEditPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPermissionsEditPage" */ './pages/operatorBundlePage/OperatorPermissionsEditPage').then(
+    module => module.default
+  )
+);
+const OperatorClusterPermissionsEditPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorClusterPermissionsEditPage" */ './pages/operatorBundlePage/OperatorClusterPermissionsEditPage').then(
+    module => module.default
+  )
+);
+const OperatorPackagePage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPackagePage" */ './pages/operatorBundlePage/OperatorPackagePage').then(
+    module => module.default
+  )
+);
 
 class App extends React.Component {
   constructor(props) {
