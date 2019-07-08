@@ -8,8 +8,7 @@ module.exports = {
   },
   output: {
     filename: '[name].[chunkhash:6].bundle.js',
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/static/'
+    path: path.resolve(__dirname, 'dist')
   },
   plugins: [
     new HtmlWebpackPlugin({
