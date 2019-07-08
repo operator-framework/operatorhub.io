@@ -1,6 +1,5 @@
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -8,7 +7,7 @@ module.exports = {
     app: './src/index.js'
   },
   output: {
-    filename: '[name].[contenthash].bundle.js',
+    filename: '[name].[chunkhash:6].bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
   plugins: [
@@ -16,7 +15,7 @@ module.exports = {
       template: './src/index.html'
     }),
     new MiniCssExtractPlugin({
-      filename: 'app-bundle.[contenthash].css'
+      filename: 'app-bundle.[contenthash:6].css'
     })
   ],
   module: {
@@ -81,5 +80,33 @@ module.exports = {
         }
       }
     ]
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      minSize: 50000,
+      maxSize: Infinity,
+      minChunks: 1,
+      maxAsyncRequests: 3,
+      maxInitialRequests: 2,
+      automaticNameDelimiter: '~',
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          chunks: 'initial'
+        },
+        async_vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          chunks: 'async'
+        },
+        common: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true
+        }
+      }
+    }
   }
 };
