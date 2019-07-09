@@ -1,4 +1,7 @@
+const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const merge = require('webpack-merge');
+
 const common = require('./webpack.common.js');
 
 const HOST = process.env.HOST || 'localhost';
@@ -32,6 +35,16 @@ module.exports = merge(common, {
       });
     }
   },
+  output: {
+    publicPath: '/',
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: 'app-bundle.css'
+    })
+  ],
   module: {
     rules: [
       {
@@ -39,8 +52,5 @@ module.exports = merge(common, {
         use: ['style-loader', 'css-loader']
       }
     ]
-  },
-  output: {
-    publicPath: '/'
   }
 });

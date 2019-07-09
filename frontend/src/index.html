@@ -23,24 +23,107 @@
   <link rel="apple-touch-icon" sizes="144x144" href="/ico/apple-icon-144x144.png" type="image/png">
   <link rel="apple-touch-icon" sizes="152x152" href="/ico/apple-icon-152x152.png" type="image/png">
   <link rel="apple-touch-icon" sizes="180x180" href="/ico/apple-icon-180x180.png" type="image/png">
-  <link rel="icon" type="image/png" sizes="192x192"  href="/ico/android-icon-192x192.png" type="image/png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/ico/android-icon-192x192.png" type="image/png">
   <link rel="icon" type="image/png" sizes="32x32" href="/ico/favicon-32x32.png" type="image/png">
   <link rel="icon" type="image/png" sizes="96x96" href="/ico/favicon-96x96.png" type="image/png">
   <link rel="icon" type="image/png" sizes="16x16" href="/ico/favicon-16x16.png" type="image/png">
   <link rel="manifest" href="/manifest.json">
 
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
-  <link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700' rel='stylesheet' type='text/css'>
+  <!--link href="https://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet" type="text/css"-->
+  <style>
+    /* latin-ext */
+    @font-face {
+      font-family: 'Lato';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v15/S6uyw4BMUTPHjxAwXjeu.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
 
-  <script id="adobe_dtm" src="//www.redhat.com/dtm.js" type="text/javascript"></script>
+    /* latin */
+    @font-face {
+      font-family: 'Lato';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v15/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Lato';
+      font-style: normal;
+      font-weight: 700;
+      src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v15/S6u9w4BMUTPHh6UVSwaPGR_p.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Lato';
+      font-style: normal;
+      font-weight: 700;
+      src: local('Lato Bold'), local('Lato-Bold'), url(https://fonts.gstatic.com/s/lato/v15/S6u9w4BMUTPHh6UVSwiPGQ.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+  </style>
+
+  <!--link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" rel="stylesheet" type="text/css"-->
+  <style>
+    /* latin-ext */
+    @font-face {
+      font-family: 'Source Code Pro';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(https://fonts.gstatic.com/s/sourcecodepro/v9/HI_SiYsKILxRpg3hIP6sJ7fM7PqlM-vWjMY.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Source Code Pro';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(https://fonts.gstatic.com/s/sourcecodepro/v9/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevW.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Source Code Pro';
+      font-style: normal;
+      font-weight: 700;
+      src: local('Source Code Pro Bold'), local('SourceCodePro-Bold'), url(https://fonts.gstatic.com/s/sourcecodepro/v9/HI_XiYsKILxRpg3hIP6sJ7fM7Pqths7Dvecq_mk.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Source Code Pro';
+      font-style: normal;
+      font-weight: 700;
+      src: local('Source Code Pro Bold'), local('SourceCodePro-Bold'), url(https://fonts.gstatic.com/s/sourcecodepro/v9/HI_XiYsKILxRpg3hIP6sJ7fM7Pqths7Ds-cq.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+  </style>
+
+
+  <link href="/fonts/fontawesome-webfont.woff2" rel="preload" as="font">
+  <link href="/fonts/PatternFlyIcons-webfont.ttf" rel="preload" as="font">
+
+  <script id="adobe_dtm" defer src="//www.redhat.com/dtm.js" type="text/javascript"></script>
 </head>
 
 <body>
   <noscript>
     <h1>Enabling JavaScript is required to run this app.</h1>
     <p>This app was built with JavaScript to provide a fast search experience.
-      The underlying data this app presents is available at <a href="https://github.com/operator-framework/community-operators">https://github.com/operator-framework/community-operators</a> (and you can contribute new operators there).</p>
-    <p>The source code for this site is available at <a href="https://github.com/operator-framework/operatorhub.io">https://github.com/operator-framework/operatorhub.io</a>.</p>
+      The underlying data this app presents is available at <a
+        href="https://github.com/operator-framework/community-operators">https://github.com/operator-framework/community-operators</a>
+      (and you can contribute new operators there).</p>
+    <p>The source code for this site is available at <a
+        href="https://github.com/operator-framework/operatorhub.io">https://github.com/operator-framework/operatorhub.io</a>.
+    </p>
   </noscript>
   <div id="root"></div>
   <script type="text/javascript">
