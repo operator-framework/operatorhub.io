@@ -66,7 +66,7 @@ const About = ({ history, ...props }) => {
             quay.io. New content comes in from anyone who wishes to contribute an Operator by the means of a Pull
             Request. Information from the Operators metadata (
             <ExternalLink href={`${buildYourCSV}`} text="ClusterServiceVersion" indicator={false} /> in the{' '}
-            <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populated
+            <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populate
             the Operators’ detail page on OperatorHub.io. With this metadata Operators are packaged and ready-to-run on
             any Kubernetes cluster that has the Operator Lifecycle Manager (OLM) available. On a Kubernetes cluster, OLM
             allows a user to “
@@ -83,7 +83,7 @@ const About = ({ history, ...props }) => {
             A simple Pull Request is all that is required for any developer to add their Operator to the repository to
             be screened for inclusion on OperatorHub.io. Information from the Operators metadata (
             <ExternalLink href={`${buildYourCSV}`} text="ClusterServiceVersion" indicator={false} />) in the{' '}
-            <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populated
+            <ExternalLink href={`${operatorsRepo}`} text="GitHub repository" indicator={false} /> is used to populate
             the Operators’ detail page. With this metadata Operators are packaged and ready-to-run on any Kubernetes
             cluster that has the Operator Lifecycle Manager (OLM) available.
           </p>
