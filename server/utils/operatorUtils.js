@@ -161,12 +161,6 @@ const normalizeOperator = async operator => {
   const categoriesString = _.get(annotations, 'categories');
   const packageInfo = _.get(operator, 'packageInfo', {});
 
-  // if (packageInfo.packageName) {
-  //   console.log(packageInfo.packageName, operator.metadata.name);
-  // } else {
-  //   console.error('No package name', operator.metadata.name);
-  // }
-
   let thumbBase64;
 
   if (iconObj) {

@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 
 const testRouteFile = path.resolve(__dirname, '../../test-route/akamai-sureroute-test-object.html');
@@ -52,7 +53,7 @@ module.exports = app => {
   app.use(express.static('../frontend/dist'));
 
   // Page Routes
-  _.forEach(uiRoutes, uiRoute => {
+  uiRoutes.forEach(uiRoute => {
     addRootRedirect(app, uiRoute);
   });
 
