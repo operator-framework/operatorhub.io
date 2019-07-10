@@ -1,5 +1,4 @@
 const express = require('express');
-const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 
@@ -54,7 +53,7 @@ module.exports = app => {
   app.use(express.static('../frontend/dist'));
 
   // Page Routes
-  _.forEach(uiRoutes, uiRoute => {
+  uiRoutes.forEach(uiRoute => {
     addRootRedirect(app, uiRoute);
   });
 
