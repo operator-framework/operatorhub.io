@@ -40,7 +40,7 @@
     "simplemde": "^1.11.2"  
   },
   "scripts": {
-    "build": "webpack --config webpack.prod.js",
+    "build": "node node_modules//webpack/bin/webpack.js --config webpack.prod.js",
     "start": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.DEV_MODE='\"true\"'",
     "mock": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.MOCK_MODE='\"true\"'",
     "lint": "eslint ./src/",
