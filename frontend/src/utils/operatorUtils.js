@@ -98,101 +98,6 @@ const normalizeOperator = operator => {
   };
 };
 
-function getDefaultDescription() {
-  return {
-    aboutApplication: `${OPERATOR_DESCRIPTION_APPLICATION_HEADER}\n`,
-    aboutOperator: `${OPERATOR_DESCRIPTION_ABOUT_HEADER}\n`,
-    prerequisites: `${OPERATOR_DESCRIPTION_PREREQUISITES_HEADER}\n`
-  };
-}
-
-const getDefaultRequiredCRD = () => ({
-  name: '',
-  displayName: '',
-  kind: '',
-  version: '',
-  description: ''
-});
-
-const getDefaultOnwedCRD = () => ({
-  ...getDefaultRequiredCRD(),
-  resources: [
-    { version: 'v1', kind: 'Deployment' },
-    { version: 'v1', kind: 'Service' },
-    { version: 'v1', kind: 'ReplicaSet' },
-    { version: 'v1', kind: 'Pod' },
-    { version: 'v1', kind: 'Secret' },
-    { version: 'v1', kind: 'ConfigMap' }
-  ]
-});
-
-const defaultDeployment = {
-  name: 'example-operator',
-  spec: {
-    replicas: 1,
-    selector: {
-      matchLabels: {
-        'k8s-app': 'example-operator'
-      }
-    },
-    template: {
-      metadata: {
-        labels: {
-          'k8s-app': 'example-operator'
-        }
-      },
-      spec: {
-        containers: {
-          image: 'quay.io/example/example-operator:v0.0.1',
-          imagePullPolicy: 'Always',
-          name: 'example-operator',
-          resources: {
-            limits: {
-              cpu: '200m',
-              memory: '100Mi'
-            },
-            requests: {
-              cpu: '100m',
-              memory: '50Mi'
-            }
-          },
-          env: [
-            {
-              name: 'WATCH_NAMESPACE',
-              valueFrom: {
-                fieldRef: {
-                  fieldPath: "metadata.annotations['olm.targetNamespaces']"
-                }
-              }
-            },
-            {
-              name: 'POD_NAME',
-              valueFrom: {
-                fieldRef: {
-                  fieldPath: 'metadata.name'
-                }
-              }
-            },
-            {
-              name: 'OPERATOR_NAME',
-              value: 'example-operator'
-            }
-          ]
-        },
-        imagePullSecrets: [
-          {
-            name: ''
-          }
-        ],
-        nodeSelector: {
-          'beta.kubernetes.io/os': 'linux'
-        },
-        serviceAccountName: 'example-operator'
-      }
-    }
-  }
-};
-
 const getDefaultAlmExample = () => ({
   apiVersion: '',
   kind: '',
@@ -221,7 +126,11 @@ const defaultOperator = {
   },
   spec: {
     displayName: '',
-    description: getDefaultDescription(),
+    description: {
+      aboutApplication: `${OPERATOR_DESCRIPTION_APPLICATION_HEADER}\n`,
+      aboutOperator: `${OPERATOR_DESCRIPTION_ABOUT_HEADER}\n`,
+      prerequisites: `${OPERATOR_DESCRIPTION_PREREQUISITES_HEADER}\n`
+    },
     maturity: '',
     version: '',
     replaces: '',
@@ -236,15 +145,106 @@ const defaultOperator = {
     links: [{ name: '', url: '' }],
     icon: { base64data: '', mediatype: '' },
     customresourcedefinitions: {
-      owned: [getDefaultOnwedCRD()],
-      required: [getDefaultRequiredCRD()]
+      owned: [
+        {
+          name: '',
+          displayName: '',
+          kind: '',
+          version: '',
+          description: '',
+          resources: [
+            { version: 'v1', kind: 'Deployment' },
+            { version: 'v1', kind: 'Service' },
+            { version: 'v1', kind: 'ReplicaSet' },
+            { version: 'v1', kind: 'Pod' },
+            { version: 'v1', kind: 'Secret' },
+            { version: 'v1', kind: 'ConfigMap' }
+          ]
+        }
+      ],
+      required: [
+        {
+          name: '',
+          displayName: '',
+          kind: '',
+          version: '',
+          description: ''
+        }
+      ]
     },
     install: {
       strategy: 'deployment',
       spec: {
-        permissions: null,
-        clusterPermissions: null,
-        deployments: [_.cloneDeep(defaultDeployment)]
+        permissions: [],
+        clusterPermissions: [],
+        deployments: [
+          {
+            name: 'example-operator',
+            spec: {
+              replicas: 1,
+              selector: {
+                matchLabels: {
+                  'k8s-app': 'example-operator'
+                }
+              },
+              template: {
+                metadata: {
+                  labels: {
+                    'k8s-app': 'example-operator'
+                  }
+                },
+                spec: {
+                  containers: {
+                    image: 'quay.io/example/example-operator:v0.0.1',
+                    imagePullPolicy: 'Always',
+                    name: 'example-operator',
+                    resources: {
+                      limits: {
+                        cpu: '200m',
+                        memory: '100Mi'
+                      },
+                      requests: {
+                        cpu: '100m',
+                        memory: '50Mi'
+                      }
+                    },
+                    env: [
+                      {
+                        name: 'WATCH_NAMESPACE',
+                        valueFrom: {
+                          fieldRef: {
+                            fieldPath: "metadata.annotations['olm.targetNamespaces']"
+                          }
+                        }
+                      },
+                      {
+                        name: 'POD_NAME',
+                        valueFrom: {
+                          fieldRef: {
+                            fieldPath: 'metadata.name'
+                          }
+                        }
+                      },
+                      {
+                        name: 'OPERATOR_NAME',
+                        value: 'example-operator'
+                      }
+                    ]
+                  },
+                  imagePullSecrets: [
+                    {
+                      name: ''
+                    }
+                  ],
+                  nodeSelector: {
+                    'beta.kubernetes.io/os': 'linux'
+                  },
+                  serviceAccountName: 'example-operator'
+                }
+              }
+            }
+          }
+        ]
       }
     },
     installModes: [
@@ -256,8 +256,42 @@ const defaultOperator = {
   }
 };
 
-const isOwnedCrdDefault = crd => _.isEqual(crd, getDefaultOnwedCRD());
-const isRequiredCrdDefault = crd => _.isEqual(crd, getDefaultRequiredCRD());
+// parsing json is significantly faster than deepCloning it
+const defaultOperatorJSON = JSON.stringify(defaultOperator);
+
+function getDefaultOperator() {
+  return JSON.parse(defaultOperatorJSON);
+}
+
+function getDefaultDescription() {
+  return _.clone(defaultOperator.spec.description);
+}
+
+/** @private */
+const defaultRequiredCrdRef = defaultOperator.spec.customresourcedefinitions.required[0];
+
+function getDefaultRequiredCRD() {
+  return _.clone(defaultRequiredCrdRef);
+}
+
+/** @private */
+const defaultOnwedCrdRef = defaultOperator.spec.customresourcedefinitions.owned[0];
+
+function getDefaultOnwedCRD() {
+  return _.clone(defaultOnwedCrdRef);
+}
+
+/** @private */
+const defaultDeploymentRef = defaultOperator.spec.install.spec.deployments[0];
+
+function getDefaultDeployment() {
+  return _.clone(defaultDeploymentRef);
+}
+
+const isDefaultOperator = operator => _.isEqual(operator, defaultOperator);
+const isOwnedCrdDefault = crd => _.isEqual(crd, defaultOnwedCrdRef);
+const isRequiredCrdDefault = crd => _.isEqual(crd, defaultRequiredCrdRef);
+const isDeploymentDefault = deployment => _.isEqual(deployment, defaultDeploymentRef);
 
 /**
  * Convert ALM examples to objects so we can find one for current CRD
@@ -541,13 +575,15 @@ const validateOperator = operator => {
 
 export {
   generateIdFromVersionedName,
+  normalizeOperator,
+  getDefaultOperator,
   getDefaultDescription,
   getDefaultAlmExample,
-  normalizeOperator,
-  defaultOperator,
-  defaultDeployment,
   getDefaultRequiredCRD,
   getDefaultOnwedCRD,
+  getDefaultDeployment,
+  isDefaultOperator,
+  isDeploymentDefault,
   convertExampleYamlToObj,
   removeEmptyOptionalValuesFromOperator,
   validCapabilityStrings,

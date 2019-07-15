@@ -9,7 +9,7 @@ import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import YamlViewer from '../../components/YamlViewer';
 import { sectionsFields } from './bundlePageUtils';
-import { getValueError, defaultDeployment } from '../../utils/operatorUtils';
+import { getValueError, getDefaultDeployment } from '../../utils/operatorUtils';
 import { operatorFieldValidators } from '../../utils/operatorDescriptors';
 import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
 
@@ -30,7 +30,7 @@ class OperatorDeploymentEditPage extends React.Component {
     let deployment = _.find(operatorDeployments, { name });
 
     if (!deployment) {
-      deployment = _.cloneDeep(defaultDeployment);
+      deployment = getDefaultDeployment();
 
       // override name so its obvious that its new
       deployment.name = 'Add Deployment';
