@@ -10,7 +10,7 @@ import YamlViewer from '../../components/YamlViewer';
 import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
-import { defaultOperator } from '../../utils/operatorUtils';
+import { isDefaultOperator } from '../../utils/operatorUtils';
 import { resetEditorOperatorAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
 
 class OperatorYamlEditorPage extends React.Component {
@@ -85,7 +85,7 @@ class OperatorYamlEditorPage extends React.Component {
     const { operator } = this.props;
     const { yamlError } = this.state;
 
-    const isDefault = _.isEqual(operator, defaultOperator);
+    const isDefault = isDefaultOperator(operator);
 
     const previewClasses = classNames('oh-button oh-button-secondary', { disabled: yamlError });
     const clearClasses = classNames('oh-button oh-button-secondary', { disabled: isDefault });

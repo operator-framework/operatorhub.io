@@ -15,7 +15,12 @@ import {
   sectionsFields,
   getMissingCrdUploads
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
-import { defaultOperator, getDefaultOnwedCRD, generateIdFromVersionedName } from '../../../utils/operatorUtils';
+import {
+  getDefaultOperator,
+  getDefaultOnwedCRD,
+  generateIdFromVersionedName,
+  isDeploymentDefault
+} from '../../../utils/operatorUtils';
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
 import {
@@ -27,6 +32,7 @@ import {
 
 const validFileTypes = ['.yaml'];
 const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\./g, '\\.')})$`, 'i');
+const securityObjectTypes = ['ClusterRole', 'Role', 'ClusterRoleBinding', 'RoleBinding'];
 
 class ManifestUploader extends React.Component {
   state = {
@@ -51,19 +57,22 @@ class ManifestUploader extends React.Component {
    */
   getObjectNameAndType = content => {
     if (content.kind && content.apiVersion && content.metadata) {
+      const type = content.kind;
+      const { name } = content.metadata;
       const apiName = content.apiVersion.substring(0, content.apiVersion.indexOf('/'));
 
-      if (content.kind === 'ClusterServiceVersion' && apiName === 'operators.coreos.com') {
-        return {
-          type: 'ClusterServiceVersion',
-          name: content.metadata.name
-        };
-      } else if (content.kind === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
-        return {
-          type: 'CustomResourceDefinition',
-          name: content.metadata.name
-        };
+      if (type === 'ClusterServiceVersion' && apiName === 'operators.coreos.com') {
+        return { type, name };
+      } else if (type === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
+        return { type, name };
+      } else if (type === 'Deployment' && apiName === 'apps') {
+        return { type, name };
+      } else if (type === 'ServiceAccount') {
+        return { type, name };
+      } else if (securityObjectTypes.includes(type) && apiName === 'rbac.authorization.k8s.io') {
+        return { type, name };
       }
+
       // package file is different with no kind and API
     } else if (content.packageName && content.channels) {
       return {
@@ -85,8 +94,9 @@ class ManifestUploader extends React.Component {
       const upload = uploads[i];
 
       if (
-        (!upload.errored && upload.type === 'ClusterServiceVersion') ||
-        (upload.type === 'CustomResourceDefinition' && upload.data)
+        !upload.errored &&
+        (upload.type === 'ClusterServiceVersion' || upload.type === 'CustomResourceDefinition') &&
+        upload.data
       ) {
         const id = generateIdFromVersionedName(upload.name);
 
@@ -133,8 +143,14 @@ class ManifestUploader extends React.Component {
 
     if (upload.type === 'ClusterServiceVersion') {
       this.processCsvFile(upload.data);
+    } else if (upload.type === 'Deployment') {
+      this.processDeployment(upload.data);
     } else if (upload.type === 'Package') {
       this.processPackageFile(upload.data);
+    } else if (upload.type === 'ServiceAccount') {
+      this.processPermissionObject(upload);
+    } else if (securityObjectTypes.includes(upload.type)) {
+      this.processPermissionObject(upload);
     }
 
     return upload;
@@ -205,6 +221,148 @@ class ManifestUploader extends React.Component {
     });
 
     markSectionForReview('package');
+  };
+
+  /**
+   * Pre-process CSV file and store it redux
+   * @param {*} parsedFile
+   */
+  processDeployment = parsedFile => {
+    const { operator, storeEditorOperator, markSectionForReview } = this.props;
+    const newOperator = _.cloneDeep(operator);
+    let deployments = _.get(newOperator, sectionsFields.deployments, []);
+    const name = _.get(parsedFile, 'metadata.name', `Deployment-${deployments.length + 1}`);
+
+    if (parsedFile.spec) {
+      // add name to deployment from operator. If none exists use empty
+      const newDeployment = {
+        name: _.get(newOperator, 'metadata.name') || name,
+        spec: parsedFile.spec
+      };
+
+      // replace default deployment
+      if (deployments.length === 1 && isDeploymentDefault(deployments[0])) {
+        deployments = [newDeployment];
+      } else {
+        deployments.push(newDeployment);
+      }
+
+      // set new deployments
+      _.set(newOperator, sectionsFields.deployments, deployments);
+
+      storeEditorOperator(newOperator);
+      markSectionForReview('deployments');
+    } else {
+      console.warn(`Deployment object is invalid as doesn't contain spec object`);
+    }
+  };
+
+  /**
+   * Filter latest object based on defined type and namespace
+   * Used for filtering roles / role bindings / service account
+   * @param {UploadMetadata[]} uploads
+   * @param {'ClusterRole'|'Role'|'ClusterRoleBinding'|'RoleBinding'|'ServiceAccount'} type
+   * @param {string} namespace
+   */
+  filterPermissionUploads = (uploads, type, namespace) =>
+    uploads
+      .filter(up => {
+        const name = _.get(up.data, 'metadata.name');
+        return !up.errored && up.type === type && name === namespace;
+      })
+      .reverse()[0];
+
+  /**
+   * Checks latest permission related object and decide
+   * if we have enough uploaded data to create from it permission record
+   * @param {UploadMetadata} upload
+   */
+  processPermissionObject = upload => {
+    const { uploads } = this.props;
+
+    /** @type {UploadMetadata[]} uploadsWithRecent */
+    const uploadsWithRecent = uploads.concat(upload);
+
+    // ensure that obejcts share namespace
+    const namespace = _.get(upload.data, 'metadata.name');
+
+    if (!namespace) {
+      console.log("Can't identify namespace for which to apply permissions!");
+      return;
+    }
+
+    const serviceAccountUpload = this.filterPermissionUploads(uploadsWithRecent, 'ServiceAccount', namespace);
+    const roleUpload = this.filterPermissionUploads(uploadsWithRecent, 'Role', namespace);
+    const roleBindingUpload = this.filterPermissionUploads(uploadsWithRecent, 'RoleBinding', namespace);
+    const clusterRoleUpload = this.filterPermissionUploads(uploadsWithRecent, 'ClusterRoleBinding', namespace);
+    const clusterRoleBindingUpload = this.filterPermissionUploads(uploadsWithRecent, 'ClusterRoleBinding', namespace);
+
+    // hurray we have all we need
+    if (serviceAccountUpload) {
+      if (roleUpload && roleBindingUpload) {
+        this.setPermissions(roleUpload.data, roleBindingUpload.data);
+        return;
+      }
+      if (clusterRoleUpload && clusterRoleBindingUpload) {
+        this.setPermissions(clusterRoleUpload.data, clusterRoleBindingUpload.data);
+      }
+
+      console.log('Missing some role or role binding object. Waiting.');
+    } else {
+      console.log('No ServiceAccount yet. Waiting');
+    }
+  };
+
+  /**
+   * Set permissions from collected kubernets objects
+   * @param {KubernetesRoleObject} roleObject
+   * @param {KubernetsRoleBindingObject} roleBindingObject
+   */
+  setPermissions = (roleObject, roleBindingObject) => {
+    const { operator, storeEditorOperator, markSectionForReview } = this.props;
+    const newOperator = _.cloneDeep(operator);
+
+    const { roleRef } = roleBindingObject;
+    const subjects = roleBindingObject.subjects || [];
+    let serviceAccounts = subjects.filter(subject => subject.kind === 'ServiceAccount');
+
+    if (roleRef && roleRef.name) {
+      serviceAccounts = serviceAccounts.filter(account => account.name === roleRef.name);
+
+      if (subjects.length !== serviceAccounts.length) {
+        console.log(
+          'Some role binding subject were removed as do not match namespace or are not kind of ServiceAccount',
+          roleBindingObject
+        );
+      }
+
+      const roleName = _.get(roleObject, 'metadata.name');
+      const { rules } = roleObject;
+
+      // check namespace to be sure we have correct roles
+      if (roleName === roleRef.name) {
+        const permission = {
+          serviceAccountName: roleName,
+          rules
+        };
+
+        // define where to add permission based on kind
+        const permissionType = roleObject.kind === 'Role' ? 'permissions' : 'cluster-permissions';
+
+        // update operator with added permission
+        const newPermissions = _.get(newOperator, sectionsFields[permissionType], []);
+        newPermissions.push(permission);
+        _.set(newOperator, sectionsFields[permissionType], newPermissions);
+
+        markSectionForReview(permissionType);
+
+        storeEditorOperator(newOperator);
+      } else {
+        console.warn("Can't match role namespace with one defined in role binding.");
+      }
+    } else {
+      console.warn(`Role binding does not contain "roleRef" or it does not have name!`, roleBindingObject);
+    }
   };
 
   /**
@@ -287,13 +445,18 @@ class ManifestUploader extends React.Component {
   /**
    * Identify if operator field was changed by upload
    */
-  operatorFieldWasUpdated = (fieldName, operator, uploadedOperator, mergedOperator) =>
+  operatorFieldWasUpdated = (fieldName, operator, uploadedOperator, mergedOperator) => {
+    const defaultOperator = getDefaultOperator();
+
     // field changed when either its value changed
     // or uploaded operator was same as default values
-    !_.isEqual(_.get(operator, fieldName), _.get(mergedOperator, fieldName)) ||
-    // do not consider updated if value is empty - no real change was doen
-    (!_.isEmpty(_.get(defaultOperator, fieldName)) &&
-      _.isEqual(_.get(defaultOperator, fieldName), _.get(uploadedOperator, fieldName)));
+    return (
+      !_.isEqual(_.get(operator, fieldName), _.get(mergedOperator, fieldName)) ||
+      // do not consider updated if value is empty - no real change was doen
+      (!_.isEmpty(_.get(defaultOperator, fieldName)) &&
+        _.isEqual(_.get(defaultOperator, fieldName), _.get(uploadedOperator, fieldName)))
+    );
+  };
 
   /**
    * Handle upload using URL dialog
@@ -318,7 +481,7 @@ class ManifestUploader extends React.Component {
       return;
     }
     let fileIndex = 0;
-    let fileToUpload = files.item(fileIndex);
+    let fileToUpload = files.item(0);
 
     while (fileToUpload) {
       this.readFile(fileToUpload);
