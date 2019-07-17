@@ -6,14 +6,37 @@ import { store } from './redux/store';
 import { reduxConstants } from './redux';
 
 import OperatorHub from './pages/operatorHub/OperatorHub';
-import OperatorPage from './pages/operatorPage/OperatorPage';
-import OperatorPreviewPage from './pages/operatorPreviewPage/OperatorPreviewPage';
-import GettingStarted from './pages/documentation/GettingStarted';
-import WhatIsAnOperator from './pages/documentation/WhatIsAnOperator';
-import Contribute from './pages/documentation/Contribute';
-import HowToInstallOperators from './pages/documentation/HowToInstallOperators';
-import About from './pages/documentation/About';
 import ConfirmationModal from './components/ConfirmationModal';
+import asyncComponent from './common/AsyncComponent';
+
+const OperatorPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPage" */ './pages/operatorPage/OperatorPage').then(module => module.default)
+);
+const OperatorPreviewPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPreviewPage" */ './pages/operatorPreviewPage/OperatorPreviewPage').then(
+    module => module.default
+  )
+);
+const GettingStarted = asyncComponent(() =>
+  import(/* webpackChunkName: "GettingStarted" */ './pages/documentation/GettingStarted').then(module => module.default)
+);
+const WhatIsAnOperator = asyncComponent(() =>
+  import(/* webpackChunkName: "WhatIsAnOperator" */ './pages/documentation/WhatIsAnOperator').then(
+    module => module.default
+  )
+);
+const Contribute = asyncComponent(() =>
+  import(/* webpackChunkName: "Contribute" */ './pages/documentation/Contribute').then(module => module.default)
+);
+const HowToInstallOperators = asyncComponent(() =>
+  import(/* webpackChunkName: "HowToInstallOperators" */ './pages/documentation/HowToInstallOperators').then(
+    module => module.default
+  )
+);
+const About = asyncComponent(() =>
+  import(/* webpackChunkName: "About" */ './pages/documentation/About').then(module => module.default)
+);
+
 
 class App extends React.Component {
   constructor(props) {
