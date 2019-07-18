@@ -1,13 +1,13 @@
 import _ from 'lodash-es';
 
 import { reduxConstants } from './index';
-import { getAutoSavedOperatorData, defaultOperator } from '../utils/operatorUtils';
+import { getAutoSavedOperatorData, getDefaultOperator } from '../utils/operatorUtils';
 
 const getInitialState = () => {
   const autoSaved = getAutoSavedOperatorData();
 
   const initialState = {
-    operator: _.cloneDeep(defaultOperator),
+    operator: getDefaultOperator(),
     operatorModified: false,
     operatorPackage: {
       name: '',

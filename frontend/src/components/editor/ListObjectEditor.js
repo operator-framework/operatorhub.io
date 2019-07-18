@@ -11,7 +11,7 @@ class ListObjectEditor extends React.Component {
   getOperatorObjects = () => {
     const { operator, field, fieldFilter } = this.props;
 
-    return _.get(operator, field, []).filter(fieldFilter);
+    return (_.get(operator, field) || []).filter(fieldFilter);
   };
 
   addOperatorObject = event => {
@@ -47,7 +47,7 @@ class ListObjectEditor extends React.Component {
       <div key={index} className="oh-operator-editor__list__item">
         <h3>
           {title}
-          {subtitle && <span className="oh-operator-editor__list__item__subtitle">({operatorObject.name})</span>}
+          {objectSubtitleField && <span className="oh-operator-editor__list__item__subtitle">({subtitle})</span>}
         </h3>
         <div className="oh-operator-editor__list__item__actions">
           {error && (
