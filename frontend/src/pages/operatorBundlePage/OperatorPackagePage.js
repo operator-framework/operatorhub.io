@@ -5,12 +5,13 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
-import { renderOperatorFormField, EDITOR_STATUS } from './bundlePageUtils';
+import { EDITOR_STATUS } from './bundlePageUtils';
 
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import { operatorPackageFieldValidators } from '../../utils/operatorDescriptors';
 import { getValueError } from '../../utils/operatorUtils';
 import { setSectionStatusAction, updateOperatorPackageAction } from '../../redux/actions/editorActions';
+import { renderOperatorFormField } from '../../components/editor/forms/OtherFields';
 
 const FIELDS = ['name', 'channel'];
 
