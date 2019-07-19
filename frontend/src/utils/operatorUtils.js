@@ -8,6 +8,10 @@ import {
 } from './constants';
 import { sectionsFields, mergeDescriptions } from '../pages/operatorBundlePage/bundlePageUtils';
 
+/**
+ * Convert version format without dashes
+ * @param {string} version
+ */
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');
   normVersion = normVersion.replace(/-alpha/gi, 'alpha');
@@ -17,6 +21,10 @@ const normalizeVersion = version => {
 
 const validCapabilityStrings = ['Basic Install', 'Seamless Upgrades', 'Full Lifecycle', 'Deep Insights', 'Auto Pilot'];
 
+/**
+ * Maps capability to fixed lists
+ * @param {string} capability
+ */
 const normalizeCapabilityLevel = capability => {
   if (validCapabilityStrings.includes(capability)) {
     return capability;
@@ -24,6 +32,11 @@ const normalizeCapabilityLevel = capability => {
   return validCapabilityStrings[0];
 };
 
+/**
+ * Search for deployment example by kind
+ * @param {string} kind
+ * @param {Operator} operator
+ */
 const getExampleYAML = (kind, operator) => {
   const examples = _.get(operator, 'metadata.annotations.alm-examples');
   if (!examples) {
@@ -56,6 +69,7 @@ const normalizeCRDs = operator => {
   return _.map(customResourceDefinitions, crd => normalizeCRD(crd, operator));
 };
 
+/** @param {string} name */
 const generateIdFromVersionedName = name => name.slice(0, name.indexOf('.'));
 
 const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamespaces', supported: true });
@@ -107,6 +121,7 @@ const getDefaultAlmExample = () => ({
   spec: {}
 });
 
+/** @type Operator */
 const defaultOperator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
@@ -114,6 +129,7 @@ const defaultOperator = {
     name: '',
     namespace: 'placeholder',
     annotations: {
+      // @ts-ignore
       'alm-examples': `[${JSON.stringify(getDefaultAlmExample())}]`,
       categories: '',
       certified: false,
@@ -259,6 +275,7 @@ const defaultOperator = {
 // parsing json is significantly faster than deepCloning it
 const defaultOperatorJSON = JSON.stringify(defaultOperator);
 
+/** @returns {Operator} */
 function getDefaultOperator() {
   return JSON.parse(defaultOperatorJSON);
 }
@@ -288,6 +305,7 @@ function getDefaultDeployment() {
   return _.clone(defaultDeploymentRef);
 }
 
+/** @param {Operator} operator */
 const isDefaultOperator = operator => _.isEqual(operator, defaultOperator);
 const isOwnedCrdDefault = crd => _.isEqual(crd, defaultOnwedCrdRef);
 const isRequiredCrdDefault = crd => _.isEqual(crd, defaultRequiredCrdRef);
