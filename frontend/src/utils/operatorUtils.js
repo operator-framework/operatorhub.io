@@ -1,5 +1,5 @@
 import * as _ from 'lodash-es';
-import { operatorFieldValidators } from './operatorDescriptors';
+import { operatorFieldValidators, operatorPackageFieldValidators } from './operatorDescriptors';
 import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_APPLICATION_HEADER,
@@ -375,7 +375,7 @@ const clearAutosavedOperatorData = () => {
  * Validate key - value object type and return array of error objects
  * @param {*} value
  * @param {FieldValidator} fieldValidator
- * @param {*} operator
+ * @param {Operator} operator
  * @returns {string | PropError[] | null}
  */
 const getObjectPropsErrors = (value, fieldValidator, operator) => {
@@ -411,7 +411,7 @@ const getObjectPropsErrors = (value, fieldValidator, operator) => {
  * Validates array of values and returns array of error objects
  * @param {*} value
  * @param {FieldValidator} fieldValidator
- * @param {*} operator
+ * @param {Operator} operator
  */
 const getArrayValueErrors = (value, fieldValidator, operator) => {
   /** @type {ArrayError[]} */
@@ -454,7 +454,8 @@ const getArrayValueErrors = (value, fieldValidator, operator) => {
  * Validates single value
  * @param {*} value
  * @param {FieldValidator} fieldValidator
- * @param {*} operator
+ * @param {Operator} operator
+ * @returns {* | null}
  */
 const getValueError = (value, fieldValidator, operator) => {
   if (!fieldValidator) {
@@ -495,7 +496,7 @@ const getValueError = (value, fieldValidator, operator) => {
 
 /**
  * Validates field at defined path in operator
- * @param {*} operator
+ * @param {Operator} operator
  * @param {string} field field path
  */
 const getFieldValueError = (operator, field) => {
@@ -510,7 +511,7 @@ const getFieldValueError = (operator, field) => {
  * @param {*} operatorSubSection
  * @param {*} validators
  * @param {string[]} path
- * @param {*} operator
+ * @param {Operator} operator
  */
 const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
   const error = _.find(_.keys(validators), key => {
@@ -548,7 +549,7 @@ const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
 /**
  * Removes empty values which are part of default operator,
  * but should not be part of final operator as they are invalid
- * @param {*} operator
+ * @param {Operator} operator
  */
 const removeEmptyOptionalValuesFromOperator = operator => {
   const clonedOperator = _.cloneDeep(operator);
@@ -566,7 +567,7 @@ const removeEmptyOptionalValuesFromOperator = operator => {
 
 /**
  * Validates complete operator
- * @param {*} operator
+ * @param {Operator} operator
  */
 const validateOperator = operator => {
   if (_.isEmpty(operator)) {
@@ -591,6 +592,24 @@ const validateOperator = operator => {
   return !error;
 };
 
+/**
+ * Validates operator package field
+ * @param {*} value
+ * @param {string} fieldName
+ */
+const validateOperatorPackageField = (value, fieldName) =>
+  getValueError(value, _.get(operatorPackageFieldValidators, fieldName), {});
+
+/**
+ * Validatates operator package
+ * @param {*} operatorPackage
+ */
+const validateOperatorPackage = operatorPackage => {
+  const FIELDS = ['name', 'channel'];
+
+  return FIELDS.every(field => validateOperatorPackageField(operatorPackage[field], field) === null);
+};
+
 export {
   generateIdFromVersionedName,
   normalizeOperator,
@@ -609,5 +628,7 @@ export {
   getValueError,
   getFieldValueError,
   getAutoSavedOperatorData,
-  clearAutosavedOperatorData
+  clearAutosavedOperatorData,
+  validateOperatorPackageField,
+  validateOperatorPackage
 };

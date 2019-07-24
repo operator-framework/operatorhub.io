@@ -7,6 +7,11 @@ export const setSectionStatusAction = (section, status) => ({
   status
 });
 
+export const setBatchSectionsStatusAction = status => ({
+  type: reduxConstants.SET_EDITOR_ALL_SECTIONS_STATUS,
+  status
+});
+
 export const storeEditorOperatorAction = operator => ({
   type: reduxConstants.SET_EDITOR_OPERATOR,
   operator

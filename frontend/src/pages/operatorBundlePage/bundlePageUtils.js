@@ -56,7 +56,7 @@ const renderFormError = (field, formErrors) => {
 
 /**
  * Takes formErrors object and overrides it with validation result of fields
- * @param {*} operator
+ * @param {Operator} operator
  * @param {*} formErrors
  * @param {string | string[]} fields
  */
