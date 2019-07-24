@@ -1,5 +1,3 @@
-import _ from 'lodash-es';
-
 import { reduxConstants } from './index';
 import { getAutoSavedOperatorData, getDefaultOperator } from '../utils/operatorUtils';
 
@@ -37,50 +35,62 @@ const getInitialState = () => {
   return initialState;
 };
 
-const initialState = getInitialState();
-
-const editorReducer = (state = initialState, action) => {
-  let sectionStatus;
-
+const editorReducer = (state = getInitialState(), action) => {
   switch (action.type) {
     case reduxConstants.SET_EDITOR_SECTION_STATUS:
-      sectionStatus = {
-        ...state.sectionStatus,
-        [action.section]: action.status
+      return {
+        ...state,
+        sectionStatus: {
+          ...state.sectionStatus,
+          [action.section]: action.status
+        }
       };
 
-      return Object.assign({}, state, { sectionStatus });
+    case reduxConstants.SET_EDITOR_ALL_SECTIONS_STATUS:
+      return {
+        ...state,
+        sectionStatus: {
+          ...state.sectionStatus,
+          ...action.status
+        }
+      };
 
     case reduxConstants.RESET_EDITOR_OPERATOR:
-      return Object.assign({}, state, getInitialState());
+      return {
+        ...getInitialState()
+      };
 
     case reduxConstants.SET_EDITOR_OPERATOR:
       // save operator on change
-      return Object.assign({}, state, {
+      return {
+        ...state,
         operator: action.operator,
         operatorModified: true
-      });
+      };
 
     case reduxConstants.SET_EDITOR_PACKAGE:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         operatorPackage: action.operatorPackage
-      });
+      };
 
     case reduxConstants.SET_EDITOR_UPLOADS:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         uploads: action.uploads
-      });
+      };
 
     case reduxConstants.SET_EDITOR_FORM_ERRORS:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         formErrors: action.formErrors
-      });
+      };
 
     default:
       return state;
   }
 };
 
-editorReducer.initialState = initialState;
+editorReducer.initialState = getInitialState();
 
 export { editorReducer };

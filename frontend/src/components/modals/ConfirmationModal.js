@@ -19,7 +19,17 @@ class ConfirmationModal extends React.Component {
   };
 
   render() {
-    const { show, title, heading, body, icon, confirmButtonText, cancelButtonText, onConfirm } = this.props;
+    const {
+      show,
+      title,
+      heading,
+      body,
+      icon,
+      confirmButtonText,
+      cancelButtonText,
+      onConfirm,
+      restoreFocus
+    } = this.props;
 
     return (
       <MessageDialog
@@ -34,7 +44,7 @@ class ConfirmationModal extends React.Component {
         icon={icon}
         primaryText={heading}
         secondaryText={body}
-        enforceFocus
+        restoreFocus={restoreFocus}
       />
     );
   }
@@ -47,6 +57,7 @@ ConfirmationModal.propTypes = {
   icon: PropTypes.node,
   body: PropTypes.node,
   confirmButtonText: PropTypes.string,
+  restoreFocus: PropTypes.bool,
   cancelButtonText: PropTypes.string,
   onConfirm: PropTypes.func,
   onCancel: PropTypes.func
@@ -59,6 +70,7 @@ ConfirmationModal.defaultProps = {
   icon: <Icon type="pf" name="warning-triangle-o" />,
   confirmButtonText: 'Confirm',
   cancelButtonText: 'Cancel',
+  restoreFocus: true,
   onConfirm: null,
   onCancel: null
 };

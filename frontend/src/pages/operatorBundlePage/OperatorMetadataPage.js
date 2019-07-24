@@ -27,6 +27,9 @@ const metadataDescription = `
   `;
 
 class OperatorMetadataPage extends React.Component {
+  /**
+   * @type {Object}
+   */
   state = {
     workingOperator: {}
   };

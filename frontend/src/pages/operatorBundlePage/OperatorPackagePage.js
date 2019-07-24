@@ -2,18 +2,14 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
 import { EDITOR_STATUS } from './bundlePageUtils';
 
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { operatorPackageFieldValidators } from '../../utils/operatorDescriptors';
-import { getValueError } from '../../utils/operatorUtils';
+import { validateOperatorPackageField, validateOperatorPackage } from '../../utils/operatorUtils';
 import { setSectionStatusAction, updateOperatorPackageAction } from '../../redux/actions/editorActions';
 import { renderOperatorFormField } from '../../components/editor/forms/OtherFields';
-
-const FIELDS = ['name', 'channel'];
 
 class OperatorPackagePage extends React.Component {
   originalStatus = EDITOR_STATUS.empty;
@@ -29,13 +25,11 @@ class OperatorPackagePage extends React.Component {
 
     if (sectionStatus.package !== EDITOR_STATUS.empty) {
       // check that every field is valid
-      valid = FIELDS.every(field => this.validateFieldValue(operatorPackage[field], field) === null);
+      valid = validateOperatorPackage(operatorPackage);
     }
 
     return valid;
   };
-
-  validateFieldValue = (value, fieldName) => getValueError(value, _.get(operatorPackageFieldValidators, fieldName), {});
 
   hasErrors = errors => Object.values(errors).some(err => typeof err === 'string');
 
@@ -46,7 +40,7 @@ class OperatorPackagePage extends React.Component {
     const value = operatorPackage[field];
     const upatedFormErrors = { ...errors };
 
-    upatedFormErrors[field] = this.validateFieldValue(value, field);
+    upatedFormErrors[field] = validateOperatorPackageField(value, field);
 
     this.setState({
       errors: { ...upatedFormErrors }
