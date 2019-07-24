@@ -9,13 +9,7 @@ import { categoryOptions, maturityOptions, operatorFieldPlaceholders } from '../
 import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
 import ImageEditor from '../../components/editor/ImageEditor';
-import {
-  renderOperatorFormField,
-  getUpdatedFormErrors,
-  EDITOR_STATUS,
-  renderOperatorInput,
-  sectionsFields
-} from './bundlePageUtils';
+import { getUpdatedFormErrors, EDITOR_STATUS, sectionsFields } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import EditorSelect from '../../components/editor/EditorSelect';
@@ -24,6 +18,8 @@ import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../redux/actions/editorActions';
+import OperatorInput from '../../components/editor/forms/OperatorInput';
+import { renderOperatorFormField } from '../../components/editor/forms/OtherFields';
 
 const metadataDescription = `
   The metadata section contains general metadata around the name, version, and other info that aids users in the
@@ -31,6 +27,9 @@ const metadataDescription = `
   `;
 
 class OperatorMetadataPage extends React.Component {
+  /**
+   * @type {Object}
+   */
   state = {
     workingOperator: {}
   };
@@ -220,23 +219,23 @@ class OperatorMetadataPage extends React.Component {
     const maturity = _.get(workingOperator, field);
     const values = maturity ? [maturity] : [];
 
-    const inputComponent = (
-      <EditorSelect
-        id={_.camelCase(field)}
-        values={values}
-        isMulti={false}
-        noClear
-        options={maturityOptions}
-        placeholder={_.get(operatorFieldPlaceholders, field, `Select maturity`)}
-        onChange={selection => {
-          this.updateOperator(selection[0], field);
-        }}
-        onBlur={() => this.validateField(field)}
-        filterBy={() => true}
-      />
+    return (
+      <OperatorInput title="Maturity" field={field} formErrors={formErrors}>
+        <EditorSelect
+          id={_.camelCase(field)}
+          values={values}
+          isMulti={false}
+          noClear
+          options={maturityOptions}
+          placeholder={_.get(operatorFieldPlaceholders, field, `Select maturity`)}
+          onChange={selection => {
+            this.updateOperator(selection[0], field);
+          }}
+          onBlur={() => this.validateField(field)}
+          filterBy={() => true}
+        />
+      </OperatorInput>
     );
-
-    return renderOperatorInput('Maturity', field, inputComponent, formErrors);
   };
 
   renderCategories = () => {
@@ -247,22 +246,22 @@ class OperatorMetadataPage extends React.Component {
     const categories = _.get(workingOperator, field);
     const values = categories ? _.split(categories, ',') : [];
 
-    const inputComponent = (
-      <EditorSelect
-        id={_.camelCase(field)}
-        values={values}
-        isMulti
-        clearButton
-        options={categoryOptions}
-        placeholder={_.get(operatorFieldPlaceholders, field, `Select Categories`)}
-        onChange={selections => {
-          this.updateOperator(_.join(selections, ', '), field);
-        }}
-        onBlur={() => this.validateField(field)}
-      />
+    return (
+      <OperatorInput title="Categories" field={field} formErrors={formErrors}>
+        <EditorSelect
+          id={_.camelCase(field)}
+          values={values}
+          isMulti
+          clearButton
+          options={categoryOptions}
+          placeholder={_.get(operatorFieldPlaceholders, field, `Select Categories`)}
+          onChange={selections => {
+            this.updateOperator(_.join(selections, ', '), field);
+          }}
+          onBlur={() => this.validateField(field)}
+        />
+      </OperatorInput>
     );
-
-    return renderOperatorInput('Categories', field, inputComponent, formErrors);
   };
 
   renderKeywords = () => {
@@ -270,24 +269,24 @@ class OperatorMetadataPage extends React.Component {
     const { workingOperator } = this.state;
     const field = 'spec.keywords';
 
-    const inputComponent = (
-      <EditorSelect
-        id={_.camelCase(field)}
-        values={_.get(workingOperator, field)}
-        isMulti
-        clearButton
-        customSelect
-        placeholder={_.get(operatorFieldPlaceholders, field, `Add Keywords`)}
-        onChange={selections => {
-          this.updateOperator(selections, field);
-        }}
-        onBlur={() => this.validateField(field)}
-        newSelectionPrefix="Add keyword:"
-        emptyLabel="Add keyword:"
-      />
+    return (
+      <OperatorInput title="Keywords" field={field} formErrors={formErrors}>
+        <EditorSelect
+          id={_.camelCase(field)}
+          values={_.get(workingOperator, field)}
+          isMulti
+          clearButton
+          customSelect
+          placeholder={_.get(operatorFieldPlaceholders, field, `Add Keywords`)}
+          onChange={selections => {
+            this.updateOperator(selections, field);
+          }}
+          onBlur={() => this.validateField(field)}
+          newSelectionPrefix="Add keyword:"
+          emptyLabel="Add keyword:"
+        />
+      </OperatorInput>
     );
-
-    return renderOperatorInput('Keywords', field, inputComponent, formErrors);
   };
 
   renderMetadataFields = () => {
@@ -370,9 +369,8 @@ class OperatorMetadataPage extends React.Component {
   render() {
     const { formErrors, operator, history } = this.props;
 
-    const metadataErrorFields = _.filter(sectionsFields.metadata, metadataField => _.get(formErrors, metadataField));
-    const pageErrors = _.some(
-      metadataErrorFields,
+    const metadataErrorFields = sectionsFields.metadata.filter(metadataField => _.get(formErrors, metadataField));
+    const pageErrors = metadataErrorFields.some(
       errorField => this.originalStatus !== EDITOR_STATUS.empty || _.get(operator, errorField) !== undefined
     );
 

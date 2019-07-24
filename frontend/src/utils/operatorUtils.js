@@ -1,5 +1,5 @@
 import * as _ from 'lodash-es';
-import { operatorFieldValidators } from './operatorDescriptors';
+import { operatorFieldValidators, operatorPackageFieldValidators } from './operatorDescriptors';
 import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_APPLICATION_HEADER,
@@ -8,6 +8,10 @@ import {
 } from './constants';
 import { sectionsFields, mergeDescriptions } from '../pages/operatorBundlePage/bundlePageUtils';
 
+/**
+ * Convert version format without dashes
+ * @param {string} version
+ */
 const normalizeVersion = version => {
   let normVersion = version.replace(/-beta/gi, 'beta');
   normVersion = normVersion.replace(/-alpha/gi, 'alpha');
@@ -17,6 +21,10 @@ const normalizeVersion = version => {
 
 const validCapabilityStrings = ['Basic Install', 'Seamless Upgrades', 'Full Lifecycle', 'Deep Insights', 'Auto Pilot'];
 
+/**
+ * Maps capability to fixed lists
+ * @param {string} capability
+ */
 const normalizeCapabilityLevel = capability => {
   if (validCapabilityStrings.includes(capability)) {
     return capability;
@@ -24,6 +32,11 @@ const normalizeCapabilityLevel = capability => {
   return validCapabilityStrings[0];
 };
 
+/**
+ * Search for deployment example by kind
+ * @param {string} kind
+ * @param {Operator} operator
+ */
 const getExampleYAML = (kind, operator) => {
   const examples = _.get(operator, 'metadata.annotations.alm-examples');
   if (!examples) {
@@ -56,6 +69,7 @@ const normalizeCRDs = operator => {
   return _.map(customResourceDefinitions, crd => normalizeCRD(crd, operator));
 };
 
+/** @param {string} name */
 const generateIdFromVersionedName = name => name.slice(0, name.indexOf('.'));
 
 const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamespaces', supported: true });
@@ -107,6 +121,7 @@ const getDefaultAlmExample = () => ({
   spec: {}
 });
 
+/** @type Operator */
 const defaultOperator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
@@ -114,6 +129,7 @@ const defaultOperator = {
     name: '',
     namespace: 'placeholder',
     annotations: {
+      // @ts-ignore
       'alm-examples': `[${JSON.stringify(getDefaultAlmExample())}]`,
       categories: '',
       certified: false,
@@ -259,6 +275,7 @@ const defaultOperator = {
 // parsing json is significantly faster than deepCloning it
 const defaultOperatorJSON = JSON.stringify(defaultOperator);
 
+/** @returns {Operator} */
 function getDefaultOperator() {
   return JSON.parse(defaultOperatorJSON);
 }
@@ -288,6 +305,7 @@ function getDefaultDeployment() {
   return _.clone(defaultDeploymentRef);
 }
 
+/** @param {Operator} operator */
 const isDefaultOperator = operator => _.isEqual(operator, defaultOperator);
 const isOwnedCrdDefault = crd => _.isEqual(crd, defaultOnwedCrdRef);
 const isRequiredCrdDefault = crd => _.isEqual(crd, defaultRequiredCrdRef);
@@ -357,7 +375,7 @@ const clearAutosavedOperatorData = () => {
  * Validate key - value object type and return array of error objects
  * @param {*} value
  * @param {FieldValidator} fieldValidator
- * @param {*} operator
+ * @param {Operator} operator
  * @returns {string | PropError[] | null}
  */
 const getObjectPropsErrors = (value, fieldValidator, operator) => {
@@ -393,7 +411,7 @@ const getObjectPropsErrors = (value, fieldValidator, operator) => {
  * Validates array of values and returns array of error objects
  * @param {*} value
  * @param {FieldValidator} fieldValidator
- * @param {*} operator
+ * @param {Operator} operator
  */
 const getArrayValueErrors = (value, fieldValidator, operator) => {
   /** @type {ArrayError[]} */
@@ -436,7 +454,8 @@ const getArrayValueErrors = (value, fieldValidator, operator) => {
  * Validates single value
  * @param {*} value
  * @param {FieldValidator} fieldValidator
- * @param {*} operator
+ * @param {Operator} operator
+ * @returns {* | null}
  */
 const getValueError = (value, fieldValidator, operator) => {
   if (!fieldValidator) {
@@ -477,7 +496,7 @@ const getValueError = (value, fieldValidator, operator) => {
 
 /**
  * Validates field at defined path in operator
- * @param {*} operator
+ * @param {Operator} operator
  * @param {string} field field path
  */
 const getFieldValueError = (operator, field) => {
@@ -492,7 +511,7 @@ const getFieldValueError = (operator, field) => {
  * @param {*} operatorSubSection
  * @param {*} validators
  * @param {string[]} path
- * @param {*} operator
+ * @param {Operator} operator
  */
 const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
   const error = _.find(_.keys(validators), key => {
@@ -530,7 +549,7 @@ const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
 /**
  * Removes empty values which are part of default operator,
  * but should not be part of final operator as they are invalid
- * @param {*} operator
+ * @param {Operator} operator
  */
 const removeEmptyOptionalValuesFromOperator = operator => {
   const clonedOperator = _.cloneDeep(operator);
@@ -548,7 +567,7 @@ const removeEmptyOptionalValuesFromOperator = operator => {
 
 /**
  * Validates complete operator
- * @param {*} operator
+ * @param {Operator} operator
  */
 const validateOperator = operator => {
   if (_.isEmpty(operator)) {
@@ -573,6 +592,24 @@ const validateOperator = operator => {
   return !error;
 };
 
+/**
+ * Validates operator package field
+ * @param {*} value
+ * @param {string} fieldName
+ */
+const validateOperatorPackageField = (value, fieldName) =>
+  getValueError(value, _.get(operatorPackageFieldValidators, fieldName), {});
+
+/**
+ * Validatates operator package
+ * @param {*} operatorPackage
+ */
+const validateOperatorPackage = operatorPackage => {
+  const FIELDS = ['name', 'channel'];
+
+  return FIELDS.every(field => validateOperatorPackageField(operatorPackage[field], field) === null);
+};
+
 export {
   generateIdFromVersionedName,
   normalizeOperator,
@@ -591,5 +628,7 @@ export {
   getValueError,
   getFieldValueError,
   getAutoSavedOperatorData,
-  clearAutosavedOperatorData
+  clearAutosavedOperatorData,
+  validateOperatorPackageField,
+  validateOperatorPackage
 };

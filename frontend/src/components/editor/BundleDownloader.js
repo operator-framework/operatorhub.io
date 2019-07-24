@@ -1,17 +1,25 @@
+/* eslint-disable no-undef */
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-
 import * as _ from 'lodash-es';
 import JSZip from 'jszip';
+import { connect } from 'react-redux';
 import { safeDump } from 'js-yaml';
+import { Icon } from 'patternfly-react';
+
+import { helpers } from '../../common/helpers';
 import {
   getMissingCrdUploads,
   yamlFromOperator,
   operatorNameFromOperator,
-  filterValidCrdUploads
+  filterValidCrdUploads,
+  EDITOR_STATUS,
+  getUpdatedFormErrors,
+  sectionsFields
 } from '../../pages/operatorBundlePage/bundlePageUtils';
-import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorUtils';
+import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorUtils';
+import { reduxConstants } from '../../redux';
+import { setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 
 class OperatorBundleDownloader extends React.PureComponent {
   generateAction = null;
@@ -55,8 +63,74 @@ class OperatorBundleDownloader extends React.PureComponent {
       uploader.scrollIntoView();
     } else {
       // fallback to top in case something change
-      window.scroll({ top: 0 });
+      window.scroll(0, 0);
     }
+  };
+
+  validateAllSections = () => {
+    const { operator, operatorPackage, setBatchSectionsStatus } = this.props;
+
+    const updatedSectionsStatus = {};
+    // remove invalid defaults before validation so they do not cause false errors
+    const cleanedOperator = removeEmptyOptionalValuesFromOperator(operator);
+
+    let operatorIsValid = true;
+
+    // iterate over sections to update its state so user see where errors happened
+    Object.keys(sectionsFields).forEach(sectionName => {
+      const fields = sectionsFields[sectionName];
+      const sectionErrors = getUpdatedFormErrors(cleanedOperator, {}, fields);
+
+      // check if some section field has error
+      const sectionHasErrors = _.castArray(fields).some(field => _.get(sectionErrors, field));
+
+      if (sectionHasErrors) {
+        updatedSectionsStatus[sectionName] = EDITOR_STATUS.errors;
+        operatorIsValid = false;
+      }
+    });
+
+    const packageIsValid = validateOperatorPackage(operatorPackage);
+
+    // validate package
+    if (!packageIsValid) {
+      updatedSectionsStatus.package = EDITOR_STATUS.errors;
+    }
+
+    // console.log(`Operator is ${operatorIsValid ? 'valid' : 'invalid'}`);
+    // console.log(`Operator package is ${packageIsValid ? 'valid' : 'invalid'}`);
+
+    if (Object.keys(updatedSectionsStatus).length > 0) {
+      setBatchSectionsStatus(updatedSectionsStatus);
+    }
+
+    return operatorIsValid && packageIsValid;
+  };
+
+  prepareBundle = () => {
+    const { sectionStatus, showBundleConfirm, showErrorModal } = this.props;
+    const everythingIsValid = this.validateAllSections();
+
+    const sectionsDone = Object.values(sectionStatus).every(section =>
+      [EDITOR_STATUS.complete, EDITOR_STATUS.empty].includes(section)
+    );
+    // check errors first
+    if (everythingIsValid === false) {
+      showErrorModal();
+      // check if sections are done once there are no errors
+    } else if (sectionsDone) {
+      this.generateBundle();
+    } else {
+      // we can proceed after warning
+      showBundleConfirm(this.generateBundleAndCloseWarning);
+    }
+  };
+
+  generateBundleAndCloseWarning = () => {
+    const { hideConfirmModal } = this.props;
+
+    hideConfirmModal();
+    this.generateBundle();
   };
 
   /**
@@ -70,6 +144,8 @@ class OperatorBundleDownloader extends React.PureComponent {
     // do not allow dowloading bundle with missing CRDs
     if (hasMissingCrdUploads) {
       this.scrollToUploader();
+      // delayed as closing modal breaks scroll position :()
+      // setTimeout(this.scrollToUploader, 500);
       return;
     }
 
@@ -121,13 +197,9 @@ class OperatorBundleDownloader extends React.PureComponent {
   };
 
   render() {
-    const { disabled } = this.props;
-
-    const downloadClasses = classNames('oh-button oh-button-primary', { disabled });
-
     return (
       <React.Fragment>
-        <button className={downloadClasses} disabled={disabled} onClick={this.generateBundle}>
+        <button className="oh-button oh-button-primary" onClick={this.prepareBundle}>
           Download Operator Bundle
         </button>
         <a className="oh-operator-editor-page__download-link" ref={this.setGenerateAction} />
@@ -137,10 +209,63 @@ class OperatorBundleDownloader extends React.PureComponent {
 }
 
 OperatorBundleDownloader.propTypes = {
-  operator: PropTypes.object.isRequired,
-  uploads: PropTypes.array.isRequired,
-  operatorPackage: PropTypes.object.isRequired,
-  disabled: PropTypes.bool.isRequired
+  operator: PropTypes.object,
+  uploads: PropTypes.array,
+  sectionStatus: PropTypes.object,
+  operatorPackage: PropTypes.object,
+  showBundleConfirm: PropTypes.func,
+  hideConfirmModal: PropTypes.func,
+  showErrorModal: PropTypes.func,
+  setBatchSectionsStatus: PropTypes.func
 };
 
-export default OperatorBundleDownloader;
+OperatorBundleDownloader.defaultProps = {
+  operator: {},
+  sectionStatus: {},
+  uploads: [],
+  operatorPackage: {},
+  showBundleConfirm: helpers.noop,
+  hideConfirmModal: helpers.noop,
+  showErrorModal: helpers.noop,
+  setBatchSectionsStatus: helpers.noop
+};
+
+const mapDispatchToProps = dispatch => ({
+  setBatchSectionsStatus: status => dispatch(setBatchSectionsStatusAction(status)),
+  showBundleConfirm: onConfirm =>
+    dispatch({
+      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+      title: 'Download Bundle',
+      heading: (
+        <span>Are you sure you want to download operator bundle while some editor sections are not review yet?</span>
+      ),
+      confirmButtonText: 'Download',
+      cancelButtonText: 'Cancel',
+      onConfirm,
+      restoreFocus: false
+    }),
+  hideConfirmModal: () =>
+    dispatch({
+      type: reduxConstants.CONFIRMATION_MODAL_HIDE
+    }),
+  showErrorModal: () =>
+    dispatch({
+      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+      title: 'Operator validation error',
+      icon: <Icon type="pf" name="error-circle-o" />,
+      heading: 'Operator contains errors. Please fix them before bundle is created.',
+      confirmButtonText: 'OK'
+    })
+});
+
+const mapStateToProps = state => ({
+  operator: state.editorState.operator,
+  sectionStatus: state.editorState.sectionStatus,
+  uploads: state.editorState.uploads,
+  operatorPackage: state.editorState.operatorPackage
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(OperatorBundleDownloader);
