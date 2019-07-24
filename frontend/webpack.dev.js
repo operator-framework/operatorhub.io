@@ -19,7 +19,7 @@ module.exports = merge(common, {
     historyApiFallback: true,
     hot: true,
     overlay: true,
-    open: true,
+    open: false,
     setup(app) {
       //
       // HACK, change the URL to return the index.html for the operators page with versions

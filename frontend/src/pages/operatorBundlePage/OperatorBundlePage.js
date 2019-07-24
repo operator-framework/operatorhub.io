@@ -10,38 +10,13 @@ import ManifestUploader from '../../components/editor/manfiestUploader/ManifestU
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
-import { EDITOR_STATUS } from './bundlePageUtils';
-import { validateOperator } from '../../utils/operatorUtils';
 import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
 import { resetEditorOperatorAction } from '../../redux/actions/editorActions';
 
 class OperatorBundlePage extends React.Component {
   state = {
-    validCSV: false,
-    sectionsValid: false,
     previewShown: false
   };
-
-  componentDidMount() {
-    const { operator, sectionStatus } = this.props;
-    const sectionsValid = _.every(_.keys(sectionStatus), key => sectionStatus[key] === EDITOR_STATUS.complete);
-
-    this.setState({
-      validCSV: validateOperator(operator),
-      sectionsValid
-    });
-  }
-
-  componentDidUpdate(prevProps) {
-    const { operator, sectionStatus } = this.props;
-    if (!_.isEqual(operator, prevProps.operator)) {
-      this.setState({ validCSV: validateOperator(operator) });
-    }
-    if (!_.isEqual(sectionStatus, prevProps.sectionStatus)) {
-      const sectionsValid = _.every(_.keys(sectionStatus), key => sectionStatus[key] === EDITOR_STATUS.complete);
-      this.setState({ sectionsValid });
-    }
-  }
 
   onEditCSVYaml = e => {
     e.preventDefault();
@@ -59,15 +34,12 @@ class OperatorBundlePage extends React.Component {
   doClearContents = () => {
     const { resetEditorOperator, hideConfirmModal } = this.props;
     resetEditorOperator();
-    this.setState({
-      validCSV: false
-    });
     hideConfirmModal();
   };
 
   clearContents = () => {
-    const { showConfirmModal } = this.props;
-    showConfirmModal(this.doClearContents);
+    const { showClearConfirmModal } = this.props;
+    showClearConfirmModal(this.doClearContents);
   };
 
   renderHeader = () => (
@@ -82,35 +54,6 @@ class OperatorBundlePage extends React.Component {
       </p>
     </React.Fragment>
   );
-
-  renderButtonBar() {
-    const { operator, uploads, operatorPackage } = this.props;
-    const { validCSV, sectionsValid } = this.state;
-
-    const okToDownload = validCSV && sectionsValid;
-
-    return (
-      <div className="oh-operator-editor-page__button-bar">
-        <div>
-          <OperatorBundleDownloader
-            operator={operator}
-            uploads={uploads}
-            operatorPackage={operatorPackage}
-            disabled={!okToDownload}
-          />
-          <button className="oh-button oh-button-secondary" onClick={this.onEditCSVYaml}>
-            Edit CSV in YAML
-          </button>
-          <button className="oh-button oh-button-secondary" onClick={this.showPreviewOperator}>
-            Preview
-          </button>
-        </div>
-        <button className="oh-button oh-button-secondary" onClick={this.clearContents}>
-          Clear Content
-        </button>
-      </div>
-    );
-  }
 
   renderCustomResourceDefinitions() {
     const { history } = this.props;
@@ -184,6 +127,25 @@ class OperatorBundlePage extends React.Component {
     );
   }
 
+  renderButtonBar() {
+    return (
+      <div className="oh-operator-editor-page__button-bar">
+        <div>
+          <OperatorBundleDownloader />
+          <button className="oh-button oh-button-secondary" onClick={this.onEditCSVYaml}>
+            Edit CSV in YAML
+          </button>
+          <button className="oh-button oh-button-secondary" onClick={this.showPreviewOperator}>
+            Preview
+          </button>
+        </div>
+        <button className="oh-button oh-button-secondary" onClick={this.clearContents}>
+          Clear Content
+        </button>
+      </div>
+    );
+  }
+
   render() {
     const { operator, history } = this.props;
     const { previewShown } = this.state;
@@ -219,11 +181,8 @@ class OperatorBundlePage extends React.Component {
 
 OperatorBundlePage.propTypes = {
   operator: PropTypes.object,
-  sectionStatus: PropTypes.object,
-  uploads: PropTypes.array,
-  operatorPackage: PropTypes.object,
   resetEditorOperator: PropTypes.func,
-  showConfirmModal: PropTypes.func,
+  showClearConfirmModal: PropTypes.func,
   hideConfirmModal: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
@@ -232,17 +191,14 @@ OperatorBundlePage.propTypes = {
 
 OperatorBundlePage.defaultProps = {
   operator: {},
-  sectionStatus: {},
-  uploads: [],
-  operatorPackage: {},
   resetEditorOperator: helpers.noop,
-  showConfirmModal: helpers.noop,
+  showClearConfirmModal: helpers.noop,
   hideConfirmModal: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
   resetEditorOperator: () => dispatch(resetEditorOperatorAction()),
-  showConfirmModal: onConfirm =>
+  showClearConfirmModal: onConfirm =>
     dispatch({
       type: reduxConstants.CONFIRMATION_MODAL_SHOW,
       title: 'Clear Content',
@@ -258,10 +214,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  operator: state.editorState.operator,
-  sectionStatus: state.editorState.sectionStatus,
-  uploads: state.editorState.uploads,
-  operatorPackage: state.editorState.operatorPackage
+  operator: state.editorState.operator
 });
 
 export default connect(
