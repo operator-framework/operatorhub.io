@@ -582,7 +582,7 @@ class ManifestUploader extends React.Component {
     const missingCrds = getMissingCrdUploads(uploads, operator);
 
     return (
-      <div className="oh-operator-editor-page__section">
+      <div id="manifest-uploader" className="oh-operator-editor-page__section">
         <div className="oh-operator-editor-page__section__header">
           <div className="oh-operator-editor-page__section__header__text">
             <h2 id="oh-operator--editor-page__manifest-uploader">Upload your Kubernetes manifests</h2>

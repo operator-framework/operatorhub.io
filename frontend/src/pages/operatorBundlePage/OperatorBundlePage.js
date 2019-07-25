@@ -152,6 +152,7 @@ class OperatorBundlePage extends React.Component {
 
     return (
       <OperatorEditorSubPage
+        pageId="oh-editor-landing-page"
         title="Package your Operator"
         header={this.renderHeader()}
         buttonBar={this.renderButtonBar()}
@@ -160,8 +161,8 @@ class OperatorBundlePage extends React.Component {
         <ManifestUploader />
         <div className="oh-operator-editor-page__spacer">
           <h2>General Info</h2>
-          <button className="oh-button oh-button-primary oh-button__new-operator" onClick={this.clearContents}>
-            Start new bundle
+          <button className="oh-button oh-button-secondary oh-button__new-operator" onClick={this.clearContents}>
+            Clear All and Start New Bundle
           </button>
         </div>
         <EditorSection

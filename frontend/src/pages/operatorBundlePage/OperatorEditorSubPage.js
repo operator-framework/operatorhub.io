@@ -2,7 +2,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import * as _ from 'lodash-es';
 import { Breadcrumb } from 'patternfly-react';
 
@@ -164,7 +163,7 @@ class OperatorEditorSubPage extends React.Component {
   }
 
   render() {
-    const { header, title, field, description, children } = this.props;
+    const { header, title, field, description, children, pageId } = this.props;
     const { keywordSearch, headerHeight, titleHeight } = this.state;
 
     return (
@@ -178,7 +177,7 @@ class OperatorEditorSubPage extends React.Component {
         searchCallback={this.searchCallback}
         scrollCallback={this.onScroll}
       >
-        <div className="oh-operator-editor-page">
+        <div className="oh-operator-editor-page" id={pageId}>
           <div className="oh-operator-editor-page__title-area" ref={this.setTitleAreaRef} style={{ top: headerHeight }}>
             <div className="oh-operator-editor-page__title-area__inner">
               {header && header}
@@ -202,6 +201,7 @@ class OperatorEditorSubPage extends React.Component {
 }
 
 OperatorEditorSubPage.propTypes = {
+  pageId: PropTypes.string,
   header: PropTypes.node,
   buttonBar: PropTypes.node,
   title: PropTypes.string,
@@ -224,6 +224,7 @@ OperatorEditorSubPage.propTypes = {
 };
 
 OperatorEditorSubPage.defaultProps = {
+  pageId: 'oh-editor-page',
   header: null,
   buttonBar: null,
   title: '',
