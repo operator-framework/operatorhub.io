@@ -1,5 +1,11 @@
 .oh-operator-editor-page {
 
+  h2{
+    margin-top: 30px;
+    margin-bottom: 20px;
+    padding-top: 30px;
+  }
+
   &__title-area {
     background-color: $color-pf-white;
     border-bottom: 1px solid $oh-color-rule;
@@ -43,8 +49,9 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between;    
   }
+
 
   > h1 {
     margin-top: 60px;
@@ -55,14 +62,8 @@
 
     > h2 {
       border-top: none;
-      margin: 20px -20px;
+      margin: 30px -20px 20px;
       padding: 0 20px;
-
-     /* &:first-of-type {
-        margin-top: 60px;
-        padding-top: 60px;
-        border-top: 1px solid $oh-color-rule;
-      }*/
     }
     
   }
@@ -82,13 +83,14 @@
     background-color: $color-pf-white;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
     padding: 30px 20px 20px;
-    margin: 20px 2px 3px;
+    margin: 20px 2px 0;
 
     &__header {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       vertical-align: middle;
+      position: relative;   
 
       &__text {
         flex: 1;
@@ -107,6 +109,21 @@
 
       .fa, .pficon {
         margin-right: 4px;
+      }
+    }
+
+    &#manifest-uploader {
+      margin-top: 0;
+
+      &__text{
+        > p {
+          margin: 0;
+        }
+      } 
+
+      .oh-operator-editor-page__section__status{
+        position: absolute;
+        right: 10px;
       }
     }
 
@@ -140,6 +157,14 @@
       &:first-of-type {
         margin-left: 0;
       }
+    }
+  }
+
+  &#oh-editor-landing-page{
+    .oh-operator-editor-page__button-bar{
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid $oh-color-rule;      
     }
   }
 
