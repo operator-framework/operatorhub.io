@@ -72,9 +72,19 @@ const HowToInstallOperators = ({ history, ...props }) => {
         <React.Fragment>
           <p>
             Once OLM is in your cluster you can execute the provided quick install command. Behind the provided URL,
-            OperatorHub.io generates YAML manifests required to deploy an Operator. These create the following
-            resources:
+            OperatorHub.io generates YAML manifests required to deploy an Operator.
           </p>
+          <blockquote>
+            The quick install command generates YAML that makes assumptions about the default catalogs that ship with{' '}
+            <ExternalLink
+              href="https://github.com/operator-framework/operator-lifecycle-manager/releases/tag/0.10.1"
+              text="upstream OLM"
+              indicator={false}
+            />
+            . If you make modifications or have an existing OLM deployment that deviates please adjust the generated
+            YAML manifests.
+          </blockquote>
+          <p>These create the following resources:</p>
           <ol className="oh-numbered-list">
             <li>
               A <code>CatalogSource</code> object that represents a catalog of all the Operators found on
