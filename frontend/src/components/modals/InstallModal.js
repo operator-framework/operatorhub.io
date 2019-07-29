@@ -6,7 +6,6 @@ import copy from 'copy-to-clipboard';
 import { Icon, Modal } from 'patternfly-react';
 import { CatalogItemHeader } from 'patternfly-react-extensions';
 
-import { helpers } from '../../common/helpers';
 import * as operatorImg from '../../imgs/operator.svg';
 import { InternalLink } from '../InternalLink';
 
