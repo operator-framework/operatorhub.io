@@ -94,7 +94,6 @@ class InstallModal extends React.Component {
               <div className="oh-install-olm-instructions">
                 <p>
                   Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on your cluster.
-                  Platforms like OpenShift / OKD will have it pre-installed.
                 </p>
                 <div className="oh-install-modal__install-command-container">
                   <div className="oh-code">{`$ ${INSTALL_OLM_COMMAND}`}</div>
