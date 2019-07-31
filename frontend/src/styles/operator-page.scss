@@ -224,7 +224,7 @@
   }
 
   .oh-code {
-    margin: 20px 10px 15px 0;
+    margin: 10px 20px 15px 0;
     padding: 10px;
     background-color: $oh-color-background;
     border-radius: 3px;
@@ -247,10 +247,24 @@
     font-size: 13px;
     font-weight: 600;
   }
+
+  &__list{
+    padding-left: 20px;
+
+    > li:not(:last-child){
+      margin-top: 15px;
+      margin-bottom: 30px;
+    }
+
+    &__olm{
+      .oh-code{
+        margin-bottom: 0;
+      }
+    }
+  } 
 }
 
-.oh-install-olm-instructions {
-  margin-top: 15px;
-  margin-bottom: 30px;
-  border-bottom: 1px solid $oh-color-rule;
-}
+
+
+
+

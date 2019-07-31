@@ -13,6 +13,7 @@ import { InternalLink } from '../InternalLink';
 const olmRepo = 'https://github.com/operator-framework/operator-lifecycle-manager';
 
 const INSTALL_OLM_COMMAND = `curl -sL ${olmRepo}/releases/download/0.10.0/install.sh | bash -s 0.10.0`;
+const VERIFY_OPERATOR_CMD = 'kubectl get csv -n <the namespace where we deploy it>';
 
 class InstallModal extends React.Component {
   state = { installCommand: '', copied: false };
@@ -91,70 +92,92 @@ class InstallModal extends React.Component {
             </Modal.Header>
             <Modal.Body>
               <h2>Install on Kubernetes</h2>
-              <div className="oh-install-olm-instructions">
-                <p>
-                  Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on your cluster.
-                </p>
-                <div className="oh-install-modal__install-command-container">
-                  <div className="oh-code">{`$ ${INSTALL_OLM_COMMAND}`}</div>
-                  <Tooltip content={tooltipContent} styles={tooltipOverrides}>
-                    <a
-                      href="#"
-                      onClick={e => this.copyToClipboard(e, INSTALL_OLM_COMMAND)}
-                      className="oh-install-modal__install-command-copy"
-                      onMouseEnter={this.onCopyEnter}
-                    >
-                      <Icon type="fa" name="clipboard" />
-                      <span className="sr-only">Copy to Clipboard</span>
-                    </a>
-                  </Tooltip>
-                </div>
-              </div>
-              <p>
-                Install the operator by running the following command:
-                <InternalLink
-                  className="pull-right"
-                  route="/how-to-install-an-operator#What-happens-when-I-execute-the-'Install'-command-presented-in-the-pop-up?"
-                  history={history}
-                  text="What happens when I execute this command?"
-                />
-              </p>
-              <div className="oh-install-modal__install-command-container">
-                <div className="oh-code">{`$ ${installCommand}`}</div>
-                <Tooltip content={tooltipContent} styles={tooltipOverrides}>
-                  <a
-                    href="#"
-                    onClick={e => this.copyToClipboard(e, installCommand)}
-                    className="oh-install-modal__install-command-copy"
-                    onMouseEnter={this.onCopyEnter}
-                  >
-                    <Icon type="fa" name="clipboard" />
-                    <span className="sr-only">Copy to Clipboard</span>
-                  </a>
-                </Tooltip>
-              </div>
-              <blockquote>
-                <p>
-                  {globalOperator && (
-                    <span>
-                      {`This Operator will be installed in the "`}
-                      <span className="oh-install-modal__namespace-text">operators</span>
-                      {`" namespace and will be usable from all namespaces in the cluster.`}
-                    </span>
-                  )}
-                  {!globalOperator && (
-                    <span>
-                      {`This Operator will be installed in the "`}
-                      <span className="oh-install-modal__namespace-text">{`my-${operator.packageName}`}</span>
-                      {`" namespace and will be usable from this namespace only.`}
-                    </span>
-                  )}
-                </p>
-              </blockquote>
-              <p>
-                After install, checkout the custom resource definitions (CRDs) introduced by this operator to start
-                using it.
-              </p>
+              <ol className="oh-install-modal__list">
+                <li className="oh-install-modal__list__olm">
+                  <p>
+                    Install Operator Lifecycle Manager (OLM), a tool to help manage the Operators running on your
+                    cluster.
+                  </p>
+                  <div className="oh-install-modal__install-command-container">
+                    <div className="oh-code">{`$ ${INSTALL_OLM_COMMAND}`}</div>
+                    <Tooltip content={tooltipContent} styles={tooltipOverrides}>
+                      <a
+                        href="#"
+                        onClick={e => this.copyToClipboard(e, INSTALL_OLM_COMMAND)}
+                        className="oh-install-modal__install-command-copy"
+                        onMouseEnter={this.onCopyEnter}
+                      >
+                        <Icon type="fa" name="clipboard" />
+                        <span className="sr-only">Copy to Clipboard</span>
+                      </a>
+                    </Tooltip>
+                  </div>
+                </li>
+                <li>
+                  <p>
+                    Install the operator by running the following command:
+                    <InternalLink
+                      className="pull-right"
+                      route="/how-to-install-an-operator#What-happens-when-I-execute-the-'Install'-command-presented-in-the-pop-up?"
+                      history={history}
+                      text="What happens when I execute this command?"
+                    />
+                  </p>
+                  <div className="oh-install-modal__install-command-container">
+                    <div className="oh-code">{`$ ${installCommand}`}</div>
+                    <Tooltip content={tooltipContent} styles={tooltipOverrides}>
+                      <a
+                        href="#"
+                        onClick={e => this.copyToClipboard(e, installCommand)}
+                        className="oh-install-modal__install-command-copy"
+                        onMouseEnter={this.onCopyEnter}
+                      >
+                        <Icon type="fa" name="clipboard" />
+                        <span className="sr-only">Copy to Clipboard</span>
+                      </a>
+                    </Tooltip>
+                  </div>
+                  <blockquote>
+                    <p>
+                      {globalOperator && (
+                        <span>
+                          {`This Operator will be installed in the "`}
+                          <span className="oh-install-modal__namespace-text">operators</span>
+                          {`" namespace and will be usable from all namespaces in the cluster.`}
+                        </span>
+                      )}
+                      {!globalOperator && (
+                        <span>
+                          {`This Operator will be installed in the "`}
+                          <span className="oh-install-modal__namespace-text">{`my-${operator.packageName}`}</span>
+                          {`" namespace and will be usable from this namespace only.`}
+                        </span>
+                      )}
+                    </p>
+                  </blockquote>
+                </li>
+                <li>
+                  <p>After install, watch your operator come to up using next command.</p>
+                  <div className="oh-install-modal__install-command-container">
+                    <div className="oh-code">{`$ ${VERIFY_OPERATOR_CMD}`}</div>
+                    <Tooltip content={tooltipContent} styles={tooltipOverrides}>
+                      <a
+                        href="#"
+                        onClick={e => this.copyToClipboard(e, VERIFY_OPERATOR_CMD)}
+                        className="oh-install-modal__install-command-copy"
+                        onMouseEnter={this.onCopyEnter}
+                      >
+                        <Icon type="fa" name="clipboard" />
+                        <span className="sr-only">Copy to Clipboard</span>
+                      </a>
+                    </Tooltip>
+                  </div>
+                  <p>
+                    To use it, checkout the custom resource definitions (CRDs) introduced by this operator to start
+                    using it.
+                  </p>
+                </li>
+              </ol>
             </Modal.Body>
           </React.Fragment>
         )}
