@@ -195,7 +195,7 @@ const defaultOperator = {
         clusterPermissions: [],
         deployments: [
           {
-            name: 'example-operator',
+            name: 'add-deployment',
             spec: {
               replicas: 1,
               selector: {
