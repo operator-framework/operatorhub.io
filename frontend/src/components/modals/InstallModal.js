@@ -11,7 +11,12 @@ import { InternalLink } from '../InternalLink';
 
 const olmRepo = 'https://github.com/operator-framework/operator-lifecycle-manager';
 
+<<<<<<< HEAD
 const VERIFY_OPERATOR_CMD = 'kubectl get csv -n ';
+=======
+const INSTALL_OLM_COMMAND = `curl -sL ${olmRepo}/releases/download/0.10.0/install.sh | bash -s 0.10.0`;
+const VERIFY_OPERATOR_CMD = 'kubectl get csv -n <the namespace where we deploy it>';
+>>>>>>> latest update to install modal style
 
 const getInstallOlmCommand = version =>
   `curl -sL ${olmRepo}/releases/download/${version}/install.sh | bash -s ${version}`;
