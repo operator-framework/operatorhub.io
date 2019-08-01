@@ -8,27 +8,43 @@ import { helpers } from '../../common/helpers';
 import { getFieldValueError } from '../../utils/operatorUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { sectionsFields } from './bundlePageUtils';
-import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
+import { getUpdatedFormErrors, EDITOR_STATUS, sectionsFields } from './bundlePageUtils';
+
+import {
+  storeEditorFormErrorsAction,
+  storeEditorOperatorAction,
+  setSectionStatusAction
+} from '../../redux/actions/editorActions';
 
 const deploymentFields = sectionsFields.deployments;
 
 class OperatorDeploymentsPage extends React.Component {
   componentDidMount() {
-    const { operator } = this.props;
+    const { operator, sectionStatus } = this.props;
 
-    if (operator) {
+    if (operator && sectionStatus.deployments !== EDITOR_STATUS.empty) {
       // validate
-      this.validateField(operator, deploymentFields);
+      this.validateField(operator);
     }
   }
 
-  validateField = (operator, field) => {
-    const { formErrors, storeEditorFormErrors } = this.props;
+  validateField = operator => {
+    const { formErrors, storeEditorFormErrors, setSectionStatus, sectionStatus } = this.props;
+    const updatedFormErrors = _.cloneDeep(formErrors);
+    const status = sectionStatus.deployments;
 
-    const error = getFieldValueError(operator, field);
-    _.set(formErrors, field, error);
-    storeEditorFormErrors(formErrors);
+    const error = getFieldValueError(operator, deploymentFields);
+    _.set(updatedFormErrors, deploymentFields, error);
+    storeEditorFormErrors(updatedFormErrors);
+
+    // mark errored or remove error
+    // do not automatically change status of done or empty status
+    // that requires user action
+    if (error) {
+      setSectionStatus(EDITOR_STATUS.errors);
+    } else if (status === EDITOR_STATUS.errors) {
+      setSectionStatus(EDITOR_STATUS.pending);
+    }
   };
 
   updateOperator = deployments => {
@@ -38,11 +54,32 @@ class OperatorDeploymentsPage extends React.Component {
     _.set(updatedOperator, deploymentFields, deployments);
 
     storeEditorOperator(updatedOperator);
-    this.validateField(updatedOperator, deploymentFields);
+    this.validateField(updatedOperator);
+  };
+
+  validatePage = () => {
+    const { operator, formErrors, setSectionStatus, storeEditorFormErrors } = this.props;
+
+    const fields = [sectionsFields.deployments];
+    const errors = getUpdatedFormErrors(operator, formErrors, fields);
+    const hasErrors = fields.some(field => _.get(errors, field));
+
+    if (hasErrors) {
+      this.originalStatus = EDITOR_STATUS.errors;
+      setSectionStatus(EDITOR_STATUS.errors);
+      storeEditorFormErrors(errors);
+
+      return false;
+    }
+
+    return true;
   };
 
   render() {
-    const { operator, formErrors, history } = this.props;
+    const { operator, formErrors, history, sectionStatus } = this.props;
+
+    const pageHasErrors =
+      sectionStatus.deplyments === EDITOR_STATUS.empty || _.get(operator, deploymentFields) !== undefined;
 
     return (
       <OperatorEditorSubPage
@@ -51,6 +88,8 @@ class OperatorDeploymentsPage extends React.Component {
         secondary
         history={history}
         section="deployments"
+        validatePage={this.validatePage}
+        pageErrors={pageHasErrors}
       >
         <ListObjectEditor
           operator={operator}
@@ -73,8 +112,10 @@ class OperatorDeploymentsPage extends React.Component {
 OperatorDeploymentsPage.propTypes = {
   operator: PropTypes.object,
   formErrors: PropTypes.object,
+  sectionStatus: PropTypes.object,
   storeEditorOperator: PropTypes.func,
   storeEditorFormErrors: PropTypes.func,
+  setSectionStatus: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired
@@ -83,15 +124,18 @@ OperatorDeploymentsPage.propTypes = {
 OperatorDeploymentsPage.defaultProps = {
   operator: {},
   formErrors: {},
+  sectionStatus: {},
   storeEditorFormErrors: helpers.noop,
-  storeEditorOperator: helpers.noop
+  storeEditorOperator: helpers.noop,
+  setSectionStatus: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
       storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction
+      storeEditorFormErrors: storeEditorFormErrorsAction,
+      setSectionStatus: status => setSectionStatusAction('deployments', status)
     },
     dispatch
   )
@@ -99,7 +143,8 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   operator: state.editorState.operator,
-  formErrors: state.editorState.formErrors
+  formErrors: state.editorState.formErrors,
+  sectionStatus: state.editorState.sectionStatus
 });
 
 export default connect(

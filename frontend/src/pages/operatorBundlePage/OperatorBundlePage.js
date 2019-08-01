@@ -11,12 +11,48 @@ import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../uti
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
-import { resetEditorOperatorAction } from '../../redux/actions/editorActions';
+import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
+import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorUtils';
+import { sectionsFields, EDITOR_STATUS, getUpdatedFormErrors } from './bundlePageUtils';
 
 class OperatorBundlePage extends React.Component {
   state = {
     previewShown: false
   };
+
+  componentDidMount() {
+    const { operator, setBatchSectionsStatus, sectionStatus } = this.props;
+
+    const updatedSectionsStatus = {};
+    // remove invalid defaults before validation so they do not cause false errors
+    const cleanedOperator = removeEmptyOptionalValuesFromOperator(operator);
+
+    // iterate over sections to update its state so user see where errors happened
+    Object.keys(sectionsFields).forEach(sectionName => {
+      const status = sectionStatus[sectionName];
+
+      // skip validation for sections which are not started yet
+      if (sectionStatus === EDITOR_STATUS.empty) {
+        return;
+      }
+
+      const fields = sectionsFields[sectionName];
+      const sectionErrors = getUpdatedFormErrors(cleanedOperator, {}, fields);
+
+      // check if some section field has error
+      const sectionHasErrors = _.castArray(fields).some(field => _.get(sectionErrors, field));
+
+      if (sectionHasErrors) {
+        updatedSectionsStatus[sectionName] = EDITOR_STATUS.errors;
+      } else if (status === EDITOR_STATUS.errors) {
+        updatedSectionsStatus[sectionName] = EDITOR_STATUS.pending;
+      }
+    });
+
+    if (Object.keys(updatedSectionsStatus).length > 0) {
+      setBatchSectionsStatus(updatedSectionsStatus);
+    }
+  }
 
   onEditCSVYaml = e => {
     e.preventDefault();
@@ -182,9 +218,11 @@ class OperatorBundlePage extends React.Component {
 
 OperatorBundlePage.propTypes = {
   operator: PropTypes.object,
+  sectionStatus: PropTypes.object,
   resetEditorOperator: PropTypes.func,
   showClearConfirmModal: PropTypes.func,
   hideConfirmModal: PropTypes.func,
+  setBatchSectionsStatus: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired
@@ -192,9 +230,11 @@ OperatorBundlePage.propTypes = {
 
 OperatorBundlePage.defaultProps = {
   operator: {},
+  sectionStatus: {},
   resetEditorOperator: helpers.noop,
   showClearConfirmModal: helpers.noop,
-  hideConfirmModal: helpers.noop
+  hideConfirmModal: helpers.noop,
+  setBatchSectionsStatus: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -211,11 +251,13 @@ const mapDispatchToProps = dispatch => ({
   hideConfirmModal: () =>
     dispatch({
       type: reduxConstants.CONFIRMATION_MODAL_HIDE
-    })
+    }),
+  setBatchSectionsStatus: status => dispatch(setBatchSectionsStatusAction(status))
 });
 
 const mapStateToProps = state => ({
-  operator: state.editorState.operator
+  operator: state.editorState.operator,
+  sectionStatus: state.editorState.sectionStatus
 });
 
 export default connect(

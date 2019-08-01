@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { renderFormError, sectionsFields } from './bundlePageUtils';
+import { renderFormError, sectionsFields, getUpdatedFormErrors, EDITOR_STATUS } from './bundlePageUtils';
 import {
   operatorFieldDescriptions,
   operatorFieldPlaceholders,
@@ -15,35 +15,35 @@ import {
   operatorObjectDescriptions
 } from '../../utils/operatorDescriptors';
 import RulesEditor from '../../components/editor/RulesEditor';
-import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
+import {
+  storeEditorFormErrorsAction,
+  storeEditorOperatorAction,
+  setSectionStatusAction
+} from '../../redux/actions/editorActions';
 
 const permissionFields = sectionsFields.permissions;
 
 class OperatorPermissionsEditPage extends React.Component {
-  state = {
-    permission: {}
-  };
+  name;
+
+  nameInput;
+
+  permissionIndex;
+
+  constructor(props) {
+    super(props);
+
+    this.name = helpers.transformPathedName(_.get(props.match, 'params.serviceAccountName', '').replace('[none]', ''));
+  }
 
   componentDidMount() {
-    const { operator, field, objectType, storeEditorOperator } = this.props;
-    const name = helpers.transformPathedName(_.get(this.props.match, 'params.serviceAccountName', ''));
+    const { objectType } = this.props;
 
-    let permissions = _.get(operator, field);
-
-    let permission = _.find(permissions, { serviceAccountName: name });
+    const permission = this.getPermission();
 
     if (!permission) {
-      permission = { serviceAccountName: `Add ${objectType}` };
-      if (!_.size(permissions)) {
-        permissions = [];
-      }
-
-      permissions.push(permission);
-      const updatedOperator = _.cloneDeep(operator);
-      _.set(updatedOperator, field, permissions);
-      storeEditorOperator(updatedOperator);
+      this.updatePermission(`Add ${objectType}`, 'serviceAccountName');
     }
-    this.setState({ permission });
 
     if (permission.serviceAccountName === `Add ${objectType}`) {
       setTimeout(() => {
@@ -53,11 +53,38 @@ class OperatorPermissionsEditPage extends React.Component {
     }
   }
 
+  /**
+   * Find permission by serviceAccountName or provide new empty permission
+   */
+  getPermission = () => {
+    const { operator, field, objectType } = this.props;
+
+    const permissions = _.get(operator, field) || [];
+    const permission = _.find(permissions, { serviceAccountName: this.name }) || {
+      serviceAccountName: `Add ${objectType}`
+    };
+
+    return permission;
+  };
+
+  getErrors = () => {
+    const { operator, field, formErrors } = this.props;
+
+    const permissions = _.get(operator, field) || [];
+    const permission = this.getPermission();
+    const permissionIndex = _.findIndex(permissions, { serviceAccountName: permission.serviceAccountName });
+
+    const errors = _.find(_.get(formErrors, field), { index: permissionIndex }) || { errors: {} };
+    return errors.errors;
+  };
+
   updatePermission = (value, permissionField) => {
     const { operator, field, storeEditorOperator } = this.props;
-    const { permission } = this.state;
 
-    const permissions = _.get(operator, field, []);
+    const permissions = _.get(operator, field) || [];
+    // get permission or supply new value
+    const permission = this.getPermission();
+
     const permissionIndex = _.findIndex(permissions, { serviceAccountName: permission.serviceAccountName });
 
     const updatedPermission = _.cloneDeep(permission);
@@ -72,24 +99,42 @@ class OperatorPermissionsEditPage extends React.Component {
     ];
     _.set(updatedOperator, field, updatedPermissions);
 
-    this.setState({ permission: updatedPermission });
+    // update name in case it changed
+    this.name = updatedPermission.serviceAccountName;
+
+    this.validateField(updatedOperator);
+
     storeEditorOperator(updatedOperator);
+  };
+
+  validateField = updatedOperator => {
+    const { field, formErrors, storeEditorFormErrors, setSectionStatus, objectPage } = this.props;
+
+    const errors = getUpdatedFormErrors(updatedOperator, formErrors, field);
+    storeEditorFormErrors(errors);
+    const permissionErrors = _.get(errors, field);
+
+    if (permissionErrors) {
+      setSectionStatus(objectPage, EDITOR_STATUS.errors);
+    } else {
+      setSectionStatus(objectPage, EDITOR_STATUS.pending);
+    }
   };
 
   updateRules = rules => {
     this.updatePermission(rules, 'rules');
   };
 
-  renderNameField = () => {
-    const { field, formErrors } = this.props;
-    const { permission } = this.state;
+  renderNameField = permission => {
+    const { field } = this.props;
 
-    const errs = _.get(permission, 'serviceAccountName') === undefined ? {} : formErrors;
+    const serviceAccountNamePath = [...field.split('.'), 'serviceAccountName'];
+    const errors = this.getErrors();
 
     const formFieldClasses = classNames({
       'oh-operator-editor-form__field': true,
       row: true,
-      'oh-operator-editor-form__field--error': _.get(formErrors, [...field.split('.'), 'serviceAccountName'])
+      'oh-operator-editor-form__field--error': _.get(errors, 'serviceAccountName')
     });
 
     return (
@@ -101,17 +146,17 @@ class OperatorPermissionsEditPage extends React.Component {
             className="form-control"
             type="text"
             {..._.get(_.get(operatorFieldValidators, field), 'props')}
-            onChange={e => this.updatePermission(e.target.value, 'serviceAccountName')}
-            value={_.get(permission, 'serviceAccountName', '')}
-            placeholder={_.get(operatorFieldPlaceholders, [...field.split('.'), 'serviceAccountName'])}
+            onBlur={e => this.updatePermission(e.target.value, 'serviceAccountName')}
+            defaultValue={_.get(permission, 'serviceAccountName', '')}
+            placeholder={_.get(operatorFieldPlaceholders, serviceAccountNamePath)}
             ref={ref => {
               this.nameInput = ref;
             }}
           />
-          {renderFormError([field, 'serviceAccountName'], errs)}
+          {renderFormError('serviceAccountName', errors)}
         </div>
         <div className="oh-operator-editor-form__description col-sm-6">
-          {_.get(operatorFieldDescriptions, [...field.split('.'), 'serviceAccountName'], '')}
+          {_.get(operatorFieldDescriptions, serviceAccountNamePath, '')}
         </div>
       </div>
     );
@@ -119,7 +164,8 @@ class OperatorPermissionsEditPage extends React.Component {
 
   render() {
     const { field, objectType, objectPage, objectsTitle, objectDescription, history } = this.props;
-    const { permission } = this.state;
+
+    const permission = this.getPermission();
 
     return (
       <OperatorEditorSubPage
@@ -134,7 +180,7 @@ class OperatorPermissionsEditPage extends React.Component {
         <h3>{objectsTitle}</h3>
         <p>{objectDescription}</p>
         <form className="oh-operator-editor-form">
-          {this.renderNameField('Service Account Name', 'serviceAccountName', 'text')}
+          {this.renderNameField(permission)}
           <h3>Rules</h3>
           <RulesEditor permission={permission} onUpdate={this.updateRules} />
         </form>
@@ -152,6 +198,8 @@ OperatorPermissionsEditPage.propTypes = {
   objectDescription: PropTypes.node,
   formErrors: PropTypes.object,
   storeEditorOperator: PropTypes.func,
+  setSectionStatus: PropTypes.func,
+  storeEditorFormErrors: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
@@ -173,14 +221,17 @@ OperatorPermissionsEditPage.defaultProps = {
     </span>
   ),
   formErrors: {},
-  storeEditorOperator: helpers.noop
+  storeEditorOperator: helpers.noop,
+  setSectionStatus: helpers.noop,
+  storeEditorFormErrors: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
       storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction
+      storeEditorFormErrors: storeEditorFormErrorsAction,
+      setSectionStatus: setSectionStatusAction
     },
     dispatch
   )

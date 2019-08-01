@@ -8,10 +8,14 @@ import { safeDump, safeLoad } from 'js-yaml';
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import YamlViewer from '../../components/YamlViewer';
-import { sectionsFields } from './bundlePageUtils';
+import { sectionsFields, EDITOR_STATUS } from './bundlePageUtils';
 import { getValueError, getDefaultDeployment, isDeploymentDefault } from '../../utils/operatorUtils';
 import { operatorFieldValidators } from '../../utils/operatorDescriptors';
-import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
+import {
+  storeEditorFormErrorsAction,
+  storeEditorOperatorAction,
+  setSectionStatusAction
+} from '../../redux/actions/editorActions';
 
 const deploymentFields = sectionsFields.deployments;
 
@@ -112,6 +116,8 @@ class OperatorDeploymentEditPage extends React.Component {
   };
 
   onYamlChange = yaml => {
+    const { setSectionStatus } = this.props;
+
     /** @type {string|string[]} */
     let yamlError = '';
 
@@ -124,6 +130,8 @@ class OperatorDeploymentEditPage extends React.Component {
       yamlError = e.message;
     }
     this.setState({ yamlError });
+
+    setSectionStatus(EDITOR_STATUS.pending);
   };
 
   getDefaultOnClear = () => {
@@ -169,6 +177,7 @@ class OperatorDeploymentEditPage extends React.Component {
 OperatorDeploymentEditPage.propTypes = {
   operator: PropTypes.object,
   storeEditorOperator: PropTypes.func,
+  setSectionStatus: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
@@ -177,14 +186,16 @@ OperatorDeploymentEditPage.propTypes = {
 
 OperatorDeploymentEditPage.defaultProps = {
   operator: {},
-  storeEditorOperator: helpers.noop
+  storeEditorOperator: helpers.noop,
+  setSectionStatus: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
       storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction
+      storeEditorFormErrors: storeEditorFormErrorsAction,
+      setSectionStatus: status => setSectionStatusAction('deployments', status)
     },
     dispatch
   )

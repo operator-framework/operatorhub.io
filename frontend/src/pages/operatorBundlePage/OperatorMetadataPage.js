@@ -65,24 +65,6 @@ class OperatorMetadataPage extends React.Component {
     this.forceUpdate();
   };
 
-  validateField = field => {
-    const { storeEditorOperator, formErrors, storeEditorFormErrors, setSectionStatus } = this.props;
-    const { workingOperator } = this.state;
-
-    const errors = getUpdatedFormErrors(workingOperator, formErrors, field);
-    storeEditorFormErrors(errors);
-    const metadataErrors = _.some(sectionsFields.metadata, metadataField => _.get(errors, metadataField));
-
-    console.dir(errors);
-    storeEditorOperator(_.cloneDeep(workingOperator));
-
-    if (metadataErrors) {
-      setSectionStatus(EDITOR_STATUS.errors);
-    } else {
-      setSectionStatus(EDITOR_STATUS.pending);
-    }
-  };
-
   validateFields = fields => {
     const { storeEditorOperator, formErrors, storeEditorFormErrors, setSectionStatus } = this.props;
     const { workingOperator } = this.state;
@@ -102,12 +84,17 @@ class OperatorMetadataPage extends React.Component {
   };
 
   validatePage = () => {
-    const { formErrors, setSectionStatus } = this.props;
+    const { operator, formErrors, setSectionStatus, storeEditorFormErrors } = this.props;
 
-    const metadataErrors = _.some(sectionsFields.metadata, metadataField => _.get(formErrors, metadataField));
+    const fields = sectionsFields.metadata;
+    const errors = getUpdatedFormErrors(operator, formErrors, fields);
+    const metadataErrors = fields.some(field => _.get(errors, field));
+
     if (metadataErrors) {
       this.originalStatus = EDITOR_STATUS.errors;
       setSectionStatus(EDITOR_STATUS.errors);
+      storeEditorFormErrors(errors);
+
       return false;
     }
 
@@ -116,12 +103,12 @@ class OperatorMetadataPage extends React.Component {
 
   updateOperatorImage = icon => {
     this.updateOperator(icon, 'spec.icon');
-    this.validateField('spec.icon');
+    this.validateFields('spec.icon');
   };
 
   updateOperatorCapability = capability => {
     this.updateOperator(capability, 'metadata.annotations.capabilities');
-    this.validateField('metadata.annotations.capabilities');
+    this.validateFields('metadata.annotations.capabilities');
   };
 
   updateOperatorLabels = operatorLabels => {
@@ -133,7 +120,7 @@ class OperatorMetadataPage extends React.Component {
       }
     });
     this.updateOperator(labels, 'spec.labels');
-    this.validateField('spec.labels');
+    this.validateFields('spec.labels');
   };
 
   updateOperatorSelectors = operatorLabels => {
@@ -145,7 +132,7 @@ class OperatorMetadataPage extends React.Component {
       }
     });
     this.updateOperator(matchLabels, 'spec.selector.matchLabels');
-    this.validateField('spec.selector.matchLabels');
+    this.validateFields('spec.selector.matchLabels');
   };
 
   updateOperatorExternalLinks = operatorLabels => {
@@ -158,7 +145,7 @@ class OperatorMetadataPage extends React.Component {
     });
 
     this.updateOperator(links, 'spec.links');
-    this.validateField('spec.links');
+    this.validateFields('spec.links');
   };
 
   updateOperatorMaintainers = operatorLabels => {
@@ -184,7 +171,7 @@ class OperatorMetadataPage extends React.Component {
       workingOperator,
       errs,
       this.updateOperator,
-      this.validateField,
+      this.validateFields,
       title,
       field,
       fieldType
@@ -231,7 +218,7 @@ class OperatorMetadataPage extends React.Component {
           onChange={selection => {
             this.updateOperator(selection[0], field);
           }}
-          onBlur={() => this.validateField(field)}
+          onBlur={() => this.validateFields(field)}
           filterBy={() => true}
         />
       </OperatorInput>
@@ -258,7 +245,7 @@ class OperatorMetadataPage extends React.Component {
           onChange={selections => {
             this.updateOperator(_.join(selections, ', '), field);
           }}
-          onBlur={() => this.validateField(field)}
+          onBlur={() => this.validateFields(field)}
         />
       </OperatorInput>
     );
@@ -281,7 +268,7 @@ class OperatorMetadataPage extends React.Component {
           onChange={selections => {
             this.updateOperator(selections, field);
           }}
-          onBlur={() => this.validateField(field)}
+          onBlur={() => this.validateFields(field)}
           newSelectionPrefix="Add keyword:"
           emptyLabel="Add keyword:"
         />
@@ -305,7 +292,7 @@ class OperatorMetadataPage extends React.Component {
         <DescriptionEditor
           operator={workingOperator}
           onUpdate={this.updateOperator}
-          onValidate={this.validateField}
+          onValidate={this.validateFields}
           formErrors={formErrors}
         />
         <CapabilityEditor operator={workingOperator} onUpdate={this.updateOperatorCapability} />
@@ -367,12 +354,13 @@ class OperatorMetadataPage extends React.Component {
   };
 
   render() {
-    const { formErrors, operator, history } = this.props;
+    const { formErrors, operator, history, sectionStatus } = this.props;
 
     const metadataErrorFields = sectionsFields.metadata.filter(metadataField => _.get(formErrors, metadataField));
-    const pageErrors = metadataErrorFields.some(
-      errorField => this.originalStatus !== EDITOR_STATUS.empty || _.get(operator, errorField) !== undefined
-    );
+    // mark pristine page
+    const pageErrors =
+      sectionStatus.metadata === EDITOR_STATUS.empty ||
+      metadataErrorFields.some(errorField => _.get(operator, errorField) !== undefined);
 
     return (
       <OperatorEditorSubPage
