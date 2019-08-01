@@ -9,62 +9,103 @@ import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
 import { getFieldValueError } from '../../utils/operatorUtils';
 import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
-import { sectionsFields } from './bundlePageUtils';
-import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
+import { sectionsFields, getUpdatedFormErrors, EDITOR_STATUS } from './bundlePageUtils';
+import {
+  storeEditorFormErrorsAction,
+  storeEditorOperatorAction,
+  setSectionStatusAction
+} from '../../redux/actions/editorActions';
 
 const permissionFields = sectionsFields.permissions;
 
-const OperatorPermissionsPage = ({
-  operator,
-  field,
-  title,
-  section,
-  objectPage,
-  objectType,
-  formErrors,
-  storeEditorOperator,
-  storeEditorFormErrors,
-  history
-}) => {
-  const updateOperator = permissions => {
+class OperatorPermissionsPage extends React.Component {
+  componentDidMount() {
+    const { operator, sectionStatus, objectPage } = this.props;
+
+    if (operator && sectionStatus[objectPage] !== EDITOR_STATUS.empty) {
+      // validate
+      this.validateField(operator);
+    }
+  }
+
+  updateOperator = permissions => {
+    const { storeEditorOperator, operator, field } = this.props;
+
     const updatedOperator = _.cloneDeep(operator);
     _.set(updatedOperator, field, permissions);
     storeEditorOperator(updatedOperator);
-    validateField();
+    this.validateField(updatedOperator);
   };
 
-  const validateField = () => {
+  validateField = operator => {
+    const { field, formErrors, storeEditorFormErrors, objectPage, sectionStatus, setSectionStatus } = this.props;
+
+    const status = sectionStatus[objectPage];
     const error = getFieldValueError(operator, field);
     _.set(formErrors, field, error);
     storeEditorFormErrors(formErrors);
+
+    // mark errored or remove error
+    // do not automatically change status of done or empty status
+    // that requires user action
+    if (error) {
+      setSectionStatus(objectPage, EDITOR_STATUS.errors);
+    } else if (status === EDITOR_STATUS.errors) {
+      setSectionStatus(objectPage, EDITOR_STATUS.pending);
+    }
   };
 
-  return (
-    <OperatorEditorSubPage
-      title={title}
-      field={field}
-      description={_.get(operatorObjectDescriptions, [...field.split('.'), 'description'])}
-      secondary
-      history={history}
-      section={section}
-    >
-      <ListObjectEditor
-        operator={operator}
-        formErrors={formErrors}
+  validatePage = () => {
+    const { operator, objectPage, formErrors, setSectionStatus, storeEditorFormErrors } = this.props;
+
+    const fields = [sectionsFields[objectPage]];
+    const errors = getUpdatedFormErrors(operator, formErrors, fields);
+    const hasErrors = fields.some(field => _.get(errors, field));
+
+    if (hasErrors) {
+      setSectionStatus(objectPage, EDITOR_STATUS.errors);
+      storeEditorFormErrors(errors);
+
+      return false;
+    }
+
+    return true;
+  };
+
+  render() {
+    const { operator, field, title, section, objectPage, objectType, formErrors, history, sectionStatus } = this.props;
+
+    const pageHasErrors = sectionStatus[objectPage] === EDITOR_STATUS.empty || _.get(formErrors, field);
+
+    return (
+      <OperatorEditorSubPage
         title={title}
-        onUpdate={updateOperator}
         field={field}
-        fieldTitle="Service Account Name"
-        objectPage={objectPage}
-        objectType={objectType}
+        description={_.get(operatorObjectDescriptions, [...field.split('.'), 'description'])}
+        secondary
         history={history}
-        objectTitleField="serviceAccountName"
-        pagePathField="serviceAccountName"
-        addName="add-permission"
-      />
-    </OperatorEditorSubPage>
-  );
-};
+        section={section}
+        validatePage={this.validatePage}
+        pageErrors={pageHasErrors}
+      >
+        <ListObjectEditor
+          operator={operator}
+          formErrors={formErrors}
+          title={title}
+          onUpdate={this.updateOperator}
+          field={field}
+          fieldTitle="Service Account Name"
+          objectPage={objectPage}
+          objectType={objectType}
+          history={history}
+          objectTitleField="serviceAccountName"
+          pagePathField="serviceAccountName"
+          addName="add-permission"
+        />
+      </OperatorEditorSubPage>
+    );
+  }
+}
 
 OperatorPermissionsPage.propTypes = {
   operator: PropTypes.object,
@@ -74,8 +115,10 @@ OperatorPermissionsPage.propTypes = {
   objectType: PropTypes.string,
   objectPage: PropTypes.string,
   formErrors: PropTypes.object,
+  sectionStatus: PropTypes.object,
   storeEditorOperator: PropTypes.func,
   storeEditorFormErrors: PropTypes.func,
+  setSectionStatus: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired
@@ -88,16 +131,19 @@ OperatorPermissionsPage.defaultProps = {
   section: 'permissions',
   objectType: 'Permission',
   objectPage: 'permissions',
+  sectionStatus: {},
   formErrors: {},
   storeEditorFormErrors: helpers.noop,
-  storeEditorOperator: helpers.noop
+  storeEditorOperator: helpers.noop,
+  setSectionStatus: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
       storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction
+      storeEditorFormErrors: storeEditorFormErrorsAction,
+      setSectionStatus: setSectionStatusAction
     },
     dispatch
   )
@@ -105,7 +151,8 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   operator: state.editorState.operator,
-  formErrors: state.editorState.formErrors
+  formErrors: state.editorState.formErrors,
+  sectionStatus: state.editorState.sectionStatus
 });
 
 export default connect(

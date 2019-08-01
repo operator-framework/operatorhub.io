@@ -97,9 +97,6 @@ class OperatorBundleDownloader extends React.PureComponent {
       updatedSectionsStatus.package = EDITOR_STATUS.errors;
     }
 
-    // console.log(`Operator is ${operatorIsValid ? 'valid' : 'invalid'}`);
-    // console.log(`Operator package is ${packageIsValid ? 'valid' : 'invalid'}`);
-
     if (Object.keys(updatedSectionsStatus).length > 0) {
       setBatchSectionsStatus(updatedSectionsStatus);
     }
