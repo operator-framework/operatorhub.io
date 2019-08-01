@@ -63,7 +63,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
   isNewCRD = false;
 
   componentDidMount() {
-    const { operator, formErrors, storeEditorFormErrors } = this.props;
+    const { operator, formErrors, storeEditorFormErrors, sectionStatus } = this.props;
     const name = helpers.transformPathedName(_.get(this.props.match, 'params.crd', ''));
     let operatorCRDs = _.get(operator, crdsField);
 
@@ -96,11 +96,14 @@ class OperatorOwnedCRDEditPage extends React.Component {
     // used to reference CRD when name changes
     this.originalName = crd.name;
 
-    // get existing errors and revalidate CRDs fields
-    const errors = getUpdatedFormErrors(operator, formErrors, crdsField);
+    // do not update status or validate pristine page
+    if (sectionStatus !== EDITOR_STATUS.empty) {
+      // get existing errors and revalidate CRDs fields
+      const errors = getUpdatedFormErrors(operator, formErrors, crdsField);
 
-    this.updateCrdErrors(errors);
-    storeEditorFormErrors(errors);
+      this.updateCrdErrors(errors);
+      storeEditorFormErrors(errors);
+    }
 
     this.setState({ crd, crdTemplate });
 
@@ -472,7 +475,7 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = state => ({
   operator: state.editorState.operator,
   formErrors: state.editorState.formErrors,
-  sectionStatus: {}
+  sectionStatus: state.editorState.sectionStatus
 });
 
 export default connect(

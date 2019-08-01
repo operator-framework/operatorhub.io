@@ -703,6 +703,22 @@ const operatorFieldValidators = {
               contextualValidator: deploymentSpecContextualValidator
             }
           }
+        },
+        permissions: {
+          isArray: true,
+          itemValidator: {
+            serviceAccountName: {
+              required: true
+            }
+          }
+        },
+        clusterPermissions: {
+          isArray: true,
+          itemValidator: {
+            serviceAccountName: {
+              required: true
+            }
+          }
         }
       }
     },
