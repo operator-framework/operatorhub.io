@@ -32,7 +32,7 @@ class OperatorBundlePage extends React.Component {
       const status = sectionStatus[sectionName];
 
       // skip validation for sections which are not started yet
-      if (sectionStatus === EDITOR_STATUS.empty) {
+      if (status === EDITOR_STATUS.empty) {
         return;
       }
 

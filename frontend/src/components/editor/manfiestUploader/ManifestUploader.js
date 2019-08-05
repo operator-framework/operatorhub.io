@@ -13,13 +13,15 @@ import {
   normalizeYamlOperator,
   EDITOR_STATUS,
   sectionsFields,
-  getMissingCrdUploads
+  getMissingCrdUploads,
+  getUpdatedFormErrors
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import {
   getDefaultOperator,
   getDefaultOnwedCRD,
   generateIdFromVersionedName,
-  isDeploymentDefault
+  isDeploymentDefault,
+  validateOperatorPackage
 } from '../../../utils/operatorUtils';
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
@@ -27,7 +29,8 @@ import {
   setSectionStatusAction,
   updateOperatorPackageAction,
   setUploadsAction,
-  storeEditorOperatorAction
+  storeEditorOperatorAction,
+  setBatchSectionsStatusAction
 } from '../../../redux/actions/editorActions';
 
 const validFileTypes = ['.yaml'];
@@ -212,15 +215,23 @@ class ManifestUploader extends React.Component {
    * Update package data from package file
    */
   processPackageFile = parsedFile => {
-    const { operatorPackage, updateOperatorPackage, markSectionForReview } = this.props;
+    const { operatorPackage, updateOperatorPackage, setSectionStatus } = this.props;
     const channel = parsedFile.channels && parsedFile.channels[0] ? parsedFile.channels[0] : null;
 
-    updateOperatorPackage({
+    const newPackage = {
       name: parsedFile.packageName,
       channel: channel ? channel.name : operatorPackage.channel
-    });
+    };
 
-    markSectionForReview('package');
+    updateOperatorPackage(newPackage);
+
+    const operatorPackageValid = validateOperatorPackage(newPackage);
+
+    if (!operatorPackageValid) {
+      setSectionStatus('package', EDITOR_STATUS.errors);
+    } else {
+      setSectionStatus('package', EDITOR_STATUS.pending);
+    }
   };
 
   /**
@@ -228,7 +239,7 @@ class ManifestUploader extends React.Component {
    * @param {*} parsedFile
    */
   processDeployment = parsedFile => {
-    const { operator, storeEditorOperator, markSectionForReview } = this.props;
+    const { operator, storeEditorOperator } = this.props;
     const newOperator = _.cloneDeep(operator);
     let deployments = _.get(newOperator, sectionsFields.deployments, []);
     const name = _.get(parsedFile, 'metadata.name', `Deployment-${deployments.length + 1}`);
@@ -250,8 +261,8 @@ class ManifestUploader extends React.Component {
       // set new deployments
       _.set(newOperator, sectionsFields.deployments, deployments);
 
+      this.validateSection(newOperator, 'deployments');
       storeEditorOperator(newOperator);
-      markSectionForReview('deployments');
     } else {
       console.warn(`Deployment object is invalid as doesn't contain spec object`);
     }
@@ -319,7 +330,7 @@ class ManifestUploader extends React.Component {
    * @param {KubernetsRoleBindingObject} roleBindingObject
    */
   setPermissions = (roleObject, roleBindingObject) => {
-    const { operator, storeEditorOperator, markSectionForReview } = this.props;
+    const { operator, storeEditorOperator } = this.props;
     const newOperator = _.cloneDeep(operator);
 
     const { roleRef } = roleBindingObject;
@@ -354,7 +365,7 @@ class ManifestUploader extends React.Component {
         newPermissions.push(permission);
         _.set(newOperator, sectionsFields[permissionType], newPermissions);
 
-        markSectionForReview(permissionType);
+        this.validateSection(newOperator, permissionType);
 
         storeEditorOperator(newOperator);
       } else {
@@ -422,7 +433,9 @@ class ManifestUploader extends React.Component {
    * @param {*} uploaded actual uploaded operator
    */
   compareSections = (operator, merged, uploaded) => {
-    const { markSectionForReview } = this.props;
+    const { setAllSectionsStatusAction } = this.props;
+
+    const updatedSectionsStatus = {};
 
     Object.keys(sectionsFields).forEach(sectionName => {
       const fields = sectionsFields[sectionName];
@@ -436,10 +449,39 @@ class ManifestUploader extends React.Component {
       }
 
       if (updated) {
-        // mark section as review needed
-        markSectionForReview(sectionName);
+        const sectionErrors = getUpdatedFormErrors(merged, {}, fields);
+
+        // check if some section field has error
+        if (_.castArray(fields).some(field => _.get(sectionErrors, field))) {
+          updatedSectionsStatus[sectionName] = EDITOR_STATUS.errors;
+        } else {
+          updatedSectionsStatus[sectionName] = EDITOR_STATUS.pending;
+        }
       }
     });
+
+    if (Object.keys(updatedSectionsStatus).length > 0) {
+      // section has errors / missing content so draw attention
+      setAllSectionsStatusAction(updatedSectionsStatus);
+    }
+  };
+
+  validateSection = (operator, sectionName) => {
+    const { setSectionStatus } = this.props;
+    const fields = sectionsFields[sectionName];
+
+    const sectionErrors = getUpdatedFormErrors(operator, {}, fields);
+
+    // check if some section field has error
+    const sectionHasErrors = _.castArray(fields).some(field => _.get(sectionErrors, field));
+
+    if (sectionHasErrors) {
+      // section has errors / missing content so draw attention
+      setSectionStatus(sectionName, EDITOR_STATUS.errors);
+    } else {
+      // mark section as review needed
+      setSectionStatus(sectionName, EDITOR_STATUS.pending);
+    }
   };
 
   /**
@@ -632,7 +674,8 @@ ManifestUploader.propTypes = {
   operatorPackage: PropTypes.object,
   uploads: PropTypes.array,
   showErrorModal: PropTypes.func,
-  markSectionForReview: PropTypes.func,
+  setSectionStatus: PropTypes.func,
+  setAllSectionsStatusAction: PropTypes.func,
   updateOperatorPackage: PropTypes.func,
   setUploads: PropTypes.func,
   storeEditorOperator: PropTypes.func
@@ -643,7 +686,8 @@ ManifestUploader.defaultProps = {
   operatorPackage: {},
   uploads: [],
   showErrorModal: helpers.noop,
-  markSectionForReview: helpers.noop,
+  setSectionStatus: helpers.noop,
+  setAllSectionsStatusAction: helpers.noop,
   updateOperatorPackage: helpers.noop,
   setUploads: helpers.noop,
   storeEditorOperator: helpers.noop
@@ -659,7 +703,8 @@ const mapDispatchToProps = dispatch => ({
         heading: error,
         confirmButtonText: 'OK'
       }),
-      markSectionForReview: sectionName => setSectionStatusAction(sectionName, EDITOR_STATUS.pending),
+      setSectionStatus: setSectionStatusAction,
+      setAllSectionsStatusAction: setBatchSectionsStatusAction,
       updateOperatorPackage: updateOperatorPackageAction,
       setUploads: setUploadsAction,
       storeEditorOperator: storeEditorOperatorAction
