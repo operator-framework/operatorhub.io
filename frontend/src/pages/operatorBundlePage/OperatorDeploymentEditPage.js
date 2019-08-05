@@ -8,59 +8,84 @@ import { safeDump, safeLoad } from 'js-yaml';
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import YamlViewer from '../../components/YamlViewer';
-import { sectionsFields } from './bundlePageUtils';
-import { getValueError, getDefaultDeployment } from '../../utils/operatorUtils';
+import { sectionsFields, EDITOR_STATUS } from './bundlePageUtils';
+import { getValueError, getDefaultDeployment, isDeploymentDefault } from '../../utils/operatorUtils';
 import { operatorFieldValidators } from '../../utils/operatorDescriptors';
-import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
+import {
+  storeEditorFormErrorsAction,
+  storeEditorOperatorAction,
+  setSectionStatusAction
+} from '../../redux/actions/editorActions';
 
 const deploymentFields = sectionsFields.deployments;
 
 class OperatorDeploymentEditPage extends React.Component {
+  /**
+   * @type {Object} state
+   * @prop {string} state.deploymentYaml
+   * @prop {string|string[]} state.yamlError
+   */
   state = {
-    deployment: null,
-    deploymentYaml: ''
+    deploymentYaml: '',
+    yamlError: ''
   };
 
+  name;
+
   componentDidMount() {
-    const { operator, storeEditorOperator } = this.props;
-    const name = helpers.transformPathedName(_.get(this.props.match, 'params.deployment', ''));
+    this.name = helpers.transformPathedName(_.get(this.props.match, 'params.deployment', ''));
 
-    const operatorDeployments = _.get(operator, deploymentFields, []);
-
-    let deployment = _.find(operatorDeployments, { name });
-
-    if (!deployment) {
-      deployment = getDefaultDeployment();
-
-      // override name so its obvious that its new
-      deployment.name = 'Add Deployment';
-
-      operatorDeployments.push(deployment);
-      const updatedOperator = _.cloneDeep(operator);
-      _.set(updatedOperator, deploymentFields, operatorDeployments);
-      storeEditorOperator(updatedOperator);
-    }
-
+    const deployment = this.getDeployment();
     let deploymentYaml;
-    let yamlError;
+    /** @type {string|string[]} */
+    let yamlError = '';
     try {
       deploymentYaml = safeDump(deployment);
-      yamlError = '';
+
+      // validate on first open in case we have non default deployment
+      if (!isDeploymentDefault(deployment)) {
+        yamlError = this.validateDeployment(deployment);
+      }
     } catch (e) {
       deploymentYaml = '';
       yamlError = e.message;
     }
 
-    this.setState({ deployment, deploymentYaml, yamlError });
+    this.setState({ deploymentYaml, yamlError });
   }
+
+  getDeployment = () => {
+    const { operator, storeEditorOperator } = this.props;
+    const operatorDeployments = _.get(operator, deploymentFields, []);
+
+    let deployment = _.find(operatorDeployments, { name: this.name });
+
+    if (!deployment) {
+      const updatedOperator = _.cloneDeep(operator);
+      const updatedDeployments = _.get(updatedOperator, deploymentFields, []);
+
+      deployment = getDefaultDeployment();
+
+      updatedDeployments.push(deployment);
+
+      _.set(updatedOperator, deploymentFields, updatedDeployments);
+      storeEditorOperator(updatedOperator);
+    }
+
+    return deployment;
+  };
 
   updateOperator = updatedDeployment => {
     const { operator, storeEditorOperator } = this.props;
-    const { deployment } = this.state;
 
     const updatedOperator = _.cloneDeep(operator);
     const deployments = _.get(updatedOperator, deploymentFields);
-    const deploymentIndex = _.findIndex(deployments, { name: deployment.name });
+    // use orignal name
+    const deploymentIndex = _.findIndex(deployments, { name: this.name });
+
+    // update name ref for case it changed
+    this.name = updatedDeployment.name || this.name;
+
     const updatedDeployments = [
       ...deployments.slice(0, deploymentIndex),
       updatedDeployment,
@@ -68,7 +93,6 @@ class OperatorDeploymentEditPage extends React.Component {
     ];
     _.set(updatedOperator, deploymentFields, updatedDeployments);
 
-    this.setState({ deployment: updatedDeployment });
     storeEditorOperator(updatedOperator);
   };
 
@@ -92,10 +116,13 @@ class OperatorDeploymentEditPage extends React.Component {
   };
 
   onYamlChange = yaml => {
+    const { setSectionStatus } = this.props;
+
+    /** @type {string|string[]} */
     let yamlError = '';
+
     try {
       const updatedDeployment = safeLoad(yaml);
-
       yamlError = this.validateDeployment(updatedDeployment);
 
       this.updateOperator(updatedDeployment);
@@ -103,6 +130,21 @@ class OperatorDeploymentEditPage extends React.Component {
       yamlError = e.message;
     }
     this.setState({ yamlError });
+
+    setSectionStatus(EDITOR_STATUS.pending);
+  };
+
+  getDefaultOnClear = () => {
+    const deployment = getDefaultDeployment();
+    let deploymentYaml = '';
+
+    try {
+      deploymentYaml = safeDump(deployment);
+    } catch (e) {
+      console.warn("Can't convert default deployment to yaml!");
+    }
+
+    return deploymentYaml;
   };
 
   render() {
@@ -118,7 +160,14 @@ class OperatorDeploymentEditPage extends React.Component {
         history={history}
       >
         <div className="oh-operator-editor-deployment">
-          <YamlViewer yaml={deploymentYaml} onBlur={this.onYamlChange} editable error={yamlError} allowClear />
+          <YamlViewer
+            yaml={deploymentYaml}
+            onBlur={this.onYamlChange}
+            editable
+            error={yamlError}
+            allowClear
+            onClear={this.getDefaultOnClear}
+          />
         </div>
       </OperatorEditorSubPage>
     );
@@ -128,6 +177,7 @@ class OperatorDeploymentEditPage extends React.Component {
 OperatorDeploymentEditPage.propTypes = {
   operator: PropTypes.object,
   storeEditorOperator: PropTypes.func,
+  setSectionStatus: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
@@ -136,14 +186,16 @@ OperatorDeploymentEditPage.propTypes = {
 
 OperatorDeploymentEditPage.defaultProps = {
   operator: {},
-  storeEditorOperator: helpers.noop
+  storeEditorOperator: helpers.noop,
+  setSectionStatus: helpers.noop
 };
 
 const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
       storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction
+      storeEditorFormErrors: storeEditorFormErrorsAction,
+      setSectionStatus: status => setSectionStatusAction('deployments', status)
     },
     dispatch
   )

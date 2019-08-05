@@ -158,6 +158,10 @@
         margin-left: 0;
       }
     }
+
+    &__tertiary{
+      justify-content: flex-end;
+    }
   }
 
   &#oh-editor-landing-page{

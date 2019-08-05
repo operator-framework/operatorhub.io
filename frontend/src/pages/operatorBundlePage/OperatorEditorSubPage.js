@@ -19,18 +19,18 @@ class OperatorEditorSubPage extends React.Component {
   };
 
   componentDidMount() {
-    const { validatePage, setSectionStatus, section } = this.props;
+    const { validatePage, setSectionStatus, section, sectionStatus } = this.props;
 
     this.updateTitleHeight();
     this.onWindowResize = helpers.debounce(this.updateTitleHeight, 100);
     window.addEventListener('resize', this.onWindowResize);
 
-    if (section) {
-      if (validatePage() === false) {
+    // do not validate pristine page
+    if (sectionStatus[section] !== EDITOR_STATUS.empty) {
+      // validate page to display errors when opened
+      if (section && validatePage() === false) {
         setSectionStatus(section, EDITOR_STATUS.errors);
-        return;
       }
-      setSectionStatus(section, EDITOR_STATUS.pending);
     }
   }
 
@@ -120,50 +120,19 @@ class OperatorEditorSubPage extends React.Component {
     </Breadcrumb>
   );
 
-  renderButtonBar() {
-    const { buttonBar, secondary, tertiary, pageErrors } = this.props;
-
-    if (buttonBar) {
-      return buttonBar;
-    }
-
-    if (secondary) {
-      const allSetClasses = classNames('oh-button oh-button-primary', { disabled: pageErrors });
-
-      return (
-        <div className="oh-operator-editor-page__button-bar">
-          <div>
-            <button className="oh-button oh-button-secondary" onClick={e => this.onEditor(e)}>
-              Back to Package your Operator
-            </button>
-          </div>
-          <div>
-            <button className={allSetClasses} disabled={pageErrors} onClick={e => this.allSet(e)}>
-              {`All set with ${this.props.title}`}
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    if (tertiary) {
-      return (
-        <div className="oh-operator-editor-page__button-bar">
-          <span />
-          <div>
-            <button className="oh-button oh-button-primary" onClick={e => this.onBack(e)}>
-              {`Back to ${this.props.lastPageTitle}`}
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return null;
-  }
-
   render() {
-    const { header, title, field, description, children, pageId } = this.props;
+    const {
+      header,
+      title,
+      field,
+      description,
+      children,
+      pageId,
+      buttonBar,
+      secondary,
+      tertiary,
+      pageErrors
+    } = this.props;
     const { keywordSearch, headerHeight, titleHeight } = this.state;
 
     return (
@@ -180,8 +149,7 @@ class OperatorEditorSubPage extends React.Component {
         <div className="oh-operator-editor-page" id={pageId}>
           <div className="oh-operator-editor-page__title-area" ref={this.setTitleAreaRef} style={{ top: headerHeight }}>
             <div className="oh-operator-editor-page__title-area__inner">
-              {header && header}
-              {!header && (
+              {header || (
                 <React.Fragment>
                   <h1>{title}</h1>
                   {description}
@@ -193,7 +161,24 @@ class OperatorEditorSubPage extends React.Component {
           <div className="oh-operator-editor-page__page-area" style={{ marginTop: titleHeight || 0 }}>
             {children}
           </div>
-          {this.renderButtonBar()}
+          {buttonBar ||
+            (secondary && (
+              <div className="oh-operator-editor-page__button-bar">
+                <button className="oh-button oh-button-secondary" onClick={this.onEditor}>
+                  Back to Package your Operator
+                </button>
+                <button className="oh-button oh-button-primary" disabled={pageErrors} onClick={this.allSet}>
+                  {`All set with ${this.props.title}`}
+                </button>
+              </div>
+            )) ||
+            (tertiary && (
+              <div className="oh-operator-editor-page__button-bar__tertiary">
+                <button className="oh-button oh-button-primary" onClick={this.onBack}>
+                  {`Back to ${this.props.lastPageTitle}`}
+                </button>
+              </div>
+            ))}
         </div>
       </Page>
     );
@@ -220,7 +205,8 @@ OperatorEditorSubPage.propTypes = {
   }).isRequired,
   setSectionStatus: PropTypes.func,
   showPageErrorsMessage: PropTypes.func,
-  storeKeywordSearch: PropTypes.func
+  storeKeywordSearch: PropTypes.func,
+  sectionStatus: PropTypes.object
 };
 
 OperatorEditorSubPage.defaultProps = {
@@ -240,7 +226,8 @@ OperatorEditorSubPage.defaultProps = {
   children: null,
   setSectionStatus: helpers.noop,
   showPageErrorsMessage: helpers.noop,
-  storeKeywordSearch: helpers.noop
+  storeKeywordSearch: helpers.noop,
+  sectionStatus: {}
 };
 
 const mapDispatchToProps = dispatch => ({
