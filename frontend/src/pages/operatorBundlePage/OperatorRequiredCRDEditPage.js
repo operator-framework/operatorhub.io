@@ -1,17 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import {
-  operatorFieldDescriptions,
-  operatorFieldPlaceholders,
-  operatorFieldValidators
-} from '../../utils/operatorDescriptors';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
 import {
   setSectionStatusAction,
@@ -20,6 +14,8 @@ import {
 } from '../../redux/actions/editorActions';
 import { getDefaultRequiredCRD } from '../../utils/operatorUtils';
 import { NEW_CRD_NAME } from '../../utils/constants';
+import OperatorInputUncontrolled from '../../components/editor/forms/OperatorInputUncontrolled';
+import OperatorTextAreaUncontrolled from '../../components/editor/forms/OperatorTextAreaUncontrolled';
 
 const crdsField = sectionsFields['required-crds'];
 
@@ -124,54 +120,30 @@ class OperatorRequiredCRDEditPage extends React.Component {
     const existingCRDs = _.get(operator, crdsField);
     const crd = existingCRDs[this.crdIndex];
 
-    const error = !(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && _.get(crdErrors, field);
+    const error = !(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && _.get(crdErrors, field, {});
 
-    const formFieldClasses = classNames({
-      'oh-operator-editor-form__field': true,
-      row: true,
-      'oh-operator-editor-form__field--error': error
-    });
-
-    let inputComponent;
     if (fieldType === 'text-area') {
-      inputComponent = (
-        <input
-          id={field}
-          className="form-control"
-          type="text-area"
-          rows={3}
-          {..._.get(_.get(operatorFieldValidators, `${crdsField}.${field}`), 'props')}
-          onBlur={e => this.validateField(field, e.target.value)}
+      return (
+        <OperatorTextAreaUncontrolled
+          field={field}
+          title={title}
           defaultValue={_.get(crd, field, '')}
-          placeholder={_.get(operatorFieldPlaceholders, `${crdsField}.${field}`)}
-          ref={inputRefCallback || helpers.noop}
-        />
-      );
-    } else {
-      inputComponent = (
-        <input
-          id={field}
-          className="form-control"
-          type="text"
-          {..._.get(_.get(operatorFieldValidators, `${crdsField}.${field}`), 'props')}
-          onBlur={e => this.validateField(field, e.target.value)}
-          defaultValue={_.get(crd, field, '')}
-          placeholder={_.get(operatorFieldPlaceholders, `${crdsField}.${field}`)}
-          ref={inputRefCallback || helpers.noop}
+          formErrors={error}
+          commitField={this.validateField}
+          refCallback={inputRefCallback}
         />
       );
     }
     return (
-      <div className={formFieldClasses}>
-        <div className="form-group col-sm-6">
-          <label htmlFor={field}>{title}</label>
-          {inputComponent}
-          {error && <div className="oh-operator-editor-form__error-block">{error}</div>}
-        </div>
-        <div className="oh-operator-editor-form__description col-sm-6">
-          {_.get(operatorFieldDescriptions, `${crdsField}.${field}`, '')}
-        </div>
-      </div>
+      <OperatorInputUncontrolled
+        field={field}
+        title={title}
+        defaultValue={_.get(crd, field, '')}
+        inputType="text"
+        formErrors={error}
+        commitField={this.validateField}
+        refCallback={inputRefCallback}
+      />
     );
   };
 

@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
 import { EDITOR_STATUS } from './bundlePageUtils';
@@ -9,7 +10,7 @@ import { EDITOR_STATUS } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import { validateOperatorPackageField, validateOperatorPackage } from '../../utils/operatorUtils';
 import { setSectionStatusAction, updateOperatorPackageAction } from '../../redux/actions/editorActions';
-import { renderOperatorFormField } from '../../components/editor/forms/OtherFields';
+import OperatorInput from '../../components/editor/forms/OperatorInput';
 
 class OperatorPackagePage extends React.Component {
   originalStatus = EDITOR_STATUS.empty;
@@ -66,18 +67,20 @@ class OperatorPackagePage extends React.Component {
     storeEditorOperatorPackage(updatedPackage);
   };
 
-  renderFormField = (title, field, fieldType) => {
+  renderFormField = (title, field) => {
     const { operatorPackage } = this.props;
     const { errors } = this.state;
 
-    return renderOperatorFormField(
-      operatorPackage,
-      errors,
-      this.updateOperatorPackage,
-      this.validateField,
-      title,
-      field,
-      fieldType
+    return (
+      <OperatorInput
+        field={field}
+        title={title}
+        inputType="text"
+        formErrors={errors}
+        value={_.get(operatorPackage, field, '')}
+        updateOperator={this.updateOperatorPackage}
+        commitField={this.validateField}
+      />
     );
   };
 
@@ -99,8 +102,8 @@ class OperatorPackagePage extends React.Component {
         validatePage={this.validatePage}
       >
         <form className="oh-operator-editor-form">
-          {this.renderFormField('Package Name', 'name', 'text')}
-          {this.renderFormField('Channel Name', 'channel', 'text')}
+          {this.renderFormField('Package Name', 'name')}
+          {this.renderFormField('Channel Name', 'channel')}
         </form>
       </OperatorEditorSubPage>
     );
