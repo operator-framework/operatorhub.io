@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
@@ -9,11 +8,7 @@ import { safeDump, safeLoad } from 'js-yaml';
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ResourcesEditor from '../../components/editor/ResourcesEditor';
-import {
-  operatorFieldDescriptions,
-  operatorFieldPlaceholders,
-  operatorFieldValidators
-} from '../../utils/operatorDescriptors';
+import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 import DescriptorsEditor, { isDescriptorEmpty } from '../../components/editor/DescriptorsEditor';
 import YamlViewer from '../../components/YamlViewer';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from './bundlePageUtils';
@@ -24,6 +19,8 @@ import {
   storeEditorOperatorAction
 } from '../../redux/actions/editorActions';
 import { NEW_CRD_NAME } from '../../utils/constants';
+import OperatorTextArea from '../../components/editor/forms/OperatorTextArea';
+import OperatorInput from '../../components/editor/forms/OperatorInput';
 
 const crdsField = sectionsFields['owned-crds'];
 
@@ -61,6 +58,8 @@ class OperatorOwnedCRDEditPage extends React.Component {
   dirtyFields = {};
   crdIndex;
   isNewCRD = false;
+
+  nameInput;
 
   componentDidMount() {
     const { operator, formErrors, storeEditorFormErrors, sectionStatus } = this.props;
@@ -287,102 +286,39 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const { crd, crdErrors } = this.state;
 
     // ignore errors on new CRDs for untouched fields
-    const error = !(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && _.get(crdErrors, field);
+    const error = !(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && _.get(crdErrors, field, {});
 
-    const formFieldClasses = classNames({
-      'oh-operator-editor-form__field': true,
-      row: true,
-      'oh-operator-editor-form__field--error': error
-    });
-
-    let inputComponent;
     if (fieldType === 'text-area') {
-      inputComponent = (
-        <input
-          id={field}
-          className="form-control"
-          type="text-area"
-          rows={3}
-          {..._.get(_.get(operatorFieldValidators, `${crdsField}.${field}`), 'props')}
-          onChange={e => this.updateCRD(e.target.value, field)}
-          onBlur={() => this.validateField(field)}
+      return (
+        <OperatorTextArea
+          field={field}
+          title={title}
           value={_.get(crd, field, '')}
-          placeholder={_.get(operatorFieldPlaceholders, `${crdsField}.${field}`)}
-          ref={inputRefCallback || helpers.noop}
-        />
-      );
-    } else {
-      inputComponent = (
-        <input
-          id={field}
-          className="form-control"
-          type="text"
-          {..._.get(_.get(operatorFieldValidators, `${crdsField}.${field}`), 'props')}
-          onChange={e => this.updateCRD(e.target.value, field)}
-          onBlur={() => this.validateField(field)}
-          value={_.get(crd, field, '')}
-          placeholder={_.get(operatorFieldPlaceholders, `${crdsField}.${field}`)}
-          ref={inputRefCallback || helpers.noop}
+          formErrors={error}
+          updateOperator={this.updateCRD}
+          commitField={this.validateField}
+          refCallback={inputRefCallback}
         />
       );
     }
     return (
-      <div className={formFieldClasses}>
-        <div className="form-group col-sm-6">
-          <label htmlFor={field}>{title}</label>
-          {inputComponent}
-          {error && <div className="oh-operator-editor-form__error-block">{error}</div>}
-        </div>
-        <div className="oh-operator-editor-form__description col-sm-6">
-          {_.get(operatorFieldDescriptions, `${crdsField}.${field}`, '')}
-        </div>
-      </div>
+      <OperatorInput
+        field={field}
+        title={title}
+        value={_.get(crd, field, '')}
+        inputType="text"
+        formErrors={error}
+        updateOperator={this.updateCRD}
+        commitField={this.validateField}
+        refCallback={inputRefCallback}
+      />
     );
   };
 
-  renderCRDFields = () => (
-    <React.Fragment>
-      {this.renderCRDInput('Name', 'name', 'text', this.setNameInputRef)}
-      {this.renderCRDInput('Display Name', 'displayName', 'text')}
-      {this.renderCRDInput('Description', 'description', 'text-area')}
-      {this.renderCRDInput('Kind', 'kind', 'text')}
-      {this.renderCRDInput('Version', 'version', 'text')}
-    </React.Fragment>
-  );
+  render() {
+    const { history } = this.props;
+    const { crd, crdErrors, crdTemplate, crdTemplateYamlError } = this.state;
 
-  renderDescriptors = () => {
-    const { crd, crdErrors } = this.state;
-
-    return (
-      <div className="oh_operator-editor__crd-descriptors">
-        <h3>SpecDescriptors, StatusDescriptors, and ActionDescriptors</h3>
-        <p>{_.get(operatorFieldDescriptions, `${crdsField}.descriptors`)}</p>
-        <DescriptorsEditor
-          crd={crd}
-          title="SpecDescriptors"
-          singular="SpecDescriptor"
-          descriptorsErrors={_.get(crdErrors, 'specDescriptors')}
-          description="A reference to fields in the spec block of an object."
-          onUpdate={() => this.validateField('specDescriptors')}
-          descriptorsField="specDescriptors"
-          descriptorOptions={specCapabilities}
-        />
-        <DescriptorsEditor
-          crd={crd}
-          title="StatusDescriptors"
-          singular="StatusDescriptor"
-          descriptorsErrors={_.get(crdErrors, 'statusDescriptors')}
-          description="A reference to fields in the status block of an object."
-          onUpdate={() => this.validateField('statusDescriptors')}
-          descriptorsField="statusDescriptors"
-          descriptorOptions={statusCapabilities}
-        />
-      </div>
-    );
-  };
-
-  renderTemplates = () => {
-    const { crdTemplate, crdTemplateYamlError } = this.state;
     let crdTemplateYaml;
 
     if (crdTemplate) {
@@ -395,26 +331,6 @@ class OperatorOwnedCRDEditPage extends React.Component {
     }
 
     return (
-      <React.Fragment>
-        <h3>CRD Templates</h3>
-        <p>{_.get(operatorFieldDescriptions, 'metadata.annotations.alm-examples')}</p>
-        <YamlViewer
-          onBlur={yaml => this.onTemplateYamlChange(yaml)}
-          editable
-          yaml={crdTemplateYaml}
-          error={crdTemplateYamlError}
-          onClear={this.onTemplateClear}
-          allowClear
-        />
-      </React.Fragment>
-    );
-  };
-
-  render() {
-    const { history } = this.props;
-    const { crd, crdErrors } = this.state;
-
-    return (
       <OperatorEditorSubPage
         title="Edit Owned CRD"
         tertiary
@@ -423,7 +339,11 @@ class OperatorOwnedCRDEditPage extends React.Component {
         history={history}
       >
         <form className="oh-operator-editor-form">
-          {this.renderCRDFields()}
+          {this.renderCRDInput('Name', 'name', 'text', this.setNameInputRef)}
+          {this.renderCRDInput('Display Name', 'displayName', 'text')}
+          {this.renderCRDInput('Description', 'description', 'text-area')}
+          {this.renderCRDInput('Kind', 'kind', 'text')}
+          {this.renderCRDInput('Version', 'version', 'text')}
           <ResourcesEditor
             crd={crd}
             crdErrors={crdErrors}
@@ -431,8 +351,40 @@ class OperatorOwnedCRDEditPage extends React.Component {
             title="Resources"
             field={`${crdsField}.resources`}
           />
-          {this.renderDescriptors()}
-          {this.renderTemplates()}
+          <div className="oh_operator-editor__crd-descriptors">
+            <h3>SpecDescriptors, StatusDescriptors, and ActionDescriptors</h3>
+            <p>{_.get(operatorFieldDescriptions, `${crdsField}.descriptors`)}</p>
+            <DescriptorsEditor
+              crd={crd}
+              title="SpecDescriptors"
+              singular="SpecDescriptor"
+              descriptorsErrors={_.get(crdErrors, 'specDescriptors')}
+              description="A reference to fields in the spec block of an object."
+              onUpdate={() => this.validateField('specDescriptors')}
+              descriptorsField="specDescriptors"
+              descriptorOptions={specCapabilities}
+            />
+            <DescriptorsEditor
+              crd={crd}
+              title="StatusDescriptors"
+              singular="StatusDescriptor"
+              descriptorsErrors={_.get(crdErrors, 'statusDescriptors')}
+              description="A reference to fields in the status block of an object."
+              onUpdate={() => this.validateField('statusDescriptors')}
+              descriptorsField="statusDescriptors"
+              descriptorOptions={statusCapabilities}
+            />
+          </div>
+          <h3>CRD Templates</h3>
+          <p>{_.get(operatorFieldDescriptions, 'metadata.annotations.alm-examples')}</p>
+          <YamlViewer
+            onBlur={yaml => this.onTemplateYamlChange(yaml)}
+            editable
+            yaml={crdTemplateYaml}
+            error={crdTemplateYamlError}
+            onClear={this.onTemplateClear}
+            allowClear
+          />
         </form>
       </OperatorEditorSubPage>
     );

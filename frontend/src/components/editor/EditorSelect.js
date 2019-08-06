@@ -4,6 +4,22 @@ import { TypeAheadSelect } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 
+/**
+ * Select with search and option to add new tags
+ * @param {object} param0
+ * @param {string} param0.id
+ * @param {string[]=} param0.values
+ * @param {string[]=} param0.options
+ * @param {boolean} [param0.isMulti=true]
+ * @param {boolean} [param0.customSelect=false]
+ * @param {string=} param0.placeholder
+ * @param {boolean=} param0.dropup
+ * @param {function=} param0.onChange
+ * @param {function=} param0.onBlur
+ * @param {boolean=} param0.clearButton
+ * @param {string=} param0.emptyLabel
+ * @param {string=} param0.newSelectionPrefix
+ */
 const EditorSelect = ({
   id,
   values,
@@ -14,6 +30,9 @@ const EditorSelect = ({
   dropup,
   onChange,
   onBlur,
+  clearButton,
+  emptyLabel,
+  newSelectionPrefix,
   ...otherProps
 }) => {
   let typeAhead = null;
@@ -70,9 +89,12 @@ EditorSelect.propTypes = {
   isMulti: PropTypes.bool,
   customSelect: PropTypes.bool,
   dropup: PropTypes.bool,
+  clearButton: PropTypes.bool,
   placeholder: PropTypes.string,
   onChange: PropTypes.func,
-  onBlur: PropTypes.func
+  onBlur: PropTypes.func,
+  emptyLabel: PropTypes.string,
+  newSelectionPrefix: PropTypes.string
 };
 
 EditorSelect.defaultProps = {
@@ -81,9 +103,12 @@ EditorSelect.defaultProps = {
   isMulti: true,
   customSelect: false,
   dropup: false,
+  clearButton: false,
   placeholder: 'Select options',
   onChange: helpers.noop,
-  onBlur: helpers.noop
+  onBlur: helpers.noop,
+  emptyLabel: undefined,
+  newSelectionPrefix: undefined
 };
 
 export default EditorSelect;

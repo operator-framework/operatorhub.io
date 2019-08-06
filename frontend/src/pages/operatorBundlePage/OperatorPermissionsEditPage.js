@@ -1,25 +1,20 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { renderFormError, sectionsFields, getUpdatedFormErrors, EDITOR_STATUS } from './bundlePageUtils';
-import {
-  operatorFieldDescriptions,
-  operatorFieldPlaceholders,
-  operatorFieldValidators,
-  operatorObjectDescriptions
-} from '../../utils/operatorDescriptors';
+import { sectionsFields, EDITOR_STATUS, getUpdatedFormErrors } from './bundlePageUtils';
+import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import RulesEditor from '../../components/editor/RulesEditor';
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../redux/actions/editorActions';
+import OperatorInput from '../../components/editor/forms/OperatorInput';
 
 const permissionFields = sectionsFields.permissions;
 
@@ -125,46 +120,8 @@ class OperatorPermissionsEditPage extends React.Component {
     this.updatePermission(rules, 'rules');
   };
 
-  renderNameField = permission => {
-    const { field } = this.props;
-
-    const serviceAccountNamePath = [...field.split('.'), 'serviceAccountName'];
-    const errors = this.getErrors();
-
-    const formFieldClasses = classNames({
-      'oh-operator-editor-form__field': true,
-      row: true,
-      'oh-operator-editor-form__field--error': _.get(errors, 'serviceAccountName')
-    });
-
-    return (
-      <div className={formFieldClasses}>
-        <div className="form-group col-sm-6">
-          <label htmlFor={field}>Service Account Name</label>
-          <input
-            id={field}
-            className="form-control"
-            type="text"
-            {..._.get(_.get(operatorFieldValidators, field), 'props')}
-            onBlur={e => this.updatePermission(e.target.value, 'serviceAccountName')}
-            defaultValue={_.get(permission, 'serviceAccountName', '')}
-            placeholder={_.get(operatorFieldPlaceholders, serviceAccountNamePath)}
-            ref={ref => {
-              this.nameInput = ref;
-            }}
-          />
-          {renderFormError('serviceAccountName', errors)}
-        </div>
-        <div className="oh-operator-editor-form__description col-sm-6">
-          {_.get(operatorFieldDescriptions, serviceAccountNamePath, '')}
-        </div>
-      </div>
-    );
-  };
-
   render() {
-    const { field, objectType, objectPage, objectsTitle, objectDescription, history } = this.props;
-
+    const { field, objectType, objectPage, objectsTitle, objectDescription, history, formErrors } = this.props;
     const permission = this.getPermission();
 
     return (
@@ -180,7 +137,18 @@ class OperatorPermissionsEditPage extends React.Component {
         <h3>{objectsTitle}</h3>
         <p>{objectDescription}</p>
         <form className="oh-operator-editor-form">
-          {this.renderNameField(permission)}
+          <OperatorInput
+            title="Service Account Name"
+            field="serviceAccountName"
+            inputType="text"
+            formErrors={_.get(permission, 'serviceAccountName') === undefined ? {} : formErrors}
+            value={_.get(permission, 'serviceAccountName', '')}
+            updateOperator={this.updatePermission}
+            commitField={() => {}}
+            refCallback={ref => {
+              this.nameInput = ref;
+            }}
+          />
           <h3>Rules</h3>
           <RulesEditor permission={permission} onUpdate={this.updateRules} />
         </form>
