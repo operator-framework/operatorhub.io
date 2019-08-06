@@ -18,8 +18,9 @@ import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../redux/actions/editorActions';
+import OperatorTextArea from '../../components/editor/forms/OperatorTextArea';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
-import { renderOperatorFormField } from '../../components/editor/forms/OtherFields';
+import OperatorInputWrapper from '../../components/editor/forms/OperatorInputWrapper';
 
 const metadataDescription = `
   The metadata section contains general metadata around the name, version, and other info that aids users in the
@@ -167,16 +168,36 @@ class OperatorMetadataPage extends React.Component {
 
     const errs = this.originalStatus === EDITOR_STATUS.empty && _.get(operator, field) === undefined ? {} : formErrors;
 
-    return renderOperatorFormField(
-      workingOperator,
-      errs,
-      this.updateOperator,
-      this.validateFields,
-      title,
-      field,
-      fieldType
+    if (fieldType === 'text-area') {
+      return (
+        <OperatorTextArea
+          title={title}
+          field={field}
+          formErrors={errs}
+          value={_.get(workingOperator, field, '')}
+          updateOperator={this.updateOperator}
+          commitField={this.validateFields}
+        />
+      );
+    }
+    return (
+      <OperatorInput
+        title={title}
+        field={field}
+        formErrors={errs}
+        value={_.get(workingOperator, field, '')}
+        inputType={fieldType}
+        updateOperator={this.updateOperator}
+        commitField={this.validateFields}
+      />
     );
   };
+
+  validateProviderName = () => {
+    // validate both fields as they are interconnected
+    this.validateFields(['spec.maintainers', 'spec.provider.name']);
+  };
+
   renderProviderName = () => {
     const { operator, formErrors } = this.props;
     const { workingOperator } = this.state;
@@ -184,17 +205,16 @@ class OperatorMetadataPage extends React.Component {
 
     const errs = this.originalStatus === EDITOR_STATUS.empty && _.get(operator, field) === undefined ? {} : formErrors;
 
-    return renderOperatorFormField(
-      workingOperator,
-      errs,
-      this.updateOperator,
-      () => {
-        // validate both fields as they are interconnected
-        this.validateFields(['spec.maintainers', 'spec.provider.name']);
-      },
-      'Provider Name',
-      field,
-      'text'
+    return (
+      <OperatorInput
+        field={field}
+        title="Provider Name"
+        inputType="text"
+        value={_.get(workingOperator, field, '')}
+        formErrors={errs}
+        updateOperator={this.updateOperator}
+        commitField={this.validateProviderName}
+      />
     );
   };
 
@@ -207,21 +227,19 @@ class OperatorMetadataPage extends React.Component {
     const values = maturity ? [maturity] : [];
 
     return (
-      <OperatorInput title="Maturity" field={field} formErrors={formErrors}>
+      <OperatorInputWrapper title="Maturity" field={field} formErrors={formErrors}>
         <EditorSelect
           id={_.camelCase(field)}
           values={values}
           isMulti={false}
-          noClear
           options={maturityOptions}
           placeholder={_.get(operatorFieldPlaceholders, field, `Select maturity`)}
           onChange={selection => {
             this.updateOperator(selection[0], field);
           }}
           onBlur={() => this.validateFields(field)}
-          filterBy={() => true}
         />
-      </OperatorInput>
+      </OperatorInputWrapper>
     );
   };
 
@@ -234,7 +252,7 @@ class OperatorMetadataPage extends React.Component {
     const values = categories ? _.split(categories, ',') : [];
 
     return (
-      <OperatorInput title="Categories" field={field} formErrors={formErrors}>
+      <OperatorInputWrapper title="Categories" field={field} formErrors={formErrors}>
         <EditorSelect
           id={_.camelCase(field)}
           values={values}
@@ -247,7 +265,7 @@ class OperatorMetadataPage extends React.Component {
           }}
           onBlur={() => this.validateFields(field)}
         />
-      </OperatorInput>
+      </OperatorInputWrapper>
     );
   };
 
@@ -257,7 +275,7 @@ class OperatorMetadataPage extends React.Component {
     const field = 'spec.keywords';
 
     return (
-      <OperatorInput title="Keywords" field={field} formErrors={formErrors}>
+      <OperatorInputWrapper title="Keywords" field={field} formErrors={formErrors}>
         <EditorSelect
           id={_.camelCase(field)}
           values={_.get(workingOperator, field)}
@@ -272,7 +290,7 @@ class OperatorMetadataPage extends React.Component {
           newSelectionPrefix="Add keyword:"
           emptyLabel="Add keyword:"
         />
-      </OperatorInput>
+      </OperatorInputWrapper>
     );
   };
 
