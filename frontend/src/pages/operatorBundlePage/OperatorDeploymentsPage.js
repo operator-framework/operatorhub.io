@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
-import { getFieldValueError } from '../../utils/operatorUtils';
+import { getFieldValueError, containsErrors } from '../../utils/operatorUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
 import { getUpdatedFormErrors, EDITOR_STATUS, sectionsFields } from './bundlePageUtils';
@@ -78,8 +78,8 @@ class OperatorDeploymentsPage extends React.Component {
   render() {
     const { operator, formErrors, history, sectionStatus } = this.props;
 
-    const pageHasErrors =
-      sectionStatus.deplyments === EDITOR_STATUS.empty || _.get(operator, deploymentFields) !== undefined;
+    const errors = _.get(formErrors, deploymentFields);
+    const pageHasErrors = sectionStatus.deplyments === EDITOR_STATUS.empty || containsErrors(errors);
 
     return (
       <OperatorEditorSubPage

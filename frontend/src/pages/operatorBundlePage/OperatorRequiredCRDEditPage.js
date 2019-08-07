@@ -16,19 +16,25 @@ import { getDefaultRequiredCRD } from '../../utils/operatorUtils';
 import { NEW_CRD_NAME } from '../../utils/constants';
 import OperatorInputUncontrolled from '../../components/editor/forms/OperatorInputUncontrolled';
 import OperatorTextAreaUncontrolled from '../../components/editor/forms/OperatorTextAreaUncontrolled';
+import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 
 const crdsField = sectionsFields['required-crds'];
+const crdDescriptions = _.get(operatorFieldDescriptions, crdsField);
 
 class OperatorRequiredCRDEditPage extends React.Component {
-  dirtyFields = {};
+  touchedFields = {};
   crdIndex;
   isNewCRD = false;
+
+  originalName;
 
   componentDidMount() {
     const { operator, formErrors, storeEditorFormErrors, storeEditorOperator } = this.props;
     const name = helpers.transformPathedName(_.get(this.props.match, 'params.crd', ''));
     const clonedOperator = _.cloneDeep(operator);
     const operatorCRDs = _.get(clonedOperator, crdsField, []);
+
+    this.originalName = name;
 
     let crd = _.find(operatorCRDs, { name }) || _.find(operatorCRDs, { name: '' });
 
@@ -87,7 +93,7 @@ class OperatorRequiredCRDEditPage extends React.Component {
     const { operator, formErrors, storeEditorOperator, storeEditorFormErrors } = this.props;
     const updatedOperator = _.cloneDeep(operator);
 
-    _.set(this.dirtyFields, field, true);
+    this.touchedFields[field] = true;
 
     // update the operator's version of this CRD
     const existingCRDs = _.get(updatedOperator, crdsField);
@@ -106,6 +112,17 @@ class OperatorRequiredCRDEditPage extends React.Component {
     storeEditorFormErrors(errors);
 
     storeEditorOperator(updatedOperator);
+
+    if (field === 'name' && value !== this.originalName) {
+      this.updatePagePathOnNameChange(value);
+    }
+  };
+
+  updatePagePathOnNameChange = name => {
+    const { location, history } = this.props;
+
+    history.push(location.pathname.replace(this.originalName, name));
+    this.originalName = name;
   };
 
   setNameInputRef = ref => {
@@ -114,13 +131,13 @@ class OperatorRequiredCRDEditPage extends React.Component {
 
   renderCRDInput = (title, field, fieldType, inputRefCallback) => {
     const { operator, formErrors } = this.props;
-    const crdErrors = _.find(_.get(formErrors, crdsField), { index: this.crdIndex });
+    const crdErrors = (_.find(_.get(formErrors, crdsField), { index: this.crdIndex }) || [{ errors: {} }]).errors;
 
     // update the operator's version of this CRD
     const existingCRDs = _.get(operator, crdsField);
     const crd = existingCRDs[this.crdIndex];
 
-    const error = !(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && _.get(crdErrors, field, {});
+    const errors = (this.isNewCRD ? this.touchedFields[field] && crdErrors : crdErrors) || {};
 
     if (fieldType === 'text-area') {
       return (
@@ -128,9 +145,10 @@ class OperatorRequiredCRDEditPage extends React.Component {
           field={field}
           title={title}
           defaultValue={_.get(crd, field, '')}
-          formErrors={error}
+          formErrors={errors}
           commitField={this.validateField}
           refCallback={inputRefCallback}
+          descriptions={crdDescriptions}
         />
       );
     }
@@ -140,9 +158,10 @@ class OperatorRequiredCRDEditPage extends React.Component {
         title={title}
         defaultValue={_.get(crd, field, '')}
         inputType="text"
-        formErrors={error}
+        formErrors={errors}
         commitField={this.validateField}
         refCallback={inputRefCallback}
+        descriptions={crdDescriptions}
       />
     );
   };
@@ -173,20 +192,20 @@ class OperatorRequiredCRDEditPage extends React.Component {
 OperatorRequiredCRDEditPage.propTypes = {
   operator: PropTypes.object,
   formErrors: PropTypes.object,
-  sectionStatus: PropTypes.object,
   storeEditorOperator: PropTypes.func,
   storeEditorFormErrors: PropTypes.func,
   setSectionStatus: PropTypes.func,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  match: PropTypes.object.isRequired
+  match: PropTypes.object.isRequired,
+  location: PropTypes.object
 };
 
 OperatorRequiredCRDEditPage.defaultProps = {
   operator: {},
   formErrors: {},
-  sectionStatus: {},
+  location: {},
   storeEditorOperator: helpers.noop,
   storeEditorFormErrors: helpers.noop,
   setSectionStatus: helpers.noop
@@ -205,8 +224,7 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   operator: state.editorState.operator,
-  formErrors: state.editorState.formErrors,
-  sectionStatus: {}
+  formErrors: state.editorState.formErrors
 });
 
 export default connect(
