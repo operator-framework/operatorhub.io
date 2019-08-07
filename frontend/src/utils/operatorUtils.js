@@ -547,6 +547,22 @@ const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
 };
 
 /**
+ * Takes error object or array or error message
+ * And checks if contains error messages
+ * @param {any} formErrors
+ */
+const containsErrors = formErrors => {
+  // no value or null
+  if (typeof formErrors === 'undefined' || formErrors === null) {
+    return false;
+  } else if (typeof formErrors === 'string') {
+    return true;
+  } else if (typeof formErrors === 'object') {
+    return Object.values(formErrors).some(error => containsErrors(error));
+  }
+};
+
+/**
  * Removes empty values which are part of default operator,
  * but should not be part of final operator as they are invalid
  * @param {Operator} operator
@@ -630,5 +646,6 @@ export {
   getAutoSavedOperatorData,
   clearAutosavedOperatorData,
   validateOperatorPackageField,
-  validateOperatorPackage
+  validateOperatorPackage,
+  containsErrors
 };

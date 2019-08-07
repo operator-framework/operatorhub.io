@@ -21,6 +21,7 @@ import {
 import OperatorTextArea from '../../components/editor/forms/OperatorTextArea';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
 import OperatorInputWrapper from '../../components/editor/forms/OperatorInputWrapper';
+import { containsErrors } from '../../utils/operatorUtils';
 
 const metadataDescription = `
   The metadata section contains general metadata around the name, version, and other info that aids users in the
@@ -294,91 +295,13 @@ class OperatorMetadataPage extends React.Component {
     );
   };
 
-  renderMetadataFields = () => {
-    const { formErrors } = this.props;
-    const { workingOperator } = this.state;
-
-    return (
-      <form className="oh-operator-editor-form">
-        {this.renderFormField('Name', 'metadata.name', 'text')}
-        {this.renderFormField('Display Name', 'spec.displayName', 'text')}
-        {this.renderFormField('Short Description', 'metadata.annotations.description', 'text-area')}
-        {this.renderMaturity()}
-        {this.renderFormField('Version', 'spec.version', 'text')}
-        {this.renderFormField('Replaces (optional)', 'spec.replaces', 'text')}
-        {this.renderFormField('Minimum Kubernetes Version (optional)', 'spec.minKubeVersion', 'text')}
-        <DescriptionEditor
-          operator={workingOperator}
-          onUpdate={this.updateOperator}
-          onValidate={this.validateFields}
-          formErrors={formErrors}
-        />
-        <CapabilityEditor operator={workingOperator} onUpdate={this.updateOperatorCapability} />
-        <LabelsEditor
-          operator={workingOperator}
-          onUpdate={this.updateOperatorLabels}
-          title="Labels"
-          singular="Label"
-          field="spec.labels"
-          isPropsField
-          formErrors={formErrors}
-        />
-        <LabelsEditor
-          operator={workingOperator}
-          onUpdate={this.updateOperatorSelectors}
-          title="Selectors"
-          singular="Selector"
-          field="spec.selector.matchLabels"
-          isPropsField
-          formErrors={formErrors}
-        />
-        <h3>Categories and Keywords</h3>
-        {this.renderCategories()}
-        {this.renderKeywords()}
-        <h3>Image Assets</h3>
-        <ImageEditor onUpdate={this.updateOperatorImage} icon={_.get(workingOperator, 'spec.icon', [])[0]} />
-        <LabelsEditor
-          operator={workingOperator}
-          onUpdate={this.updateOperatorExternalLinks}
-          title="External Links"
-          singular="External Link"
-          field="spec.links"
-          keyField="name"
-          keyLabel="Name"
-          keyPlaceholder="e.g. Blog"
-          valueField="url"
-          valueLabel="URL"
-          valuePlaceholder="e.g. https://coreos.com/etcd"
-          formErrors={formErrors}
-        />
-        <h3>Contact Information</h3>
-        {this.renderProviderName()}
-        <LabelsEditor
-          operator={workingOperator}
-          onUpdate={this.updateOperatorMaintainers}
-          title="Maintainers"
-          singular="Maintainer"
-          field="spec.maintainers"
-          keyField="name"
-          keyLabel="Name"
-          keyPlaceholder="e.g. support"
-          valueField="email"
-          valueLabel="Email"
-          valuePlaceholder="e.g. support@example.com"
-          formErrors={formErrors}
-        />
-      </form>
-    );
-  };
-
   render() {
-    const { formErrors, operator, history, sectionStatus } = this.props;
+    const { formErrors, history, sectionStatus } = this.props;
+    const { workingOperator } = this.state;
 
     const metadataErrorFields = sectionsFields.metadata.filter(metadataField => _.get(formErrors, metadataField));
     // mark pristine page
-    const pageErrors =
-      sectionStatus.metadata === EDITOR_STATUS.empty ||
-      metadataErrorFields.some(errorField => _.get(operator, errorField) !== undefined);
+    const pageErrors = sectionStatus.metadata === EDITOR_STATUS.empty || containsErrors(metadataErrorFields);
 
     return (
       <OperatorEditorSubPage
@@ -390,7 +313,75 @@ class OperatorMetadataPage extends React.Component {
         pageErrors={pageErrors}
         validatePage={this.validatePage}
       >
-        {this.renderMetadataFields()}
+        <form className="oh-operator-editor-form">
+          {this.renderFormField('Name', 'metadata.name', 'text')}
+          {this.renderFormField('Display Name', 'spec.displayName', 'text')}
+          {this.renderFormField('Short Description', 'metadata.annotations.description', 'text-area')}
+          {this.renderMaturity()}
+          {this.renderFormField('Version', 'spec.version', 'text')}
+          {this.renderFormField('Replaces (optional)', 'spec.replaces', 'text')}
+          {this.renderFormField('Minimum Kubernetes Version (optional)', 'spec.minKubeVersion', 'text')}
+          <DescriptionEditor
+            operator={workingOperator}
+            onUpdate={this.updateOperator}
+            onValidate={this.validateFields}
+            formErrors={formErrors}
+          />
+          <CapabilityEditor operator={workingOperator} onUpdate={this.updateOperatorCapability} />
+          <LabelsEditor
+            operator={workingOperator}
+            onUpdate={this.updateOperatorLabels}
+            title="Labels"
+            singular="Label"
+            field="spec.labels"
+            isPropsField
+            formErrors={formErrors}
+          />
+          <LabelsEditor
+            operator={workingOperator}
+            onUpdate={this.updateOperatorSelectors}
+            title="Selectors"
+            singular="Selector"
+            field="spec.selector.matchLabels"
+            isPropsField
+            formErrors={formErrors}
+          />
+          <h3>Categories and Keywords</h3>
+          {this.renderCategories()}
+          {this.renderKeywords()}
+          <h3>Image Assets</h3>
+          <ImageEditor onUpdate={this.updateOperatorImage} icon={_.get(workingOperator, 'spec.icon', [])[0]} />
+          <LabelsEditor
+            operator={workingOperator}
+            onUpdate={this.updateOperatorExternalLinks}
+            title="External Links"
+            singular="External Link"
+            field="spec.links"
+            keyField="name"
+            keyLabel="Name"
+            keyPlaceholder="e.g. Blog"
+            valueField="url"
+            valueLabel="URL"
+            valuePlaceholder="e.g. https://coreos.com/etcd"
+            formErrors={formErrors}
+          />
+          <h3>Contact Information</h3>
+          {this.renderProviderName()}
+          <LabelsEditor
+            operator={workingOperator}
+            onUpdate={this.updateOperatorMaintainers}
+            title="Maintainers"
+            singular="Maintainer"
+            field="spec.maintainers"
+            keyField="name"
+            keyLabel="Name"
+            keyPlaceholder="e.g. support"
+            valueField="email"
+            valueLabel="Email"
+            valuePlaceholder="e.g. support@example.com"
+            formErrors={formErrors}
+          />
+        </form>
       </OperatorEditorSubPage>
     );
   }

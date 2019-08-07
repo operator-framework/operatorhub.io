@@ -23,6 +23,7 @@ import OperatorTextArea from '../../components/editor/forms/OperatorTextArea';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
 
 const crdsField = sectionsFields['owned-crds'];
+const crdDescriptions = _.get(operatorFieldDescriptions, crdsField);
 
 const specCapabilities = [
   'urn:alm:descriptor:com.tectonic.ui:podCount',
@@ -58,8 +59,8 @@ class OperatorOwnedCRDEditPage extends React.Component {
   dirtyFields = {};
   crdIndex;
   isNewCRD = false;
-
   nameInput;
+  originalName;
 
   componentDidMount() {
     const { operator, formErrors, storeEditorFormErrors, sectionStatus } = this.props;
@@ -263,10 +264,19 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
     storeEditorFormErrors(errors);
 
-    // update reference name
-    this.originalName = _.get(crd, 'name');
+    if (field === 'name') {
+      const value = cleanedCrd[field];
+      // update reference name
+      value !== this.originalName && this.updatePagePathOnNameChange(value);
+    }
 
     storeEditorOperator(updatedOperator);
+  };
+
+  updatePagePathOnNameChange = name => {
+    const { location, history } = this.props;
+    history.push(location.pathname.replace(this.originalName, name));
+    this.originalName = name;
   };
 
   onTemplateClear = () => {
@@ -286,7 +296,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const { crd, crdErrors } = this.state;
 
     // ignore errors on new CRDs for untouched fields
-    const error = !(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && _.get(crdErrors, field, {});
+    const errors = (!(this.isNewCRD && !_.get(this.dirtyFields, field, false)) && crdErrors) || {};
 
     if (fieldType === 'text-area') {
       return (
@@ -294,10 +304,11 @@ class OperatorOwnedCRDEditPage extends React.Component {
           field={field}
           title={title}
           value={_.get(crd, field, '')}
-          formErrors={error}
+          formErrors={errors}
           updateOperator={this.updateCRD}
           commitField={this.validateField}
           refCallback={inputRefCallback}
+          descriptions={crdDescriptions}
         />
       );
     }
@@ -307,10 +318,11 @@ class OperatorOwnedCRDEditPage extends React.Component {
         title={title}
         value={_.get(crd, field, '')}
         inputType="text"
-        formErrors={error}
+        formErrors={errors}
         updateOperator={this.updateCRD}
         commitField={this.validateField}
         refCallback={inputRefCallback}
+        descriptions={crdDescriptions}
       />
     );
   };
@@ -401,13 +413,15 @@ OperatorOwnedCRDEditPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  match: PropTypes.object.isRequired
+  match: PropTypes.object.isRequired,
+  location: PropTypes.object
 };
 
 OperatorOwnedCRDEditPage.defaultProps = {
   operator: {},
   formErrors: {},
   sectionStatus: {},
+  location: {},
   storeEditorOperator: helpers.noop,
   storeEditorFormErrors: helpers.noop,
   setSectionStatus: helpers.noop

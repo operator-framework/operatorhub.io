@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import { sectionsFields, EDITOR_STATUS, getUpdatedFormErrors } from './bundlePageUtils';
-import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
+import { operatorObjectDescriptions, operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 import RulesEditor from '../../components/editor/RulesEditor';
 import {
   storeEditorFormErrorsAction,
@@ -17,6 +17,7 @@ import {
 import OperatorInput from '../../components/editor/forms/OperatorInput';
 
 const permissionFields = sectionsFields.permissions;
+const descriptions = _.get(operatorFieldDescriptions, permissionFields);
 
 class OperatorPermissionsEditPage extends React.Component {
   name;
@@ -32,12 +33,14 @@ class OperatorPermissionsEditPage extends React.Component {
   }
 
   componentDidMount() {
-    const { objectType } = this.props;
+    const { objectType, operator } = this.props;
 
     const permission = this.getPermission();
 
     if (!permission) {
       this.updatePermission(`Add ${objectType}`, 'serviceAccountName');
+    } else if (!permission.serviceAccountName) {
+      this.validateField(operator);
     }
 
     if (permission.serviceAccountName === `Add ${objectType}`) {
@@ -121,8 +124,9 @@ class OperatorPermissionsEditPage extends React.Component {
   };
 
   render() {
-    const { field, objectType, objectPage, objectsTitle, objectDescription, history, formErrors } = this.props;
+    const { field, objectType, objectPage, objectsTitle, objectDescription, history } = this.props;
     const permission = this.getPermission();
+    const errors = this.getErrors();
 
     return (
       <OperatorEditorSubPage
@@ -141,13 +145,14 @@ class OperatorPermissionsEditPage extends React.Component {
             title="Service Account Name"
             field="serviceAccountName"
             inputType="text"
-            formErrors={_.get(permission, 'serviceAccountName') === undefined ? {} : formErrors}
+            formErrors={errors}
             value={_.get(permission, 'serviceAccountName', '')}
             updateOperator={this.updatePermission}
             commitField={() => {}}
             refCallback={ref => {
               this.nameInput = ref;
             }}
+            descriptions={descriptions}
           />
           <h3>Rules</h3>
           <RulesEditor permission={permission} onUpdate={this.updateRules} />
