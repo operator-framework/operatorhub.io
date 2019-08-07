@@ -3,7 +3,11 @@ import React from 'react';
 import _ from 'lodash-es';
 import PropTypes from 'prop-types';
 
-import { operatorFieldValidators, operatorFieldPlaceholders } from '../../../utils/operatorDescriptors';
+import {
+  operatorFieldValidators,
+  operatorFieldPlaceholders,
+  operatorFieldDescriptions
+} from '../../../utils/operatorDescriptors';
 import OperatorInputWrapper from './OperatorInputWrapper';
 import { helpers } from '../../../common/helpers';
 
@@ -17,9 +21,19 @@ import { helpers } from '../../../common/helpers';
  * @param {import('./OperatorInputWrapper').CommitOperatorFieldFromInputCallback} param0.commitField
  * @param {string} param0.defaultValue
  * @param {Function=} [param0.refCallback]
+ * @param {*} [param0.descriptions]
  */
-const OperatorInputUncontrolled = ({ title, field, inputType, formErrors, commitField, defaultValue, refCallback }) => (
-  <OperatorInputWrapper title={title} field={field} formErrors={formErrors}>
+const OperatorInputUncontrolled = ({
+  title,
+  field,
+  inputType,
+  formErrors,
+  commitField,
+  defaultValue,
+  refCallback,
+  descriptions
+}) => (
+  <OperatorInputWrapper title={title} field={field} formErrors={formErrors} descriptions={descriptions}>
     <input
       id={field}
       className="form-control"
@@ -41,11 +55,13 @@ OperatorInputUncontrolled.propTypes = {
   formErrors: PropTypes.any.isRequired,
   commitField: PropTypes.func.isRequired,
   defaultValue: PropTypes.string.isRequired,
-  refCallback: PropTypes.func
+  refCallback: PropTypes.func,
+  descriptions: PropTypes.object
 };
 
 OperatorInputUncontrolled.defaultProps = {
-  refCallback: helpers.noop
+  refCallback: helpers.noop,
+  descriptions: operatorFieldDescriptions
 };
 
 export default OperatorInputUncontrolled;

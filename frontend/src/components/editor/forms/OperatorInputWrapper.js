@@ -26,13 +26,15 @@ import { renderFormError } from '../../../pages/operatorBundlePage/bundlePageUti
  * @param {string} param0.field
  * @param {JSX.Element} param0.children
  * @param {*} param0.formErrors
+ * @param {*} [param0.descriptions]
  */
-const OperatorInputWrapper = ({ title, field, children, formErrors }) => {
+const OperatorInputWrapper = ({ title, field, children, formErrors, descriptions }) => {
   const formFieldClasses = classNames({
     'oh-operator-editor-form__field': true,
     row: true,
     'oh-operator-editor-form__field--error': _.get(formErrors, field)
   });
+  const description = _.get(descriptions, field, '');
 
   return (
     <div className={formFieldClasses}>
@@ -41,7 +43,7 @@ const OperatorInputWrapper = ({ title, field, children, formErrors }) => {
         {children}
         {renderFormError(field, formErrors)}
       </div>
-      <div className="oh-operator-editor-form__description col-sm-6">{_.get(operatorFieldDescriptions, field, '')}</div>
+      <div className="oh-operator-editor-form__description col-sm-6">{description}</div>
     </div>
   );
 };
@@ -50,7 +52,12 @@ OperatorInputWrapper.propTypes = {
   title: PropTypes.string.isRequired,
   field: PropTypes.string.isRequired,
   children: PropTypes.element.isRequired,
-  formErrors: PropTypes.any.isRequired
+  formErrors: PropTypes.any.isRequired,
+  descriptions: PropTypes.object
+};
+
+OperatorInputWrapper.defaultProps = {
+  descriptions: operatorFieldDescriptions
 };
 
 export default OperatorInputWrapper;
