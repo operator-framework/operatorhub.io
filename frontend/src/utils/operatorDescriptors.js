@@ -34,7 +34,7 @@ const labelRegExpMessage =
 
 const operatorFieldDescriptions = {
   metadata: {
-    name: "Name of the operator's cluster service version.",
+    name: 'Name of the operator.',
     annotations: {
       capabilities: 'The level of capabilities provided by this Operator.',
       categories: 'A list of categories that you Operator falls into. Used for categorization within compatible UIs.',
@@ -271,7 +271,7 @@ const kindOptions = [
 
 const operatorFieldPlaceholders = {
   metadata: {
-    name: 'e.g. my-operator.v0.0.1',
+    name: 'e.g. my-operator',
     annotations: {
       description: 'resize this field with the grabber icon at the bottom right corner',
       containerImage: 'e.g. quay.io/example/example-operator:v0.0.1'
