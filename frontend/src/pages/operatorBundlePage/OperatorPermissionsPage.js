@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { getFieldValueError } from '../../utils/operatorUtils';
+import { getFieldValueError, containsErrors } from '../../utils/operatorUtils';
 import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import { sectionsFields, getUpdatedFormErrors, EDITOR_STATUS } from './bundlePageUtils';
 import {
@@ -75,7 +75,8 @@ class OperatorPermissionsPage extends React.Component {
   render() {
     const { operator, field, title, section, objectPage, objectType, formErrors, history, sectionStatus } = this.props;
 
-    const pageHasErrors = sectionStatus[objectPage] === EDITOR_STATUS.empty || _.get(formErrors, field);
+    const errors = _.get(formErrors, field);
+    const pageHasErrors = sectionStatus[objectPage] === EDITOR_STATUS.empty || containsErrors(errors);
 
     return (
       <OperatorEditorSubPage

@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { getFieldValueError, convertExampleYamlToObj } from '../../utils/operatorUtils';
+import { getFieldValueError, convertExampleYamlToObj, containsErrors } from '../../utils/operatorUtils';
 import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import {
   storeEditorFormErrorsAction,
@@ -104,8 +104,9 @@ class OperatorCRDsPage extends React.Component {
       </span>
     );
     const crdField = sectionsFields[objectPage];
+    const errors = _.get(formErrors, crdField);
     // do not allow setting page as Done when errored or pristine
-    const pageHasErrors = sectionStatus[objectPage] === EDITOR_STATUS.empty || _.get(formErrors, crdField);
+    const pageHasErrors = sectionStatus[objectPage] === EDITOR_STATUS.empty || containsErrors(errors);
 
     return (
       <OperatorEditorSubPage
