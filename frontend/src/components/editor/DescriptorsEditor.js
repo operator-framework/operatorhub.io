@@ -87,6 +87,10 @@ class DescriptorsEditor extends React.Component {
 
   getFieldError = (errors, field) => _.get(errors, ['errors', field]);
 
+  validateCustomValue = (results, props) =>
+    props.text.startsWith('urn:alm:descriptor:io.kubernetes:') ||
+    props.text.startsWith('urn:alm:descriptor:com.tectonic.ui:selector:');
+
   renderDescriptor = (descriptor, index) => {
     const {
       descriptorsErrors,
@@ -170,6 +174,7 @@ class DescriptorsEditor extends React.Component {
                 onBlur={() => this.onFieldBlur('x-descriptors', index)}
                 newSelectionPrefix="Add x-descriptor:"
                 emptyLabel="Add x-descriptor:"
+                customSelectValidator={this.validateCustomValue}
               />
               {xDescriptorError && <div className="oh-operator-editor-form__error-block">{xDescriptorError}</div>}
             </div>
