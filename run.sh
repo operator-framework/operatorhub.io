@@ -1,4 +1,4 @@
 #!/bin/bash
 
 pushd server
-npm run-script server
+npm run server
