@@ -61,12 +61,13 @@
     "showdown": "^1.9.0",
     "simplemde": "^1.11.2",
     "style-loader": "^0.23.1",
+    "terser-webpack-plugin": "^1.4.1",
     "thread-loader": "1.x",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "4.25.1",
     "webpack-bundle-analyzer": "^3.0.3",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.10",
+    "webpack-cli": "3.1.2",
+    "webpack-dev-server": "3.1.10",
     "webpack-merge": "^4.1.4"
   },
   "scripts": {
@@ -75,8 +76,8 @@
     "mock": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.MOCK_MODE='\"true\"'",
     "lint": "eslint ./src/",
     "build:bundle-profile": "webpack --config webpack.prod.js --profile --json > stats.json",
-    "bundle-profile:analyze": "yarn build:bundle-profile && webpack-bundle-analyzer ./stats.json",
-    "clean": "yarn rimraf dist"
+    "bundle-profile:analyze": "npm run build:bundle-profile && webpack-bundle-analyzer ./stats.json",
+    "clean": "rimraf dist"
   },
   "devDependencies": {}
 }

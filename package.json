@@ -2,8 +2,8 @@
     "scripts": {
         "build": "./build.sh",
         "start": "./run.sh",
-        "lint:frontend": "cd frontend; yarn lint",
-        "lint:server": "cd server; yarn lint",
-        "lint": "yarn lint:frontend && yarn lint:server"
+        "lint:frontend": "cd frontend; npm lint",
+        "lint:server": "cd server; npm run lint",
+        "lint": "npm run lint:frontend && npm run lint:server"
     }
 }
