@@ -19,6 +19,7 @@ import { helpers } from '../../common/helpers';
  * @param {boolean=} param0.clearButton
  * @param {string=} param0.emptyLabel
  * @param {string=} param0.newSelectionPrefix
+ * @param {function} [param0.customSelectValidator]
  */
 const EditorSelect = ({
   id,
@@ -33,6 +34,7 @@ const EditorSelect = ({
   clearButton,
   emptyLabel,
   newSelectionPrefix,
+  customSelectValidator,
   ...otherProps
 }) => {
   let typeAhead = null;
@@ -67,7 +69,7 @@ const EditorSelect = ({
         multiple={isMulti}
         options={options}
         selected={values}
-        allowNew={customSelect}
+        allowNew={customSelectValidator || customSelect}
         dropup={dropup}
         placeholder={placeholder}
         onChange={onChange}
@@ -94,7 +96,8 @@ EditorSelect.propTypes = {
   onChange: PropTypes.func,
   onBlur: PropTypes.func,
   emptyLabel: PropTypes.string,
-  newSelectionPrefix: PropTypes.string
+  newSelectionPrefix: PropTypes.string,
+  customSelectValidator: PropTypes.func
 };
 
 EditorSelect.defaultProps = {
@@ -108,7 +111,8 @@ EditorSelect.defaultProps = {
   onChange: helpers.noop,
   onBlur: helpers.noop,
   emptyLabel: undefined,
-  newSelectionPrefix: undefined
+  newSelectionPrefix: undefined,
+  customSelectValidator: undefined
 };
 
 export default EditorSelect;

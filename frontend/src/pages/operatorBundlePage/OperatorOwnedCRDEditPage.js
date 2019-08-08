@@ -18,35 +18,12 @@ import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../redux/actions/editorActions';
-import { NEW_CRD_NAME } from '../../utils/constants';
+import { NEW_CRD_NAME, SPEC_CAPABILITIES, STATUS_CAPABILITIES } from '../../utils/constants';
 import OperatorTextArea from '../../components/editor/forms/OperatorTextArea';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
 
 const crdsField = sectionsFields['owned-crds'];
 const crdDescriptions = _.get(operatorFieldDescriptions, crdsField);
-
-const specCapabilities = [
-  'urn:alm:descriptor:com.tectonic.ui:podCount',
-  'urn:alm:descriptor:com.tectonic.ui:endpointList',
-  'urn:alm:descriptor:com.tectonic.ui:label',
-  'urn:alm:descriptor:com.tectonic.ui:resourceRequirements',
-  'urn:alm:descriptor:com.tectonic.ui:selector:',
-  'urn:alm:descriptor:com.tectonic.ui:namespaceSelector',
-  'urn:alm:descriptor:io.kubernetes:',
-  'urn:alm:descriptor:com.tectonic.ui:booleanSwitch'
-];
-
-const statusCapabilities = [
-  'urn:alm:descriptor:com.tectonic.ui:podStatuses',
-  'urn:alm:descriptor:com.tectonic.ui:podCount',
-  'urn:alm:descriptor:org.w3:link',
-  'urn:alm:descriptor:io.kubernetes.conditions',
-  'urn:alm:descriptor:text',
-  'urn:alm:descriptor:prometheusEndpoint',
-  'urn:alm:descriptor:io.kubernetes.phase',
-  'urn:alm:descriptor:io.kubernetes.phase:reason',
-  'urn:alm:descriptor:io.kubernetes:'
-];
 
 class OperatorOwnedCRDEditPage extends React.Component {
   state = {
@@ -374,7 +351,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
               description="A reference to fields in the spec block of an object."
               onUpdate={() => this.validateField('specDescriptors')}
               descriptorsField="specDescriptors"
-              descriptorOptions={specCapabilities}
+              descriptorOptions={SPEC_CAPABILITIES}
             />
             <DescriptorsEditor
               crd={crd}
@@ -384,7 +361,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
               description="A reference to fields in the status block of an object."
               onUpdate={() => this.validateField('statusDescriptors')}
               descriptorsField="statusDescriptors"
-              descriptorOptions={statusCapabilities}
+              descriptorOptions={STATUS_CAPABILITIES}
             />
           </div>
           <h3>CRD Templates</h3>
