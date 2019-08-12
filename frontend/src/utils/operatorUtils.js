@@ -163,7 +163,7 @@ const defaultOperator = {
     customresourcedefinitions: {
       owned: [
         {
-          name: '',
+          name: 'add-crd',
           displayName: '',
           kind: '',
           version: '',
@@ -180,7 +180,7 @@ const defaultOperator = {
       ],
       required: [
         {
-          name: '',
+          name: 'add-crd',
           displayName: '',
           kind: '',
           version: '',
