@@ -4,17 +4,17 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
-import { helpers } from '../../common/helpers';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { sectionsFields, EDITOR_STATUS, getUpdatedFormErrors } from './bundlePageUtils';
-import { operatorObjectDescriptions, operatorFieldDescriptions } from '../../utils/operatorDescriptors';
-import RulesEditor from '../../components/editor/RulesEditor';
+import { helpers } from '../../../common/helpers';
+import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import { sectionsFields, EDITOR_STATUS, getUpdatedFormErrors } from '../bundlePageUtils';
+import { operatorObjectDescriptions, operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
+import RulesEditor from '../../../components/editor/RulesEditor';
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
-} from '../../redux/actions/editorActions';
-import OperatorInput from '../../components/editor/forms/OperatorInput';
+} from '../../../redux/actions/editorActions';
+import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
 
 const permissionFields = sectionsFields.permissions;
 const descriptions = _.get(operatorFieldDescriptions, permissionFields);
@@ -26,20 +26,38 @@ class OperatorPermissionsEditPage extends React.Component {
 
   permissionIndex;
 
+  isNewPermission;
+
   constructor(props) {
     super(props);
 
-    this.name = helpers.transformPathedName(_.get(props.match, 'params.serviceAccountName', '').replace('[none]', ''));
+    this.permissionIndex = parseInt(_.get(props.match, 'params.index'), 10);
   }
 
   componentDidMount() {
-    const { objectType, operator } = this.props;
+    const { objectType, operator, field, storeEditorOperator, isNew } = this.props;
 
-    const permission = this.getPermission();
+    const permissions = _.get(operator, field) || [];
 
-    if (!permission) {
-      this.updatePermission(`Add ${objectType}`, 'serviceAccountName');
-    } else if (!permission.serviceAccountName) {
+    this.isNewPermission = isNew;
+
+    let permission = permissions[this.permissionIndex];
+
+    if (this.isNewPermission) {
+      permission = {
+        serviceAccountName: `Add ${objectType}`
+      };
+
+      this.permissionIndex = permissions.length;
+
+      const updatePermissions = _.cloneDeep(permissions);
+      updatePermissions.push(permission);
+
+      const updatedOperator = _.cloneDeep(operator);
+      _.set(updatedOperator, field, updatePermissions);
+
+      storeEditorOperator(updatedOperator);
+    } else {
       this.validateField(operator);
     }
 
@@ -51,39 +69,19 @@ class OperatorPermissionsEditPage extends React.Component {
     }
   }
 
-  /**
-   * Find permission by serviceAccountName or provide new empty permission
-   */
-  getPermission = () => {
-    const { operator, field, objectType } = this.props;
-
-    const permissions = _.get(operator, field) || [];
-    const permission = _.find(permissions, { serviceAccountName: this.name }) || {
-      serviceAccountName: `Add ${objectType}`
-    };
-
-    return permission;
-  };
-
   getErrors = () => {
-    const { operator, field, formErrors } = this.props;
+    const { field, formErrors } = this.props;
 
-    const permissions = _.get(operator, field) || [];
-    const permission = this.getPermission();
-    const permissionIndex = _.findIndex(permissions, { serviceAccountName: permission.serviceAccountName });
-
-    const errors = _.find(_.get(formErrors, field), { index: permissionIndex }) || { errors: {} };
+    const errors = _.find(_.get(formErrors, field), { index: this.permissionIndex }) || { errors: {} };
     return errors.errors;
   };
 
-  updatePermission = (value, permissionField) => {
+  updatePermission = (permissionField, value) => {
     const { operator, field, storeEditorOperator } = this.props;
 
     const permissions = _.get(operator, field) || [];
     // get permission or supply new value
-    const permission = this.getPermission();
-
-    const permissionIndex = _.findIndex(permissions, { serviceAccountName: permission.serviceAccountName });
+    const permission = permissions[this.permissionIndex];
 
     const updatedPermission = _.cloneDeep(permission);
     _.set(updatedPermission, permissionField, value);
@@ -91,14 +89,11 @@ class OperatorPermissionsEditPage extends React.Component {
     const updatedOperator = _.cloneDeep(operator);
 
     const updatedPermissions = [
-      ...permissions.slice(0, permissionIndex),
+      ...permissions.slice(0, this.permissionIndex),
       updatedPermission,
-      ...permissions.slice(permissionIndex + 1)
+      ...permissions.slice(this.permissionIndex + 1)
     ];
     _.set(updatedOperator, field, updatedPermissions);
-
-    // update name in case it changed
-    this.name = updatedPermission.serviceAccountName;
 
     this.validateField(updatedOperator);
 
@@ -120,13 +115,14 @@ class OperatorPermissionsEditPage extends React.Component {
   };
 
   updateRules = rules => {
-    this.updatePermission(rules, 'rules');
+    this.updatePermission('rules', rules);
   };
 
   render() {
-    const { field, objectType, objectPage, objectsTitle, objectDescription, history } = this.props;
-    const permission = this.getPermission();
+    const { operator, field, objectType, objectPage, objectsTitle, objectDescription, history } = this.props;
     const errors = this.getErrors();
+    const permissions = _.get(operator, field, []);
+    const permission = permissions[this.permissionIndex];
 
     return (
       <OperatorEditorSubPage
@@ -141,14 +137,13 @@ class OperatorPermissionsEditPage extends React.Component {
         <h3>{objectsTitle}</h3>
         <p>{objectDescription}</p>
         <form className="oh-operator-editor-form">
-          <OperatorInput
+          <OperatorInputUncontrolled
             title="Service Account Name"
             field="serviceAccountName"
             inputType="text"
             formErrors={errors}
-            value={_.get(permission, 'serviceAccountName', '')}
-            updateOperator={this.updatePermission}
-            commitField={() => {}}
+            defaultValue={_.get(permission, 'serviceAccountName', '')}
+            commitField={this.updatePermission}
             refCallback={ref => {
               this.nameInput = ref;
             }}
@@ -176,7 +171,8 @@ OperatorPermissionsEditPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  match: PropTypes.object.isRequired
+  match: PropTypes.object.isRequired,
+  isNew: PropTypes.bool
 };
 
 OperatorPermissionsEditPage.defaultProps = {
@@ -194,6 +190,7 @@ OperatorPermissionsEditPage.defaultProps = {
     </span>
   ),
   formErrors: {},
+  isNew: false,
   storeEditorOperator: helpers.noop,
   setSectionStatus: helpers.noop,
   storeEditorFormErrors: helpers.noop

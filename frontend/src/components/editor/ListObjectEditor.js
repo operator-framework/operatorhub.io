@@ -9,23 +9,22 @@ class ListObjectEditor extends React.Component {
    * @returns {*[]}
    */
   getOperatorObjects = () => {
-    const { operator, field, fieldFilter } = this.props;
+    const { operator, field } = this.props;
 
-    return (_.get(operator, field) || []).filter(fieldFilter);
+    return _.get(operator, field) || [];
   };
 
   addOperatorObject = event => {
-    const { history, objectPage, objectType, addName } = this.props;
-    const addNamePath = addName || `Add ${objectType}`;
+    const { history, objectPage } = this.props;
 
     event.preventDefault();
-    history.push(`/bundle/${objectPage}/${addNamePath}`);
+    history.push(`/bundle/${objectPage}/add`);
   };
 
-  editOperatorObject = operatorObject => {
+  editOperatorObject = (operatorObject, index) => {
     const { history, objectPage, pagePathField } = this.props;
     const transformedName = helpers.transformNameForPath(_.get(operatorObject, pagePathField));
-    history.push(`/bundle/${objectPage}/${transformedName || '[none]'}`);
+    history.push(`/bundle/${objectPage}/edit/${index}/${transformedName}`);
   };
 
   removeOperatorObject = (event, operatorObject) => {
@@ -56,7 +55,10 @@ class ListObjectEditor extends React.Component {
               Invalid Entries
             </span>
           )}
-          <button className="oh-button oh-button-secondary" onClick={() => this.editOperatorObject(operatorObject)}>
+          <button
+            className="oh-button oh-button-secondary"
+            onClick={() => this.editOperatorObject(operatorObject, index)}
+          >
             Edit
           </button>
           <a href="#" onClick={e => this.removeOperatorObject(e, operatorObject)}>
@@ -99,7 +101,6 @@ class ListObjectEditor extends React.Component {
 ListObjectEditor.propTypes = {
   operator: PropTypes.object,
   field: PropTypes.string.isRequired,
-  fieldFilter: PropTypes.func,
   title: PropTypes.string.isRequired,
   objectType: PropTypes.string.isRequired,
   fieldTitle: PropTypes.string.isRequired,
@@ -108,7 +109,6 @@ ListObjectEditor.propTypes = {
   pagePathField: PropTypes.string,
   onUpdate: PropTypes.func.isRequired,
   objectPage: PropTypes.string.isRequired,
-  addName: PropTypes.string,
   formErrors: PropTypes.object.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
@@ -118,9 +118,7 @@ ListObjectEditor.propTypes = {
 ListObjectEditor.defaultProps = {
   operator: {},
   objectSubtitleField: '',
-  fieldFilter: () => true,
-  pagePathField: 'name',
-  addName: null
+  pagePathField: 'name'
 };
 
 export default ListObjectEditor;
