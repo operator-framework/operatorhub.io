@@ -4,17 +4,17 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
-import { helpers } from '../../common/helpers';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
-import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { getFieldValueError, containsErrors } from '../../utils/operatorUtils';
-import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
-import { sectionsFields, getUpdatedFormErrors, EDITOR_STATUS } from './bundlePageUtils';
+import { helpers } from '../../../common/helpers';
+import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import ListObjectEditor from '../../../components/editor/ListObjectEditor';
+import { getFieldValueError, containsErrors } from '../../../utils/operatorUtils';
+import { operatorObjectDescriptions } from '../../../utils/operatorDescriptors';
+import { sectionsFields, getUpdatedFormErrors, EDITOR_STATUS } from '../bundlePageUtils';
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
-} from '../../redux/actions/editorActions';
+} from '../../../redux/actions/editorActions';
 
 const permissionFields = sectionsFields.permissions;
 
@@ -101,7 +101,6 @@ class OperatorPermissionsPage extends React.Component {
           history={history}
           objectTitleField="serviceAccountName"
           pagePathField="serviceAccountName"
-          addName="add-permission"
         />
       </OperatorEditorSubPage>
     );

@@ -38,7 +38,7 @@ const About = asyncComponent(() =>
 );
 
 const OperatorBundlePage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorBundlePage" */ './pages/operatorBundlePage/OperatorBundlePage').then(
+  import(/* webpackChunkName: "OperatorBundlePage" */ './pages/operatorBundlePage/deployments/OperatorBundlePage').then(
     module => module.default
   )
 );
@@ -63,47 +63,47 @@ const OperatorInstallModesPage = asyncComponent(() =>
   )
 );
 const OperatorOwnedCRDsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorOwnedCRDsPage" */ './pages/operatorBundlePage/OperatorOwnedCRDsPage').then(
+  import(/* webpackChunkName: "OperatorOwnedCRDsPage" */ './pages/operatorBundlePage/crds/OperatorOwnedCRDsPage').then(
     module => module.default
   )
 );
 const OperatorRequiredCRDsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorRequiredCRDsPage" */ './pages/operatorBundlePage/OperatorRequiredCRDsPage').then(
+  import(/* webpackChunkName: "OperatorRequiredCRDsPage" */ './pages/operatorBundlePage/crds/OperatorRequiredCRDsPage').then(
     module => module.default
   )
 );
 const OperatorPermissionsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorPermissionsPage" */ './pages/operatorBundlePage/OperatorPermissionsPage').then(
+  import(/* webpackChunkName: "OperatorPermissionsPage" */ './pages/operatorBundlePage/permissions/OperatorPermissionsPage').then(
     module => module.default
   )
 );
 const OperatorClusterPermissionsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorClusterPermissionsPage" */ './pages/operatorBundlePage/OperatorClusterPermissionsPage').then(
+  import(/* webpackChunkName: "OperatorClusterPermissionsPage" */ './pages/operatorBundlePage/permissions/OperatorClusterPermissionsPage').then(
     module => module.default
   )
 );
 const OperatorOwnedCRDEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorOwnedCRDEditPage" */ './pages/operatorBundlePage/OperatorOwnedCRDEditPage').then(
+  import(/* webpackChunkName: "OperatorOwnedCRDEditPage" */ './pages/operatorBundlePage/crds/OperatorOwnedCRDEditPage').then(
     module => module.default
   )
 );
 const OperatorDeploymentEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorDeploymentEditPage" */ './pages/operatorBundlePage/OperatorDeploymentEditPage').then(
+  import(/* webpackChunkName: "OperatorDeploymentEditPage" */ './pages/operatorBundlePage/deployments/OperatorDeploymentEditPage').then(
     module => module.default
   )
 );
 const OperatorRequiredCRDEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorRequiredCRDEditPage" */ './pages/operatorBundlePage/OperatorRequiredCRDEditPage').then(
+  import(/* webpackChunkName: "OperatorRequiredCRDEditPage" */ './pages/operatorBundlePage/crds/OperatorRequiredCRDEditPage').then(
     module => module.default
   )
 );
 const OperatorPermissionsEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorPermissionsEditPage" */ './pages/operatorBundlePage/OperatorPermissionsEditPage').then(
+  import(/* webpackChunkName: "OperatorPermissionsEditPage" */ './pages/operatorBundlePage/permissions/OperatorPermissionsEditPage').then(
     module => module.default
   )
 );
 const OperatorClusterPermissionsEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorClusterPermissionsEditPage" */ './pages/operatorBundlePage/OperatorClusterPermissionsEditPage').then(
+  import(/* webpackChunkName: "OperatorClusterPermissionsEditPage" */ './pages/operatorBundlePage/permissions/OperatorClusterPermissionsEditPage').then(
     module => module.default
   )
 );
@@ -132,17 +132,25 @@ class App extends React.Component {
           <Route path="/operator/:packageName" component={OperatorPage} />
           <Route path="/preview" component={OperatorPreviewPage} />
           <Route path="/bundle/metadata" component={OperatorMetadataPage} />
-          <Route path="/bundle/owned-crds/:crd" component={OperatorOwnedCRDEditPage} />
+          <Route path="/bundle/owned-crds/add" render={props => <OperatorOwnedCRDEditPage {...props} isNew />} />
+          <Route path="/bundle/owned-crds/edit/:index/:crd?" component={OperatorOwnedCRDEditPage} />
           <Route path="/bundle/owned-crds" component={OperatorOwnedCRDsPage} />
-          <Route path="/bundle/required-crds/:crd" component={OperatorRequiredCRDEditPage} />
+          <Route path="/bundle/required-crds/add" render={props => <OperatorRequiredCRDEditPage {...props} isNew />} />
+          <Route path="/bundle/required-crds/edit/:index/:crd?" component={OperatorRequiredCRDEditPage} />
           <Route path="/bundle/required-crds" component={OperatorRequiredCRDsPage} />
-          <Route path="/bundle/deployments/:deployment" component={OperatorDeploymentEditPage} />
+          <Route path="/bundle/deployments/add" render={props => <OperatorDeploymentEditPage {...props} isNew />} />
+          <Route path="/bundle/deployments/edit/:index/:deployment?" component={OperatorDeploymentEditPage} />
           <Route path="/bundle/deployments" component={OperatorDeploymentsPage} />
-          <Route path="/bundle/permissions/:serviceAccountName" component={OperatorPermissionsEditPage} />
+          <Route path="/bundle/permissions/add" render={props => <OperatorPermissionsEditPage {...props} isNew />} />
+          <Route path="/bundle/permissions/edit/:index/:serviceAccountName?" component={OperatorPermissionsEditPage} />
           <Route path="/bundle/permissions" component={OperatorPermissionsPage} />
           <Route path="/bundle/package" component={OperatorPackagePage} />
           <Route
-            path="/bundle/cluster-permissions/:serviceAccountName"
+            path="/bundle/cluster-permissions/add"
+            render={props => <OperatorClusterPermissionsEditPage {...props} isNew />}
+          />
+          <Route
+            path="/bundle/cluster-permissions/edit/:serviceAccountName?"
             component={OperatorClusterPermissionsEditPage}
           />
           <Route path="/bundle/cluster-permissions" component={OperatorClusterPermissionsPage} />

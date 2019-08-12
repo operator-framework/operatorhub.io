@@ -5,17 +5,17 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
-import { helpers } from '../../common/helpers';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
-import YamlViewer from '../../components/YamlViewer';
-import { sectionsFields, EDITOR_STATUS } from './bundlePageUtils';
-import { getValueError, getDefaultDeployment, isDeploymentDefault } from '../../utils/operatorUtils';
-import { operatorFieldValidators } from '../../utils/operatorDescriptors';
+import { helpers } from '../../../common/helpers';
+import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import YamlViewer from '../../../components/YamlViewer';
+import { sectionsFields, EDITOR_STATUS } from '../bundlePageUtils';
+import { getValueError, getDefaultDeployment, isDeploymentDefault } from '../../../utils/operatorUtils';
+import { operatorFieldValidators } from '../../../utils/operatorDescriptors';
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
-} from '../../redux/actions/editorActions';
+} from '../../../redux/actions/editorActions';
 
 const deploymentFields = sectionsFields.deployments;
 
@@ -30,12 +30,28 @@ class OperatorDeploymentEditPage extends React.Component {
     yamlError: ''
   };
 
-  name;
+  deploymentIndex;
+
+  constructor(props) {
+    super(props);
+
+    this.deploymentIndex = parseInt(_.get(props.match, 'params.index'), 10);
+  }
 
   componentDidMount() {
-    this.name = helpers.transformPathedName(_.get(this.props.match, 'params.deployment', ''));
+    const { operator, isNew } = this.props;
+    const operatorDeployments = _.get(operator, deploymentFields, []);
 
-    const deployment = this.getDeployment();
+    let deployment = operatorDeployments[this.deploymentIndex];
+
+    if (isNew) {
+      deployment = getDefaultDeployment();
+
+      // set again correct index
+      this.deploymentIndex = operatorDeployments.length;
+      this.updateOperator(deployment);
+    }
+
     let deploymentYaml;
     /** @type {string|string[]} */
     let yamlError = '';
@@ -54,42 +70,16 @@ class OperatorDeploymentEditPage extends React.Component {
     this.setState({ deploymentYaml, yamlError });
   }
 
-  getDeployment = () => {
-    const { operator, storeEditorOperator } = this.props;
-    const operatorDeployments = _.get(operator, deploymentFields, []);
-
-    let deployment = _.find(operatorDeployments, { name: this.name });
-
-    if (!deployment) {
-      const updatedOperator = _.cloneDeep(operator);
-      const updatedDeployments = _.get(updatedOperator, deploymentFields, []);
-
-      deployment = getDefaultDeployment();
-
-      updatedDeployments.push(deployment);
-
-      _.set(updatedOperator, deploymentFields, updatedDeployments);
-      storeEditorOperator(updatedOperator);
-    }
-
-    return deployment;
-  };
-
   updateOperator = updatedDeployment => {
     const { operator, storeEditorOperator } = this.props;
 
     const updatedOperator = _.cloneDeep(operator);
     const deployments = _.get(updatedOperator, deploymentFields);
-    // use orignal name
-    const deploymentIndex = _.findIndex(deployments, { name: this.name });
-
-    // update name ref for case it changed
-    this.name = updatedDeployment.name || this.name;
 
     const updatedDeployments = [
-      ...deployments.slice(0, deploymentIndex),
+      ...deployments.slice(0, this.deploymentIndex),
       updatedDeployment,
-      ...deployments.slice(deploymentIndex + 1)
+      ...deployments.slice(this.deploymentIndex + 1)
     ];
     _.set(updatedOperator, deploymentFields, updatedDeployments);
 
@@ -181,11 +171,13 @@ OperatorDeploymentEditPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  match: PropTypes.object.isRequired
+  match: PropTypes.object.isRequired,
+  isNew: PropTypes.bool
 };
 
 OperatorDeploymentEditPage.defaultProps = {
   operator: {},
+  isNew: false,
   storeEditorOperator: helpers.noop,
   setSectionStatus: helpers.noop
 };

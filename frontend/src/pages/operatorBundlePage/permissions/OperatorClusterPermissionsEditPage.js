@@ -1,11 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import OperatorPermissionsEditPage from './OperatorPermissionsEditPage';
-import { sectionsFields } from './bundlePageUtils';
+import { sectionsFields } from '../bundlePageUtils';
 
 const permissionFields = sectionsFields['cluster-permissions'];
 
-const OperatorClusterPermissionsEditPage = ({ operator, history, match }) => (
+const OperatorClusterPermissionsEditPage = ({ operator, history, match, isNew }) => (
   <OperatorPermissionsEditPage
     operator={operator}
     history={history}
@@ -14,6 +14,7 @@ const OperatorClusterPermissionsEditPage = ({ operator, history, match }) => (
     objectType="Cluster Permissions"
     objectsTitle="Cluster Permissions"
     objectPage="cluster-permissions"
+    isNew={isNew}
   />
 );
 
@@ -22,11 +23,13 @@ OperatorClusterPermissionsEditPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  match: PropTypes.object.isRequired
+  match: PropTypes.object.isRequired,
+  isNew: PropTypes.bool
 };
 
 OperatorClusterPermissionsEditPage.defaultProps = {
-  operator: {}
+  operator: {},
+  isNew: false
 };
 
 export default OperatorClusterPermissionsEditPage;

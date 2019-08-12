@@ -4,17 +4,17 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
-import { helpers } from '../../common/helpers';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
-import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { getFieldValueError, convertExampleYamlToObj, containsErrors } from '../../utils/operatorUtils';
-import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
+import { helpers } from '../../../common/helpers';
+import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import ListObjectEditor from '../../../components/editor/ListObjectEditor';
+import { getFieldValueError, convertExampleYamlToObj, containsErrors } from '../../../utils/operatorUtils';
+import { operatorObjectDescriptions } from '../../../utils/operatorDescriptors';
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
-} from '../../redux/actions/editorActions';
-import { getUpdatedFormErrors, EDITOR_STATUS, sectionsFields } from './bundlePageUtils';
+} from '../../../redux/actions/editorActions';
+import { getUpdatedFormErrors, EDITOR_STATUS, sectionsFields } from '../bundlePageUtils';
 
 class OperatorCRDsPage extends React.Component {
   componentDidMount() {
@@ -123,7 +123,6 @@ class OperatorCRDsPage extends React.Component {
           title={crdsTitle}
           onUpdate={this.updateOperator}
           field={crdsField}
-          fieldFilter={field => field.name}
           fieldTitle="Display Name"
           objectPage={objectPage}
           formErrors={formErrors}
@@ -132,7 +131,6 @@ class OperatorCRDsPage extends React.Component {
           objectSubtitleField="name"
           pagePathField="name"
           objectType={objectType}
-          addName="new-crd"
         />
       </OperatorEditorSubPage>
     );
