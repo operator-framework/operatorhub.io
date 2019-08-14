@@ -305,20 +305,20 @@ class ManifestUploader extends React.Component {
     const serviceAccountUpload = this.filterPermissionUploads(uploadsWithRecent, 'ServiceAccount', namespace);
     const roleUpload = this.filterPermissionUploads(uploadsWithRecent, 'Role', namespace);
     const roleBindingUpload = this.filterPermissionUploads(uploadsWithRecent, 'RoleBinding', namespace);
-    const clusterRoleUpload = this.filterPermissionUploads(uploadsWithRecent, 'ClusterRoleBinding', namespace);
+    const clusterRoleUpload = this.filterPermissionUploads(uploadsWithRecent, 'ClusterRole', namespace);
     const clusterRoleBindingUpload = this.filterPermissionUploads(uploadsWithRecent, 'ClusterRoleBinding', namespace);
 
     // hurray we have all we need
     if (serviceAccountUpload) {
       if (roleUpload && roleBindingUpload) {
         this.setPermissions(roleUpload.data, roleBindingUpload.data);
-        return;
       }
+
       if (clusterRoleUpload && clusterRoleBindingUpload) {
         this.setPermissions(clusterRoleUpload.data, clusterRoleBindingUpload.data);
       }
 
-      console.log('Missing some role or role binding object. Waiting.');
+      console.log('Processed role / cluster role into permissions');
     } else {
       console.log('No ServiceAccount yet. Waiting');
     }
