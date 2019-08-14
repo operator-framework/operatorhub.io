@@ -14,6 +14,10 @@ const isDescriptorEmpty = descriptor =>
 class DescriptorsEditor extends React.Component {
   dirtyDescriptors = [];
 
+  state = {
+    editedValue: ''
+  };
+
   componentDidMount() {
     const { crd, descriptorsField } = this.props;
     const existingDescriptors = _.get(crd, descriptorsField);
@@ -91,6 +95,12 @@ class DescriptorsEditor extends React.Component {
     props.text.startsWith('urn:alm:descriptor:io.kubernetes:') ||
     props.text.startsWith('urn:alm:descriptor:com.tectonic.ui:selector:');
 
+  onValueEdit = value => {
+    this.setState({
+      editedValue: value
+    });
+  };
+
   renderDescriptor = (descriptor, index) => {
     const {
       descriptorsErrors,
@@ -165,10 +175,13 @@ class DescriptorsEditor extends React.Component {
                 id={`x-descriptor-${index}`}
                 values={descriptor['x-descriptors']}
                 options={descriptorOptions}
+                initialValue={this.state.editedValue}
+                onValueEdit={this.onValueEdit}
                 isMulti
                 clearButton
                 placeholder={xDescriptorsPlaceholder}
                 onChange={selections => {
+                  this.setState({ editedValue: '' });
                   this.updateDescriptor(descriptor, 'x-descriptors', selections);
                 }}
                 onBlur={() => this.onFieldBlur('x-descriptors', index)}
