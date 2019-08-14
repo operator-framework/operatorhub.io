@@ -94,7 +94,6 @@ class ResourcesEditor extends React.Component {
               values={resource.kind ? [resource.kind] : []}
               options={kindOptions}
               isMulti={false}
-              noClear
               placeholder={kindPlaceholder}
               onChange={selections => {
                 this.updateResource(resource, 'kind', selections[0]);
