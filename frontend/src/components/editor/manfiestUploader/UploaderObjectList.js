@@ -57,8 +57,8 @@ function UploaderObjectList({ uploads, missingUploads, removeUpload, removeAllUp
           </Grid.Col>
         </Grid.Row>
       ))}
-      {missingUploads.map(missing => (
-        <Grid.Row className="oh-operator-editor-upload__uploads__row" key={missing.name}>
+      {missingUploads.map((missing, index) => (
+        <Grid.Row className="oh-operator-editor-upload__uploads__row" key={`${missing.name}_${index}`}>
           <Grid.Col xs={6} className="oh-operator-editor-upload__uploads__row__name" title={missing.name}>
             {missing.name}
           </Grid.Col>

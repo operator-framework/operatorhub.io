@@ -3,7 +3,11 @@ import _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
 import { getFieldValueError, getDefaultDescription } from '../../utils/operatorUtils';
-import { OPERATOR_DESCRIPTION_ABOUT_HEADER, OPERATOR_DESCRIPTION_PREREQUISITES_HEADER } from '../../utils/constants';
+import {
+  OPERATOR_DESCRIPTION_ABOUT_HEADER,
+  OPERATOR_DESCRIPTION_PREREQUISITES_HEADER,
+  NEW_CRD_NAME
+} from '../../utils/constants';
 
 const EDITOR_STATUS = {
   empty: 'empty',
@@ -223,7 +227,7 @@ const getMissingCrdUploads = (uploads, operator) => {
   const uploadedCrds = filterValidCrdUploads(uploads).map(upload => upload.name);
 
   const missingCrds = _.get(operator, sectionsFields['owned-crds']).filter(
-    crd => crd.name && !uploadedCrds.includes(crd.name)
+    crd => crd.name !== NEW_CRD_NAME && !uploadedCrds.includes(crd.name)
   );
 
   return missingCrds;

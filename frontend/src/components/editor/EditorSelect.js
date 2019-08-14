@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TypeAheadSelect } from 'patternfly-react';
+import { getOptionLabel } from 'react-bootstrap-typeahead/lib/utils';
 
 import { helpers } from '../../common/helpers';
 
@@ -16,8 +17,11 @@ import { helpers } from '../../common/helpers';
  * @param {boolean=} param0.dropup
  * @param {function=} param0.onChange
  * @param {function=} param0.onBlur
+ * @param {function=} param0.onValueEdit
  * @param {boolean=} param0.clearButton
  * @param {string=} param0.emptyLabel
+ * @param {string} [param0.initialValue]
+ * @param {string} [param0.labelKey]
  * @param {string=} param0.newSelectionPrefix
  * @param {function} [param0.customSelectValidator]
  */
@@ -28,20 +32,22 @@ const EditorSelect = ({
   isMulti,
   customSelect,
   placeholder,
+  initialValue,
+  onValueEdit,
   dropup,
   onChange,
   onBlur,
   clearButton,
   emptyLabel,
   newSelectionPrefix,
-  customSelectValidator,
-  ...otherProps
+  labelKey,
+  customSelectValidator
 }) => {
   let typeAhead = null;
 
   // when leaving the select, clear out any left over text that isn't a selection
   const typeAheadBlur = event => {
-    if (typeAhead) {
+    if (typeAhead && !initialValue) {
       const currentText = typeAhead.getInstance().state.text;
 
       if (currentText && options.includes(currentText) && !values.includes(currentText)) {
@@ -62,6 +68,36 @@ const EditorSelect = ({
     setTimeout(() => onBlur(event), 10);
   };
 
+  /**
+   * Allow editing values in order to add custom values.
+   * Awailable only for multiselect and when onValue edit callback is defined
+   * @param {*} props
+   * @param {*} option
+   */
+  const editOption = (props, option) => {
+    if (typeAhead && isMulti && onValueEdit !== helpers.noop) {
+      const instance = typeAhead.getInstance();
+      const label = getOptionLabel(option, props.labelKey);
+
+      const updatedValues = [...values.filter(value => value !== label)];
+      onChange(updatedValues);
+
+      const inputEvent = new Event('input', { bubbles: true });
+      instance.setState({ text: label });
+      instance.props.onInputChange(label, inputEvent);
+
+      onValueEdit && onValueEdit(label);
+    }
+  };
+
+  /**
+   * Convert custom values to standard string values before passing them to callback
+   * @param {*} selections
+   */
+  const _onChange = selections => {
+    const flattenedSelections = selections.map(selection => getOptionLabel(selection, labelKey));
+    onChange(flattenedSelections);
+  };
   return (
     <div className="oh-operator-editor-form__select">
       <TypeAheadSelect
@@ -72,13 +108,23 @@ const EditorSelect = ({
         allowNew={customSelectValidator || customSelect}
         dropup={dropup}
         placeholder={placeholder}
-        onChange={onChange}
+        defaultInputValue={initialValue}
+        autofocus={!!initialValue}
+        onChange={_onChange}
         onBlur={typeAheadBlur}
         positionFixed
+        renderToken={(option, properties, index) => (
+          <TypeAheadSelect.Token
+            key={index}
+            onRemove={properties.onRemove}
+            onMouseDown={() => editOption(properties, option)}
+          >
+            {getOptionLabel(option, properties.labelKey)}
+          </TypeAheadSelect.Token>
+        )}
         ref={ref => {
           typeAhead = ref;
         }}
-        {...otherProps}
       />
     </div>
   );
@@ -88,16 +134,19 @@ EditorSelect.propTypes = {
   id: PropTypes.string.isRequired,
   values: PropTypes.array,
   options: PropTypes.array,
+  labelKey: PropTypes.string,
   isMulti: PropTypes.bool,
   customSelect: PropTypes.bool,
   dropup: PropTypes.bool,
   clearButton: PropTypes.bool,
+  initialValue: PropTypes.string,
   placeholder: PropTypes.string,
   onChange: PropTypes.func,
   onBlur: PropTypes.func,
   emptyLabel: PropTypes.string,
   newSelectionPrefix: PropTypes.string,
-  customSelectValidator: PropTypes.func
+  customSelectValidator: PropTypes.func,
+  onValueEdit: PropTypes.func
 };
 
 EditorSelect.defaultProps = {
@@ -107,12 +156,15 @@ EditorSelect.defaultProps = {
   customSelect: false,
   dropup: false,
   clearButton: false,
+  labelKey: 'label',
   placeholder: 'Select options',
   onChange: helpers.noop,
   onBlur: helpers.noop,
+  initialValue: '',
   emptyLabel: undefined,
   newSelectionPrefix: undefined,
-  customSelectValidator: undefined
+  customSelectValidator: undefined,
+  onValueEdit: helpers.noop
 };
 
 export default EditorSelect;
