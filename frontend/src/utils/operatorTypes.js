@@ -2,7 +2,7 @@
  * @typedef OperatorMetadataAnnotations
  * @prop {string}  'alm-examples'
  * @prop {string}  categories
- * @prop {boolean} certified
+ * @prop {'true'|'false'} certified
  * @prop {string}  description
  * @prop {string}  containerImage
  * @prop {string}  support

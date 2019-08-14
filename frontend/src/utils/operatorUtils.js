@@ -132,7 +132,7 @@ const defaultOperator = {
       // @ts-ignore
       'alm-examples': `[${JSON.stringify(getDefaultAlmExample())}]`,
       categories: '',
-      certified: false,
+      certified: 'false',
       description: '',
       containerImage: '',
       support: '',
@@ -560,6 +560,7 @@ const containsErrors = formErrors => {
   } else if (typeof formErrors === 'object') {
     return Object.values(formErrors).some(error => containsErrors(error));
   }
+  return false;
 };
 
 /**
