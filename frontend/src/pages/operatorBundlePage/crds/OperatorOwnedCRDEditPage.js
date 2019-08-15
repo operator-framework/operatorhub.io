@@ -9,28 +9,36 @@ import { helpers } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ResourcesEditor from '../../../components/editor/ResourcesEditor';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
-import DescriptorsEditor, { isDescriptorEmpty } from '../../../components/editor/DescriptorsEditor';
+import DescriptorsEditor from '../../../components/editor/descriptors/DescriptorsEditor';
 import YamlViewer from '../../../components/YamlViewer';
 import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from '../bundlePageUtils';
-import { getDefaultOnwedCRD, getDefaultAlmExample, convertExampleYamlToObj } from '../../../utils/operatorUtils';
+import {
+  getDefaultOnwedCRD,
+  getDefaultAlmExample,
+  convertExampleYamlToObj,
+  isCrdDescriptorDefault,
+  getDefaultCrdDescriptor,
+  containsErrors
+} from '../../../utils/operatorUtils';
 import {
   setSectionStatusAction,
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../../redux/actions/editorActions';
 import { NEW_CRD_NAME, SPEC_CAPABILITIES, STATUS_CAPABILITIES } from '../../../utils/constants';
-import OperatorTextArea from '../../../components/editor/forms/OperatorTextArea';
-import OperatorInput from '../../../components/editor/forms/OperatorInput';
+
+import OperatorTextAreaUncontrolled from '../../../components/editor/forms/OperatorTextAreaUncontrolled';
+import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
 
 const crdsField = sectionsFields['owned-crds'];
 const crdDescriptions = _.get(operatorFieldDescriptions, crdsField);
 
 class OperatorOwnedCRDEditPage extends React.Component {
   state = {
-    crd: null,
-    crdErrors: null,
     crdTemplate: null,
-    crdTemplateYamlError: ''
+    crdTemplateYamlError: '',
+    specDescriptorsExpandedByError: false,
+    statusDescriptorsExpandedByError: false
   };
 
   touchedFields = {};
@@ -39,6 +47,8 @@ class OperatorOwnedCRDEditPage extends React.Component {
   nameInput;
   originalName;
 
+  almExampleIndex;
+
   constructor(props) {
     super(props);
 
@@ -46,8 +56,15 @@ class OperatorOwnedCRDEditPage extends React.Component {
   }
 
   componentDidMount() {
-    const { operator, formErrors, storeEditorFormErrors, sectionStatus, isNew } = this.props;
-    const operatorCRDs = _.get(operator, crdsField) || [];
+    const { operator, formErrors, storeEditorFormErrors, sectionStatus, isNew, storeEditorOperator } = this.props;
+    const updatedOperator = _.cloneDeep(operator);
+    const operatorCRDs = _.get(updatedOperator, crdsField) || [];
+
+    const examples = _.get(updatedOperator, 'metadata.annotations.alm-examples');
+    const crdTemplates = convertExampleYamlToObj(examples);
+
+    let specDescriptorsExpandedByError = false;
+    let statusDescriptorsExpandedByError = false;
 
     this.name = helpers.transformPathedName(_.get(this.props.match, 'params.crd', ''));
 
@@ -62,24 +79,40 @@ class OperatorOwnedCRDEditPage extends React.Component {
       this.crdIndex = operatorCRDs.length;
 
       operatorCRDs.push(crd);
+
+      // update examples with empty one for this crd
+      _.set(
+        updatedOperator,
+        'metadata.annotations.alm-examples',
+        JSON.stringify([...crdTemplates, getDefaultAlmExample()])
+      );
+
+      storeEditorOperator(updatedOperator);
     }
 
     this.crdIndex = operatorCRDs.indexOf(crd);
-    const kind = _.get(crd, 'kind');
-    const examples = _.get(operator, 'metadata.annotations.alm-examples');
-    const crdTemplates = convertExampleYamlToObj(examples);
-    const crdTemplate = _.find(crdTemplates, { kind }) || getDefaultAlmExample();
+    this.almExampleIndex = _.findIndex(crdTemplates, { kind: _.get(crd, 'kind', '') });
+
+    const crdTemplate = this.getAlmExample();
 
     // do not update status or validate pristine page
     if (sectionStatus !== EDITOR_STATUS.empty) {
       // get existing errors and revalidate CRDs fields
-      const errors = getUpdatedFormErrors(operator, formErrors, crdsField);
+      const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
 
-      this.updateCrdErrors(errors);
+      // expand descriptor editors if errors are detected
+      specDescriptorsExpandedByError = containsErrors(
+        _.get(errors, `${crdsField}[${this.crdIndex}].errors.specDescriptors`, null)
+      );
+      statusDescriptorsExpandedByError = containsErrors(
+        _.get(errors, `${crdsField}[${this.crdIndex}].errors.statusDescriptors`, null)
+      );
+
+      this.updateSectionStatus(errors);
       storeEditorFormErrors(errors);
     }
 
-    this.setState({ crd, crdTemplate });
+    this.setState({ crdTemplate, specDescriptorsExpandedByError, statusDescriptorsExpandedByError });
 
     if (crd.name === '' || crd.name === NEW_CRD_NAME) {
       setTimeout(() => {
@@ -89,11 +122,35 @@ class OperatorOwnedCRDEditPage extends React.Component {
     }
   }
 
+  getCrd = () => {
+    const { operator } = this.props;
+
+    const operatorCRDs = _.get(operator, crdsField) || [];
+
+    return operatorCRDs[this.crdIndex];
+  };
+
+  getAlmExample = () => {
+    const { operator } = this.props;
+
+    const examples = _.get(operator, 'metadata.annotations.alm-examples');
+    const crdTemplates = convertExampleYamlToObj(examples);
+    const crdTemplate = crdTemplates[this.almExampleIndex] || getDefaultAlmExample();
+
+    return crdTemplate;
+  };
+
+  getCrdErrors = () => {
+    const { formErrors } = this.props;
+
+    return (_.find(_.get(formErrors, crdsField), { index: this.crdIndex }) || { errors: {} }).errors;
+  };
+
   componentDidUpdate(prevProps) {
     const { formErrors } = this.props;
 
     if (!_.isEqual(formErrors, prevProps.formErrors)) {
-      this.updateCrdErrors(formErrors);
+      this.updateSectionStatus(formErrors);
     }
   }
 
@@ -102,11 +159,10 @@ class OperatorOwnedCRDEditPage extends React.Component {
    * Update CRD section state
    * @param {*} formErrors
    */
-  updateCrdErrors = formErrors => {
+  updateSectionStatus = formErrors => {
     const { setSectionStatus } = this.props;
 
     const crdErrors = _.find(_.get(formErrors, crdsField), { index: this.crdIndex });
-    this.setState({ crdErrors: _.get(crdErrors, 'errors') });
 
     if (crdErrors) {
       setSectionStatus('owned-crds', EDITOR_STATUS.errors);
@@ -117,11 +173,15 @@ class OperatorOwnedCRDEditPage extends React.Component {
 
   /**
    * Some field changed so we need to update crd
-   * @param {*} value
    * @param {string} field
+   * @param {*} value
    */
-  updateCRD = (value, field) => {
-    const { crd, crdTemplate } = this.state;
+  updateCRD = (field, value) => {
+    const { operator, storeEditorOperator } = this.props;
+    const { crdTemplate } = this.state;
+
+    let updatedOperator = _.cloneDeep(operator);
+    const crd = this.getCrd();
     const updateTemplate = _.cloneDeep(crdTemplate || {});
 
     if (field === 'kind') {
@@ -129,24 +189,60 @@ class OperatorOwnedCRDEditPage extends React.Component {
 
       this.setState({ crdTemplate: updateTemplate });
       // push changed template to ALM examples
-      this.updateAlmTemplates(updateTemplate);
+      updatedOperator = this.updateAlmTemplates(updatedOperator, updateTemplate);
     }
 
-    _.set(crd, field, value);
-    this.forceUpdate();
+    // do not validate empty sample fields - they are stripped before export
+    const updatedCrd = _.cloneDeep(crd);
+    _.set(updatedCrd, field, value);
+
+    // update the operator's version of this CRD
+    const existingCRDs = _.get(updatedOperator, crdsField);
+
+    if (this.crdIndex < 0) {
+      existingCRDs.push(updatedCrd);
+      this.crdIndex = 0;
+    } else {
+      _.set(updatedOperator, crdsField, [
+        ...existingCRDs.slice(0, this.crdIndex),
+        updatedCrd,
+        ...existingCRDs.slice(this.crdIndex + 1)
+      ]);
+    }
+
+    if (field === 'name') {
+      // update reference name
+      value !== this.originalName && this.updatePagePathOnNameChange(value);
+    }
+
+    storeEditorOperator(updatedOperator);
+
+    this.validateField(field, updatedOperator);
+  };
+
+  validateField = (field, updatedOperator) => {
+    const { formErrors, storeEditorFormErrors } = this.props;
+
+    _.set(this.touchedFields, field, true);
+
+    const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
+    storeEditorFormErrors(errors);
   };
 
   /**
    * Validate YAML examples and update operator
    */
   onTemplateYamlChange = yaml => {
-    const { crd } = this.state;
+    const { operator, storeEditorOperator } = this.props;
+    const crd = this.getCrd();
 
     let crdTemplateYamlError = '';
 
     try {
       const template = safeLoad(yaml);
-      this.updateAlmTemplates(template);
+      const updatedOperator = this.updateAlmTemplates(_.cloneDeep(operator), template);
+
+      storeEditorOperator(updatedOperator);
 
       if (template.kind !== crd.kind) {
         crdTemplateYamlError = 'Yaml kind property has to match CRD kind.';
@@ -161,13 +257,10 @@ class OperatorOwnedCRDEditPage extends React.Component {
   /**
    * Update ALM examples in operator with example of this CRD
    */
-  updateAlmTemplates = template => {
-    const { operator, storeEditorOperator } = this.props;
-    const { crd } = this.state;
-
+  updateAlmTemplates = (operator, template) => {
     const examples = _.get(operator, 'metadata.annotations.alm-examples');
     const crdTemplates = convertExampleYamlToObj(examples);
-    const index = _.findIndex(crdTemplates, { kind: _.get(crd, 'kind') });
+    const index = this.almExampleIndex;
 
     let updatedTemplates;
 
@@ -175,13 +268,13 @@ class OperatorOwnedCRDEditPage extends React.Component {
       updatedTemplates = [...crdTemplates.slice(0, index), template, ...crdTemplates.slice(index + 1)];
     } else {
       updatedTemplates = [...crdTemplates, template];
+      console.log('Something went wrong - cannot find alm example');
     }
     const updatedExamples = JSON.stringify(updatedTemplates);
 
-    const updatedOperator = _.cloneDeep(operator);
-    _.set(updatedOperator, 'metadata.annotations.alm-examples', updatedExamples);
+    _.set(operator, 'metadata.annotations.alm-examples', updatedExamples);
 
-    storeEditorOperator(updatedOperator);
+    return operator;
   };
 
   /**
@@ -194,49 +287,13 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const cleanedCrd = _.cloneDeep(crd);
 
     if (cleanedCrd.specDescriptors) {
-      cleanedCrd.specDescriptors = cleanedCrd.specDescriptors.filter(descriptor => !isDescriptorEmpty(descriptor));
+      cleanedCrd.specDescriptors = cleanedCrd.specDescriptors.filter(desc => !isCrdDescriptorDefault(desc));
     }
     if (cleanedCrd.statusDescriptors) {
-      cleanedCrd.statusDescriptors = cleanedCrd.statusDescriptors.filter(descriptor => !isDescriptorEmpty(descriptor));
+      cleanedCrd.statusDescriptors = cleanedCrd.statusDescriptors.filter(desc => !isCrdDescriptorDefault(desc));
     }
 
     return cleanedCrd;
-  };
-
-  validateField = field => {
-    const { operator, formErrors, storeEditorOperator, storeEditorFormErrors } = this.props;
-    const { crd } = this.state;
-
-    _.set(this.touchedFields, field, true);
-
-    const updatedOperator = _.cloneDeep(operator);
-    // do not validate empty sample fields - they are stripped before export
-    const cleanedCrd = this.cleanEmptySampleFields(crd);
-
-    // update the operator's version of this CRD
-    const existingCRDs = _.get(updatedOperator, crdsField);
-
-    if (this.crdIndex < 0) {
-      existingCRDs.push(cleanedCrd);
-      this.crdIndex = 0;
-    } else {
-      _.set(updatedOperator, crdsField, [
-        ...existingCRDs.slice(0, this.crdIndex),
-        cleanedCrd,
-        ...existingCRDs.slice(this.crdIndex + 1)
-      ]);
-    }
-
-    const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
-    storeEditorFormErrors(errors);
-
-    if (field === 'name') {
-      const value = cleanedCrd[field];
-      // update reference name
-      value !== this.originalName && this.updatePagePathOnNameChange(value);
-    }
-
-    storeEditorOperator(updatedOperator);
   };
 
   updatePagePathOnNameChange = name => {
@@ -249,7 +306,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
   };
 
   onTemplateClear = () => {
-    const { crd } = this.state;
+    const crd = this.getCrd();
 
     const example = getDefaultAlmExample();
     example.kind = crd.kind || '';
@@ -262,34 +319,34 @@ class OperatorOwnedCRDEditPage extends React.Component {
   };
 
   renderCRDInput = (title, field, fieldType, inputRefCallback) => {
-    const { crd, crdErrors } = this.state;
+    const crd = this.getCrd();
+    const crdErrors = this.getCrdErrors();
 
     // ignore errors on new CRDs for untouched fields
-    const errors = (!(this.isNewCRD && !_.get(this.touchedFields, field, false)) && crdErrors) || {};
+
+    const errors = !(this.isNewCRD && !_.get(this.touchedFields, field, false)) && crdErrors;
 
     if (fieldType === 'text-area') {
       return (
-        <OperatorTextArea
+        <OperatorTextAreaUncontrolled
           field={field}
           title={title}
-          value={_.get(crd, field, '')}
+          defaultValue={_.get(crd, field, '')}
           formErrors={errors}
-          updateOperator={this.updateCRD}
-          commitField={this.validateField}
+          commitField={this.updateCRD}
           refCallback={inputRefCallback}
           descriptions={crdDescriptions}
         />
       );
     }
     return (
-      <OperatorInput
+      <OperatorInputUncontrolled
         field={field}
         title={title}
-        value={_.get(crd, field, '')}
+        defaultValue={_.get(crd, field, '')}
         inputType="text"
         formErrors={errors}
-        updateOperator={this.updateCRD}
-        commitField={this.validateField}
+        commitField={this.updateCRD}
         refCallback={inputRefCallback}
         descriptions={crdDescriptions}
       />
@@ -298,7 +355,15 @@ class OperatorOwnedCRDEditPage extends React.Component {
 
   render() {
     const { history } = this.props;
-    const { crd, crdErrors, crdTemplate, crdTemplateYamlError } = this.state;
+    const {
+      crdTemplate,
+      crdTemplateYamlError,
+      specDescriptorsExpandedByError,
+      statusDescriptorsExpandedByError
+    } = this.state;
+
+    const crd = this.getCrd();
+    const crdErrors = this.getCrdErrors();
 
     let crdTemplateYaml;
 
@@ -309,6 +374,16 @@ class OperatorOwnedCRDEditPage extends React.Component {
         console.error(`Unable to convert alm-examples to YAML: ${e}`);
         crdTemplateYaml = '';
       }
+    }
+
+    let specDescriptors = _.get(crd, 'specDescriptors', []);
+    let statusDescriptors = _.get(crd, 'statusDescriptors', []);
+
+    if (specDescriptors.length === 0) {
+      specDescriptors = [getDefaultCrdDescriptor()];
+    }
+    if (statusDescriptors.length === 0) {
+      statusDescriptors = [getDefaultCrdDescriptor()];
     }
 
     return (
@@ -326,9 +401,11 @@ class OperatorOwnedCRDEditPage extends React.Component {
           {this.renderCRDInput('Kind', 'kind', 'text')}
           {this.renderCRDInput('Version', 'version', 'text')}
           <ResourcesEditor
-            crd={crd}
-            crdErrors={crdErrors}
-            onUpdate={() => this.validateField('resources')}
+            resources={_.get(crd, 'resources', [])}
+            errors={_.get(crdErrors, 'resources')}
+            onUpdate={resources => {
+              this.updateCRD('resources', resources);
+            }}
             title="Resources"
             field={`${crdsField}.resources`}
           />
@@ -336,23 +413,27 @@ class OperatorOwnedCRDEditPage extends React.Component {
             <h3>SpecDescriptors, StatusDescriptors, and ActionDescriptors</h3>
             <p>{_.get(operatorFieldDescriptions, `${crdsField}.descriptors`)}</p>
             <DescriptorsEditor
-              crd={crd}
+              descriptors={specDescriptors}
               title="SpecDescriptors"
               singular="SpecDescriptor"
               descriptorsErrors={_.get(crdErrors, 'specDescriptors')}
               description="A reference to fields in the spec block of an object."
-              onUpdate={() => this.validateField('specDescriptors')}
-              descriptorsField="specDescriptors"
+              expanded={specDescriptorsExpandedByError}
+              onUpdate={value => {
+                this.updateCRD('specDescriptors', value);
+              }}
               descriptorOptions={SPEC_CAPABILITIES}
             />
             <DescriptorsEditor
-              crd={crd}
+              descriptors={statusDescriptors}
               title="StatusDescriptors"
               singular="StatusDescriptor"
               descriptorsErrors={_.get(crdErrors, 'statusDescriptors')}
               description="A reference to fields in the status block of an object."
-              onUpdate={() => this.validateField('statusDescriptors')}
-              descriptorsField="statusDescriptors"
+              expanded={statusDescriptorsExpandedByError}
+              onUpdate={value => {
+                this.updateCRD('statusDescriptors', value);
+              }}
               descriptorOptions={STATUS_CAPABILITIES}
             />
           </div>

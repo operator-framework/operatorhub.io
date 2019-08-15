@@ -63,8 +63,18 @@
  */
 
 /**
- * @typedef  OperatorOwnedCrdResources
+ * @typedef OperatorCrdDescriptor
+ * @prop {string} displayName
+ * @prop {string} description
+ * @prop {string} path
+ * @prop {string[]} 'x-descriptors'
+ */
+
+/**
+ * @typedef OperatorOwnedCrdResources
  * @prop {OperatorCrdResource[]} resources
+ * @prop {OperatorCrdDescriptor[]} specDescriptors
+ * @prop {OperatorCrdDescriptor[]} statusDescriptors
  */
 
 /**

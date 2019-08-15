@@ -15,8 +15,8 @@ import { renderFormError } from '../../../pages/operatorBundlePage/bundlePageUti
 
 /**
  * @callback CommitOperatorFieldFromInputCallback
- * @param {string} field
- * @param {string=} value
+ * @param {string} value
+ * @param {string=} field
  */
 
 /**
