@@ -39,10 +39,9 @@ const OperatorInput = ({
       id={field}
       className="form-control"
       type={inputType}
-      rows={3}
       {..._.get(_.get(operatorFieldValidators, field), 'props')}
       onBlur={e => commitField(field, e.target.value)}
-      onChange={e => updateOperator(e.target.value, field)}
+      onChange={e => updateOperator(field, e.target.value)}
       placeholder={_.get(operatorFieldPlaceholders, field)}
       value={value}
       ref={refCallback}

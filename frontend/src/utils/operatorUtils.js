@@ -19,7 +19,13 @@ const normalizeVersion = version => {
   return normVersion;
 };
 
-const validCapabilityStrings = ['Basic Install', 'Seamless Upgrades', 'Full Lifecycle', 'Deep Insights', 'Auto Pilot'];
+export const validCapabilityStrings = [
+  'Basic Install',
+  'Seamless Upgrades',
+  'Full Lifecycle',
+  'Deep Insights',
+  'Auto Pilot'
+];
 
 /**
  * Maps capability to fixed lists
@@ -70,11 +76,11 @@ const normalizeCRDs = operator => {
 };
 
 /** @param {string} name */
-const generateIdFromVersionedName = name => name.slice(0, name.indexOf('.'));
+export const generateIdFromVersionedName = name => name.slice(0, name.indexOf('.'));
 
 const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamespaces', supported: true });
 
-const normalizeOperator = operator => {
+export const normalizeOperator = operator => {
   const annotations = _.get(operator, 'metadata.annotations', {});
   const spec = _.get(operator, 'spec', {});
   const iconObj = _.get(spec, 'icon[0]');
@@ -112,7 +118,7 @@ const normalizeOperator = operator => {
   };
 };
 
-const getDefaultAlmExample = () => ({
+export const getDefaultAlmExample = () => ({
   apiVersion: '',
   kind: '',
   metadata: {
@@ -175,18 +181,12 @@ const defaultOperator = {
             { version: 'v1', kind: 'Pod' },
             { version: 'v1', kind: 'Secret' },
             { version: 'v1', kind: 'ConfigMap' }
-          ]
+          ],
+          specDescriptors: [],
+          statusDescriptors: []
         }
       ],
-      required: [
-        {
-          name: 'add-crd',
-          displayName: '',
-          kind: '',
-          version: '',
-          description: ''
-        }
-      ]
+      required: []
     },
     install: {
       strategy: 'deployment',
@@ -276,45 +276,62 @@ const defaultOperator = {
 const defaultOperatorJSON = JSON.stringify(defaultOperator);
 
 /** @returns {Operator} */
-function getDefaultOperator() {
+export function getDefaultOperator() {
   return JSON.parse(defaultOperatorJSON);
 }
 
-function getDefaultDescription() {
+export function getDefaultDescription() {
   return _.clone(defaultOperator.spec.description);
 }
 
-/** @private */
-const defaultRequiredCrdRef = defaultOperator.spec.customresourcedefinitions.required[0];
-
-function getDefaultRequiredCRD() {
-  return _.clone(defaultRequiredCrdRef);
+export function getDefaultRequiredCRD() {
+  return {
+    name: 'add-crd',
+    displayName: '',
+    kind: '',
+    version: '',
+    description: ''
+  };
 }
 
 /** @private */
-const defaultOnwedCrdRef = defaultOperator.spec.customresourcedefinitions.owned[0];
+const defaultOnwedCrdRef = getDefaultOperator().spec.customresourcedefinitions.owned[0];
 
-function getDefaultOnwedCRD() {
-  return _.clone(defaultOnwedCrdRef);
+export function getDefaultOnwedCRD() {
+  return _.cloneDeep(defaultOnwedCrdRef);
 }
 
 /** @private */
-const defaultDeploymentRef = defaultOperator.spec.install.spec.deployments[0];
+const defaultDeploymentRef = getDefaultOperator().spec.install.spec.deployments[0];
 
-function getDefaultDeployment() {
-  return _.clone(defaultDeploymentRef);
+export function getDefaultDeployment() {
+  return _.cloneDeep(defaultDeploymentRef);
+}
+
+/**
+ * @returns {OperatorCrdDescriptor}
+ */
+export function getDefaultCrdDescriptor() {
+  // @ts-ignore
+  return { displayName: '', description: '', path: '', 'x-descriptors': [] };
 }
 
 /** @param {Operator} operator */
-const isDefaultOperator = operator => _.isEqual(operator, defaultOperator);
-const isOwnedCrdDefault = crd => _.isEqual(crd, defaultOnwedCrdRef);
-const isRequiredCrdDefault = crd => _.isEqual(crd, defaultRequiredCrdRef);
-const isDeploymentDefault = deployment => _.isEqual(deployment, defaultDeploymentRef);
+export const isDefaultOperator = operator => _.isEqual(operator, defaultOperator);
+export const isOwnedCrdDefault = crd => {
+  console.log(crd, defaultOnwedCrdRef);
+  return _.isEqual(crd, defaultOnwedCrdRef);
+};
+export const isRequiredCrdDefault = crd => _.isEqual(crd, getDefaultRequiredCRD());
+export const isDeploymentDefault = deployment => _.isEqual(deployment, defaultDeploymentRef);
+export const isAlmExampleDefault = almExample => _.isEqual(almExample, getDefaultAlmExample());
+export const isCrdDescriptorDefault = descriptor => _.isEqual(descriptor, getDefaultCrdDescriptor());
 
 /**
  * Convert ALM examples to objects so we can find one for current CRD
+ * @returns {*[]}
  */
-const convertExampleYamlToObj = examples => {
+export const convertExampleYamlToObj = examples => {
   let crdTemplates;
   if (_.isString(examples)) {
     try {
@@ -342,7 +359,7 @@ const convertExampleYamlToObj = examples => {
  * or browser disabled local storage (e.g. some private modes)
  * @returns {AutoSavedData}
  */
-const getAutoSavedOperatorData = () => {
+export const getAutoSavedOperatorData = () => {
   let savedData = null;
 
   try {
@@ -354,7 +371,7 @@ const getAutoSavedOperatorData = () => {
   return savedData;
 };
 
-const clearAutosavedOperatorData = () => {
+export const clearAutosavedOperatorData = () => {
   try {
     localStorage.removeItem(LOCAL_STORAGE_KEY);
   } catch (e) {
@@ -457,7 +474,7 @@ const getArrayValueErrors = (value, fieldValidator, operator) => {
  * @param {Operator} operator
  * @returns {* | null}
  */
-const getValueError = (value, fieldValidator, operator) => {
+export const getValueError = (value, fieldValidator, operator) => {
   if (!fieldValidator) {
     return null;
   }
@@ -499,7 +516,7 @@ const getValueError = (value, fieldValidator, operator) => {
  * @param {Operator} operator
  * @param {string} field field path
  */
-const getFieldValueError = (operator, field) => {
+export const getFieldValueError = (operator, field) => {
   const value = _.get(operator, field);
   const fieldValidator = _.get(operatorFieldValidators, field);
 
@@ -551,7 +568,7 @@ const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
  * And checks if contains error messages
  * @param {any} formErrors
  */
-const containsErrors = formErrors => {
+export const containsErrors = formErrors => {
   // no value or null
   if (typeof formErrors === 'undefined' || formErrors === null) {
     return false;
@@ -568,7 +585,7 @@ const containsErrors = formErrors => {
  * but should not be part of final operator as they are invalid
  * @param {Operator} operator
  */
-const removeEmptyOptionalValuesFromOperator = operator => {
+export const removeEmptyOptionalValuesFromOperator = operator => {
   const clonedOperator = _.cloneDeep(operator);
 
   const ownedCRDs = _.get(clonedOperator, sectionsFields['owned-crds'], []).filter(crd => !isOwnedCrdDefault(crd));
@@ -586,7 +603,7 @@ const removeEmptyOptionalValuesFromOperator = operator => {
  * Validates complete operator
  * @param {Operator} operator
  */
-const validateOperator = operator => {
+export const validateOperator = operator => {
   if (_.isEmpty(operator)) {
     return false;
   }
@@ -614,39 +631,15 @@ const validateOperator = operator => {
  * @param {*} value
  * @param {string} fieldName
  */
-const validateOperatorPackageField = (value, fieldName) =>
+export const validateOperatorPackageField = (value, fieldName) =>
   getValueError(value, _.get(operatorPackageFieldValidators, fieldName), {});
 
 /**
  * Validatates operator package
  * @param {*} operatorPackage
  */
-const validateOperatorPackage = operatorPackage => {
+export const validateOperatorPackage = operatorPackage => {
   const FIELDS = ['name', 'channel'];
 
   return FIELDS.every(field => validateOperatorPackageField(operatorPackage[field], field) === null);
-};
-
-export {
-  generateIdFromVersionedName,
-  normalizeOperator,
-  getDefaultOperator,
-  getDefaultDescription,
-  getDefaultAlmExample,
-  getDefaultRequiredCRD,
-  getDefaultOnwedCRD,
-  getDefaultDeployment,
-  isDefaultOperator,
-  isDeploymentDefault,
-  convertExampleYamlToObj,
-  removeEmptyOptionalValuesFromOperator,
-  validCapabilityStrings,
-  validateOperator,
-  getValueError,
-  getFieldValueError,
-  getAutoSavedOperatorData,
-  clearAutosavedOperatorData,
-  validateOperatorPackageField,
-  validateOperatorPackage,
-  containsErrors
 };

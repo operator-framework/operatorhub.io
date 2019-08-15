@@ -61,7 +61,7 @@ class OperatorMetadataPage extends React.Component {
     }
   }
 
-  updateOperator = (value, field) => {
+  updateOperator = (field, value) => {
     const { workingOperator } = this.state;
     _.set(workingOperator, field, value);
     this.forceUpdate();
@@ -104,12 +104,12 @@ class OperatorMetadataPage extends React.Component {
   };
 
   updateOperatorImage = icon => {
-    this.updateOperator(icon, 'spec.icon');
+    this.updateOperator('spec.icon', icon);
     this.validateFields('spec.icon');
   };
 
   updateOperatorCapability = capability => {
-    this.updateOperator(capability, 'metadata.annotations.capabilities');
+    this.updateOperator('metadata.annotations.capabilities', capability);
     this.validateFields('metadata.annotations.capabilities');
   };
 
@@ -121,7 +121,7 @@ class OperatorMetadataPage extends React.Component {
         _.set(labels, operatorLabel.key, operatorLabel.value);
       }
     });
-    this.updateOperator(labels, 'spec.labels');
+    this.updateOperator('spec.labels', labels);
     this.validateFields('spec.labels');
   };
 
@@ -133,7 +133,7 @@ class OperatorMetadataPage extends React.Component {
         _.set(matchLabels, operatorLabel.key, operatorLabel.value);
       }
     });
-    this.updateOperator(matchLabels, 'spec.selector.matchLabels');
+    this.updateOperator('spec.selector.matchLabels', matchLabels);
     this.validateFields('spec.selector.matchLabels');
   };
 
@@ -146,7 +146,7 @@ class OperatorMetadataPage extends React.Component {
       }
     });
 
-    this.updateOperator(links, 'spec.links');
+    this.updateOperator('spec.links', links);
     this.validateFields('spec.links');
   };
 
@@ -159,7 +159,7 @@ class OperatorMetadataPage extends React.Component {
       }
     });
 
-    this.updateOperator(maintainers, 'spec.maintainers');
+    this.updateOperator('spec.maintainers', maintainers);
     this.validateFields(['spec.maintainers', 'spec.provider.name']);
   };
 
@@ -236,7 +236,7 @@ class OperatorMetadataPage extends React.Component {
           options={maturityOptions}
           placeholder={_.get(operatorFieldPlaceholders, field, `Select maturity`)}
           onChange={selection => {
-            this.updateOperator(selection[0], field);
+            this.updateOperator(field, selection[0]);
           }}
           onBlur={() => this.validateFields(field)}
         />
@@ -262,7 +262,7 @@ class OperatorMetadataPage extends React.Component {
           options={categoryOptions}
           placeholder={_.get(operatorFieldPlaceholders, field, `Select Categories`)}
           onChange={selections => {
-            this.updateOperator(_.join(selections, ', '), field);
+            this.updateOperator(field, _.join(selections, ', '));
           }}
           onBlur={() => this.validateFields(field)}
         />
@@ -285,7 +285,7 @@ class OperatorMetadataPage extends React.Component {
           customSelect
           placeholder={_.get(operatorFieldPlaceholders, field, `Add Keywords`)}
           onChange={selections => {
-            this.updateOperator(selections, field);
+            this.updateOperator(field, selections);
           }}
           onBlur={() => this.validateFields(field)}
           newSelectionPrefix="Add keyword:"
@@ -323,7 +323,7 @@ class OperatorMetadataPage extends React.Component {
           {this.renderFormField('Minimum Kubernetes Version (optional)', 'spec.minKubeVersion', 'text')}
           <DescriptionEditor
             operator={workingOperator}
-            onUpdate={this.updateOperator}
+            onUpdate={(value, field) => this.updateOperator(field, value)}
             onValidate={this.validateFields}
             formErrors={formErrors}
           />

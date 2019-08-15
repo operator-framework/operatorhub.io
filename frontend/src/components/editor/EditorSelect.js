@@ -117,7 +117,12 @@ const EditorSelect = ({
           <TypeAheadSelect.Token
             key={index}
             onRemove={properties.onRemove}
-            onMouseDown={() => editOption(properties, option)}
+            onMouseUp={e => {
+              // trigger edit only if token is clicked, but not for delete btn...
+              if (e._dispatchInstances === e._targetInst) {
+                editOption(properties, option);
+              }
+            }}
           >
             {getOptionLabel(option, properties.labelKey)}
           </TypeAheadSelect.Token>

@@ -38,7 +38,6 @@ const OperatorInputUncontrolled = ({
       id={field}
       className="form-control"
       type={inputType}
-      rows={3}
       {..._.get(_.get(operatorFieldValidators, field), 'props')}
       onBlur={e => commitField(field, e.target.value)}
       placeholder={_.get(operatorFieldPlaceholders, field)}
