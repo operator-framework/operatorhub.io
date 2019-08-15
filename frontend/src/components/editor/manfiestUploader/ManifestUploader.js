@@ -21,7 +21,11 @@ import {
   getDefaultOnwedCRD,
   generateIdFromVersionedName,
   isDeploymentDefault,
-  validateOperatorPackage
+  validateOperatorPackage,
+  isOwnedCrdDefault,
+  convertExampleYamlToObj,
+  getDefaultAlmExample,
+  isAlmExampleDefault
 } from '../../../utils/operatorUtils';
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
@@ -146,6 +150,8 @@ class ManifestUploader extends React.Component {
 
     if (upload.type === 'ClusterServiceVersion') {
       this.processCsvFile(upload.data);
+    } else if (upload.type === 'CustomResourceDefinition') {
+      this.processCrdFile(upload.data);
     } else if (upload.type === 'Deployment') {
       this.processDeployment(upload.data);
     } else if (upload.type === 'Package') {
@@ -232,6 +238,71 @@ class ManifestUploader extends React.Component {
     } else {
       setSectionStatus('package', EDITOR_STATUS.pending);
     }
+  };
+
+  generateDescriptorFromPath = path => ({
+    path,
+    description: _.startCase(path),
+    displayName: _.startCase(path)
+  });
+
+  processCrdFile = parsedFile => {
+    const { operator, storeEditorOperator } = this.props;
+    const newOperator = _.cloneDeep(operator);
+
+    const specDescriptors = Object.keys(
+      _.get(parsedFile, 'spec.validation.openAPIV3Schema.properties.spec.properties', {})
+    );
+    const statusDescriptors = Object.keys(
+      _.get(parsedFile, 'spec.validation.openAPIV3Schema.properties.status.properties', {})
+    );
+
+    const uploadedCrdData = {
+      name: _.get(parsedFile, 'metadata.name', ''),
+      kind: _.get(parsedFile, 'spec.names.kind', ''),
+      version: _.get(parsedFile, 'spec.version', ''),
+      description: _.startCase(_.get(parsedFile, 'spec.names.kind', '')),
+      specDescriptors: specDescriptors.map(this.generateDescriptorFromPath),
+      statusDescriptors: statusDescriptors.map(this.generateDescriptorFromPath)
+    };
+    // use kind as display name - user can customize it later on
+    uploadedCrdData.displayName = uploadedCrdData.kind;
+
+    const ownedCrds = _.get(newOperator, sectionsFields['owned-crds'], []);
+    let crd = ownedCrds.filter(owned => owned.kind === uploadedCrdData.kind)[0];
+    const examples = _.get(operator, 'metadata.annotations.alm-examples');
+    const crdTemplates = convertExampleYamlToObj(examples);
+    let crdTemplate = crdTemplates.find(template => template.kind === uploadedCrdData.kind);
+
+    if (crd) {
+      console.log('Found existing CRD. Not overriding it.');
+    } else {
+      crd = _.merge(getDefaultOnwedCRD(), uploadedCrdData);
+
+      // replace default crd example
+      if (ownedCrds.length === 1 && isOwnedCrdDefault(ownedCrds[0])) {
+        ownedCrds[0] = crd;
+      } else {
+        ownedCrds.push(crd);
+      }
+    }
+
+    if (!crdTemplate) {
+      crdTemplate = getDefaultAlmExample();
+      crdTemplate.kind = uploadedCrdData.kind;
+
+      if (crdTemplates.length === 1 && isAlmExampleDefault(crdTemplate)) {
+        crdTemplates[0] = crdTemplate;
+      } else {
+        crdTemplates.push(crdTemplate);
+      }
+    }
+
+    _.set(newOperator, sectionsFields['owned-crds'], ownedCrds);
+    _.set(newOperator, 'metadata.annotations.alm-examples', crdTemplates);
+
+    this.validateSection(newOperator, 'owned-crds');
+    storeEditorOperator(newOperator);
   };
 
   /**

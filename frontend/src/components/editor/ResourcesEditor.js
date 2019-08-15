@@ -12,15 +12,15 @@ class ResourcesEditor extends React.Component {
   isResourceEmpty = resource => resource.version === '' && resource.kind === '';
 
   areResourcesEmpty = () => {
-    const { crd } = this.props;
+    const { resources } = this.props;
 
-    return crd.resources.length === 1 && this.isResourceEmpty(crd.resources[0]);
+    return resources.length === 1 && this.isResourceEmpty(resources[0]);
   };
 
   componentDidMount() {
-    const { crd } = this.props;
-    const existingResources = _.get(crd, 'resources');
-    _.forEach(existingResources, (nextResource, index) => {
+    const { resources } = this.props;
+
+    _.forEach(resources, (nextResource, index) => {
       if (!this.isResourceEmpty(nextResource)) {
         _.set(this.dirtyResources, [index, 'version'], true);
         _.set(this.dirtyResources, [index, 'kind'], true);
@@ -29,45 +29,56 @@ class ResourcesEditor extends React.Component {
   }
 
   addResource = event => {
-    const { crd, onUpdate } = this.props;
+    const { resources, onUpdate } = this.props;
 
     event.preventDefault();
-    crd.resources = [..._.get(crd, 'resources', []), { version: '', kind: '' }];
-    onUpdate(crd);
+    const udpatedResources = [...resources, { version: '', kind: '' }];
+    onUpdate(udpatedResources);
   };
 
   onFieldBlur = (field, index) => {
-    const { crd, onUpdate } = this.props;
-
     _.set(this.dirtyResources, [index, field], true);
-    onUpdate(crd);
   };
 
   updateResource = (resource, field, value) => {
+    const { resources, onUpdate } = this.props;
+
+    const updatedResources = resources.map((res, i) => {
+      let updated = res;
+
+      if (resource === res) {
+        updated = { ...res, [field]: value };
+      }
+      return updated;
+    });
     _.set(resource, field, value);
-    this.forceUpdate();
+
+    onUpdate(updatedResources);
   };
 
   removeResource = (event, resource) => {
-    const { crd, onUpdate } = this.props;
+    const { resources, onUpdate } = this.props;
 
     event.preventDefault();
 
+    let updatedResources = [];
+
     if (!this.areResourcesEmpty()) {
-      crd.resources = crd.resources.filter(nextResource => nextResource !== resource);
-      if (_.isEmpty(crd.resources)) {
-        crd.resources.push({ version: '', kind: '' });
+      updatedResources = resources.filter(nextResource => nextResource !== resource);
+
+      if (resources.length === 0) {
+        updatedResources.push({ version: '', kind: '' });
       }
 
-      onUpdate(crd);
+      onUpdate(updatedResources);
     }
   };
 
   renderResource = (resource, index) => {
-    const { versionPlaceholder, kindPlaceholder, crdErrors } = this.props;
+    const { versionPlaceholder, kindPlaceholder, errors } = this.props;
     const removeResourceClass = classNames('remove-label', { disabled: this.areResourcesEmpty() });
 
-    const fieldErrors = _.find(_.get(crdErrors, 'resources'), { index });
+    const fieldErrors = _.find(errors, { index });
 
     const versionError = _.get(this.dirtyResources, [index, 'version'], false) && _.get(fieldErrors, 'errors.version');
     const kindError = _.get(this.dirtyResources, [index, 'kind'], false) && _.get(fieldErrors, 'errors.kind');
@@ -80,9 +91,11 @@ class ResourcesEditor extends React.Component {
           <input
             className="form-control"
             type="text"
-            value={resource.version}
-            onChange={e => this.updateResource(resource, 'version', e.target.value)}
-            onBlur={() => this.onFieldBlur('version', index)}
+            defaultValue={resource.version}
+            onBlur={e => {
+              this.onFieldBlur('version', index);
+              this.updateResource(resource, 'version', e.target.value);
+            }}
             placeholder={versionPlaceholder}
           />
           {versionError && <div className="oh-operator-editor-form__error-block">{versionError}</div>}
@@ -112,10 +125,7 @@ class ResourcesEditor extends React.Component {
   };
 
   render() {
-    const { crd, title, field } = this.props;
-    if (!crd) {
-      return null;
-    }
+    const { resources, title, field } = this.props;
 
     return (
       <React.Fragment>
@@ -125,7 +135,7 @@ class ResourcesEditor extends React.Component {
           <span className="col-sm-6">Version</span>
           <span className="col-sm-6">Kind</span>
         </div>
-        {_.map(crd.resources, (resource, index) => this.renderResource(resource, index))}
+        {_.map(resources, (resource, index) => this.renderResource(resource, index))}
         <div className="oh-operator-editor__list__adder">
           <a href="#" className="oh-operator-editor-form__label-adder" onClick={e => this.addResource(e)}>
             <Icon type="fa" name="plus-circle" />
@@ -138,8 +148,8 @@ class ResourcesEditor extends React.Component {
 }
 
 ResourcesEditor.propTypes = {
-  crd: PropTypes.object,
-  crdErrors: PropTypes.object,
+  resources: PropTypes.array,
+  errors: PropTypes.array,
   title: PropTypes.string.isRequired,
   field: PropTypes.string.isRequired,
   onUpdate: PropTypes.func.isRequired,
@@ -148,8 +158,8 @@ ResourcesEditor.propTypes = {
 };
 
 ResourcesEditor.defaultProps = {
-  crd: {},
-  crdErrors: {},
+  resources: [],
+  errors: [],
   versionPlaceholder: 'e.g. v1beta2',
   kindPlaceholder: 'e.g. StatefulSet'
 };
