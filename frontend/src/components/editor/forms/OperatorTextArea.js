@@ -39,7 +39,7 @@ const OperatorTextArea = ({
       className="form-control"
       rows={3}
       {..._.get(_.get(operatorFieldValidators, field), 'props')}
-      onChange={e => updateOperator(e.target.value, field)}
+      onChange={e => updateOperator(field, e.target.value)}
       onBlur={e => commitField(field, e.target.value)}
       placeholder={_.get(operatorFieldPlaceholders, field)}
       value={value}
