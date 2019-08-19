@@ -56,7 +56,7 @@ class OperatorPackagePage extends React.Component {
     }
   };
 
-  updateOperatorPackage = (value, field) => {
+  updateOperatorPackage = (field, value) => {
     const { operatorPackage, storeEditorOperatorPackage } = this.props;
 
     const updatedPackage = {

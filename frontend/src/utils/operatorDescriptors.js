@@ -302,7 +302,13 @@ const operatorFieldPlaceholders = {
         version: 'e.g. v1beta2',
         kind: 'e.g. MongoDB',
         displayName: 'e.g. MongoDB Standalone',
-        description: 'resize this field with the grabber icon at the bottom right corner.'
+        description: 'resize this field with the grabber icon at the bottom right corner.',
+        descriptors: {
+          displayName: 'e.g. Credentials',
+          description: 'e.g. Credentials for Ops Manager or Cloud Manager',
+          path: 'e.g. credentials',
+          'x-descriptors': "e.g. 'urn:alm:descriptor:com.tectonic.ui-selector:core:v1:Secret'"
+        }
       },
       required: {
         name: 'e.g. etcdclusters.etcd.database.coreos.com',
