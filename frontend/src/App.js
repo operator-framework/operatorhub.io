@@ -150,7 +150,7 @@ class App extends React.Component {
             render={props => <OperatorClusterPermissionsEditPage {...props} isNew />}
           />
           <Route
-            path="/bundle/cluster-permissions/edit/:serviceAccountName?"
+            path="/bundle/cluster-permissions/edit/:index/:serviceAccountName?"
             component={OperatorClusterPermissionsEditPage}
           />
           <Route path="/bundle/cluster-permissions" component={OperatorClusterPermissionsPage} />
