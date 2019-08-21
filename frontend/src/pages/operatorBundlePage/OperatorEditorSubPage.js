@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { Breadcrumb } from 'patternfly-react';
@@ -8,9 +7,9 @@ import { Breadcrumb } from 'patternfly-react';
 import { helpers } from '../../common/helpers';
 import Page from '../../components/page/Page';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
-import { EDITOR_STATUS } from './bundlePageUtils';
 import { setSectionStatusAction } from '../../redux/actions/editorActions';
 import { reduxConstants } from '../../redux/index';
+import { EDITOR_STATUS } from '../../utils/constants';
 
 class OperatorEditorSubPage extends React.Component {
   state = {

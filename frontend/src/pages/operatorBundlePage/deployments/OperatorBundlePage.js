@@ -13,7 +13,8 @@ import PreviewOperatorModal from '../../../components/modals/PreviewOperatorModa
 import OperatorBundleDownloader from '../../../components/editor/BundleDownloader';
 import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../../redux/actions/editorActions';
 import { removeEmptyOptionalValuesFromOperator } from '../../../utils/operatorUtils';
-import { sectionsFields, EDITOR_STATUS, getUpdatedFormErrors } from '../bundlePageUtils';
+import { getUpdatedFormErrors } from '../bundlePageUtils';
+import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
 
 class OperatorBundlePage extends React.Component {
   state = {

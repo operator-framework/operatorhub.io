@@ -4,9 +4,10 @@ import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_APPLICATION_HEADER,
   OPERATOR_DESCRIPTION_PREREQUISITES_HEADER,
-  LOCAL_STORAGE_KEY
+  LOCAL_STORAGE_KEY,
+  sectionsFields
 } from './constants';
-import { sectionsFields, mergeDescriptions } from '../pages/operatorBundlePage/bundlePageUtils';
+import { mergeDescriptions } from '../pages/operatorBundlePage/bundlePageUtils';
 
 /**
  * Convert version format without dashes
@@ -318,10 +319,7 @@ export function getDefaultCrdDescriptor() {
 
 /** @param {Operator} operator */
 export const isDefaultOperator = operator => _.isEqual(operator, defaultOperator);
-export const isOwnedCrdDefault = crd => {
-  console.log(crd, defaultOnwedCrdRef);
-  return _.isEqual(crd, defaultOnwedCrdRef);
-};
+export const isOwnedCrdDefault = crd => _.isEqual(crd, defaultOnwedCrdRef);
 export const isRequiredCrdDefault = crd => _.isEqual(crd, getDefaultRequiredCRD());
 export const isDeploymentDefault = deployment => _.isEqual(deployment, defaultDeploymentRef);
 export const isAlmExampleDefault = almExample => _.isEqual(almExample, getDefaultAlmExample());
@@ -591,11 +589,6 @@ export const removeEmptyOptionalValuesFromOperator = operator => {
   const ownedCRDs = _.get(clonedOperator, sectionsFields['owned-crds'], []).filter(crd => !isOwnedCrdDefault(crd));
   _.set(clonedOperator, sectionsFields['owned-crds'], ownedCRDs);
 
-  const requiredCRDs = _.get(clonedOperator, sectionsFields['required-crds'], []).filter(
-    crd => !isRequiredCrdDefault(crd)
-  );
-  _.set(clonedOperator, sectionsFields['required-crds'], requiredCRDs);
-
   return clonedOperator;
 };
 
@@ -628,7 +621,7 @@ export const validateOperator = operator => {
 
 /**
  * Validates operator package field
- * @param {*} value
+ * @param {string} value
  * @param {string} fieldName
  */
 export const validateOperatorPackageField = (value, fieldName) =>
@@ -636,7 +629,7 @@ export const validateOperatorPackageField = (value, fieldName) =>
 
 /**
  * Validatates operator package
- * @param {*} operatorPackage
+ * @param {OperatorPackage} operatorPackage
  */
 export const validateOperatorPackage = operatorPackage => {
   const FIELDS = ['name', 'channel'];

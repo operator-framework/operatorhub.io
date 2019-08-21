@@ -5,9 +5,9 @@ import classNames from 'classnames';
 import { Icon } from 'patternfly-react';
 import DescriptorInput from './DescriptorInput';
 import { operatorFieldPlaceholders } from '../../../utils/operatorDescriptors';
-import { sectionsFields } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import { helpers } from '../../../common/helpers';
 import EditorSelect from '../EditorSelect';
+import { sectionsFields } from '../../../utils/constants';
 
 /**
  * @callback OperatorDescriptorChangeCallback

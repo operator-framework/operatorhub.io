@@ -40,3 +40,39 @@ export const STATUS_CAPABILITIES = [
   'urn:alm:descriptor:io.kubernetes.phase:reason',
   'urn:alm:descriptor:io.kubernetes:'
 ];
+
+export const EDITOR_STATUS = {
+  empty: 'empty',
+  pending: 'pending',
+  complete: 'complete',
+  errors: 'errors'
+};
+
+export const sectionsFields = {
+  metadata: [
+    'spec.displayName',
+    'metadata.annotations.description',
+    'spec.maturity',
+    'spec.version',
+    'spec.replaces',
+    'spec.minKubeVersion',
+    'spec.description.aboutApplication',
+    'spec.description.aboutOperator',
+    'spec.description.prerequisites',
+    'metadata.annotations.capabilities',
+    'spec.labels',
+    'spec.selector.matchLabels',
+    'metadata.annotations.categories',
+    'spec.keywords',
+    'spec.icon',
+    'spec.links',
+    'spec.provider.name',
+    'spec.maintainers'
+  ],
+  'owned-crds': 'spec.customresourcedefinitions.owned',
+  'required-crds': 'spec.customresourcedefinitions.required',
+  deployments: 'spec.install.spec.deployments',
+  permissions: 'spec.install.spec.permissions',
+  'cluster-permissions': 'spec.install.spec.clusterPermissions',
+  'install-modes': 'spec.installModes'
+};

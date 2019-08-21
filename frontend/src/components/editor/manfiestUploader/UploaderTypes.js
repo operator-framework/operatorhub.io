@@ -1,6 +1,6 @@
 /**
  * @typedef {'Package'|'ClusterServiceVersion'|'CustomResourceDefinition'|'Deployment'|
- * 'ServiceAccount'|'ClusterRole'| 'Role'|'ClusterRoleBinding'|'RoleBinding'|'Unknown'} ObjectType
+ * 'ServiceAccount'|'ClusterRole'| 'Role'|'ClusterRoleBinding'|'RoleBinding'|'CustomResourceExampleTemplate'|'Unknown'} ObjectType
  */
 
 /**
