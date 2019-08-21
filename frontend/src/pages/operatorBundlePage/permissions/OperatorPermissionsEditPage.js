@@ -6,7 +6,7 @@ import * as _ from 'lodash-es';
 
 import { helpers } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
-import { sectionsFields, EDITOR_STATUS, getUpdatedFormErrors } from '../bundlePageUtils';
+import { getUpdatedFormErrors } from '../bundlePageUtils';
 import { operatorObjectDescriptions, operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
 import RulesEditor from '../../../components/editor/RulesEditor';
 import {
@@ -15,6 +15,7 @@ import {
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
 import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
+import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
 
 const permissionFields = sectionsFields.permissions;
 const descriptions = _.get(operatorFieldDescriptions, permissionFields);

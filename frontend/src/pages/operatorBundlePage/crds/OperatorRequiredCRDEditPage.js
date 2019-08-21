@@ -6,14 +6,14 @@ import * as _ from 'lodash-es';
 
 import { helpers } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
-import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from '../bundlePageUtils';
+import { getUpdatedFormErrors } from '../bundlePageUtils';
 import {
   setSectionStatusAction,
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../../redux/actions/editorActions';
 import { getDefaultRequiredCRD } from '../../../utils/operatorUtils';
-import { NEW_CRD_NAME } from '../../../utils/constants';
+import { NEW_CRD_NAME, sectionsFields } from '../../../utils/constants';
 import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
 import OperatorTextAreaUncontrolled from '../../../components/editor/forms/OperatorTextAreaUncontrolled';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';

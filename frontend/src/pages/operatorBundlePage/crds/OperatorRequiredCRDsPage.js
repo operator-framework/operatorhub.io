@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../../components/ExternalLink';
 import OperatorCRDsPage from './OperatorCRDsPage';
-import { sectionsFields } from '../bundlePageUtils';
+import { sectionsFields } from '../../../utils/constants';
 
 const OperatorRequiredCRDsPage = ({ operator, history }) => {
   const description = (
