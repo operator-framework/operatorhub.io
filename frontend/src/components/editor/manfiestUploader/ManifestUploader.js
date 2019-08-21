@@ -11,15 +11,11 @@ import UploadUrlModal from '../../modals/UploadUrlModal';
 import { reduxConstants } from '../../../redux/index';
 import {
   normalizeYamlOperator,
-  EDITOR_STATUS,
-  sectionsFields,
   getMissingCrdUploads,
   getUpdatedFormErrors
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import {
-  getDefaultOperator,
   getDefaultOnwedCRD,
-  generateIdFromVersionedName,
   isDeploymentDefault,
   validateOperatorPackage,
   isOwnedCrdDefault,
@@ -27,19 +23,14 @@ import {
   getDefaultAlmExample,
   isAlmExampleDefault
 } from '../../../utils/operatorUtils';
+import { EDITOR_STATUS, sectionsFields } from '../../../utils/constants';
+import * as actions from '../../../redux/actions/editorActions';
+import * as utils from './UploaderUtils';
+
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
-import {
-  setSectionStatusAction,
-  updateOperatorPackageAction,
-  setUploadsAction,
-  storeEditorOperatorAction,
-  setBatchSectionsStatusAction
-} from '../../../redux/actions/editorActions';
 
-const validFileTypes = ['.yaml'];
-const validFileTypesRegExp = new RegExp(`(${validFileTypes.join('|').replace(/\./g, '\\.')})$`, 'i');
-const securityObjectTypes = ['ClusterRole', 'Role', 'ClusterRoleBinding', 'RoleBinding'];
+const validFileTypesRegExp = new RegExp(`(${['.yaml'].join('|').replace(/\./g, '\\.')})$`, 'i');
 
 class ManifestUploader extends React.Component {
   state = {
@@ -58,85 +49,11 @@ class ManifestUploader extends React.Component {
   }
 
   /**
-   * Derive file type from its content
-   * @param {*} content
-   * @returns {TypeAndName|null}
-   */
-  getObjectNameAndType = content => {
-    if (content.kind && content.apiVersion && content.metadata) {
-      const type = content.kind;
-      const { name } = content.metadata;
-      const apiName = content.apiVersion.substring(0, content.apiVersion.indexOf('/'));
-
-      if (type === 'ClusterServiceVersion' && apiName === 'operators.coreos.com') {
-        return { type, name };
-      } else if (type === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
-        return { type, name };
-      } else if (type === 'Deployment' && apiName === 'apps') {
-        return { type, name };
-      } else if (type === 'ServiceAccount') {
-        return { type, name };
-      } else if (securityObjectTypes.includes(type) && apiName === 'rbac.authorization.k8s.io') {
-        return { type, name };
-      }
-
-      // package file is different with no kind and API
-    } else if (content.packageName && content.channels) {
-      return {
-        type: 'Package',
-        name: content.packageName
-      };
-    }
-
-    return null;
-  };
-
-  /**
-   * Detects file upload overwriting other version of same file
-   * @param {UploadMetadata[]} uploads
-   */
-  markReplacedObjects = uploads => {
-    // iterate over uploads backwards
-    for (let i = uploads.length - 1; i >= 0; i--) {
-      const upload = uploads[i];
-
-      if (
-        !upload.errored &&
-        (upload.type === 'ClusterServiceVersion' || upload.type === 'CustomResourceDefinition') &&
-        upload.data
-      ) {
-        const id = generateIdFromVersionedName(upload.name);
-
-        if (id) {
-          // search for CSVs or CRDs with same name (but not version) and mark them as overriden
-          // as they would be replaced by latest upload
-          uploads.forEach((otherUpload, index) => {
-            // check only older files before current index
-            if (index < i && !otherUpload.errored && otherUpload.data && otherUpload.type === upload.type) {
-              const otherId = generateIdFromVersionedName(otherUpload.name);
-
-              if (otherId === id) {
-                otherUpload.overwritten = true;
-
-                // for CSV mark overriden every previous csv as we can have only single one!
-              } else if (upload.type === otherUpload.type && otherUpload.type === 'ClusterServiceVersion') {
-                otherUpload.overwritten = true;
-              }
-            }
-          });
-        }
-      }
-    }
-
-    return uploads;
-  };
-
-  /**
    * Parse uploaded file
    * @param {UploadMetadata} upload upload metadata object
    */
   processUploadedObject = upload => {
-    const typeAndName = this.getObjectNameAndType(upload.data || {});
+    const typeAndName = utils.getObjectNameAndType(upload.data || {}, upload.fileName);
 
     if (!typeAndName) {
       upload.status = 'Unsupported Object';
@@ -158,37 +75,11 @@ class ManifestUploader extends React.Component {
       this.processPackageFile(upload.data);
     } else if (upload.type === 'ServiceAccount') {
       this.processPermissionObject(upload);
-    } else if (securityObjectTypes.includes(upload.type)) {
+    } else if (utils.securityObjectTypes.includes(upload.type)) {
       this.processPermissionObject(upload);
+    } else if (upload.type === 'CustomResourceExampleTemplate') {
+      this.proccessCustomResourceExampleTemplate(upload);
     }
-
-    return upload;
-  };
-
-  /**
-   * @param {string} fileName
-   * @returns {UploadMetadata}
-   */
-  createtUpload = fileName => ({
-    id: `${Date.now()}_${Math.random().toString()}`,
-    name: '',
-    data: undefined,
-    type: 'Unknown',
-    status: '',
-    fileName,
-    errored: false,
-    overwritten: false
-  });
-
-  /**
-   * Creates errored upload status
-   * @param {string} fileName
-   * @param {string} errorStatus
-   */
-  createErroredUpload = (fileName, errorStatus) => {
-    const upload = this.createtUpload(fileName);
-    upload.errored = true;
-    upload.status = errorStatus;
 
     return upload;
   };
@@ -204,11 +95,11 @@ class ManifestUploader extends React.Component {
     try {
       parsedObjects = safeLoadAll(fileContent);
     } catch (e) {
-      return [this.createErroredUpload(fileName, 'Parsing Errors')];
+      return [utils.createErroredUpload(fileName, 'Parsing Errors')];
     }
 
     const uploads = parsedObjects.map(object => {
-      const upload = this.createtUpload(fileName);
+      const upload = utils.createtUpload(fileName);
       upload.data = object;
 
       return this.processUploadedObject(upload);
@@ -240,12 +131,6 @@ class ManifestUploader extends React.Component {
     }
   };
 
-  generateDescriptorFromPath = path => ({
-    path,
-    description: _.startCase(path),
-    displayName: _.startCase(path)
-  });
-
   processCrdFile = parsedFile => {
     const { operator, storeEditorOperator } = this.props;
     const newOperator = _.cloneDeep(operator);
@@ -262,8 +147,8 @@ class ManifestUploader extends React.Component {
       kind: _.get(parsedFile, 'spec.names.kind', ''),
       version: _.get(parsedFile, 'spec.version', ''),
       description: _.startCase(_.get(parsedFile, 'spec.names.kind', '')),
-      specDescriptors: specDescriptors.map(this.generateDescriptorFromPath),
-      statusDescriptors: statusDescriptors.map(this.generateDescriptorFromPath)
+      specDescriptors: specDescriptors.map(utils.generateDescriptorFromPath),
+      statusDescriptors: statusDescriptors.map(utils.generateDescriptorFromPath)
     };
     // use kind as display name - user can customize it later on
     uploadedCrdData.displayName = uploadedCrdData.kind;
@@ -299,7 +184,7 @@ class ManifestUploader extends React.Component {
     }
 
     _.set(newOperator, sectionsFields['owned-crds'], ownedCrds);
-    _.set(newOperator, 'metadata.annotations.alm-examples', crdTemplates);
+    _.set(newOperator, 'metadata.annotations.alm-examples', JSON.stringify(crdTemplates));
 
     this.validateSection(newOperator, 'owned-crds');
     storeEditorOperator(newOperator);
@@ -340,21 +225,6 @@ class ManifestUploader extends React.Component {
   };
 
   /**
-   * Filter latest object based on defined type and namespace
-   * Used for filtering roles / role bindings / service account
-   * @param {UploadMetadata[]} uploads
-   * @param {'ClusterRole'|'Role'|'ClusterRoleBinding'|'RoleBinding'|'ServiceAccount'} type
-   * @param {string} namespace
-   */
-  filterPermissionUploads = (uploads, type, namespace) =>
-    uploads
-      .filter(up => {
-        const name = _.get(up.data, 'metadata.name');
-        return !up.errored && up.type === type && name === namespace;
-      })
-      .reverse()[0];
-
-  /**
    * Checks latest permission related object and decide
    * if we have enough uploaded data to create from it permission record
    * @param {UploadMetadata} upload
@@ -373,11 +243,11 @@ class ManifestUploader extends React.Component {
       return;
     }
 
-    const serviceAccountUpload = this.filterPermissionUploads(uploadsWithRecent, 'ServiceAccount', namespace);
-    const roleUpload = this.filterPermissionUploads(uploadsWithRecent, 'Role', namespace);
-    const roleBindingUpload = this.filterPermissionUploads(uploadsWithRecent, 'RoleBinding', namespace);
-    const clusterRoleUpload = this.filterPermissionUploads(uploadsWithRecent, 'ClusterRole', namespace);
-    const clusterRoleBindingUpload = this.filterPermissionUploads(uploadsWithRecent, 'ClusterRoleBinding', namespace);
+    const serviceAccountUpload = utils.filterPermissionUploads(uploadsWithRecent, 'ServiceAccount', namespace);
+    const roleUpload = utils.filterPermissionUploads(uploadsWithRecent, 'Role', namespace);
+    const roleBindingUpload = utils.filterPermissionUploads(uploadsWithRecent, 'RoleBinding', namespace);
+    const clusterRoleUpload = utils.filterPermissionUploads(uploadsWithRecent, 'ClusterRole', namespace);
+    const clusterRoleBindingUpload = utils.filterPermissionUploads(uploadsWithRecent, 'ClusterRoleBinding', namespace);
 
     // hurray we have all we need
     if (serviceAccountUpload) {
@@ -457,51 +327,39 @@ class ManifestUploader extends React.Component {
     const normalizedOperator = normalizeYamlOperator(parsedFile);
 
     // only CSV.yaml is used to populate operator in editor. Other files have special roles
-    const mergedOperator = _.merge({}, operator, normalizedOperator);
+    let mergedOperator = _.merge({}, operator, normalizedOperator);
 
     this.compareSections(operator, mergedOperator, normalizedOperator);
-    this.augmentOperator(mergedOperator, normalizedOperator);
+    mergedOperator = utils.augmentOperator(mergedOperator, normalizedOperator);
     storeEditorOperator(mergedOperator);
   };
 
-  /**
-   * Apply modifications on uploaded operator as adding default resources to CRDs
-   */
-  augmentOperator = (operator, uploadedOperator) => {
-    const clonedOperator = _.cloneDeep(operator);
-    const ownedCrds = _.get(clonedOperator, sectionsFields['owned-crds'], []);
+  proccessCustomResourceExampleTemplate = parsedFile => {
+    const { operator, storeEditorOperator } = this.props;
+    const newOperator = _.cloneDeep(operator);
 
-    _.set(
-      clonedOperator,
-      sectionsFields['owned-crds'],
-      ownedCrds.map(crd => this.addDefaultResourceStructureToCrd(crd))
-    );
+    const almExamples = _.get(newOperator, 'metadata.annotations.alm-examples', []);
+    const crdExamples = convertExampleYamlToObj(almExamples);
 
-    // replace example deployments with uploaded as merge might add undesired properties!
-    const deployments = _.get(uploadedOperator, sectionsFields.deployments);
-    if (deployments) {
-      _.set(operator, sectionsFields.deployments, deployments);
+    const exampleIndex = crdExamples.findIndex(example => example.kind === parsedFile.kind);
+
+    if (exampleIndex === -1) {
+      crdExamples.push(parsedFile);
+    } else {
+      crdExamples[exampleIndex] = _.merge({}, crdExamples[exampleIndex], parsedFile);
     }
 
-    return clonedOperator;
-  };
+    _.set(newOperator, 'metadata.annotations.alm-examples', JSON.stringify(crdExamples));
 
-  /**
-   * Add default list of resources to CRD which have them undefined
-   */
-  addDefaultResourceStructureToCrd = crd => {
-    const resources = crd.resources && crd.resources.length > 0 ? crd.resources : getDefaultOnwedCRD().resources;
-    return {
-      ...crd,
-      resources
-    };
+    this.validateSection(newOperator, 'owned-crds');
+    storeEditorOperator(newOperator);
   };
 
   /**
    * Check defined editor sections and mark them for review if are affected by upload
-   * @param {*} operator operator state before upload
-   * @param {*} merged operator state after upload is applied
-   * @param {*} uploaded actual uploaded operator
+   * @param {Operator} operator operator state before upload
+   * @param {Operator} merged operator state after upload is applied
+   * @param {Operator} uploaded actual uploaded operator
    */
   compareSections = (operator, merged, uploaded) => {
     const { setAllSectionsStatusAction } = this.props;
@@ -514,9 +372,9 @@ class ManifestUploader extends React.Component {
 
       // check if operator fields are same as before upload
       if (typeof fields === 'string') {
-        updated = this.operatorFieldWasUpdated(fields, operator, uploaded, merged);
+        updated = utils.operatorFieldWasUpdated(fields, operator, uploaded, merged);
       } else {
-        updated = fields.some(path => this.operatorFieldWasUpdated(path, operator, uploaded, merged));
+        updated = fields.some(path => utils.operatorFieldWasUpdated(path, operator, uploaded, merged));
       }
 
       if (updated) {
@@ -537,6 +395,11 @@ class ManifestUploader extends React.Component {
     }
   };
 
+  /**
+   * Validates section and updates errors
+   * @param {Operator} operator
+   * @param {EditorSectionNames} sectionName
+   */
   validateSection = (operator, sectionName) => {
     const { setSectionStatus } = this.props;
     const fields = sectionsFields[sectionName];
@@ -556,22 +419,6 @@ class ManifestUploader extends React.Component {
   };
 
   /**
-   * Identify if operator field was changed by upload
-   */
-  operatorFieldWasUpdated = (fieldName, operator, uploadedOperator, mergedOperator) => {
-    const defaultOperator = getDefaultOperator();
-
-    // field changed when either its value changed
-    // or uploaded operator was same as default values
-    return (
-      !_.isEqual(_.get(operator, fieldName), _.get(mergedOperator, fieldName)) ||
-      // do not consider updated if value is empty - no real change was doen
-      (!_.isEmpty(_.get(defaultOperator, fieldName)) &&
-        _.isEqual(_.get(defaultOperator, fieldName), _.get(uploadedOperator, fieldName)))
-    );
-  };
-
-  /**
    * Handle upload using URL dialog
    */
   doUploadUrl = (contents, url) => {
@@ -581,7 +428,7 @@ class ManifestUploader extends React.Component {
 
     this.setState({ uploadUrlShown: false });
 
-    const newUploads = this.markReplacedObjects([...uploads, ...recentUploads]);
+    const newUploads = utils.markReplacedObjects([...uploads, ...recentUploads]);
 
     setUploads(newUploads);
   };
@@ -616,7 +463,7 @@ class ManifestUploader extends React.Component {
         const { uploads, setUploads } = this.props;
 
         const upload = this.splitUploadedFileToObjects(reader.result, fileToUpload.name);
-        const newUploads = this.markReplacedObjects([...uploads, ...upload]);
+        const newUploads = utils.markReplacedObjects([...uploads, ...upload]);
 
         setUploads(newUploads);
       };
@@ -624,7 +471,7 @@ class ManifestUploader extends React.Component {
       reader.onerror = () => {
         const { uploads, setUploads } = this.props;
 
-        const upload = this.createErroredUpload(fileToUpload.name, reader.error.message);
+        const upload = utils.createErroredUpload(fileToUpload.name, reader.error.message);
 
         // skip finding replaced files as this file errored
 
@@ -665,7 +512,7 @@ class ManifestUploader extends React.Component {
         ...upload,
         overwritten: false
       }));
-    newUploads = this.markReplacedObjects(newUploads);
+    newUploads = utils.markReplacedObjects(newUploads);
 
     setUploads(newUploads);
   };
@@ -774,11 +621,11 @@ const mapDispatchToProps = dispatch => ({
         heading: error,
         confirmButtonText: 'OK'
       }),
-      setSectionStatus: setSectionStatusAction,
-      setAllSectionsStatusAction: setBatchSectionsStatusAction,
-      updateOperatorPackage: updateOperatorPackageAction,
-      setUploads: setUploadsAction,
-      storeEditorOperator: storeEditorOperatorAction
+      setSectionStatus: actions.setSectionStatusAction,
+      setAllSectionsStatusAction: actions.setBatchSectionsStatusAction,
+      updateOperatorPackage: actions.updateOperatorPackageAction,
+      setUploads: actions.setUploadsAction,
+      storeEditorOperator: actions.storeEditorOperatorAction
     },
     dispatch
   )
