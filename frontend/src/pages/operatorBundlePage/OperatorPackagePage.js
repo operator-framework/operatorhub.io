@@ -5,12 +5,12 @@ import { connect } from 'react-redux';
 import _ from 'lodash-es';
 
 import { helpers } from '../../common/helpers';
-import { EDITOR_STATUS } from './bundlePageUtils';
 
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import { validateOperatorPackageField, validateOperatorPackage } from '../../utils/operatorUtils';
 import { setSectionStatusAction, updateOperatorPackageAction } from '../../redux/actions/editorActions';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
+import { EDITOR_STATUS } from '../../utils/constants';
 
 class OperatorPackagePage extends React.Component {
   originalStatus = EDITOR_STATUS.empty;

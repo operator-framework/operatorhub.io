@@ -13,13 +13,12 @@ import {
   yamlFromOperator,
   operatorNameFromOperator,
   filterValidCrdUploads,
-  EDITOR_STATUS,
-  getUpdatedFormErrors,
-  sectionsFields
+  getUpdatedFormErrors
 } from '../../pages/operatorBundlePage/bundlePageUtils';
 import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorUtils';
 import { reduxConstants } from '../../redux';
 import { setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
+import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 
 class OperatorBundleDownloader extends React.PureComponent {
   generateAction = null;

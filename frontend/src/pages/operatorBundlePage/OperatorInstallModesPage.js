@@ -8,8 +8,8 @@ import { helpers } from '../../common/helpers';
 import { getFieldValueError } from '../../utils/operatorUtils';
 import InstallModeEditor from '../../components/editor/InstallModeEditor';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { sectionsFields } from './bundlePageUtils';
 import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
+import { sectionsFields } from '../../utils/constants';
 
 const installModesFields = sectionsFields['install-modes'];
 

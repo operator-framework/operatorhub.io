@@ -6,44 +6,9 @@ import { getFieldValueError, getDefaultDescription } from '../../utils/operatorU
 import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_PREREQUISITES_HEADER,
-  NEW_CRD_NAME
+  NEW_CRD_NAME,
+  sectionsFields
 } from '../../utils/constants';
-
-const EDITOR_STATUS = {
-  empty: 'empty',
-  pending: 'pending',
-  complete: 'complete',
-  errors: 'errors'
-};
-
-const sectionsFields = {
-  metadata: [
-    'spec.displayName',
-    'metadata.annotations.description',
-    'spec.maturity',
-    'spec.version',
-    'spec.replaces',
-    'spec.minKubeVersion',
-    'spec.description.aboutApplication',
-    'spec.description.aboutOperator',
-    'spec.description.prerequisites',
-    'metadata.annotations.capabilities',
-    'spec.labels',
-    'spec.selector.matchLabels',
-    'metadata.annotations.categories',
-    'spec.keywords',
-    'spec.icon',
-    'spec.links',
-    'spec.provider.name',
-    'spec.maintainers'
-  ],
-  'owned-crds': 'spec.customresourcedefinitions.owned',
-  'required-crds': 'spec.customresourcedefinitions.required',
-  deployments: 'spec.install.spec.deployments',
-  permissions: 'spec.install.spec.permissions',
-  'cluster-permissions': 'spec.install.spec.clusterPermissions',
-  'install-modes': 'spec.installModes'
-};
 
 /**
  *
@@ -234,9 +199,7 @@ const getMissingCrdUploads = (uploads, operator) => {
 };
 
 export {
-  sectionsFields,
   renderFormError,
-  EDITOR_STATUS,
   getUpdatedFormErrors,
   mergeDescriptions,
   operatorNameFromOperator,

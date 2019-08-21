@@ -9,12 +9,13 @@ import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
 import { getFieldValueError, containsErrors } from '../../../utils/operatorUtils';
 import { operatorObjectDescriptions } from '../../../utils/operatorDescriptors';
-import { sectionsFields, getUpdatedFormErrors, EDITOR_STATUS } from '../bundlePageUtils';
+import { getUpdatedFormErrors } from '../bundlePageUtils';
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
+import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
 
 const permissionFields = sectionsFields.permissions;
 

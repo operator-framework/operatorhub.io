@@ -8,7 +8,6 @@ import { safeDump, safeLoad } from 'js-yaml';
 import { helpers } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import YamlViewer from '../../../components/YamlViewer';
-import { sectionsFields, EDITOR_STATUS } from '../bundlePageUtils';
 import { getValueError, getDefaultDeployment, isDeploymentDefault } from '../../../utils/operatorUtils';
 import { operatorFieldValidators } from '../../../utils/operatorDescriptors';
 import {
@@ -16,6 +15,7 @@ import {
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
+import { sectionsFields } from '../../../utils/constants';
 
 const deploymentFields = sectionsFields.deployments;
 
