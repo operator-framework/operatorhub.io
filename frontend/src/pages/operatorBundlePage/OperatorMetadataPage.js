@@ -9,7 +9,7 @@ import { categoryOptions, maturityOptions, operatorFieldPlaceholders } from '../
 import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
 import ImageEditor from '../../components/editor/ImageEditor';
-import { getUpdatedFormErrors, EDITOR_STATUS, sectionsFields } from './bundlePageUtils';
+import { getUpdatedFormErrors } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import EditorSelect from '../../components/editor/EditorSelect';
@@ -22,6 +22,7 @@ import OperatorTextArea from '../../components/editor/forms/OperatorTextArea';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
 import OperatorInputWrapper from '../../components/editor/forms/OperatorInputWrapper';
 import { containsErrors } from '../../utils/operatorUtils';
+import { EDITOR_STATUS, sectionsFields } from '../../utils/constants';
 
 const metadataDescription = `
   The metadata section contains general metadata around the name, version, and other info that aids users in the

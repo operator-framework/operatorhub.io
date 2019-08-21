@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash-es';
 import classNames from 'classnames';
 import { operatorFieldPlaceholders } from '../../../utils/operatorDescriptors';
-import { sectionsFields } from '../../../pages/operatorBundlePage/bundlePageUtils';
+import { sectionsFields } from '../../../utils/constants';
 
 /**
  * @callback DescriptorInputOnBlurCallback

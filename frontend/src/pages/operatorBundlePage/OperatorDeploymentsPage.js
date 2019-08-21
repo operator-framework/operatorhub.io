@@ -8,13 +8,14 @@ import { helpers } from '../../common/helpers';
 import { getFieldValueError, containsErrors } from '../../utils/operatorUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { getUpdatedFormErrors, EDITOR_STATUS, sectionsFields } from './bundlePageUtils';
+import { getUpdatedFormErrors } from './bundlePageUtils';
 
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../redux/actions/editorActions';
+import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 
 const deploymentFields = sectionsFields.deployments;
 

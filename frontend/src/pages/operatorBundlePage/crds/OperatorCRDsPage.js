@@ -14,7 +14,8 @@ import {
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
-import { getUpdatedFormErrors, EDITOR_STATUS, sectionsFields } from '../bundlePageUtils';
+import { getUpdatedFormErrors } from '../bundlePageUtils';
+import { EDITOR_STATUS, sectionsFields } from '../../../utils/constants';
 
 class OperatorCRDsPage extends React.Component {
   componentDidMount() {

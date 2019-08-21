@@ -144,3 +144,9 @@
  * @prop {OperatorMetadata} metadata
  * @prop {OperatorSpec} spec
  */
+
+/**
+ * @typedef OperatorPackage
+ * @prop {string} name
+ * @prop {string} channel
+ */

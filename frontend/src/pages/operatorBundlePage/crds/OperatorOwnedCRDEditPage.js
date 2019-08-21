@@ -11,7 +11,7 @@ import ResourcesEditor from '../../../components/editor/ResourcesEditor';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
 import DescriptorsEditor from '../../../components/editor/descriptors/DescriptorsEditor';
 import YamlViewer from '../../../components/YamlViewer';
-import { EDITOR_STATUS, getUpdatedFormErrors, sectionsFields } from '../bundlePageUtils';
+import { getUpdatedFormErrors } from '../bundlePageUtils';
 import {
   getDefaultOnwedCRD,
   getDefaultAlmExample,
@@ -25,7 +25,7 @@ import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../../redux/actions/editorActions';
-import { NEW_CRD_NAME, SPEC_CAPABILITIES, STATUS_CAPABILITIES } from '../../../utils/constants';
+import { NEW_CRD_NAME, SPEC_CAPABILITIES, STATUS_CAPABILITIES, EDITOR_STATUS } from '../../../utils/constants';
 
 import OperatorTextAreaUncontrolled from '../../../components/editor/forms/OperatorTextAreaUncontrolled';
 import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
