@@ -21,9 +21,10 @@ import {
   isOwnedCrdDefault,
   convertExampleYamlToObj,
   getDefaultAlmExample,
-  isAlmExampleDefault
+  isAlmExampleDefault,
+  getDefaultOwnedCRDResources
 } from '../../../utils/operatorUtils';
-import { EDITOR_STATUS, sectionsFields } from '../../../utils/constants';
+import { EDITOR_STATUS, sectionsFields, NEW_CRD_NAME } from '../../../utils/constants';
 import * as actions from '../../../redux/actions/editorActions';
 import * as utils from './UploaderUtils';
 
@@ -78,7 +79,7 @@ class ManifestUploader extends React.Component {
     } else if (utils.securityObjectTypes.includes(upload.type)) {
       this.processPermissionObject(upload);
     } else if (upload.type === 'CustomResourceExampleTemplate') {
-      this.proccessCustomResourceExampleTemplate(upload);
+      this.proccessCustomResourceExampleTemplate(upload.data);
     }
 
     return upload;
@@ -133,6 +134,7 @@ class ManifestUploader extends React.Component {
 
   processCrdFile = parsedFile => {
     const { operator, storeEditorOperator } = this.props;
+    /** @type {Operator} */
     const newOperator = _.cloneDeep(operator);
 
     const specDescriptors = Object.keys(
@@ -141,28 +143,40 @@ class ManifestUploader extends React.Component {
     const statusDescriptors = Object.keys(
       _.get(parsedFile, 'spec.validation.openAPIV3Schema.properties.status.properties', {})
     );
+    const kind = _.get(parsedFile, 'spec.names.kind', '');
 
-    const uploadedCrdData = {
+    /** @type {OperatorOwnedCrd} */
+    const uploadedCrd = {
       name: _.get(parsedFile, 'metadata.name', ''),
-      kind: _.get(parsedFile, 'spec.names.kind', ''),
+      displayName: _.startCase(kind),
+      kind,
       version: _.get(parsedFile, 'spec.version', ''),
-      description: _.startCase(_.get(parsedFile, 'spec.names.kind', '')),
+      description: _.startCase(kind),
+      resources: getDefaultOwnedCRDResources(),
       specDescriptors: specDescriptors.map(utils.generateDescriptorFromPath),
       statusDescriptors: statusDescriptors.map(utils.generateDescriptorFromPath)
     };
     // use kind as display name - user can customize it later on
-    uploadedCrdData.displayName = uploadedCrdData.kind;
+    uploadedCrd.displayName = uploadedCrd.kind;
 
+    /** @type {OperatorOwnedCrd[]} */
     const ownedCrds = _.get(newOperator, sectionsFields['owned-crds'], []);
-    let crd = ownedCrds.filter(owned => owned.kind === uploadedCrdData.kind)[0];
+    let crd = ownedCrds.find(owned => owned.kind === uploadedCrd.kind);
     const examples = _.get(operator, 'metadata.annotations.alm-examples');
     const crdTemplates = convertExampleYamlToObj(examples);
-    let crdTemplate = crdTemplates.find(template => template.kind === uploadedCrdData.kind);
+    let crdTemplate = crdTemplates.find(template => template.kind === uploadedCrd.kind);
 
     if (crd) {
       console.log('Found existing CRD. Not overriding it.');
+
+      // override generated CRDs, but not complete ones
+      // cover usage with CR example which creates placeholder CR
+      if (crd.name === '') {
+        const index = ownedCrds.findIndex(ownedCrd => ownedCrd === crd);
+        ownedCrds[index] = _.merge({}, crd, uploadedCrd);
+      }
     } else {
-      crd = _.merge(getDefaultOnwedCRD(), uploadedCrdData);
+      crd = _.merge(getDefaultOnwedCRD(), uploadedCrd);
 
       // replace default crd example
       if (ownedCrds.length === 1 && isOwnedCrdDefault(ownedCrds[0])) {
@@ -174,9 +188,9 @@ class ManifestUploader extends React.Component {
 
     if (!crdTemplate) {
       crdTemplate = getDefaultAlmExample();
-      crdTemplate.kind = uploadedCrdData.kind;
+      crdTemplate.kind = uploadedCrd.kind;
 
-      if (crdTemplates.length === 1 && isAlmExampleDefault(crdTemplate)) {
+      if (crdTemplates.length === 1 && isAlmExampleDefault(crdTemplates[0])) {
         crdTemplates[0] = crdTemplate;
       } else {
         crdTemplates.push(crdTemplate);
@@ -334,6 +348,10 @@ class ManifestUploader extends React.Component {
     storeEditorOperator(mergedOperator);
   };
 
+  /**
+   * Proccess uploaded custom resource example file into ALM examples
+   * @param {*} parsedFile
+   */
   proccessCustomResourceExampleTemplate = parsedFile => {
     const { operator, storeEditorOperator } = this.props;
     const newOperator = _.cloneDeep(operator);
@@ -344,12 +362,36 @@ class ManifestUploader extends React.Component {
     const exampleIndex = crdExamples.findIndex(example => example.kind === parsedFile.kind);
 
     if (exampleIndex === -1) {
-      crdExamples.push(parsedFile);
+      // override default template
+      if (crdExamples.length === 1 && isAlmExampleDefault(crdExamples[0])) {
+        crdExamples[0] = parsedFile;
+      } else {
+        crdExamples.push(parsedFile);
+      }
     } else {
       crdExamples[exampleIndex] = _.merge({}, crdExamples[exampleIndex], parsedFile);
     }
 
+    const ownedCrds = _.get(newOperator, sectionsFields['owned-crds'], []);
+    const crdIndex = ownedCrds.findIndex(ownedCrd => ownedCrd.kind === parsedFile.kind);
+
+    // create dummy CRD with example so we pair them correctly
+    if (crdIndex === -1) {
+      const crd = getDefaultOnwedCRD();
+      crd.kind = parsedFile.kind;
+      crd.name = '';
+      crd.displayName = parsedFile.kind;
+
+      // replace example CRD with newly created one
+      if (ownedCrds.length === 1 && isOwnedCrdDefault(ownedCrds[0])) {
+        ownedCrds[0] = crd;
+      } else {
+        ownedCrds.push(crd);
+      }
+    }
+
     _.set(newOperator, 'metadata.annotations.alm-examples', JSON.stringify(crdExamples));
+    _.set(newOperator, sectionsFields['owned-crds'], ownedCrds);
 
     this.validateSection(newOperator, 'owned-crds');
     storeEditorOperator(newOperator);
