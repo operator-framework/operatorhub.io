@@ -25,7 +25,13 @@ import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../../redux/actions/editorActions';
-import { NEW_CRD_NAME, SPEC_CAPABILITIES, STATUS_CAPABILITIES, EDITOR_STATUS } from '../../../utils/constants';
+import {
+  NEW_CRD_NAME,
+  SPEC_CAPABILITIES,
+  STATUS_CAPABILITIES,
+  EDITOR_STATUS,
+  sectionsFields
+} from '../../../utils/constants';
 
 import OperatorTextAreaUncontrolled from '../../../components/editor/forms/OperatorTextAreaUncontrolled';
 import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
