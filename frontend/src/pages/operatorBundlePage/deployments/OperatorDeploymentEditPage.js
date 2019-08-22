@@ -15,7 +15,7 @@ import {
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
-import { sectionsFields } from '../../../utils/constants';
+import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
 
 const deploymentFields = sectionsFields.deployments;
 

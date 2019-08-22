@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux/index';
 import YamlViewer from '../../components/YamlViewer';
