@@ -134,10 +134,17 @@ export function createErroredUpload(fileName, errorStatus) {
   return upload;
 }
 
+/**
+ * Creates descriptor from path
+ * @param {string} path
+ * @returns {OperatorCrdDescriptor}
+ */
 export const generateDescriptorFromPath = path => ({
   path,
   description: _.startCase(path),
-  displayName: _.startCase(path)
+  displayName: _.startCase(path),
+  // @ts-ignore
+  'x-descriptors': []
 });
 
 /**

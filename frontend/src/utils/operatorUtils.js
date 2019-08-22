@@ -302,6 +302,17 @@ export function getDefaultOnwedCRD() {
   return _.cloneDeep(defaultOnwedCrdRef);
 }
 
+export function getDefaultOwnedCRDResources() {
+  return [
+    { version: 'v1', kind: 'Deployment' },
+    { version: 'v1', kind: 'Service' },
+    { version: 'v1', kind: 'ReplicaSet' },
+    { version: 'v1', kind: 'Pod' },
+    { version: 'v1', kind: 'Secret' },
+    { version: 'v1', kind: 'ConfigMap' }
+  ];
+}
+
 /** @private */
 const defaultDeploymentRef = getDefaultOperator().spec.install.spec.deployments[0];
 
