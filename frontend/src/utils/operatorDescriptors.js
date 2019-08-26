@@ -28,6 +28,11 @@ const emailRegExp = new RegExp(
   "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 );
 
+// allow array index e.g. [0]  in path
+const pathRegExp = /^([a-z0-9A-Z][a-z0-9A-Z-_]*)((\[[0-9]+\])|\.[a-z0-9A-Z-_]+)*$/;
+const pathRegExpMessage =
+  'Path must begin and end with an alphanumeric character with brackets, dashes, underscores, dots, and alphanumerics between.';
+
 const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z]$/;
 const labelRegExpMessage =
   'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
@@ -304,10 +309,10 @@ const operatorFieldPlaceholders = {
         displayName: 'e.g. MongoDB Standalone',
         description: 'resize this field with the grabber icon at the bottom right corner.',
         descriptors: {
-          displayName: 'e.g. Credentials',
-          description: 'e.g. Credentials for Ops Manager or Cloud Manager',
-          path: 'e.g. credentials',
-          'x-descriptors': "e.g. 'urn:alm:descriptor:com.tectonic.ui-selector:core:v1:Secret'"
+          displayName: 'e.g. Size',
+          description: 'e.g. The desired number of member Pods for the cluster.',
+          path: 'e.g. servers[0].size',
+          'x-descriptors': "e.g. 'urn:alm:descriptor:com.tectonic.ui:podCount'"
         }
       },
       required: {
@@ -631,8 +636,8 @@ const operatorFieldValidators = {
               },
               path: {
                 required: true,
-                regex: labelRegExp,
-                regexErrorMessage: labelRegExpMessage
+                regex: pathRegExp,
+                regexErrorMessage: pathRegExpMessage
               },
               'x-descriptors': {
                 required: true
@@ -650,8 +655,8 @@ const operatorFieldValidators = {
               },
               path: {
                 required: true,
-                regex: labelRegExp,
-                regexErrorMessage: labelRegExpMessage
+                regex: pathRegExp,
+                regexErrorMessage: pathRegExpMessage
               },
               'x-descriptors': {
                 required: true
