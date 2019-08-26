@@ -11,20 +11,21 @@ import * as operatorImg from '../../imgs/operator.svg';
 import ExampleYamlModal from './ExampleYamlModal';
 import { normalizeOperator } from '../../utils/operatorUtils';
 
-class PreviewOperatorModal extends React.Component {
+class PreviewOperatorModal extends React.PureComponent {
   state = {
     operator: null,
     exampleYamlShown: false,
     crdExample: null
   };
 
-  componentDidUpdate(prevProps) {
-    const { show, yamlOperator } = this.props;
-    if (show) {
-      if (!prevProps.show || !_.isEqual(yamlOperator, prevProps.yamlOperator)) {
-        const operator = normalizeOperator(yamlOperator);
-        this.setState({ operator });
-      }
+  constructor(props) {
+    super(props);
+
+    if (props.yamlOperator) {
+      const normalizedOperator = normalizeOperator(props.yamlOperator);
+      normalizedOperator.channel = props.operatorPackage.channel;
+
+      this.state.operator = normalizedOperator;
     }
   }
 
@@ -37,35 +38,6 @@ class PreviewOperatorModal extends React.Component {
     this.setState({ exampleYamlShown: false });
   };
 
-  renderOperatorPreview = operator => (
-    <React.Fragment>
-      <div className="oh-header">
-        <div className="oh-header__inner">
-          <div className="oh-operator-header__content">
-            <div className="oh-operator-header__image-container">
-              <img className="oh-operator-header__image" src={_.get(operator, 'imgUrl') || operatorImg} alt="" />
-            </div>
-            <div className="oh-operator-header__info">
-              <h1 className="oh-operator-header__title oh-hero">{_.get(operator, 'displayName')}</h1>
-              <div className="oh-operator-header__description">{_.get(operator, 'description')}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="oh-preview-page-yaml__preview-separator" />
-      <div className="oh-operator-page row">
-        <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9}>
-          <OperatorSidePanel operator={operator} />
-        </Grid.Col>
-        <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
-          <h1>{operator.displayName}</h1>
-          {operator.longDescription && <MarkdownView markdown={operator.longDescription} />}
-          <CustomResourceDefinitionsView operator={operator} showExampleYaml={this.showExampleYaml} />
-        </Grid.Col>
-      </div>
-    </React.Fragment>
-  );
-
   render() {
     const { show, onClose } = this.props;
     const { operator, exampleYamlShown, crdExample } = this.state;
@@ -76,7 +48,40 @@ class PreviewOperatorModal extends React.Component {
           <Modal.CloseButton onClick={onClose} />
           <Modal.Title>Preview of your Operator</Modal.Title>
         </Modal.Header>
-        <Modal.Body>{operator && this.renderOperatorPreview(operator)}</Modal.Body>
+        <Modal.Body>
+          {operator && (
+            <React.Fragment>
+              <div className="oh-header">
+                <div className="oh-header__inner">
+                  <div className="oh-operator-header__content">
+                    <div className="oh-operator-header__image-container">
+                      <img
+                        className="oh-operator-header__image"
+                        src={_.get(operator, 'imgUrl') || operatorImg}
+                        alt=""
+                      />
+                    </div>
+                    <div className="oh-operator-header__info">
+                      <h1 className="oh-operator-header__title oh-hero">{_.get(operator, 'displayName')}</h1>
+                      <div className="oh-operator-header__description">{_.get(operator, 'description')}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="oh-preview-page-yaml__preview-separator" />
+              <div className="oh-operator-page row">
+                <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9}>
+                  <OperatorSidePanel operator={operator} />
+                </Grid.Col>
+                <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
+                  <h1>{operator.displayName}</h1>
+                  {operator.longDescription && <MarkdownView markdown={operator.longDescription} />}
+                  <CustomResourceDefinitionsView operator={operator} showExampleYaml={this.showExampleYaml} />
+                </Grid.Col>
+              </div>
+            </React.Fragment>
+          )}
+        </Modal.Body>
         <ExampleYamlModal
           show={exampleYamlShown}
           customResourceDefinition={crdExample}
@@ -90,12 +95,14 @@ class PreviewOperatorModal extends React.Component {
 PreviewOperatorModal.propTypes = {
   show: PropTypes.bool,
   yamlOperator: PropTypes.object,
+  operatorPackage: PropTypes.object,
   onClose: PropTypes.func
 };
 
 PreviewOperatorModal.defaultProps = {
   show: false,
   yamlOperator: null,
+  operatorPackage: {},
   onClose: helpers.noop
 };
 

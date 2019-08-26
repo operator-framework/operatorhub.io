@@ -184,7 +184,7 @@ class OperatorBundlePage extends React.Component {
   }
 
   render() {
-    const { operator, history } = this.props;
+    const { operator, operatorPackage, history } = this.props;
     const { previewShown } = this.state;
 
     return (
@@ -211,7 +211,14 @@ class OperatorBundlePage extends React.Component {
         {this.renderCustomResourceDefinitions()}
         {this.renderOperatorInstallation()}
         {this.renderPackageInfo()}
-        <PreviewOperatorModal show={previewShown} yamlOperator={operator} onClose={this.hidePreviewOperator} />
+        {previewShown && (
+          <PreviewOperatorModal
+            show={previewShown}
+            yamlOperator={operator}
+            onClose={this.hidePreviewOperator}
+            operatorPackage={operatorPackage}
+          />
+        )}
       </OperatorEditorSubPage>
     );
   }
@@ -220,6 +227,7 @@ class OperatorBundlePage extends React.Component {
 OperatorBundlePage.propTypes = {
   operator: PropTypes.object,
   sectionStatus: PropTypes.object,
+  operatorPackage: PropTypes.object,
   resetEditorOperator: PropTypes.func,
   showClearConfirmModal: PropTypes.func,
   hideConfirmModal: PropTypes.func,
@@ -232,6 +240,7 @@ OperatorBundlePage.propTypes = {
 OperatorBundlePage.defaultProps = {
   operator: {},
   sectionStatus: {},
+  operatorPackage: {},
   resetEditorOperator: helpers.noop,
   showClearConfirmModal: helpers.noop,
   hideConfirmModal: helpers.noop,
@@ -258,6 +267,7 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   operator: state.editorState.operator,
+  operatorPackage: state.editorState.operatorPackage,
   sectionStatus: state.editorState.sectionStatus
 });
 
