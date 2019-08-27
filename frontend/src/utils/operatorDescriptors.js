@@ -28,7 +28,7 @@ const emailRegExp = new RegExp(
   "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 );
 
-// allow array index e.g. [0]  in path
+// allow array index e.g. [0]  in path and starts and end with word
 const pathRegExp = /^([a-z0-9A-Z][a-z0-9A-Z-_]*)((\[[0-9]+\])|\.[a-z0-9A-Z-_]+)*$/;
 const pathRegExpMessage =
   'Path must begin and end with an alphanumeric character with brackets, dashes, underscores, dots, and alphanumerics between.';

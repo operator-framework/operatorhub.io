@@ -1,8 +1,8 @@
-import * as React from 'react';
+import React from 'react';
 import _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
-import { getFieldValueError, getDefaultDescription } from '../../utils/operatorUtils';
+import { getFieldValueError, getDefaultDescription, mergeDescriptions } from '../../utils/operatorUtils';
 import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_PREREQUISITES_HEADER,
@@ -150,22 +150,6 @@ const normalizeYamlOperator = operator => {
   return normalizedOperator;
 };
 
-/**
- * Merge operator description subsections into single string
- * @param {*} operator
- * @returns {string}
- */
-const mergeDescriptions = operator => {
-  const description = [
-    _.get(operator, 'spec.description.aboutApplication', ''),
-    _.get(operator, 'spec.description.aboutOperator', ''),
-    _.get(operator, 'spec.description.prerequisites', '')
-  ];
-
-  // add trailing line break if is missing
-  return description.reduce((aggregator, value) => aggregator + (value.endsWith('\n') ? value : `${value}\n`), '');
-};
-
 const yamlFromOperator = operator => {
   const yamlizedOperator = _.cloneDeep(operator);
 
@@ -201,7 +185,6 @@ const getMissingCrdUploads = (uploads, operator) => {
 export {
   renderFormError,
   getUpdatedFormErrors,
-  mergeDescriptions,
   operatorNameFromOperator,
   parseYamlOperator,
   normalizeYamlOperator,
