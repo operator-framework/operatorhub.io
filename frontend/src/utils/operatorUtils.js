@@ -7,7 +7,6 @@ import {
   LOCAL_STORAGE_KEY,
   sectionsFields
 } from './constants';
-import { mergeDescriptions } from '../pages/operatorBundlePage/bundlePageUtils';
 
 /**
  * Convert version format without dashes
@@ -61,6 +60,22 @@ const getExampleYAML = (kind, operator) => {
   } catch (e) {
     return null;
   }
+};
+
+/**
+ * Merge operator description subsections into single string
+ * @param {*} operator
+ * @returns {string}
+ */
+export const mergeDescriptions = operator => {
+  const description = [
+    _.get(operator, 'spec.description.aboutApplication', ''),
+    _.get(operator, 'spec.description.aboutOperator', ''),
+    _.get(operator, 'spec.description.prerequisites', '')
+  ];
+
+  // add trailing line break if is missing
+  return description.reduce((aggregator, value) => aggregator + (value.endsWith('\n') ? value : `${value}\n`), '');
 };
 
 const normalizeCRD = (crd, operator) => ({

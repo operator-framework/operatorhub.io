@@ -1,8 +1,6 @@
 import axios from 'axios';
-import * as _ from 'lodash-es';
 import { helpers } from '../common/helpers';
 import { reduxConstants } from '../redux';
-import { mockOperators } from '../__mock__/operators';
 
 const serverHost = process.env.DEV_HOST || 'localhost';
 const serverPort = process.env.DEV_PORT || 8080;
@@ -15,15 +13,6 @@ const fetchOperator = (operatorName, packageName, channel) => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
-
-  if (process.env.MOCK_MODE) {
-    const operator = _.find(mockOperators, { name: operatorName });
-    dispatch({
-      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
-      payload: operator
-    });
-    return;
-  }
 
   const config = {
     params: {
@@ -52,14 +41,6 @@ const fetchOperators = () => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
-
-  if (process.env.MOCK_MODE) {
-    dispatch({
-      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-      payload: _.cloneDeep(mockOperators)
-    });
-    return;
-  }
 
   axios
     .get(allOperatorsRequest)
