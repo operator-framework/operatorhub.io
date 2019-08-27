@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { helpers } from '../../common/helpers';
 import SimpleMdeWrapper from './SimpleMdeWrapper';
+import { markdownConverter } from '../../common/markdown';
 
 const MIN_HEIGHT = 250;
 
@@ -17,7 +18,7 @@ class MarkdownEditor extends React.Component {
     status: false,
     showIcons: ['code', 'table'],
     hideIcons: ['side-by-side', 'fullscreen'],
-    previewRender: helpers.markdownConverter.makeHtml
+    previewRender: markdownConverter.makeHtml
   };
 
   static ToolbarWithLevel2Headline = [

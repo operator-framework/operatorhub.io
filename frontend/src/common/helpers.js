@@ -1,6 +1,4 @@
-import * as _ from 'lodash-es';
-import { Converter } from 'showdown';
-import * as sanitizeHtml from 'sanitize-html';
+import _ from 'lodash-es';
 
 const noop = Function.prototype;
 
@@ -50,53 +48,6 @@ const advancedUploadAvailable = () => {
   return advancedUploadAvailable;
 };
 
-const markdownConverter = {
-  makeHtml: markdown => {
-    const unsafeHtml = new Converter({
-      tables: true,
-      openLinksInNewWindow: true,
-      strikethrough: true,
-      emoji: true
-    }).makeHtml(markdown);
-
-    return sanitizeHtml(unsafeHtml, {
-      allowedTags: [
-        'b',
-        'i',
-        'strike',
-        's',
-        'del',
-        'em',
-        'strong',
-        'a',
-        'p',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'ul',
-        'ol',
-        'li',
-        'code',
-        'pre',
-        'table',
-        'thead',
-        'tbody',
-        'tr',
-        'th',
-        'td'
-      ],
-      allowedAttributes: {
-        a: ['href', 'target', 'rel']
-      },
-      allowedSchemes: ['http', 'https', 'mailto'],
-      transformTags: {
-        a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer' }, true)
-      }
-    });
-  }
-};
-
 const transformNameForPath = name => name.replace(/\./g, '_=_');
 
 const transformPathedName = name => name.replace(/_=_/g, '.');
@@ -104,7 +55,6 @@ const transformPathedName = name => name.replace(/_=_/g, '.');
 export const helpers = {
   noop,
   debounce,
-  markdownConverter,
   transformNameForPath,
   transformPathedName,
   getErrorMessageFromResults,
