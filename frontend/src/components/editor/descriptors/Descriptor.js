@@ -144,7 +144,7 @@ class Descriptor extends React.PureComponent {
             />
           </div>
 
-          <div className="row">
+          <div className="row x-descriptors">
             <div className={xDescriptorClasses}>
               <div>X-Descriptors</div>
               <EditorSelect
