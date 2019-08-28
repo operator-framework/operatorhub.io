@@ -109,8 +109,14 @@ class Descriptor extends React.PureComponent {
     const xDescriptorClasses = classNames('col-sm-6', { 'oh-operator-editor-form__field--error': xDescriptorError });
 
     return (
-      <div className="oh-operator-editor__descriptor-editor__row" key={index}>
-        <div key={index} className="oh-operator-editor__descriptor-editor__item container-fluid">
+      <div className="oh-operator-editor__descriptor-editor__row" data-index={index}>
+        <section className="oh-operator-editor__descriptor-editor__dragula-handle">
+          <a href="#" className="reorder-label">
+            <Icon type="fa" name="arrows" />
+            <span className="sr-only">Reorder Label</span>
+          </a>
+        </section>
+        <div className="oh-operator-editor__descriptor-editor__item container-fluid">
           <div className="row">
             <DescriptorInput
               value={descriptor.displayName}
