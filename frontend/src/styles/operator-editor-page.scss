@@ -1,6 +1,5 @@
 .oh-operator-editor-page {
-
-  h2{
+  h2 {
     margin-top: 30px;
     margin-bottom: 20px;
     padding-top: 30px;
@@ -49,9 +48,8 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;    
+    justify-content: space-between;
   }
-
 
   > h1 {
     margin-top: 60px;
@@ -65,14 +63,13 @@
       margin: 30px -20px 20px;
       padding: 0 20px;
     }
-    
   }
 
-  &__spacer{
+  &__spacer {
     border-top: 1px solid $oh-color-rule;
     position: relative;
 
-    .oh-button__new-operator{
+    .oh-button__new-operator {
       position: absolute;
       bottom: 0;
       right: 0;
@@ -90,7 +87,7 @@
       flex-direction: row;
       justify-content: space-between;
       vertical-align: middle;
-      position: relative;   
+      position: relative;
 
       &__text {
         flex: 1;
@@ -107,7 +104,8 @@
         margin-top: 0;
       }
 
-      .fa, .pficon {
+      .fa,
+      .pficon {
         margin-right: 4px;
       }
     }
@@ -115,20 +113,21 @@
     &#manifest-uploader {
       margin-top: 0;
 
-      &__text{
+      &__text {
         > p {
           margin: 0;
         }
-      } 
+      }
 
-      .oh-operator-editor-page__section__status{
+      .oh-operator-editor-page__section__status {
         position: absolute;
         right: 10px;
       }
     }
 
     &__status {
-      .fa, .pficon {
+      .fa,
+      .pficon {
         margin-left: 10px;
         margin-right: 4px;
         &.fa-minus-circle {
@@ -136,7 +135,7 @@
         }
       }
       .oh-button {
-        margin-left: 10px;       
+        margin-left: 10px;
       }
     }
   }
@@ -159,22 +158,21 @@
       }
     }
 
-    &__tertiary{
+    &__tertiary {
       margin-top: 20px;
       justify-content: flex-end;
     }
   }
 
-  &#oh-editor-landing-page{
-    .oh-operator-editor-page__button-bar{
+  &#oh-editor-landing-page {
+    .oh-operator-editor-page__button-bar {
       margin-top: 30px;
       padding-top: 30px;
-      border-top: 1px solid $oh-color-rule;      
+      border-top: 1px solid $oh-color-rule;
     }
   }
 
   .oh-operator-editor-form {
-
     &__section {
       background-color: $color-pf-white;
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
@@ -198,13 +196,15 @@
           padding-top: 0;
         }
 
-        .fa, .pficon {
+        .fa,
+        .pficon {
           margin-right: 4px;
         }
       }
 
       &__status {
-        .fa, .pficon {
+        .fa,
+        .pficon {
           margin-right: 4px;
         }
         &__view-state {
@@ -213,7 +213,8 @@
           font-size: 18px;
           color: $color-pf-black;
           display: inline-block;
-          .fa, .pficon {
+          .fa,
+          .pficon {
             margin-right: 0;
           }
         }
@@ -238,7 +239,8 @@
       font-weight: normal;
     }
 
-    input, textarea {
+    input,
+    textarea {
       color: $oh-color-text-body;
       font-size: 16px;
       border-radius: 4px;
@@ -253,7 +255,7 @@
       height: 40px;
     }
 
-   textarea {
+    textarea {
       resize: vertical;
     }
 
@@ -263,7 +265,8 @@
       font-size: 14px;
       padding-top: 1px;
 
-      .rbt-input-hint-container, .rbt-input-multi {
+      .rbt-input-hint-container,
+      .rbt-input-multi {
         background-color: transparent;
         border-radius: 4px;
         border-color: #dededf;
@@ -306,7 +309,8 @@
         font-size: 14px;
       }
 
-      .rbt-token.rbt-token-removeable, .dropdown-menu {
+      .rbt-token.rbt-token-removeable,
+      .dropdown-menu {
         font-size: 14px;
       }
 
@@ -331,7 +335,10 @@
     }
 
     .oh-operator-editor-form__field--error {
-      input, textarea, &__select, .rbt-input {
+      input,
+      textarea,
+      &__select,
+      .rbt-input {
         border-color: $color-pf-red;
       }
     }
@@ -416,7 +423,8 @@
     }
 
     &__install-modes-table {
-      th, td {
+      th,
+      td {
         border: 0;
         padding: 15px 30px 15px 15px;
         text-align: left;
@@ -440,15 +448,16 @@
       flex-direction: row;
       align-items: center;
 
-      .form-control, .oh-operator-editor-form__select {
+      .form-control,
+      .oh-operator-editor-form__select {
         flex: 1;
         margin-right: 10px;
       }
     }
 
     &__label-adder {
-
-      .fa, .pficon {
+      .fa,
+      .pficon {
         margin-right: 4px;
       }
     }
@@ -465,7 +474,7 @@
     }
 
     &__operator-image-container {
-      background-color: #2C95B5;
+      background-color: #2c95b5;
       padding: 20px;
       width: fit-content;
     }
@@ -484,22 +493,22 @@
         padding-top: 10px;
         padding-bottom: 10px;
 
-        & > div{
+        & > div {
           white-space: nowrap;
           text-overflow: ellipsis;
           overflow: hidden;
 
-          @media screen and (max-width: $screen-xs){          
-              padding-left: 10px;
-              padding-right: 10px;          
+          @media screen and (max-width: $screen-xs) {
+            padding-left: 10px;
+            padding-right: 10px;
           }
         }
         &__name,
         &__file,
-        &__type{
+        &__type {
           overflow-wrap: break-word;
         }
-        .upload__overwritten{
+        .upload__overwritten {
           text-decoration: line-through;
         }
       }
@@ -507,11 +516,12 @@
         display: flex;
         justify-content: flex-end;
         white-space: nowrap;
-        @media screen and (max-width: $screen-xs){          
-          text-align: end;   
-          white-space: normal;      
+        @media screen and (max-width: $screen-xs) {
+          text-align: end;
+          white-space: normal;
         }
-        .fa, .pficon {
+        .fa,
+        .pficon {
           margin-right: 4px;
         }
         > a {
@@ -527,7 +537,8 @@
         }
       }
       &__status {
-        .fa, .pficon {
+        .fa,
+        .pficon {
           margin-right: 4px;
         }
       }
@@ -542,7 +553,6 @@
   }
 
   .oh-operator-editor__list {
-
     h2 {
       margin-top: 0;
       border-top: none;
@@ -576,7 +586,7 @@
         margin: 0;
       }
 
-      &__subtitle{
+      &__subtitle {
         font-size: 0.8em;
         opacity: 0.8;
         margin-left: 10px;
@@ -595,8 +605,9 @@
   }
 
   .oh-operator-editor__descriptor-editor {
-    > p {
-      margin-left: 17px;
+    
+    &__description {
+      margin-left: 27px;
     }
 
     &__row {
@@ -606,11 +617,21 @@
       .remove-label {
         padding: 3px;
         margin-left: 5px;
-      }  
-      
-      .row.x-descriptors{
+      }
+
+      .reorder-label {
+        padding: 3px;
+        margin-right: 5px;
+        pointer-events: none;
+      }
+
+      .row.x-descriptors {
         margin-top: 15px;
       }
+    }
+
+    &__dragula-handle{
+      cursor: move;
     }
 
     &__item {
@@ -628,6 +649,13 @@
       &:first-of-type {
         margin-top: 0;
       }
+
+      button {
+        padding-right: 15px;
+        span.fa {
+          margin-right: 15px;
+        }
+      }
     }
     .btn.btn-link {
       font-size: 16px;
@@ -642,7 +670,8 @@
   padding-bottom: 20px;
 
   .oh-markdown-viewer__content {
-    .CodeMirror, .CodeMirror-scroll {
+    .CodeMirror,
+    .CodeMirror-scroll {
       min-height: initial;
     }
 
@@ -662,7 +691,7 @@
     .editor-statusbar {
       border-left: 1px solid $oh-color-rule;
       border-right: 1px solid $oh-color-rule;
-   }
+    }
 
     .editor-preview {
       background: $color-pf-white;
@@ -681,17 +710,18 @@
         text-align: left;
       }
 
-      td, th {
+      td,
+      th {
         padding: 5px 15px;
         word-break: break-word;
         border-bottom: 1px solid $color-pf-black-200;
         vertical-align: top;
       }
-    }    
+    }
   }
 
-  &--validationError{
-    .oh-markdown-viewer__content{
+  &--validationError {
+    .oh-markdown-viewer__content {
       border: 1px solid $color-pf-red;
     }
 
