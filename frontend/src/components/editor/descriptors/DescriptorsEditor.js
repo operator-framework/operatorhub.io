@@ -102,6 +102,12 @@ class DescriptorsEditor extends React.PureComponent {
     this.updateDescriptor(updatedDescriptor, index);
   };
 
+  shouldReorder = (el, source, handle) => {
+    const { descriptors } = this.props;
+
+    return descriptors.length > 1 && handle.className === 'oh-operator-editor__descriptor-editor__dragula-handle';
+  };
+
   /**
    * Set flag when ordering started in this instance
    */
@@ -154,7 +160,7 @@ class DescriptorsEditor extends React.PureComponent {
         containers: [container],
         mirrorContainer: container,
         // allow only dragging by handle
-        moves: (el, source, handle) => handle.className === 'oh-operator-editor__descriptor-editor__dragula-handle'
+        moves: this.shouldReorder
       });
 
       this.drake.on('drag', this.startOrdering);
