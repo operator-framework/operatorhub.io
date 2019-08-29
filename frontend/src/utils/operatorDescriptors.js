@@ -6,7 +6,7 @@ const nameRegExp = /^[a-z][a-z-]*[a-z]$/;
 const nameRegExpMessage =
   'This field must begin and end with a lower case character with only dashes or lower case characters between.';
 
-const versionRegExp = /^([v|V])?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
+export const versionRegExp = /^([v|V])?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
 const kubeVersionRegExp = /^([v|V])(0|[1-9])+(alpha|beta)?(0|[1-9])*/;
 const kubeVersionRegExpMessage =
@@ -14,7 +14,7 @@ const kubeVersionRegExpMessage =
 
 const majorMinorPatchVersionRegExp = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
-const urlRegExp = new RegExp(
+export const urlRegExp = new RegExp(
   '^(?:(?:(?:https?|ftp):)?//)' + // protocol
   '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
   '((\\d{1,3}\\.){3}\\d{1,3}))' + // ip (v4) address
@@ -24,7 +24,7 @@ const urlRegExp = new RegExp(
   'i'
 );
 
-const emailRegExp = new RegExp(
+export const emailRegExp = new RegExp(
   "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 );
 
@@ -37,7 +37,7 @@ const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z]$/;
 const labelRegExpMessage =
   'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
 
-const operatorFieldDescriptions = {
+export const operatorFieldDescriptions = {
   metadata: {
     name: 'Name of the operator.',
     annotations: {
@@ -155,7 +155,11 @@ const operatorFieldDescriptions = {
   }
 };
 
-const operatorObjectDescriptions = {
+export const operatorObjectDescriptions = {
+  metadata: {
+    description: `The metadata section contains general metadata around the name, version, and other info that aids users in the
+    discovery of your Operator.`
+  },
   spec: {
     customresourcedefinitions: {
       owned: {
@@ -193,7 +197,7 @@ const operatorObjectDescriptions = {
   }
 };
 
-const capabilityDescriptions = [
+export const capabilityDescriptions = [
   'Automated application provisioning and configuration management',
   'Patch and minor version upgrades supported',
   'App Lifecycle, storage lifecycle (backup, failure recovery)',
@@ -201,83 +205,18 @@ const capabilityDescriptions = [
   'Horizontal/vertical scaling, auto config tuning, abnormal detection, scheduling tuning'
 ];
 
-const installModeDescriptors = {
+export const installModeDescriptors = {
   OwnNamespace: 'If supported, the operator can be a member of an OperatorGroup that selects its own namespace.',
   SingleNamespace: 'If supported, the operator can be a member of an OperatorGroup that selects one namespace.',
   AllNamespaces: 'If supported, the operator can be a member of an OperatorGroup that selects all namespaces.',
   MultiNamespace: 'If supported, the operator can be a member of an OperatorGroup that selects more than one namespace.'
 };
 
-const maturityOptions = ['planning', 'pre-alpha', 'alpha', 'beta', 'stable', 'mature', 'inactive', 'deprecated'];
-
-const categoryOptions = [
-  'AI/Machine Learning',
-  'Big Data',
-  'Cloud Provider',
-  'Database',
-  'Integration & Delivery',
-  'Logging & Tracing',
-  'Monitoring',
-  'Networking',
-  'OpenShift Optional',
-  'Security',
-  'Storage',
-  'Streaming & Messaging'
-];
-
-const kindOptions = [
-  'APIService',
-  'CertificateSigningRequest',
-  'ClusterRole',
-  'ClusterRoleBinding',
-  'ComponentStatus',
-  'ConfigMap',
-  'ControllerRevision',
-  'CronJob',
-  'CustomResourceDefinition',
-  'DaemonSet',
-  'Deployment',
-  'Endpoints',
-  'Event',
-  'HorizontalPodAutoscaler',
-  'Ingress',
-  'Job',
-  'Lease',
-  'LimitRange',
-  'LocalSubjectAccessReview',
-  'MutatingWebhookConfiguration',
-  'Namespace',
-  'NetworkPolicy',
-  'Node',
-  'PersistentVolume',
-  'PersistentVolumeClaim',
-  'Pod',
-  'PodDisruptionBudget',
-  'PodSecurityPolicy',
-  'PodTemplate',
-  'PriorityClass',
-  'ReplicaSet',
-  'ReplicationController',
-  'ResourceQuota',
-  'Role',
-  'RoleBinding',
-  'Secret',
-  'SelfSubjectAccessReview',
-  'SelfSubjectRulesReview',
-  'Service',
-  'ServiceAccount',
-  'StatefulSet',
-  'StorageClass',
-  'SubjectAccessReview',
-  'TokenReview',
-  'ValidatingWebhookConfiguration',
-  'VolumeAttachment'
-];
-
-const operatorFieldPlaceholders = {
+export const operatorFieldPlaceholders = {
   metadata: {
     name: 'e.g. my-operator',
     annotations: {
+      categories: 'Select Categories',
       description: 'resize this field with the grabber icon at the bottom right corner',
       containerImage: 'e.g. quay.io/example/example-operator:v0.0.1'
     }
@@ -288,6 +227,7 @@ const operatorFieldPlaceholders = {
     icon: 'drop your image here',
     version: 'e.g 0.0.2',
     maturity: 'e.g. alpha, beta, or stable',
+    keywords: 'Add Keywords',
     replaces: 'e.g. my-operator.v0.0.1',
     minKubeVersion: 'e.g. 1.11.0',
     maintainers: {
@@ -477,7 +417,7 @@ const descriptionValidator = text => {
   return /(^# [^\r?\n]+)/m.test(text) ? errorText : null;
 };
 
-const operatorFieldValidators = {
+export const operatorFieldValidators = {
   metadata: {
     name: {
       required: true,
@@ -739,27 +679,11 @@ const operatorFieldValidators = {
   }
 };
 
-const operatorPackageFieldValidators = {
+export const operatorPackageFieldValidators = {
   name: {
     required: true
   },
   channel: {
     required: true
   }
-};
-
-export {
-  versionRegExp,
-  emailRegExp,
-  urlRegExp,
-  operatorFieldDescriptions,
-  operatorObjectDescriptions,
-  capabilityDescriptions,
-  maturityOptions,
-  categoryOptions,
-  kindOptions,
-  installModeDescriptors,
-  operatorFieldPlaceholders,
-  operatorFieldValidators,
-  operatorPackageFieldValidators
 };

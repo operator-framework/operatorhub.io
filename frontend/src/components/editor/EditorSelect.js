@@ -18,11 +18,9 @@ import { helpers } from '../../common/helpers';
  * @param {function=} param0.onChange
  * @param {function=} param0.onBlur
  * @param {function=} param0.onValueEdit
- * @param {boolean=} param0.clearButton
- * @param {string=} param0.emptyLabel
  * @param {string} [param0.initialValue]
  * @param {string} [param0.labelKey]
- * @param {string=} param0.newSelectionPrefix
+ * @param {string=} [param0.newSelectionPrefix]
  * @param {function} [param0.customSelectValidator]
  */
 const EditorSelect = ({
@@ -37,8 +35,6 @@ const EditorSelect = ({
   dropup,
   onChange,
   onBlur,
-  clearButton,
-  emptyLabel,
   newSelectionPrefix,
   labelKey,
   customSelectValidator
@@ -113,6 +109,7 @@ const EditorSelect = ({
         onChange={_onChange}
         onBlur={typeAheadBlur}
         positionFixed
+        newSelectionPrefix={newSelectionPrefix}
         renderToken={(option, properties, index) => (
           <TypeAheadSelect.Token
             key={index}
@@ -143,12 +140,10 @@ EditorSelect.propTypes = {
   isMulti: PropTypes.bool,
   customSelect: PropTypes.bool,
   dropup: PropTypes.bool,
-  clearButton: PropTypes.bool,
   initialValue: PropTypes.string,
   placeholder: PropTypes.string,
   onChange: PropTypes.func,
   onBlur: PropTypes.func,
-  emptyLabel: PropTypes.string,
   newSelectionPrefix: PropTypes.string,
   customSelectValidator: PropTypes.func,
   onValueEdit: PropTypes.func
@@ -160,13 +155,11 @@ EditorSelect.defaultProps = {
   isMulti: true,
   customSelect: false,
   dropup: false,
-  clearButton: false,
   labelKey: 'label',
   placeholder: 'Select options',
   onChange: helpers.noop,
   onBlur: helpers.noop,
   initialValue: '',
-  emptyLabel: undefined,
   newSelectionPrefix: undefined,
   customSelectValidator: undefined,
   onValueEdit: helpers.noop
