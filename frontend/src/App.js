@@ -38,7 +38,7 @@ const About = asyncComponent(() =>
 );
 
 const OperatorBundlePage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorBundlePage" */ './pages/operatorBundlePage/deployments/OperatorBundlePage').then(
+  import(/* webpackChunkName: "OperatorBundlePage" */ './pages/operatorBundlePage/OperatorBundlePage').then(
     module => module.default
   )
 );
@@ -53,7 +53,7 @@ const OperatorMetadataPage = asyncComponent(() =>
   )
 );
 const OperatorDeploymentsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorDeploymentsPage" */ './pages/operatorBundlePage/OperatorDeploymentsPage').then(
+  import(/* webpackChunkName: "OperatorDeploymentsPage" */ './pages/operatorBundlePage/deployments/OperatorDeploymentsPage').then(
     module => module.default
   )
 );
