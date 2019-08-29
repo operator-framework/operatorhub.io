@@ -4,18 +4,18 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
-import { helpers } from '../../common/helpers';
-import { getFieldValueError, containsErrors } from '../../utils/operatorUtils';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
-import ListObjectEditor from '../../components/editor/ListObjectEditor';
-import { getUpdatedFormErrors } from './bundlePageUtils';
+import { helpers } from '../../../common/helpers';
+import { getFieldValueError, containsErrors } from '../../../utils/operatorUtils';
+import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import ListObjectEditor from '../../../components/editor/ListObjectEditor';
+import { getUpdatedFormErrors } from '../bundlePageUtils';
 
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
-} from '../../redux/actions/editorActions';
-import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
+} from '../../../redux/actions/editorActions';
+import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
 
 const deploymentFields = sectionsFields.deployments;
 

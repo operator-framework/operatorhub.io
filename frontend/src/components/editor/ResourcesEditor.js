@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
 import { Icon } from 'patternfly-react';
-import { kindOptions, operatorFieldDescriptions } from '../../utils/operatorDescriptors';
+import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 import EditorSelect from './EditorSelect';
+import { kindOptions } from '../../utils/constants';
 
 class ResourcesEditor extends React.Component {
   dirtyResources = [];

@@ -9,14 +9,14 @@ import { renderFormError } from '../../../pages/operatorBundlePage/bundlePageUti
 /**
  * Update operator value while field is edited
  * @callback UpdaterOperatorFromInputCallback
- * @param {string} value
  * @param {string} field
+ * @param {string} value
  */
 
 /**
  * @callback CommitOperatorFieldFromInputCallback
- * @param {string} value
  * @param {string=} field
+ * @param {string} value
  */
 
 /**

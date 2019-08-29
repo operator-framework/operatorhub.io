@@ -3,18 +3,18 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
-import { helpers } from '../../../common/helpers';
-import { reduxConstants } from '../../../redux/index';
-import EditorSection from '../../../components/editor/EditorSection';
-import ManifestUploader from '../../../components/editor/manfiestUploader/ManifestUploader';
-import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../../utils/operatorDescriptors';
-import OperatorEditorSubPage from '../OperatorEditorSubPage';
-import PreviewOperatorModal from '../../../components/modals/PreviewOperatorModal';
-import OperatorBundleDownloader from '../../../components/editor/BundleDownloader';
-import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../../redux/actions/editorActions';
-import { removeEmptyOptionalValuesFromOperator } from '../../../utils/operatorUtils';
-import { getUpdatedFormErrors } from '../bundlePageUtils';
-import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
+import { helpers } from '../../common/helpers';
+import { reduxConstants } from '../../redux/index';
+import EditorSection from '../../components/editor/EditorSection';
+import ManifestUploader from '../../components/editor/manfiestUploader/ManifestUploader';
+import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
+import OperatorEditorSubPage from './OperatorEditorSubPage';
+import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
+import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
+import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
+import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorUtils';
+import { getUpdatedFormErrors } from './bundlePageUtils';
+import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 
 class OperatorBundlePage extends React.Component {
   state = {
