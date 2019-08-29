@@ -50,6 +50,7 @@ export const EDITOR_STATUS = {
 
 export const sectionsFields = {
   metadata: [
+    'metadata.name',
     'spec.displayName',
     'metadata.annotations.description',
     'spec.maturity',
@@ -76,3 +77,71 @@ export const sectionsFields = {
   'cluster-permissions': 'spec.install.spec.clusterPermissions',
   'install-modes': 'spec.installModes'
 };
+
+export const maturityOptions = ['planning', 'pre-alpha', 'alpha', 'beta', 'stable', 'mature', 'inactive', 'deprecated'];
+
+export const categoryOptions = [
+  'AI/Machine Learning',
+  'Application Runtime',
+  'Big Data',
+  'Cloud Provider',
+  'Database',
+  'Developer Tools',
+  'Integration & Delivery',
+  'Logging & Tracing',
+  'Monitoring',
+  'Networking',
+  'OpenShift Optional',
+  'Security',
+  'Storage',
+  'Streaming & Messaging'
+];
+
+export const kindOptions = [
+  'APIService',
+  'CertificateSigningRequest',
+  'ClusterRole',
+  'ClusterRoleBinding',
+  'ComponentStatus',
+  'ConfigMap',
+  'ControllerRevision',
+  'CronJob',
+  'CustomResourceDefinition',
+  'DaemonSet',
+  'Deployment',
+  'Endpoints',
+  'Event',
+  'HorizontalPodAutoscaler',
+  'Ingress',
+  'Job',
+  'Lease',
+  'LimitRange',
+  'LocalSubjectAccessReview',
+  'MutatingWebhookConfiguration',
+  'Namespace',
+  'NetworkPolicy',
+  'Node',
+  'PersistentVolume',
+  'PersistentVolumeClaim',
+  'Pod',
+  'PodDisruptionBudget',
+  'PodSecurityPolicy',
+  'PodTemplate',
+  'PriorityClass',
+  'ReplicaSet',
+  'ReplicationController',
+  'ResourceQuota',
+  'Role',
+  'RoleBinding',
+  'Secret',
+  'SelfSubjectAccessReview',
+  'SelfSubjectRulesReview',
+  'Service',
+  'ServiceAccount',
+  'StatefulSet',
+  'StorageClass',
+  'SubjectAccessReview',
+  'TokenReview',
+  'ValidatingWebhookConfiguration',
+  'VolumeAttachment'
+];

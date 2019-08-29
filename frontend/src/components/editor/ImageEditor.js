@@ -96,7 +96,7 @@ class ImageEditor extends React.Component {
 
     return (
       <React.Fragment>
-        <h3>Icon</h3>
+        <h4>Icon</h4>
         <div className="oh-operator-editor-form__field-section">
           <Grid.Row className="oh-operator-editor-form__field">
             {!icon && (
@@ -115,7 +115,7 @@ class ImageEditor extends React.Component {
                       this.doUploadFile(e.dataTransfer.files);
                     }}
                   >
-                    <div
+                    <form
                       className="oh-drag-drop-box__upload-file-box"
                       method="post"
                       action=""
@@ -133,6 +133,7 @@ class ImageEditor extends React.Component {
                     >
                       <input
                         className="oh-drag-drop-box__upload-file-box__file"
+                        accept="image/svg+xml,image/png,image/jpeg,image/gif"
                         type="file"
                         name="imageEditorUploadFile"
                         id="imageEditorUploadFile"
@@ -145,7 +146,7 @@ class ImageEditor extends React.Component {
                         </a>
                       </label>
                       to upload an image.
-                    </div>
+                    </form>
                   </div>
                 </div>
               </Grid.Col>
