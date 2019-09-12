@@ -395,10 +395,7 @@ class OperatorHub extends React.Component {
   }
 
   setURLParams = params => {
-    const url = new URL(window.location);
-    const searchParams = `?${params.toString()}`;
-
-    this.props.history.replace(`${url.pathname}${searchParams}`);
+    this.props.history.replace(`${window.location.pathname}?${params.toString()}`);
   };
 
   filtersInURL = searchObj => _.some(operatorHubFilterGroups, filterGroup => _.get(searchObj, filterGroup));

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
+import { Icon } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import { reduxConstants } from '../../redux/index';
@@ -177,7 +178,7 @@ class OperatorBundlePage extends React.Component {
           </button>
         </div>
         <button className="oh-button oh-button-secondary" onClick={this.clearContents}>
-          Clear Content
+          Clear All and Start New Bundle
         </button>
       </div>
     );
@@ -190,7 +191,12 @@ class OperatorBundlePage extends React.Component {
     return (
       <OperatorEditorSubPage
         pageId="oh-editor-landing-page"
-        title="Package your Operator"
+        title={
+          <React.Fragment>
+            Package your Operator
+            <span className="oh-beta-label">BETA</span>
+          </React.Fragment>
+        }
         header={this.renderHeader()}
         buttonBar={this.renderButtonBar()}
         history={history}
@@ -198,9 +204,10 @@ class OperatorBundlePage extends React.Component {
         <ManifestUploader />
         <div className="oh-operator-editor-page__spacer">
           <h2>General Info</h2>
-          <button className="oh-button oh-button-secondary oh-button__new-operator" onClick={this.clearContents}>
-            Clear All and Start New Bundle
-          </button>
+          <a href="#" className="oh-operator-editor-page__new-operator" onClick={this.clearContents}>
+            <Icon type="fa" name="trash" />
+            <span>Clear All and Start New Bundle</span>
+          </a>
         </div>
         <EditorSection
           title="Operator Metadata"
