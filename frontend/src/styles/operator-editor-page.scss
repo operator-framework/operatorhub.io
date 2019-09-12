@@ -69,10 +69,14 @@
     border-top: 1px solid $oh-color-rule;
     position: relative;
 
-    .oh-button__new-operator {
+    .oh-operator-editor-page__new-operator {
       position: absolute;
       bottom: 0;
       right: 0;
+
+      .fa{
+        margin-right: 4px;
+      }
     }
   }
 

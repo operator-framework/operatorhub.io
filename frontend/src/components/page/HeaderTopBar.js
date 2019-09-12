@@ -116,6 +116,7 @@ class HeaderTopBar extends React.Component {
             </MenuItem>
             <MenuItem eventKey={1} onSelect={this.onPackageYourOperator}>
               Package your Operator
+              <span className="oh-beta-label">BETA</span>
             </MenuItem>
             <MenuItem eventKey={2} onSelect={this.onPreviewYourOperator}>
               Preview your Operator
