@@ -24,7 +24,7 @@ import {
   isAlmExampleDefault,
   getDefaultOwnedCRDResources
 } from '../../../utils/operatorUtils';
-import { EDITOR_STATUS, sectionsFields, NEW_CRD_NAME } from '../../../utils/constants';
+import { EDITOR_STATUS, sectionsFields } from '../../../utils/constants';
 import * as actions from '../../../redux/actions/editorActions';
 import * as utils from './UploaderUtils';
 

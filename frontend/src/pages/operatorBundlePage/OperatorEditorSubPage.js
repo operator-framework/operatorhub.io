@@ -106,12 +106,13 @@ class OperatorEditorSubPage extends React.Component {
         Home
       </Breadcrumb.Item>
       {(this.props.secondary || this.props.tertiary) && (
-        <Breadcrumb.Item onClick={e => this.onEditor(e)} href={`${window.location.origin}/editor`}>
+        <Breadcrumb.Item onClick={e => this.onEditor(e)} href={`${window.location.origin}/bundle`}>
           Package your Operator
+          <span className="oh-beta-label">BETA</span>
         </Breadcrumb.Item>
       )}
       {this.props.tertiary && (
-        <Breadcrumb.Item onClick={e => this.onBack(e)} href={`${window.location.origin}/editor/${this.props.lastPage}`}>
+        <Breadcrumb.Item onClick={e => this.onBack(e)} href={`${window.location.origin}/bundle/${this.props.lastPage}`}>
           {this.props.lastPageTitle}
         </Breadcrumb.Item>
       )}
