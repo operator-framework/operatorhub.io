@@ -8,8 +8,9 @@ const serverURL = `http://${serverHost}:${serverPort}`;
 
 const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/api/operators` : `/api/operators`;
 const operatorRequest = process.env.DEV_MODE ? `${serverURL}/api/operator` : `/api/operator`;
+const latestOlmVersionRequest = 'https://api.github.com/repos/operator-framework/operator-lifecycle-manager/releases';
 
-const fetchOperator = (operatorName, packageName, channel) => dispatch => {
+export const fetchOperator = (operatorName, packageName, channel) => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
@@ -37,7 +38,7 @@ const fetchOperator = (operatorName, packageName, channel) => dispatch => {
     });
 };
 
-const fetchOperators = () => dispatch => {
+export const fetchOperators = () => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
@@ -59,9 +60,33 @@ const fetchOperators = () => dispatch => {
     });
 };
 
-const operatorsService = {
-  fetchOperator,
-  fetchOperators
-};
+export const fetchLatestOlmVersion = () => dispatch => {
+  dispatch({
+    type: helpers.PENDING_ACTION(reduxConstants.GET_OLM_VERSION)
+  });
 
-export { operatorsService, fetchOperator, fetchOperators };
+  axios
+    .get(latestOlmVersionRequest)
+    .then(response => {
+      const latestRelease = response.data.filter(release => release.target_commitish === 'master')[0];
+
+      if (latestRelease && latestRelease.tag_name) {
+        dispatch({
+          type: helpers.FULFILLED_ACTION(reduxConstants.GET_OLM_VERSION),
+          payload: latestRelease.tag_name
+        });
+      } else {
+        dispatch({
+          type: helpers.REJECTED_ACTION(reduxConstants.GET_OLM_VERSION),
+          error: null
+        });
+      }
+    })
+    .catch(e => {
+      console.dir(e);
+      dispatch({
+        type: helpers.REJECTED_ACTION(reduxConstants.GET_OLM_VERSION),
+        error: e
+      });
+    });
+};
