@@ -16,6 +16,7 @@ import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../r
 import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorUtils';
 import { getUpdatedFormErrors } from './bundlePageUtils';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
+import { ExternalLink } from '../../components/ExternalLink';
 
 class OperatorBundlePage extends React.Component {
   state = {
@@ -90,6 +91,12 @@ class OperatorBundlePage extends React.Component {
         Kubernetes manifest files. The forms below will be populated with all valid information and used to create the
         new Operator bundle. You can modify or add properties through these forms as well.
       </p>
+      <blockquote>
+        Thanks for trying out the Operator Bundle Editor beta. Feedback and questions are encouraged:&nbsp;
+        <ExternalLink href="https://github.com/operator-framework/operatorhub.io/issues">
+          File an issue on Github
+        </ExternalLink>
+      </blockquote>
     </React.Fragment>
   );
 
