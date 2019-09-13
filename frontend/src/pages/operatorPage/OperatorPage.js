@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Alert, Breadcrumb, EmptyState, Grid } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
-import { fetchOperator } from '../../services/operatorsService';
+import { fetchOperator, fetchLatestOlmVersion } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import Page from '../../components/page/Page';
 import InstallModal from '../../components/modals/InstallModal';
@@ -24,6 +24,12 @@ class OperatorPage extends React.Component {
   };
 
   componentDidMount() {
+    const { olmVersionUpdated, fetchOlmVersion } = this.props;
+
+    if (!olmVersionUpdated) {
+      fetchOlmVersion();
+    }
+
     this.refresh();
   }
 
@@ -156,7 +162,7 @@ class OperatorPage extends React.Component {
 
   render() {
     const { installShown, exampleYamlShown, crdExample, refreshed, keywordSearch } = this.state;
-    const { operator, pending } = this.props;
+    const { operator, pending, olmVersion } = this.props;
 
     const headerContent = (
       <div className="oh-operator-header__content">
@@ -172,7 +178,7 @@ class OperatorPage extends React.Component {
 
     const toolbarContent = (
       <Breadcrumb>
-        <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
+        <Breadcrumb.Item onClick={this.onHome} href={window.location.origin}>
           Home
         </Breadcrumb.Item>
         <Breadcrumb.Item active>{_.get(operator, 'displayName')}</Breadcrumb.Item>
@@ -189,12 +195,17 @@ class OperatorPage extends React.Component {
         onSearchChange={this.onSearchChange}
         clearSearch={this.clearSearch}
         searchCallback={this.searchCallback}
-        headerRef={this.setHeaderRef}
-        topBarRef={this.setTopBarRef}
         showFooter={refreshed && !pending}
       >
         {this.renderView()}
-        <InstallModal show={installShown} operator={operator} onClose={this.hideInstall} history={this.props.history} />
+        {installShown && (
+          <InstallModal
+            operator={operator}
+            olmVersion={olmVersion}
+            onClose={this.hideInstall}
+            history={this.props.history}
+          />
+        )}
         <ExampleYamlModal
           show={exampleYamlShown}
           customResourceDefinition={crdExample}
@@ -205,30 +216,9 @@ class OperatorPage extends React.Component {
   }
 }
 
-OperatorPage.propTypes = {
-  operator: PropTypes.object,
-  error: PropTypes.bool,
-  errorMessage: PropTypes.string,
-  pending: PropTypes.bool,
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired,
-  match: PropTypes.object.isRequired,
-  fetchOperator: PropTypes.func,
-  storeKeywordSearch: PropTypes.func
-};
-
-OperatorPage.defaultProps = {
-  operator: {},
-  error: false,
-  errorMessage: '',
-  pending: false,
-  fetchOperator: helpers.noop,
-  storeKeywordSearch: helpers.noop
-};
-
 const mapDispatchToProps = dispatch => ({
   fetchOperator: (name, packageName, channel) => dispatch(fetchOperator(name, packageName, channel)),
+  fetchOlmVersion: () => dispatch(fetchLatestOlmVersion()),
   storeKeywordSearch: keywordSearch =>
     dispatch({
       type: reduxConstants.SET_KEYWORD_SEARCH,
@@ -239,6 +229,33 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = state => ({
   ...state.operatorsState
 });
+
+OperatorPage.propTypes = {
+  operator: PropTypes.object,
+  error: PropTypes.bool,
+  errorMessage: PropTypes.string,
+  pending: PropTypes.bool,
+  olmVersion: PropTypes.string.isRequired,
+  olmVersionUpdated: PropTypes.bool,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }).isRequired,
+  match: PropTypes.object.isRequired,
+  fetchOperator: PropTypes.func,
+  fetchOlmVersion: PropTypes.func,
+  storeKeywordSearch: PropTypes.func
+};
+
+OperatorPage.defaultProps = {
+  operator: {},
+  error: false,
+  errorMessage: '',
+  pending: false,
+  olmVersionUpdated: false,
+  fetchOperator: helpers.noop,
+  storeKeywordSearch: helpers.noop,
+  fetchOlmVersion: helpers.noop
+};
 
 export default connect(
   mapStateToProps,

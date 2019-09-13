@@ -12,11 +12,55 @@ import { InternalLink } from '../InternalLink';
 
 const olmRepo = 'https://github.com/operator-framework/operator-lifecycle-manager';
 
-const INSTALL_OLM_COMMAND = `curl -sL ${olmRepo}/releases/download/0.10.0/install.sh | bash -s 0.10.0`;
 const VERIFY_OPERATOR_CMD = 'kubectl get csv -n ';
 
-class InstallModal extends React.Component {
+const getInstallOlmCommand = version =>
+  `curl -sL ${olmRepo}/releases/download/${version}/install.sh | bash -s ${version}`;
+
+const tooltipOverrides = Object.freeze({
+  wrapper: {
+    cursor: 'pointer',
+    top: '2px'
+  },
+  tooltip: {
+    maxWidth: '170px',
+    minWidth: 'auto'
+  }
+});
+
+/**
+ * Provides install instructions for operator
+ * @param {string} olmVersion
+ * @param {Operator} operator
+ * @param {*} history
+ * @param {Function} onClose
+ */
+class InstallModal extends React.PureComponent {
   state = { installCommand: '', copied: false };
+
+  componentDidMount() {
+    const { operator, history } = this.props;
+    const path = history.location.pathname.split('/');
+
+    let installPath;
+
+    // ["", "operator", packageName] - default path for latest operator in default channel
+    // ["", "operator", channelName, operatorName] - legacy path
+    // ["", "operator", packageName, channelName, operatorName] - full path (version / channel selected)
+
+    if (path.length > 3) {
+      // eslint-disable-next-line prefer-destructuring
+      const channelName = path.length === 5 ? path[3] : path[2];
+
+      installPath = `install/${channelName}/${operator.packageName}.yaml`;
+    } else {
+      installPath = `install/${operator.packageName}.yaml`;
+    }
+
+    this.setState({
+      installCommand: `kubectl create -f ${window.location.origin}/${installPath}`
+    });
+  }
 
   copyToClipboard = (e, command) => {
     e.preventDefault();
@@ -28,34 +72,8 @@ class InstallModal extends React.Component {
     this.setState({ copied: false });
   };
 
-  componentDidUpdate(prevProps) {
-    const { operator, history } = this.props;
-    const path = history.location.pathname.split('/');
-
-    if (operator !== prevProps.operator) {
-      let installPath;
-
-      // ["", "operator", packageName] - default path for latest operator in default channel
-      // ["", "operator", channelName, operatorName] - legacy path
-      // ["", "operator", packageName, channelName, operatorName] - full path (version / channel selected)
-
-      if (path.length > 3) {
-        // eslint-disable-next-line prefer-destructuring
-        const channelName = path.length === 5 ? path[3] : path[2];
-
-        installPath = `install/${channelName}/${operator.packageName}.yaml`;
-      } else {
-        installPath = `install/${operator.packageName}.yaml`;
-      }
-
-      this.setState({
-        installCommand: `kubectl create -f ${window.location.origin}/${installPath}`
-      });
-    }
-  }
-
   render() {
-    const { show, operator, onClose, history } = this.props;
+    const { operator, onClose, history, olmVersion } = this.props;
     const { installCommand, copied } = this.state;
 
     const tooltipText = copied ? 'Copied' : 'Copy to Clipboard';
@@ -65,23 +83,13 @@ class InstallModal extends React.Component {
       </span>
     ];
 
-    const tooltipOverrides = Object.freeze({
-      wrapper: {
-        cursor: 'pointer',
-        top: '2px'
-      },
-      tooltip: {
-        maxWidth: '170px',
-        minWidth: 'auto'
-      }
-    });
-
     const globalOperator = _.get(operator, 'globalOperator', true);
     const operatorNamespace = globalOperator ? 'operators' : `my-${operator.packageName}`;
     const verifyOperatorCommandFull = VERIFY_OPERATOR_CMD + operatorNamespace;
+    const installOlmCommand = getInstallOlmCommand(olmVersion);
 
     return (
-      <Modal show={show} onHide={onClose} bsSize="lg" className="oh-install-modal right-side-modal-pf">
+      <Modal show onHide={onClose} bsSize="lg" className="oh-install-modal right-side-modal-pf">
         {_.get(operator, 'displayName') && (
           <React.Fragment>
             <Modal.Header>
@@ -101,11 +109,11 @@ class InstallModal extends React.Component {
                     cluster.
                   </p>
                   <div className="oh-install-modal__install-command-container">
-                    <div className="oh-code">{`$ ${INSTALL_OLM_COMMAND}`}</div>
+                    <div className="oh-code">{`$ ${installOlmCommand}`}</div>
                     <Tooltip content={tooltipContent} styles={tooltipOverrides}>
                       <a
                         href="#"
-                        onClick={e => this.copyToClipboard(e, INSTALL_OLM_COMMAND)}
+                        onClick={e => this.copyToClipboard(e, installOlmCommand)}
                         className="oh-install-modal__install-command-copy"
                         onMouseEnter={this.onCopyEnter}
                       >
@@ -178,18 +186,12 @@ class InstallModal extends React.Component {
 }
 
 InstallModal.propTypes = {
-  show: PropTypes.bool,
-  operator: PropTypes.object,
-  onClose: PropTypes.func,
+  olmVersion: PropTypes.string.isRequired,
+  operator: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired
-};
-
-InstallModal.defaultProps = {
-  show: false,
-  operator: null,
-  onClose: helpers.noop
 };
 
 export default InstallModal;
