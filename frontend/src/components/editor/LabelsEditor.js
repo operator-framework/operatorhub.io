@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
 import { Icon } from 'patternfly-react';
-import { operatorFieldDescriptions, operatorFieldValidators } from '../../utils/operatorDescriptors';
+import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
+import { operatorFieldValidators } from '../../utils/operatorValidators';
 
 class LabelsEditor extends React.Component {
   constructor(props) {

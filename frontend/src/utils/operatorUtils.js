@@ -1,5 +1,5 @@
 import * as _ from 'lodash-es';
-import { operatorFieldValidators, operatorPackageFieldValidators } from './operatorDescriptors';
+import { operatorFieldValidators, operatorPackageFieldValidators } from './operatorValidators';
 import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_APPLICATION_HEADER,
