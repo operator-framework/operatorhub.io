@@ -8,7 +8,9 @@ const initialState = {
   pending: false,
   fulfilled: false,
   operators: [],
-  operator: {}
+  operator: {},
+  olmVersion: '0.11.0',
+  olmVersionUpdated: false
 };
 
 const operatorsReducer = (state = initialState, action) => {
@@ -45,6 +47,19 @@ const operatorsReducer = (state = initialState, action) => {
         errorResults: {},
         pending: false,
         fulfilled: true
+      });
+
+    case helpers.FULFILLED_ACTION(reduxConstants.GET_OLM_VERSION):
+      return Object.assign({}, state, {
+        olmVersionUpdated: true,
+        olmVersion: action.payload
+      });
+
+    // we use fallback version in case update fails - e.g. Github API not responding
+    // no need to display error
+    case helpers.REJECTED_ACTION(reduxConstants.GET_OLM_VERSION):
+      return Object.assign({}, state, {
+        olmVersionUpdated: true
       });
 
     default:

@@ -1,7 +1,19 @@
-import * as React from 'react';
-import * as classNames from 'classnames';
+import React from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+/**
+ * Internal link inside website. Scrolls to top on navigation
+ * @param {object} param0
+ * @param {string} param0.route
+ * @param {*} param0.history
+ * @param {string} [param0.text]
+ * @param {*} [param0.children]
+ * @param {string} [param0.className]
+ * @param {string} [param0.block]
+ * @param {string} [param0.text]
+ * @param {string} [param0.noNavigation]
+ */
 export const InternalLink = ({ text, children, className, block, route, history, noNavigation, ...otherProps }) => {
   const onClick = e => {
     e.preventDefault();
@@ -24,12 +36,12 @@ export const InternalLink = ({ text, children, className, block, route, history,
 };
 
 InternalLink.propTypes = {
-  text: PropTypes.string,
-  children: PropTypes.node,
   route: PropTypes.string.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
+  text: PropTypes.string,
+  children: PropTypes.node,
   block: PropTypes.bool,
   className: PropTypes.string,
   noNavigation: PropTypes.bool
