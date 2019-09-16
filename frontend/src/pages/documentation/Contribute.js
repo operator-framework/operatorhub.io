@@ -1,25 +1,9 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
-
+import * as React from 'react';
 import { ExternalLink } from '../../components/ExternalLink';
-import DocumentationPage from '../../components/page/DocumentationPage';
-import {
-  operatorsRepo,
-  operatorsRepoBeforePR,
-  operatorsRepoRequirements,
-  contributions,
-  operatorSdk,
-  olm,
-  gettingStarted,
-  prometheusOperator,
-  olmArchitecture,
-  buildYourCSV,
-  operatorRegistry,
-  operatorCourier,
-  operatorBundle,
-  manualTestingOnKubernetes
-} from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
+import DocumentationPage from '../../components/page/DocumentationPage';
+import * as documentationLinks from '../../utils/documentationLinks';
 
 const pageTitle = 'How to contribute an Operator';
 
@@ -72,29 +56,38 @@ const Contribute = ({ history, ...props }) => {
         <React.Fragment>
           <p>
             OperatorHub.io is the front-end for the{' '}
-            <ExternalLink href={operatorsRepo} text="Community Operators Repository" indicator={false} />. This is an
-            open source community project aiming to curate and collect Kubernetes Operators. Community contributions
-            live in:
+            <ExternalLink
+              href={documentationLinks.operatorsRepo}
+              text="Community Operators Repository"
+              indicator={false}
+            />
+            . This is an open source community project aiming to curate and collect Kubernetes Operators. Community
+            contributions live in:
           </p>
           <p>
-            <ExternalLink href={contributions} text={contributions} indicator={false} />
+            <ExternalLink
+              href={documentationLinks.contributions}
+              text={documentationLinks.contributions}
+              indicator={false}
+            />
           </p>
           <p>
             If you have an Operator you would like to contribute to OperatorHub.io, feel free to create a pull request
             against the above directory. Please read the pull request{' '}
-            <ExternalLink href={operatorsRepoBeforePR} text="requirements" indicator={false} /> before creating one to
-            ensure all required files are present.
+            <ExternalLink href={documentationLinks.operatorsRepoBeforePR} text="requirements" indicator={false} />{' '}
+            before creating one to ensure all required files are present.
           </p>
           <p>
             The easiest way to package your Operator for OperatorHub.io is to build it with the{' '}
-            <ExternalLink href={operatorSdk} text="Operator SDK" indicator={false} />, however it is not a requirement.
-            To publish your Operator, it must be built as a binary within a container, and that container must be hosted
-            on a publicly accessible <ExternalLink href={operatorRegistry} text="registry" indicator={false} />. It
-            should be accompanied by some{' '}
-            <ExternalLink href={operatorsRepoRequirements} text="metadata" indicator={false} /> that is used for
-            deploying the Operator using the{' '}
-            <ExternalLink href={olm} text="Operator Lifecycle Manager" indicator={false} /> in addition to rendering the
-            Operator’s detail page on OperatorHub.io.
+            <ExternalLink href={documentationLinks.operatorSdk} text="Operator SDK" indicator={false} />, however it is
+            not a requirement. To publish your Operator, it must be built as a binary within a container, and that
+            container must be hosted on a publicly accessible{' '}
+            <ExternalLink href={documentationLinks.operatorRegistry} text="registry" indicator={false} />. It should be
+            accompanied by some{' '}
+            <ExternalLink href={documentationLinks.operatorsRepoRequirements} text="metadata" indicator={false} /> that
+            is used for deploying the Operator using the{' '}
+            <ExternalLink href={documentationLinks.olm} text="Operator Lifecycle Manager" indicator={false} /> in
+            addition to rendering the Operator’s detail page on OperatorHub.io.
           </p>
         </React.Fragment>
       )
@@ -105,27 +98,41 @@ const Contribute = ({ history, ...props }) => {
         <React.Fragment>
           <p>
             Your Operator should be able to be managed by the{' '}
-            <ExternalLink href={olm} text="Operator Lifecycle Manager" indicator={false} /> (OLM). This component of the{' '}
-            <ExternalLink href={gettingStarted} text="Operator Framework" indicator={false} /> is deployed on your
-            Kubernetes cluster and will be able to install the Operator via CLI or through a GUI component like embedded
-            OperatorHub in OpenShift.
+            <ExternalLink href={documentationLinks.olm} text="Operator Lifecycle Manager" indicator={false} /> (OLM).
+            This component of the{' '}
+            <ExternalLink href={documentationLinks.gettingStarted} text="Operator Framework" indicator={false} /> is
+            deployed on your Kubernetes cluster and will be able to install the Operator via CLI or through a GUI
+            component like embedded OperatorHub in OpenShift. Either way, this requires some catalog data to be created
+            in the form of YAML manifests that follow a specific directory structure.
+          </p>
+          <h3>Operator Bundle Editor</h3>
+          <p>
+            You can now create your Operator bundle from Operatorhub.io using the{' '}
+            <InternalLink route="/bundle">bundle editor</InternalLink>. Starting by uploading your Kubernetes YAML
+            manifests, the forms on the page will be populated with all valid information and used to create the new
+            Operator bundle. You can modify or add properties through these forms as well.
+            <blockquote>
+              The Operator bundle editor is now available in beta.{' '}
+              <ExternalLink href={documentationLinks.fileAnIssue}>Feedback and questions</ExternalLink> are encouraged.
+            </blockquote>
           </p>
           <p>
-            Either way, this requires some catalog data to be created in the form of YAML manifests that follow a
-            specific directory structure. Let’s take a look at an example from the{' '}
-            <ExternalLink href={contributions} text="community repository" indicator={false} />:
+            Let’s take a look at an example from the{' '}
+            <ExternalLink href={documentationLinks.contributions} text="community repository" indicator={false} />:
           </p>
           <p>
             Your catalog data should live in a flat directory named after your Operator, e.g. the following files exist
-            for the <ExternalLink href={prometheusOperator} text="Prometheus Operator" indicator={false} /> in a
-            directory called <code>prometheus</code>.
+            for the{' '}
+            <ExternalLink href={documentationLinks.prometheusOperator} text="Prometheus Operator" indicator={false} />{' '}
+            in a directory called <code>prometheus</code>.
           </p>
           {renderTable()}
           <p>
             This catalog data will enable OLM to serve, install, and update your Operator in a predictable way instead
             of requiring cluster maintainers to manually deploy (e.g. <code>kubectl create -f ...</code>) required
             manifests that contain CRDs, RBAC rules, Service Accounts, Deployments etc. If you want to learn more about
-            how OLM does this, read about it <ExternalLink href={olmArchitecture} text="here" indicator={false} />.
+            how OLM does this, read about it{' '}
+            <ExternalLink href={documentationLinks.olmArchitecture} text="here" indicator={false} />.
           </p>
           <h3>Custom Resource Definitions:</h3>
           <p>
@@ -141,7 +148,8 @@ const Contribute = ({ history, ...props }) => {
             description, logo, version, maturity level, authoring info, links etc. for your Operator. This information
             will be used to render the detail page on OperatorHub.io. Follow${' '}
             `}
-            <ExternalLink href={buildYourCSV} text="these instructions" indicator={false} /> to create this file.
+            <ExternalLink href={documentationLinks.buildYourCSV} text="these instructions" indicator={false} /> to
+            create this file.
           </p>
           <p>
             If you add CSV files for newer versions of your Operator, don’t forget to use the <code>spec.replaces</code>{' '}
@@ -155,7 +163,7 @@ const Contribute = ({ history, ...props }) => {
             frequency, e.g. stable and alpha. Your package manifest must have at least one channel. For reference, use
             one of the examples in the${' '}
             `}
-            <ExternalLink href={contributions} text="community repository" indicator={false} />.
+            <ExternalLink href={documentationLinks.contributions} text="community repository" indicator={false} />.
           </p>
           <p>Feel free to use existing Community Operators catalog data as a template.</p>
         </React.Fragment>
@@ -171,8 +179,9 @@ const Contribute = ({ history, ...props }) => {
           </p>
           <p>
             <b>Important:</b> This preview only checks the syntax of your CSV. Please use the{' '}
-            <ExternalLink href={operatorCourier} indicator={false} text="operator-courier" /> utility to validate your
-            Operator <ExternalLink href={operatorBundle} indicator={false} text="bundle" />.
+            <ExternalLink href={documentationLinks.operatorCourier} indicator={false} text="operator-courier" /> utility
+            to validate your Operator{' '}
+            <ExternalLink href={documentationLinks.operatorBundle} indicator={false} text="bundle" />.
           </p>
         </React.Fragment>
       )
@@ -210,7 +219,7 @@ const Contribute = ({ history, ...props }) => {
             Before contributing it may be useful to register and deploy your Operator through OLM. To install OLM on a
             local Kubernetes cluster follow the{' '}
             <ExternalLink
-              href={manualTestingOnKubernetes}
+              href={documentationLinks.manualTestingOnKubernetes}
               text="instruction for manual, local testing"
               indicator={false}
             />
