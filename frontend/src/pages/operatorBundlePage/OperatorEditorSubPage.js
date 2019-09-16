@@ -189,7 +189,7 @@ OperatorEditorSubPage.propTypes = {
   pageId: PropTypes.string,
   header: PropTypes.node,
   buttonBar: PropTypes.node,
-  title: PropTypes.string,
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   field: PropTypes.string,
   description: PropTypes.node,
   secondary: PropTypes.bool,
