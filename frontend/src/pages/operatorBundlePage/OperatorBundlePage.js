@@ -17,6 +17,7 @@ import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorUtils
 import { getUpdatedFormErrors } from './bundlePageUtils';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
+import { fileAnIssue } from '../../utils/documentationLinks';
 
 class OperatorBundlePage extends React.Component {
   state = {
@@ -93,9 +94,7 @@ class OperatorBundlePage extends React.Component {
       </p>
       <blockquote>
         Thanks for trying out the Operator Bundle Editor beta. Feedback and questions are encouraged:&nbsp;
-        <ExternalLink href="https://github.com/operator-framework/operatorhub.io/issues">
-          File an issue on Github
-        </ExternalLink>
+        <ExternalLink href={fileAnIssue}>File an issue on Github</ExternalLink>
       </blockquote>
     </React.Fragment>
   );
