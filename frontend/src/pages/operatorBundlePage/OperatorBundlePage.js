@@ -93,7 +93,7 @@ class OperatorBundlePage extends React.Component {
         new Operator bundle. You can modify or add properties through these forms as well.
       </p>
       <blockquote>
-        Thanks for trying out the Operator Bundle Editor beta. Feedback and questions are encouraged:&nbsp;
+        Thanks for trying out the Operator Bundle Editor beta. Feedback and questions are encouraged:{' '}
         <ExternalLink href={fileAnIssue}>File an issue on Github</ExternalLink>
       </blockquote>
     </React.Fragment>
