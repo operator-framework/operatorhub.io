@@ -27,5 +27,5 @@ export const kubernetesSlack = `https://kubernetes.slack.com/messages/kubernetes
 export const hubFacebook = ``;
 export const hubTwitter = `https://twitter.com/operatorhubio`;
 export const hubYoutube = 'https://www.youtube.com/watch?v=yzPvPJLxCl8&list=PLaR6Rq6Z4Iqcuu758T4YX6KRa1158v3Rb';
-export const fileAnIssue = `${operatorsRepo}/issues/new`;
+export const fileAnIssue = `${operatorsRepo}/issues`;
 export const contactUsEmail = `__someone__@__someplace__.com`;
