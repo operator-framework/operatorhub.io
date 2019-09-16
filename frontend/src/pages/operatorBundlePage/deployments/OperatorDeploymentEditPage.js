@@ -9,7 +9,7 @@ import { helpers } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import YamlViewer from '../../../components/YamlViewer';
 import { getValueError, getDefaultDeployment, isDeploymentDefault } from '../../../utils/operatorUtils';
-import { operatorFieldValidators } from '../../../utils/operatorDescriptors';
+import { operatorFieldValidators } from '../../../utils/operatorValidators';
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,

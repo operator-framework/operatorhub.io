@@ -3,13 +3,10 @@ import React from 'react';
 import _ from 'lodash-es';
 import PropTypes from 'prop-types';
 
-import {
-  operatorFieldValidators,
-  operatorFieldPlaceholders,
-  operatorFieldDescriptions
-} from '../../../utils/operatorDescriptors';
+import { operatorFieldPlaceholders, operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
 import OperatorInputWrapper from './OperatorInputWrapper';
 import { helpers } from '../../../common/helpers';
+import { operatorFieldValidators } from '../../../utils/operatorValidators';
 
 /**
  * Create input wrapped into Operator Editor styling
