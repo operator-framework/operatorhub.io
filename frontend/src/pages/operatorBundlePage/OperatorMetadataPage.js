@@ -284,8 +284,8 @@ class OperatorMetadataPage extends React.Component {
             field="spec.keywords"
             formErrors={formErrors}
             values={_.get(workingOperator, 'spec.keywords')}
-            options={categoryOptions}
             isMulti
+            options={[]}
             customSelect
             newSelectionPrefix="Add keyword: "
             updateOperator={this.updateOperator}
