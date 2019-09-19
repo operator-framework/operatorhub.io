@@ -1,6 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
 import React from 'react';
-import _ from 'lodash-es';
 
 export const operatorFieldDescriptions = {
   metadata: {
@@ -218,6 +217,10 @@ export const operatorFieldPlaceholders = {
           description: 'e.g. The desired number of member Pods for the cluster.',
           path: 'e.g. servers[0].size',
           'x-descriptors': "e.g. 'urn:alm:descriptor:com.tectonic.ui:podCount'"
+        },
+        resources: {
+          version: 'e.g. apps/v1 or v1beta2',
+          kind: 'e.g. StatefulSet'
         }
       },
       required: {
