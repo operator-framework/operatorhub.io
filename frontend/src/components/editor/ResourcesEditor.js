@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import classNames from 'classnames';
 import { Icon } from 'patternfly-react';
-import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
+import { operatorFieldDescriptions, operatorFieldPlaceholders } from '../../utils/operatorDescriptors';
 import EditorSelect from './EditorSelect';
 import { kindOptions } from '../../utils/constants';
 
@@ -76,14 +76,18 @@ class ResourcesEditor extends React.Component {
   };
 
   renderResource = (resource, index) => {
-    const { versionPlaceholder, kindPlaceholder, errors } = this.props;
+    const { errors } = this.props;
+
     const removeResourceClass = classNames('remove-label', { disabled: this.areResourcesEmpty() });
 
     const fieldErrors = _.find(errors, { index });
 
+    const versionPlaceholder = operatorFieldPlaceholders.spec.customresourcedefinitions.owned.resources.version;
     const versionError = _.get(this.dirtyResources, [index, 'version'], false) && _.get(fieldErrors, 'errors.version');
-    const kindError = _.get(this.dirtyResources, [index, 'kind'], false) && _.get(fieldErrors, 'errors.kind');
     const versionClasses = classNames('form-group col-sm-6', { 'oh-operator-editor-form__field--error': versionError });
+
+    const kindPlaceholder = operatorFieldPlaceholders.spec.customresourcedefinitions.owned.resources.kind;
+    const kindError = _.get(this.dirtyResources, [index, 'kind'], false) && _.get(fieldErrors, 'errors.kind');
     const kindClasses = classNames('form-group col-sm-6', { 'oh-operator-editor-form__field--error': kindError });
 
     return (
@@ -153,16 +157,12 @@ ResourcesEditor.propTypes = {
   errors: PropTypes.array,
   title: PropTypes.string.isRequired,
   field: PropTypes.string.isRequired,
-  onUpdate: PropTypes.func.isRequired,
-  versionPlaceholder: PropTypes.string,
-  kindPlaceholder: PropTypes.string
+  onUpdate: PropTypes.func.isRequired
 };
 
 ResourcesEditor.defaultProps = {
   resources: [],
-  errors: [],
-  versionPlaceholder: 'e.g. v1beta2',
-  kindPlaceholder: 'e.g. StatefulSet'
+  errors: []
 };
 
 export default ResourcesEditor;
