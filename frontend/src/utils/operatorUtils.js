@@ -104,10 +104,14 @@ export const normalizeOperator = operator => {
   const packageInfo = _.get(operator, 'packageInfo', {});
 
   const description = _.get(spec, 'description');
+  // fallback to short description
   let longDescription = annotations.description;
 
+  // replace with proper long description if available
   if (typeof description === 'object') {
     longDescription = mergeDescriptions(operator);
+  } else if (description !== '') {
+    longDescription = description;
   }
 
   return {

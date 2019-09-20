@@ -1,6 +1,13 @@
 import _ from 'lodash-es';
 
-import { generateIdFromVersionedName, getDefaultOperator, getDefaultOnwedCRD } from '../../../utils/operatorUtils';
+import {
+  generateIdFromVersionedName,
+  getDefaultOperator,
+  getDefaultOnwedCRD,
+  isOwnedCrdDefault,
+  isDeploymentDefault,
+  isAlmExampleDefault
+} from '../../../utils/operatorUtils';
 import { sectionsFields } from '../../../utils/constants';
 
 export const securityObjectTypes = ['ClusterRole', 'Role', 'ClusterRoleBinding', 'RoleBinding'];
@@ -175,19 +182,115 @@ export function addDefaultResourceStructureToCrd(crd) {
 }
 
 /**
- * Apply modifications on uploaded operator as adding default resources to CRDs
+ * @callback CustomMergerCallback
+ * @param {*} initialValue
+ * @param {*} updatedValue
  */
-export function augmentOperator(operator, uploadedOperator) {
-  const clonedOperator = _.cloneDeep(operator);
-  const ownedCrds = _.get(clonedOperator, sectionsFields['owned-crds'], []);
 
-  _.set(clonedOperator, sectionsFields['owned-crds'], ownedCrds.map(crd => addDefaultResourceStructureToCrd(crd)));
+/**
+ * Merge array of objects using defined object property as key (unique identifier)
+ * By default _.merge is used to merge objects with same ID, but custom implementation can be supplied
+ * @param {*[]} initialValues base value
+ * @param {*[]} updatedValues applied new value
+ * @param {string} keyProperty property name used to identify objects
+ * @param {CustomMergerCallback} [customMerger] custom implementation of applying updatedValues into objects map
+ */
+export function mergeArrayOfObjectsByKey(initialValues, updatedValues, keyProperty, customMerger) {
+  const map = new Map();
 
-  // replace example deployments with uploaded as merge might add undesired properties!
-  const deployments = _.get(uploadedOperator, sectionsFields.deployments);
-  if (deployments) {
-    _.set(clonedOperator, sectionsFields.deployments, deployments);
-  }
+  // fill map with first object values
+  initialValues.forEach(element => {
+    map.set(element[keyProperty], element);
+  });
 
-  return clonedOperator;
+  // merge second object into map by key value
+  updatedValues.forEach(element => {
+    const key = element[keyProperty];
+    let merged = element;
+
+    if (map.has(key)) {
+      const value = map.get(key);
+
+      if (typeof customMerger === 'function') {
+        // use custom merge implementation for special cases
+        merged = customMerger(value, element);
+      } else {
+        merged = _.merge(value, element);
+      }
+    }
+    map.set(key, merged);
+  });
+
+  return Array.from(map.values());
 }
+
+/**
+ * Merge CRD and merge its subcontent (resources & descriptors) preserving object uniqueness
+ * @param {OperatorOwnedCrd} initial
+ * @param {OperatorOwnedCrd} updated
+ */
+const mergeOwnedCRD = (initial, updated) =>
+  _.mergeWith(initial, updated, (objValue, srcValue, key) => {
+    switch (key) {
+      case 'specDescriptors':
+      case 'statusDescriptors':
+        return mergeArrayOfObjectsByKey(objValue, srcValue, 'path');
+
+      case 'resources':
+        return mergeArrayOfObjectsByKey(objValue, srcValue, 'kind');
+
+      default:
+        return undefined;
+    }
+  });
+
+/**
+ * Merge owned CRDs using their kind as ID
+ * @param {OperatorOwnedCrd[]} initialValue
+ * @param {OperatorOwnedCrd[]} newValue
+ */
+export const mergeOwnedCRDs = (initialValue, newValue) => {
+  let mergedCrds = mergeArrayOfObjectsByKey(initialValue, newValue, 'kind', mergeOwnedCRD);
+
+  // remove sample crd if there is any other crd
+  mergedCrds = mergedCrds.filter((crd, index, array) => array.length > 1 && !isOwnedCrdDefault(crd));
+
+  // add default resources to CRDs which are missing them
+  mergedCrds = mergedCrds.map(crd => addDefaultResourceStructureToCrd(crd));
+
+  return mergedCrds;
+};
+
+/**
+ * Converts Alm examples to JSON and merge them by kind before stringifying
+ * @param {*} initialValue
+ * @param {*} newValue
+ */
+export const mergeAlmExamples = (initialValue, newValue) => {
+  const parsedInitialValue = typeof initialValue === 'string' ? JSON.parse(initialValue) : initialValue;
+  const parsedNewValue = typeof newValue === 'string' ? JSON.parse(newValue) : newValue;
+
+  let mergedAlmExamples = mergeArrayOfObjectsByKey(parsedInitialValue, parsedNewValue, 'kind');
+
+  // removed default sample if any other is present (has to be synced with OwnedCRDs behavior!)
+  mergedAlmExamples = mergedAlmExamples.filter(
+    (example, index, array) => array.length > 1 && !isAlmExampleDefault(example)
+  );
+
+  return JSON.stringify(mergedAlmExamples);
+};
+
+/**
+ * In case of deployments we do not merge them, but overwrite
+ * as they do not follow same structure which can be easily merged
+ * @param {*[]} initialValue
+ * @param {*[]} newValue
+ */
+export const mergeDeployments = (initialValue, newValue) => {
+  let deployments = mergeArrayOfObjectsByKey(initialValue, newValue, 'name', (initial, updated) => updated);
+
+  // remove default sample deployment if any other is provided
+  deployments = deployments.filter((deployment, index, array) => array.length > 1 && !isDeploymentDefault(deployment));
+
+  return deployments;
+};
