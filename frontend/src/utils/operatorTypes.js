@@ -119,7 +119,7 @@
  * @prop {object} selector
  * @prop {Record<string, string>} selector.matchLabels
  * @prop {OperatorLink[]} links
- * @prop {OperatorIcon} icon
+ * @prop {OperatorIcon[]} icon
  * @prop {object} customresourcedefinitions
  * @prop {OperatorOwnedCrd[]} customresourcedefinitions.owned
  * @prop {OperatorCrd[]} customresourcedefinitions.required
