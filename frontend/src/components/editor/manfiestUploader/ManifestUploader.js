@@ -339,12 +339,34 @@ class ManifestUploader extends React.Component {
     const { operator, storeEditorOperator } = this.props;
 
     const normalizedOperator = normalizeYamlOperator(parsedFile);
+    const clonedOperator = _.cloneDeep(operator);
 
     // only CSV.yaml is used to populate operator in editor. Other files have special roles
-    let mergedOperator = _.merge({}, operator, normalizedOperator);
+    const mergedOperator = _.mergeWith(clonedOperator, normalizedOperator, (objValue, srcValue, key) => {
+      // handle owned CRDs
+      switch (key) {
+        // merge owned CRDs by kind
+        case 'owned':
+          return utils.mergeOwnedCRDs(objValue, srcValue);
+        // merge requried CRDs by kind
+        case 'required':
+          return utils.mergeArrayOfObjectsByKey(objValue, srcValue, 'kind');
+        case 'alm-examples':
+          return utils.mergeAlmExamples(objValue, srcValue);
+        // replace deployments instead of merging
+        case 'deployments':
+          return utils.mergeDeployments(objValue, srcValue);
+        // merge permissions using serviceAccountName as unique ID
+        case 'permissions':
+        case 'clusterPermissions':
+          return utils.mergeArrayOfObjectsByKey(objValue, srcValue, 'serviceAccountName');
+
+        default:
+          return undefined;
+      }
+    });
 
     this.compareSections(operator, mergedOperator, normalizedOperator);
-    mergedOperator = utils.augmentOperator(mergedOperator, normalizedOperator);
     storeEditorOperator(mergedOperator);
   };
 
