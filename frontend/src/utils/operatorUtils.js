@@ -344,7 +344,7 @@ export function getDefaultDeployment() {
  */
 export function getDefaultCrdDescriptor() {
   // @ts-ignore
-  return { displayName: '', description: '', path: '', 'x-descriptors': [] };
+  return { id: Date.now().toString(), displayName: '', description: '', path: '', 'x-descriptors': [] };
 }
 
 /** @param {Operator} operator */
@@ -353,7 +353,13 @@ export const isOwnedCrdDefault = crd => _.isEqual(crd, defaultOnwedCrdRef);
 export const isRequiredCrdDefault = crd => _.isEqual(crd, getDefaultRequiredCRD());
 export const isDeploymentDefault = deployment => _.isEqual(deployment, defaultDeploymentRef);
 export const isAlmExampleDefault = almExample => _.isEqual(almExample, getDefaultAlmExample());
-export const isCrdDescriptorDefault = descriptor => _.isEqual(descriptor, getDefaultCrdDescriptor());
+export const isCrdDescriptorDefault = descriptor => {
+  const defaultDescriptor = getDefaultCrdDescriptor();
+
+  return ['displayName', 'description', 'path', 'x-descriptors'].every(prop =>
+    _.isEqual(descriptor[prop], defaultDescriptor[prop])
+  );
+};
 
 /**
  * Convert ALM examples to objects so we can find one for current CRD
