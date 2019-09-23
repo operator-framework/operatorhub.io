@@ -11,6 +11,10 @@ const kubeVersionRegExp = /^([v|V])(0|[1-9])+(alpha|beta)?(0|[1-9])*/;
 const kubeVersionRegExpMessage =
   'Must start with a v, followed by a version number, and optionally a alpha or beta version';
 
+const kubeGroupVersionRegExp = /^([a-z.]+\/)?([v|V])(0|[1-9])+(alpha|beta)?([0-9])*/;
+const kubeGroupVersionRegExpMessage =
+  'Must start with either API group or a v, followed by a version number, and optionally a alpha or beta version';
+
 const majorMinorPatchVersionRegExp = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
 export const urlRegExp = new RegExp(
@@ -327,8 +331,8 @@ export const operatorFieldValidators = {
             itemValidator: {
               version: {
                 required: true,
-                regex: kubeVersionRegExp,
-                regexErrorMessage: kubeVersionRegExpMessage
+                regex: kubeGroupVersionRegExp,
+                regexErrorMessage: kubeGroupVersionRegExpMessage
               },
               kind: {
                 required: true
