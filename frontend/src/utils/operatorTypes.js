@@ -64,6 +64,7 @@
 
 /**
  * @typedef OperatorCrdDescriptor
+ * @prop {string} id
  * @prop {string} displayName
  * @prop {string} description
  * @prop {string} path

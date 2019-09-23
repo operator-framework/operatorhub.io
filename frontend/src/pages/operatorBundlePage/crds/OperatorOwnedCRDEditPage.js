@@ -283,25 +283,6 @@ class OperatorOwnedCRDEditPage extends React.Component {
     return operator;
   };
 
-  /**
-   * CRD editor populates CRD with empty samples of descriptors so they appear in form
-   * However they can't leak outside of local state as they break validation
-   * and malform CSV yaml with empty values
-   * Therefore we need to clean them up
-   */
-  cleanEmptySampleFields = crd => {
-    const cleanedCrd = _.cloneDeep(crd);
-
-    if (cleanedCrd.specDescriptors) {
-      cleanedCrd.specDescriptors = cleanedCrd.specDescriptors.filter(desc => !isCrdDescriptorDefault(desc));
-    }
-    if (cleanedCrd.statusDescriptors) {
-      cleanedCrd.statusDescriptors = cleanedCrd.statusDescriptors.filter(desc => !isCrdDescriptorDefault(desc));
-    }
-
-    return cleanedCrd;
-  };
-
   updatePagePathOnNameChange = name => {
     const { location, history, isNew } = this.props;
 
@@ -391,7 +372,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     if (statusDescriptors.length === 0) {
       statusDescriptors = [getDefaultCrdDescriptor()];
     }
-
+    console.log('CRD editor');
     return (
       <OperatorEditorSubPage
         title="Edit Owned CRD"
