@@ -40,18 +40,38 @@ class DescriptorsEditor extends React.PureComponent {
   componentDidMount() {
     const { descriptors } = this.props;
 
-    descriptors.forEach((nextDescriptor, index) => {
-      if (!isCrdDescriptorDefault(nextDescriptor)) {
-        this.makeFieldDirty('displayName', index);
-        this.makeFieldDirty('description', index);
-        this.makeFieldDirty('path', index);
-        this.makeFieldDirty('x-descriptors', index);
-      }
+    descriptors.forEach((nextDescriptor, index, array) => {
+      (!isCrdDescriptorDefault(nextDescriptor) || array.length > 1) && this.makeAllFieldsDirty(index);
     });
   }
 
+  /**
+   * Set field as dirty to validate it
+   * @param {string} field
+   * @param {number} index
+   */
   makeFieldDirty = (field, index) => {
     _.set(this.dirtyDescriptors, [index, field], true);
+  };
+
+  /**
+   * Set all fields of descriptor dirty
+   * @param {number} index
+   */
+  makeAllFieldsDirty = index => {
+    this.makeFieldDirty('displayName', index);
+    this.makeFieldDirty('description', index);
+    this.makeFieldDirty('path', index);
+    this.makeFieldDirty('x-descriptors', index);
+  };
+
+  /**
+   * Set all descriptors dirty
+   */
+  setAllAsDirty = () => {
+    const { descriptors } = this.props;
+
+    descriptors.forEach((nextDescriptor, index) => this.makeAllFieldsDirty(index));
   };
 
   /**
@@ -142,6 +162,8 @@ class DescriptorsEditor extends React.PureComponent {
       }
 
       this.ordering = false;
+      // after ordering mark every descriptor dirty so errors are properly shown
+      this.setAllAsDirty();
       onUpdate(updatedDescriptors);
     }
   };
@@ -180,6 +202,8 @@ class DescriptorsEditor extends React.PureComponent {
       expanded
     } = this.props;
 
+    console.log('Rerendered editor');
+
     return (
       <ExpandCollapse textCollapsed={`Show ${title}`} textExpanded={`Hide ${title}`} expanded={expanded}>
         <div className="oh-operator-editor__descriptor-editor">
@@ -191,7 +215,7 @@ class DescriptorsEditor extends React.PureComponent {
 
               return (
                 <Descriptor
-                  key={descriptor.path}
+                  key={descriptor.id}
                   index={index}
                   descriptor={descriptor}
                   descriptorOptions={descriptorOptions}

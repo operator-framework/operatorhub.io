@@ -8,7 +8,7 @@ import {
   isDeploymentDefault,
   isAlmExampleDefault
 } from '../../../utils/operatorUtils';
-import { sectionsFields } from '../../../utils/constants';
+import { addIdToDescriptor } from '../../../pages/operatorBundlePage/bundlePageUtils';
 
 export const securityObjectTypes = ['ClusterRole', 'Role', 'ClusterRoleBinding', 'RoleBinding'];
 const almExampleFileNameRegExp = new RegExp('^.+_cr.yaml$');
@@ -146,13 +146,17 @@ export function createErroredUpload(fileName, errorStatus) {
  * @param {string} path
  * @returns {OperatorCrdDescriptor}
  */
-export const generateDescriptorFromPath = path => ({
-  path,
-  description: _.startCase(path),
-  displayName: _.startCase(path),
-  // @ts-ignore
-  'x-descriptors': []
-});
+export const generateDescriptorFromPath = path => {
+  const descriptor = {
+    path,
+    description: _.startCase(path),
+    displayName: _.startCase(path),
+    // @ts-ignore
+    'x-descriptors': []
+  };
+
+  return addIdToDescriptor(descriptor);
+};
 
 /**
  * Filter latest object based on defined type and namespace

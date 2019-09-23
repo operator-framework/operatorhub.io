@@ -15,7 +15,7 @@ import {
  * @param {string|string[]} field
  * @param {*} formErrors
  */
-const renderFormError = (field, formErrors) => {
+export const renderFormError = (field, formErrors) => {
   const error = _.get(formErrors, field);
   if (!error) {
     return null;
@@ -29,7 +29,7 @@ const renderFormError = (field, formErrors) => {
  * @param {*} formErrors
  * @param {string | string[]} fields
  */
-const getUpdatedFormErrors = (operator, formErrors, fields) => {
+export const getUpdatedFormErrors = (operator, formErrors, fields) => {
   if (!formErrors) {
     throw new Error('FormErrors is undefined!');
   }
@@ -44,7 +44,7 @@ const getUpdatedFormErrors = (operator, formErrors, fields) => {
   return updatedFormErrors;
 };
 
-const operatorNameFromOperator = operator => {
+export const operatorNameFromOperator = operator => {
   const name = _.get(operator, 'metadata.name');
   const version = _.get(operator, 'spec.version');
 
@@ -117,7 +117,7 @@ const splitDescriptionIntoSections = operator => {
  * Parse and normalize yaml operator (not suitable for CRDs!)
  * @param {*} yaml operator yaml file
  */
-const parseYamlOperator = yaml => {
+export const parseYamlOperator = yaml => {
   const operator = safeLoad(yaml);
 
   return normalizeYamlOperator(operator);
@@ -127,8 +127,8 @@ const parseYamlOperator = yaml => {
  * Convert operator data into standardized form
  * @param {*} operator
  */
-const normalizeYamlOperator = operator => {
-  const normalizedOperator = operator;
+export const normalizeYamlOperator = operator => {
+  const normalizedOperator = _.cloneDeep(operator);
   const name = _.get(normalizedOperator, 'metadata.name');
   const description = _.get(normalizedOperator, 'spec.description');
 
@@ -147,23 +147,74 @@ const normalizeYamlOperator = operator => {
     _.set(normalizedOperator, 'spec.description', getDefaultDescription());
   }
 
+  // index crd descriptors with ID for UI to distinct them
+  modifyOwnedCrdsDescriptors(normalizedOperator, addIdToDescriptor);
+
   return normalizedOperator;
 };
 
-const yamlFromOperator = operator => {
+/**
+ * Removes ID prop from descriptor before export to yaml
+ * @param {OperatorCrdDescriptor} descriptor
+ * @returns {Omit<OperatorCrdDescriptor, 'id'>}
+ */
+const removeIdFromDescriptor = descriptor => {
+  const { id, ...rest } = descriptor;
+  return { ...rest };
+};
+
+let idIndex = 0;
+
+/**
+ * Add ID prop to descriptor so UI can index it properly for reordering
+ * @param {OperatorCrdDescriptor} descriptor
+ */
+export const addIdToDescriptor = descriptor => ({
+  id: (++idIndex + Date.now()).toString(),
+  ...descriptor
+});
+
+/**
+ * Modifies operator owned CRDs descriptor using provided method (add / remove ID)
+ * @param {Operator} operator
+ * @param {Function} descriptorMapperFn
+ */
+const modifyOwnedCrdsDescriptors = (operator, descriptorMapperFn) => {
+  // clear id from descriptors as they are used only internally
+  const ownedCrds = _.get(operator, sectionsFields['owned-crds'], []).map(
+    /** @param {OperatorOwnedCrd} crd */
+    crd => ({
+      ...crd,
+      specDescriptors: crd.specDescriptors.map(descriptor => descriptorMapperFn(descriptor)),
+      statusDescriptors: crd.statusDescriptors.map(descriptor => descriptorMapperFn(descriptor))
+    })
+  );
+
+  _.set(operator, sectionsFields['owned-crds'], ownedCrds);
+
+  return operator;
+};
+
+/**
+ * Converts operator to YAML
+ * @param {Operator} operator
+ */
+export const yamlFromOperator = operator => {
   const yamlizedOperator = _.cloneDeep(operator);
 
   _.set(yamlizedOperator, 'metadata.name', operatorNameFromOperator(operator));
   _.set(yamlizedOperator, 'spec.description', mergeDescriptions(operator));
 
-  return safeDump(yamlizedOperator);
+  modifyOwnedCrdsDescriptors(yamlizedOperator, removeIdFromDescriptor);
+
+  return safeDump(yamlizedOperator, { noRefs: true });
 };
 
 /**
  * Get valid CRDs from all uploaded files
  * @param {UploadMetadata[]} uploads
  */
-const filterValidCrdUploads = uploads =>
+export const filterValidCrdUploads = uploads =>
   uploads.filter(upload => !upload.errored && upload.type === 'CustomResourceDefinition');
 
 /**
@@ -172,7 +223,7 @@ const filterValidCrdUploads = uploads =>
  * @param {*} operator
  * @returns {MissingCRD[]}
  */
-const getMissingCrdUploads = (uploads, operator) => {
+export const getMissingCrdUploads = (uploads, operator) => {
   const uploadedCrds = filterValidCrdUploads(uploads).map(upload => upload.name);
 
   const missingCrds = _.get(operator, sectionsFields['owned-crds']).filter(
@@ -180,15 +231,4 @@ const getMissingCrdUploads = (uploads, operator) => {
   );
 
   return missingCrds;
-};
-
-export {
-  renderFormError,
-  getUpdatedFormErrors,
-  operatorNameFromOperator,
-  parseYamlOperator,
-  normalizeYamlOperator,
-  yamlFromOperator,
-  filterValidCrdUploads,
-  getMissingCrdUploads
 };

@@ -23,7 +23,7 @@ class ListObjectEditor extends React.Component {
 
   editOperatorObject = (operatorObject, index) => {
     const { history, objectPage, pagePathField } = this.props;
-    const transformedName = helpers.transformNameForPath(_.get(operatorObject, pagePathField));
+    const transformedName = helpers.transformNameForPath(_.get(operatorObject, pagePathField, ''));
     history.push(`/bundle/${objectPage}/edit/${index}/${transformedName}`);
   };
 
