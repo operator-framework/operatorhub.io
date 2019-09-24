@@ -53,7 +53,7 @@ const extractOperatorVersionData = (versionDirPath, fileName) => {
   if (fileType === 'CSV') {
     csvFile = content;
   } else if (fileType === 'Unknown') {
-    console.warn(`Cannot identify file ${fileName}. Ignoring file`);
+    console.warn(`Cannot identify file ${fileName} in folder ${versionDirPath}. Ignoring file`);
   }
 
   return csvFile;
@@ -80,6 +80,15 @@ const extractOperatorData = (dirPath, fileName) => {
     const versionFiles = fs.readdirSync(versionFolder);
 
     versionFiles.forEach(versionFile => {
+      const versionFilePath = path.join(versionFolder, versionFile);
+
+      // handle case when expected csv file, but found a dir
+      // e.g. malformed directory structure
+      if (fs.statSync(versionFilePath).isDirectory()) {
+        console.error(`ERROR: Found directory "${versionFile}" instead of file at path '${versionFolder}'`);
+        return;
+      }
+
       const csv = extractOperatorVersionData(versionFolder, versionFile);
 
       // there are other files than csv so ignore them!
@@ -113,7 +122,7 @@ const extractOperatorData = (dirPath, fileName) => {
   } else if (fileType === 'CSV') {
     csvFiles.push(content);
   } else if (fileType === 'Unknown') {
-    console.warn(`Cannot identify file ${fileName}. Ignoring file`);
+    console.warn(`Cannot identify file ${fileName} at folder ${dirPath}. Ignoring file`);
   }
 
   return {
