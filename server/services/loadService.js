@@ -29,10 +29,115 @@ const getFileType = content => {
   return 'Unknown';
 };
 
+/**
+ * Read out CSV file in nested version folder
+ * @param {string} versionDirPath
+ * @param {string} fileName
+ */
+const extractOperatorVersionData = (versionDirPath, fileName) => {
+  const filePath = path.join(versionDirPath, fileName);
+
+  let csvFile = null;
+  let content = null;
+  let fileType = 'Unknown';
+
+  try {
+    content = yaml.safeLoad(fs.readFileSync(filePath));
+    fileType = getFileType(content);
+  } catch (e) {
+    console.error(`ERROR: Unable to parse ${fileName}`);
+    console.error(e.message);
+    return null;
+  }
+
+  if (fileType === 'CSV') {
+    csvFile = content;
+  } else if (fileType === 'Unknown') {
+    console.warn(`Cannot identify file ${fileName} in folder ${versionDirPath}. Ignoring file`);
+  }
+
+  return csvFile;
+};
+
+/**
+ * Extracts package and csv data from operator
+ * @param {string} dirPath
+ * @param {string} fileName
+ */
+const extractOperatorData = (dirPath, fileName) => {
+  const operatorName = (dirPath.match(/[a-z-]+$/i) || ['unknown'])[0];
+  const filePath = path.join(dirPath, fileName);
+  const csvFiles = [];
+
+  let packageFile = null;
+  let content = null;
+  let fileType = 'Unknown';
+
+  // nested operator contains one folder per version
+  // every version folder has exactly one CSV
+  if (fs.statSync(filePath).isDirectory()) {
+    const versionFolder = filePath;
+    const versionFiles = fs.readdirSync(versionFolder);
+
+    versionFiles.forEach(versionFile => {
+      const versionFilePath = path.join(versionFolder, versionFile);
+
+      // handle case when expected csv file, but found a dir
+      // e.g. malformed directory structure
+      if (fs.statSync(versionFilePath).isDirectory()) {
+        console.error(`ERROR: Found directory "${versionFile}" instead of file at path '${versionFolder}'`);
+        return;
+      }
+
+      const csv = extractOperatorVersionData(versionFolder, versionFile);
+
+      // there are other files than csv so ignore them!
+      csv && csvFiles.push(csv);
+    });
+
+    if (csvFiles.length !== 1) {
+      console.warn(`Operator ${operatorName} version ${filePath} contains no or multiple csvs! Ignoring it.`, csvFiles);
+    }
+
+    return {
+      packageFile: null,
+      csvFiles
+    };
+  }
+
+  try {
+    content = yaml.safeLoad(fs.readFileSync(filePath));
+    fileType = getFileType(content);
+  } catch (e) {
+    console.error(`ERROR: Unable to parse ${fileName}`);
+    console.error(e.message);
+    return {
+      packageFile: null,
+      csvFiles
+    };
+  }
+
+  if (fileType === 'PKG') {
+    packageFile = content;
+  } else if (fileType === 'CSV') {
+    csvFiles.push(content);
+  } else if (fileType === 'Unknown') {
+    console.warn(`Cannot identify file ${fileName} at folder ${dirPath}. Ignoring file`);
+  }
+
+  return {
+    packageFile,
+    csvFiles
+  };
+};
+
+/**
+ * Loads all operators with packages and csv and normalize them
+ * @param {*} callback
+ */
 const loadOperators = callback => {
   const packages = [];
   const operators = [];
-
   const operatorDirs = fs.readdirSync(operatorsFrameworkDirectory);
 
   operatorDirs.forEach(dir => {
@@ -42,34 +147,20 @@ const loadOperators = callback => {
       // console.log(`Reading operator dir ${dir}`);
 
       const operatorFiles = fs.readdirSync(dirPath);
-      const operatorCSVs = [];
 
-      let operatorPackage;
+      let operatorPackage = null;
+      let operatorCSVs = [];
 
       operatorFiles.forEach(file => {
-        const filePath = path.join(dirPath, file);
+        const operatorData = extractOperatorData(dirPath, file);
+        const { packageFile, csvFiles } = operatorData;
 
-        // console.log(`Reading file ${file}`);
-
-        let content = null;
-        let fileType = 'Unknown';
-
-        try {
-          content = yaml.safeLoad(fs.readFileSync(filePath), { json: true });
-          fileType = getFileType(content);
-        } catch (e) {
-          console.error(`ERROR: Unable to parse ${file}`);
-          console.error(e.message);
-          return;
+        if (operatorPackage && packageFile) {
+          console.error(`Operator ${dir} contains multiple package files!. Skipping it.`, operatorPackage, packageFile);
+        } else if (packageFile) {
+          operatorPackage = packageFile;
         }
-
-        if (fileType === 'PKG') {
-          operatorPackage = content;
-        } else if (fileType === 'CSV') {
-          operatorCSVs.push(content);
-        } else if (fileType === 'Unknown') {
-          console.warn(`Cannot identify file ${file}. Ignoring file`);
-        }
+        operatorCSVs = operatorCSVs.concat(csvFiles);
       });
 
       if (operatorPackage) {
