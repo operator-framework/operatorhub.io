@@ -4,24 +4,35 @@
     "authors": "author",
     "version": "1.0.0",
     "dependencies": {
+        "@types/argv": "0.0.4",
+        "argv": "0.0.2",
         "compression": "~1.7.4",
         "express": "~4.17.1",
         "express-force-ssl": "~0.3.2",
         "fs-extra": "~8.1.0",
+        "google-protobuf": "~3.8.0",
+        "grpc": "~1.22.2",
         "lodash": "~4.17.15",
-        "self-signed-https": "~1.0.5"
+        "self-signed-https": "~1.0.5",
+        "sharp": "^0.23.0"
     },
     "devDependencies": {
+        "@improbable-eng/grpc-web": "^0.11.0",
+        "@types/google-protobuf": "~3.7.1",
+        "grpc-tools": "~1.8.0",
+        "ts-protoc-gen": "^0.10.0",
         "@types/compression": "~1.0.1",
         "@types/express": "~4.17.1",
         "@types/fs-extra": "~8.0.0",
         "@types/lodash": "~4.14.138",
-        "@types/node": "^12.7.1",
+        "@types/node": "^12.7.8",
         "typescript": "~3.5.3"
     },
     "scripts": {
-        "start": "npm run tsc && node ./dist/server.js",
+        "start": "npm run tsc && node ./dist/server.js --log=1",
+        "npm build": "npm run tsc",
         "server": "node ./dist/server.js",
+        "gents": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./proto --ts_out=service=true:./proto --grpc_out=./proto --plugin=./node_modules/.bin/protoc_gen-ts ./registry.proto",
         "tsc": "tsc -p .",
         "watch": "tsc -p . -w"
     }

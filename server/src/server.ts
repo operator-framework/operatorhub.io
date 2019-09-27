@@ -9,6 +9,7 @@ import compression from "compression";
 import { serverPort, secureServerPort, useSSL, keysDirectory } from './utils/constants';
 import uiRoutes from './routes/uiRoutes';
 import apiRoutes from './routes/apiRoutes';
+import { importDataAndPrepareForStartup } from './utils';
 
 
 const getHttpsServer = (app: Express): Server => {
@@ -23,7 +24,11 @@ const getHttpsServer = (app: Express): Server => {
   return selfSignedHttps(app);
 };
 
-(() => {
+(async () => {
+
+  await importDataAndPrepareForStartup();
+  console.log('Ready to start server');
+
   const app = express();
 
   // gzip content - helps reduce size of REST endpoint
@@ -31,7 +36,6 @@ const getHttpsServer = (app: Express): Server => {
   app.use(compression());
 
   app.set('port', serverPort);
-
 
   // routes
   apiRoutes(app);

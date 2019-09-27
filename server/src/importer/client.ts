@@ -1,11 +1,10 @@
-import Logger from './utils/logger';
+import { outputJSON } from 'fs-extra';
 
+import Logger from './utils/logger';
 import { listPackages } from './channels/listPackages';
 import { getPackages, getAllBundlesInPackage } from './channels/getPackages';
 import { normalizePackages } from './normalizer/converter';
 import { RawPackages, Packages } from './types';
-import { outputJSON } from 'fs-extra';
-import { OUTPUT_PATH } from './constants';
 
 
 /**
@@ -33,9 +32,11 @@ async function collectPackageBundles(packageSet: RawPackages) {
 }
 
 
-(async function () {
+export async function importData() {
 
     const PROCESSOR_NAME = 'CollectPackages';
+    const timerStart = Date.now();
+
     let packages: RawPackages = new Set();
     let packageMapWithChannels: Packages = new Set();
 
@@ -44,7 +45,7 @@ async function collectPackageBundles(packageSet: RawPackages) {
         packages = await getPackages(packageList);
     } catch (e) {
         Logger.error(`[${PROCESSOR_NAME}] failed to get package list. No data to export.`);
-        return;
+        return [];
     }
 
     if (packages.size > 0) {
@@ -54,21 +55,22 @@ async function collectPackageBundles(packageSet: RawPackages) {
 
     } else {
         Logger.warn(`[${PROCESSOR_NAME}] Something went wrong and no packages are fetched. Existing.`);
-        return;
+        return [];
     }
 
     // convert packages into desired output format for use in OperatorHub.io
     const normalizedPackages = await normalizePackages(packageMapWithChannels);
 
     try {
-        await outputJSON(OUTPUT_PATH, normalizedPackages, { encoding: 'utf-8' });
+        await outputJSON('./cache/operators.json', normalizedPackages, { encoding: 'utf-8' });
         Logger.log('Created JSON file with processed operators metadata for website');
 
     } catch (e) {
         Logger.error('Failed creating JSON cache file with operator metadata.', e);
 
     } finally {
-        console.log('Operators index created');
-    } 
-
-})();
+        console.log(`Operators index created in ${Date.now() - timerStart} ms`);
+    }
+    
+    return normalizedPackages;
+};

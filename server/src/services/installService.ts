@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { operatorsData, getOperator } from '../utils';
+import { getOperatorsData, getOperator } from '../utils';
 
 /**
  * Generates install yaml from template
@@ -48,7 +48,7 @@ spec:
 };
 
 /**
- * 
+ * Generate install yaml command with namespace where to install
  * @param request 
  * @param response 
  */
@@ -73,7 +73,7 @@ export function generateInstallYaml(request: Request, response: Response) {
         return;
     }
 
-    const operatorPackage = operatorsData.find(opPackage => opPackage.name === operatorPackageName);
+    const operatorPackage = getOperatorsData().find(opPackage => opPackage.name === operatorPackageName);
 
     if (operatorPackage) {
         const channelName = operatorChannelName || operatorPackage.defaultChannelName;

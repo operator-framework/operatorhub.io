@@ -1,4 +1,4 @@
-import { NormalizedOperatorPackage, OperatorDetailChannelList, NormalizedOperator } from "../../../types/shared";
+import { NormalizedOperatorPackage, OperatorDetailChannelList, NormalizedOperator } from "../sharedTypes";
 
 /**
  * Gets default oeprator in package if defined

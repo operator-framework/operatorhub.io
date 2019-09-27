@@ -5,6 +5,7 @@
         "noImplicitAny": false,      
         "strictNullChecks": true,  
         "module": "none",
+        "skipLibCheck": true,
         "outDir": "dist",
         "moduleResolution": "node",
         "esModuleInterop": true,

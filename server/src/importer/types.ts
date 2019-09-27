@@ -1,6 +1,7 @@
 import { Operator } from "./normalizer/types";
-import { Package } from "../proto/registry_pb";
-import { GenericOperatorChannel, GenericOperatorPackage, OperatorLink, OperatorMaintainer, AlmExample } from "../../types/shared";
+import { Package } from "../../proto/registry_pb";
+import { GenericOperatorChannel, GenericOperatorPackage } from "../sharedTypes";
+
 
 export enum LogLevel {
     debug,

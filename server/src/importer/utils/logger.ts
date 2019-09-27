@@ -1,5 +1,5 @@
 import { LogLevel } from "../types";
-import { LOG_LEVEL } from "../constants";
+import { LOG_LEVEL } from "../../utils/constants";
 
 
 /**

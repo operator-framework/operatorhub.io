@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Request, Response } from 'express';
-import { operatorsIndex, operatorsData, getChannelMetadataList, getOperator } from '../utils';
+import { getOperatorsIndex, getOperatorsData, getChannelMetadataList, getOperator } from '../utils';
 
 
 /**
@@ -11,7 +11,7 @@ import { operatorsIndex, operatorsData, getChannelMetadataList, getOperator } fr
 export function fetchOperators(request: Request, response: Response) {
 
     response.send({
-        operators: operatorsIndex
+        operators: getOperatorsIndex()
     });
 };
 
@@ -25,7 +25,7 @@ export function fetchOperator(request: Request, response: Response) {
     const { name, channel, packageName } = request.query;
 
     if (packageName) {
-        const operatorPackage = operatorsData.find(opPackage => opPackage.name === packageName);
+        const operatorPackage =getOperatorsData().find(opPackage => opPackage.name === packageName);
 
         if (operatorPackage) {
             // inject channel data here to reduce imported index size 
