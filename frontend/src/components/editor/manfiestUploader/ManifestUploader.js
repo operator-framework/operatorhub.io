@@ -36,18 +36,8 @@ const validFileTypesRegExp = new RegExp(`(${['.yaml'].join('|').replace(/\./g, '
 class ManifestUploader extends React.Component {
   state = {
     uploadUrlShown: false,
-    uploadExpanded: false
+    uploadExpanded: true
   };
-
-  componentDidMount() {
-    const { uploads, operator } = this.props;
-
-    const missingCrdUploads = getMissingCrdUploads(uploads, operator).length > 0;
-
-    this.setState({
-      uploadExpanded: missingCrdUploads
-    });
-  }
 
   /**
    * Parse uploaded file
@@ -621,17 +611,10 @@ class ManifestUploader extends React.Component {
             </p>
           </div>
           <div className="oh-operator-editor-page__section__status">
-            {uploadExpanded ? (
-              <a onClick={this.toggleUploadExpanded}>
-                <Icon type="fa" name="compress" />
-                Collapse
-              </a>
-            ) : (
-              <a onClick={this.toggleUploadExpanded}>
-                <Icon type="fa" name="expand" />
-                Expand
-              </a>
-            )}
+            <a onClick={this.toggleUploadExpanded}>
+              <Icon type="fa" name={uploadExpanded ? 'compress' : 'expand'} />
+              {uploadExpanded ? 'Collapse' : 'Expand'}
+            </a>
           </div>
         </div>
         {uploadExpanded && (
