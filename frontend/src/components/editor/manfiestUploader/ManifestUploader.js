@@ -150,7 +150,7 @@ class ManifestUploader extends React.Component {
       name: _.get(parsedFile, 'metadata.name', ''),
       displayName: _.startCase(kind),
       kind,
-      version: _.get(parsedFile, 'spec.version', ''),
+      version: _.get(parsedFile, 'spec.versions[0].name') || _.get(parsedFile, 'spec.version', ''),
       description: _.startCase(kind),
       resources: getDefaultOwnedCRDResources(),
       specDescriptors: specDescriptors.map(utils.generateDescriptorFromPath),
