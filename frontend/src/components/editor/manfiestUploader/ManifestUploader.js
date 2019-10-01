@@ -89,12 +89,15 @@ class ManifestUploader extends React.Component {
       return [utils.createErroredUpload(fileName, 'Parsing Errors')];
     }
 
-    const uploads = parsedObjects.map(object => {
-      const upload = utils.createtUpload(fileName);
-      upload.data = object;
+    // remove empty sections and fix mallformed files
+    const uploads = parsedObjects
+      .filter(object => object !== null)
+      .map(object => {
+        const upload = utils.createtUpload(fileName);
+        upload.data = object;
 
-      return this.processUploadedObject(upload);
-    });
+        return this.processUploadedObject(upload);
+      });
 
     return uploads;
   };
