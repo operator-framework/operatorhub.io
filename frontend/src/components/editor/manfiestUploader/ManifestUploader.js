@@ -44,7 +44,7 @@ class ManifestUploader extends React.Component {
    * @param {UploadMetadata} upload upload metadata object
    */
   processUploadedObject = upload => {
-    const typeAndName = utils.getObjectNameAndType(upload.data || {}, upload.fileName);
+    const typeAndName = utils.getObjectNameAndType(upload.data || {});
 
     if (!typeAndName) {
       upload.status = 'Unsupported Object';
@@ -68,8 +68,9 @@ class ManifestUploader extends React.Component {
       this.processPermissionObject(upload);
     } else if (utils.securityObjectTypes.includes(upload.type)) {
       this.processPermissionObject(upload);
-    } else if (upload.type === 'CustomResourceExampleTemplate') {
-      this.proccessCustomResourceExampleTemplate(upload.data);
+      // effectively CustomResource Template, but type vary...
+    } else if (upload.type !== 'Unknown') {
+      this.processCrTemplate(upload.data);
     }
 
     return upload;
@@ -125,6 +126,10 @@ class ManifestUploader extends React.Component {
     }
   };
 
+  /**
+   * Parse CRD file and create Owned CRD and relevant alm example (cr template) for it
+   * @param {CustomResourceFile} parsedFile
+   */
   processCrdFile = parsedFile => {
     const { operator, storeEditorOperator } = this.props;
     /** @type {Operator} */
@@ -157,7 +162,6 @@ class ManifestUploader extends React.Component {
     let crd = ownedCrds.find(owned => owned.kind === uploadedCrd.kind);
     const examples = _.get(operator, 'metadata.annotations.alm-examples');
     const crdTemplates = convertExampleYamlToObj(examples);
-    let crdTemplate = crdTemplates.find(template => template.kind === uploadedCrd.kind);
 
     if (crd) {
       console.log('Found existing CRD. Not overriding it.');
@@ -179,15 +183,12 @@ class ManifestUploader extends React.Component {
       }
     }
 
-    if (!crdTemplate) {
-      crdTemplate = getDefaultAlmExample();
-      crdTemplate.kind = uploadedCrd.kind;
+    const crdTemplate = this.findCustomResourceTemplate(crdTemplates, uploadedCrd.kind);
 
-      if (crdTemplates.length === 1 && isAlmExampleDefault(crdTemplates[0])) {
-        crdTemplates[0] = crdTemplate;
-      } else {
-        crdTemplates.push(crdTemplate);
-      }
+    if (crdTemplates.length === 1 && isAlmExampleDefault(crdTemplates[0])) {
+      crdTemplates[0] = crdTemplate;
+    } else {
+      crdTemplates.push(crdTemplate);
     }
 
     _.set(newOperator, sectionsFields['owned-crds'], ownedCrds);
@@ -195,6 +196,46 @@ class ManifestUploader extends React.Component {
 
     this.validateSection(newOperator, 'owned-crds');
     storeEditorOperator(newOperator);
+  };
+
+  /**
+   * Find and provide relevant CR Template matching uploaded CRD
+   * @param {CustomResourceTemplateFile[]} crdTemplates
+   * @param {string} kind
+   */
+  findCustomResourceTemplate = (crdTemplates, kind) => {
+    const { uploads } = this.props;
+
+    /** @type {UploadMetadata|null} */
+    const matchingCrdTemplateUpload = uploads.find(upload => upload.type === kind);
+
+    if (matchingCrdTemplateUpload) {
+      return matchingCrdTemplateUpload.data;
+    }
+
+    let crdTemplate = crdTemplates.find(template => template.kind === kind);
+
+    if (crdTemplate) {
+      return crdTemplate;
+    }
+    crdTemplate = getDefaultAlmExample();
+    crdTemplate.kind = kind;
+    return crdTemplate;
+  };
+
+  /**
+   * Extract ALM example out of CR template if relevant CRD already exists
+   * @param {CustomResourceTemplateFile} parsedFile
+   */
+  processCrTemplate = parsedFile => {
+    const { operator } = this.props;
+
+    const crds = _.get(operator, sectionsFields['owned-crds'], []);
+    const matchingCrd = crds.find(crd => crd.kind === parsedFile.kind);
+
+    if (matchingCrd) {
+      this.addCustomResourceExampleTemplate(parsedFile);
+    }
   };
 
   /**
@@ -365,48 +406,29 @@ class ManifestUploader extends React.Component {
 
   /**
    * Proccess uploaded custom resource example file into ALM examples
-   * @param {*} parsedFile
+   * @param {CustomResourceTemplateFile} template
    */
-  proccessCustomResourceExampleTemplate = parsedFile => {
+  addCustomResourceExampleTemplate = template => {
     const { operator, storeEditorOperator } = this.props;
     const newOperator = _.cloneDeep(operator);
 
     const almExamples = _.get(newOperator, 'metadata.annotations.alm-examples', []);
     const crdExamples = convertExampleYamlToObj(almExamples);
 
-    const exampleIndex = crdExamples.findIndex(example => example.kind === parsedFile.kind);
+    const exampleIndex = crdExamples.findIndex(example => example.kind === template.kind);
 
     if (exampleIndex === -1) {
       // override default template
       if (crdExamples.length === 1 && isAlmExampleDefault(crdExamples[0])) {
-        crdExamples[0] = parsedFile;
+        crdExamples[0] = template;
       } else {
-        crdExamples.push(parsedFile);
+        crdExamples.push(template);
       }
     } else {
-      crdExamples[exampleIndex] = _.merge({}, crdExamples[exampleIndex], parsedFile);
-    }
-
-    const ownedCrds = _.get(newOperator, sectionsFields['owned-crds'], []);
-    const crdIndex = ownedCrds.findIndex(ownedCrd => ownedCrd.kind === parsedFile.kind);
-
-    // create dummy CRD with example so we pair them correctly
-    if (crdIndex === -1) {
-      const crd = getDefaultOnwedCRD();
-      crd.kind = parsedFile.kind;
-      crd.name = '';
-      crd.displayName = parsedFile.kind;
-
-      // replace example CRD with newly created one
-      if (ownedCrds.length === 1 && isOwnedCrdDefault(ownedCrds[0])) {
-        ownedCrds[0] = crd;
-      } else {
-        ownedCrds.push(crd);
-      }
+      crdExamples[exampleIndex] = _.merge(crdExamples[exampleIndex], template);
     }
 
     _.set(newOperator, 'metadata.annotations.alm-examples', JSON.stringify(crdExamples));
-    _.set(newOperator, sectionsFields['owned-crds'], ownedCrds);
 
     this.validateSection(newOperator, 'owned-crds');
     storeEditorOperator(newOperator);

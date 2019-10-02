@@ -11,21 +11,14 @@ import {
 import { addIdToDescriptor } from '../../../pages/operatorBundlePage/bundlePageUtils';
 
 export const securityObjectTypes = ['ClusterRole', 'Role', 'ClusterRoleBinding', 'RoleBinding'];
-const almExampleFileNameRegExp = new RegExp('^.+_cr.yaml$');
 
 /**
  * Derive file type from its content
  * @param {*} content
- * @param {string} fileName
  * @returns {TypeAndName|null}
  */
-export function getObjectNameAndType(content, fileName) {
-  if (almExampleFileNameRegExp.test(fileName) && content.kind) {
-    return {
-      type: 'CustomResourceExampleTemplate',
-      name: content.kind
-    };
-  } else if (content.kind && content.apiVersion && content.metadata) {
+export function getObjectNameAndType(content) {
+  if (content.kind && content.apiVersion && content.metadata) {
     const type = content.kind;
     const { name } = content.metadata;
     const apiName = content.apiVersion.substring(0, content.apiVersion.indexOf('/'));
@@ -40,6 +33,13 @@ export function getObjectNameAndType(content, fileName) {
       return { type, name };
     } else if (securityObjectTypes.includes(type) && apiName === 'rbac.authorization.k8s.io') {
       return { type, name };
+
+      // we can asume that unknown object with name & kind & spec would be CustomResource template
+    } else if (name && content.spec) {
+      return {
+        type: content.kind,
+        name
+      };
     }
 
     // package file is different with no kind and API

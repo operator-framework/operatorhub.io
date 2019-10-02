@@ -202,8 +202,6 @@ class DescriptorsEditor extends React.PureComponent {
       expanded
     } = this.props;
 
-    console.log('Rerendered editor');
-
     return (
       <ExpandCollapse textCollapsed={`Show ${title}`} textExpanded={`Hide ${title}`} expanded={expanded}>
         <div className="oh-operator-editor__descriptor-editor">

@@ -1,4 +1,39 @@
 /**
+ * @typedef K8ObjectBase
+ * @prop {string} apiVersion
+ * @prop {string} kind
+ * @prop {object} metadata
+ * @prop {string} metadata.name
+ */
+
+/**
+ * @typedef CustomResourceTemplateSpec
+ * @prop {object} spec
+ */
+
+/**
+ * @typedef {K8ObjectBase & CustomResourceTemplateSpec} CustomResourceTemplateFile
+ */
+
+/**
+ * @typedef CustomResourceFileSpec
+ * @prop {object} spec
+ * @prop {string} spec.group
+ * @prop {object} spec.names
+ * @prop {string} spec.names.kind
+ * @prop {string} spec.names.listKind
+ * @prop {string} spec.names.plural
+ * @prop {string} spec.names.singular
+ * @prop {string} spec.scope
+ * @prop {string} spec.version
+ * @prop {object} spec.validation
+ */
+
+/**
+ * @typedef {K8ObjectBase & CustomResourceFileSpec} CustomResourceFile
+ */
+
+/**
  * @typedef OperatorMetadataAnnotations
  * @prop {string}  'alm-examples'
  * @prop {string}  categories
@@ -80,7 +115,6 @@
 
 /**
  * @typedef {OperatorCrd & OperatorOwnedCrdResources} OperatorOwnedCrd
- * @prop {OperatorCrdResource[]} resources
  */
 
 /**
