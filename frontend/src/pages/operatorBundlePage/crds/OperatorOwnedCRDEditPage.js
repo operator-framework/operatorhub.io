@@ -372,7 +372,6 @@ class OperatorOwnedCRDEditPage extends React.Component {
     if (statusDescriptors.length === 0) {
       statusDescriptors = [getDefaultCrdDescriptor()];
     }
-    console.log('CRD editor');
     return (
       <OperatorEditorSubPage
         title="Edit Owned CRD"
