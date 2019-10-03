@@ -15,6 +15,8 @@ import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';
 import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';
+import Loader from '../../components/other/Loader';
+import ErrorMessage from '../../components/other/ErrorMessage';
 
 const CATEGORY_URL_PARAM = 'category';
 const KEYWORD_URL_PARAM = 'keyword';
@@ -631,27 +633,6 @@ class OperatorHub extends React.Component {
     );
   }
 
-  renderPendingMessage = () => (
-    <EmptyState className="blank-slate-content-pf">
-      <div className="loading-state-pf loading-state-pf-lg">
-        <div className="spinner spinner-lg" />
-        Loading available operators
-      </div>
-    </EmptyState>
-  );
-
-  renderError = () => {
-    const { errorMessage } = this.props;
-
-    return (
-      <EmptyState className="blank-slate-content-pf">
-        <Alert type="error">
-          <span>Error retrieving operators: {errorMessage}</span>
-        </Alert>
-      </EmptyState>
-    );
-  };
-
   renderFilteredEmptyState() {
     return (
       <EmptyState className="blank-slate-content-pf">
@@ -778,14 +759,14 @@ class OperatorHub extends React.Component {
   }
 
   renderView = () => {
-    const { error, pending, operators, viewType } = this.props;
+    const { error, pending, operators, viewType, errorMessage } = this.props;
 
     if (error) {
-      return this.renderError();
+      return <ErrorMessage errorText={`Error retrieving operators: ${errorMessage}`} />;
     }
 
     if (pending) {
-      return this.renderPendingMessage();
+      return <Loader text="Loading available operators" />;
     }
 
     if (!_.size(operators)) {

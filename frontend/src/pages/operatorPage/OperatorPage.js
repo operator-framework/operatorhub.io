@@ -1,6 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { connect } from 'react-redux';
 import { Alert, Breadcrumb, EmptyState, Grid } from 'patternfly-react';
 
@@ -14,6 +14,8 @@ import * as operatorImg from '../../imgs/operator.svg';
 import { reduxConstants } from '../../redux';
 import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';
 import OperatorSidePanel from '../../components/OperatorSidePanel';
+import Loader from '../../components/other/Loader';
+import ErrorMessage from '../../components/other/ErrorMessage';
 
 class OperatorPage extends React.Component {
   state = {
@@ -107,36 +109,15 @@ class OperatorPage extends React.Component {
     this.setState({ exampleYamlShown: false });
   };
 
-  renderPendingMessage = () => (
-    <EmptyState className="blank-slate-content-pf">
-      <div className="loading-state-pf loading-state-pf-lg">
-        <div className="spinner spinner-lg" />
-        Loading operator
-      </div>
-    </EmptyState>
-  );
-
-  renderError = () => {
-    const { errorMessage } = this.props;
-
-    return (
-      <EmptyState className="blank-slate-content-pf">
-        <Alert type="error">
-          <span>Error retrieving operators: {errorMessage}</span>
-        </Alert>
-      </EmptyState>
-    );
-  };
-
   renderView() {
-    const { operator, error, pending } = this.props;
+    const { operator, error, pending, errorMessage } = this.props;
 
     if (error) {
-      return this.renderError();
+      return <ErrorMessage errorText={`Error retrieving operators: ${errorMessage}`} />;
     }
 
     if (pending || !operator) {
-      return this.renderPendingMessage();
+      return <Loader text="Loading operator" />;
     }
 
     const { displayName, longDescription } = operator;
