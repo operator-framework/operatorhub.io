@@ -16,11 +16,11 @@ class Page extends React.Component {
       _.get(this.topBarRef, 'clientHeight') || 0,
       _.get(this.toolbarRef, 'clientHeight') || 0
     );
+
     window.addEventListener('scroll', this.contentScrolled);
+
     const scrollToElem = document.getElementById('page-top');
-    if (scrollToElem) {
-      scrollToElem.scrollIntoView();
-    }
+    scrollToElem && scrollToElem.scrollIntoView();
   }
 
   componentWillUnmount() {
@@ -53,70 +53,59 @@ class Page extends React.Component {
     this.headerRef = ref;
   };
 
-  renderTopBar() {
-    const { headerContent, history, searchValue, onSearchChange, clearSearch, searchCallback, homePage } = this.props;
-
-    return (
-      <HeaderTopBar
-        scrolled={this.state.scrolled || !headerContent}
-        onSearchChange={onSearchChange}
-        clearSearch={clearSearch}
-        searchValue={searchValue}
-        searchCallback={searchCallback}
-        history={history}
-        barRef={this.setTopBarRef}
-        homePage={homePage}
-      />
-    );
-  }
-
-  renderHeader() {
-    const { headerContent } = this.props;
-    if (!headerContent) {
-      return null;
-    }
-
-    const style = { paddingTop: _.get(this.topBarRef, 'clientHeight', 0) };
-    return (
-      <div className="oh-header" style={style} ref={this.setHeaderRef}>
-        <div className="oh-header__inner">{headerContent}</div>
-      </div>
-    );
-  }
-
-  renderToolbar() {
-    const { toolbarContent, headerContent } = this.props;
-    const { toolbarFixed } = this.state;
-    if (!toolbarContent) {
-      return null;
-    }
-
-    const toolbarClasses = classNames('oh-page-toolbar', { fixed: toolbarFixed || !headerContent });
-    const toolbarStyle = { top: _.get(this.topBarRef, 'offsetHeight') || 0 };
-
-    return (
-      <div className={toolbarClasses} ref={this.setToolbarRef} style={toolbarStyle}>
-        <div className="oh-page-toolbar__inner">{toolbarContent}</div>
-      </div>
-    );
-  }
-
   render() {
-    const { className, children, history, headerContent, showFooter } = this.props;
-    const ohPageClasses = classNames('oh-page', className);
+    const {
+      className,
+      children,
+      history,
+      headerContent,
+      toolbarContent,
+      showFooter,
+      searchValue,
+      onSearchChange,
+      clearSearch,
+      searchCallback,
+      homePage
+    } = this.props;
     const { toolbarFixed } = this.state;
+    const topBarHeight = _.get(this.topBarRef, 'clientHeight', 0);
+    const toolbarHeight = _.get(this.toolbarRef, 'clientHeight', 0);
+
+    const ohPageClasses = classNames('oh-page', className);
+
     let pageStyle;
     if (!headerContent) {
-      pageStyle = { marginTop: _.get(this.topBarRef, 'clientHeight', 0) + _.get(this.toolbarRef, 'clientHeight', 0) };
+      pageStyle = { marginTop: topBarHeight + toolbarHeight };
     } else if (toolbarFixed) {
-      pageStyle = { marginTop: _.get(this.toolbarRef, 'clientHeight', 0) };
+      pageStyle = { marginTop: toolbarHeight };
     }
+
+    const headerContentStyle = { paddingTop: topBarHeight };
+    const toolbarClasses = classNames('oh-page-toolbar', { fixed: toolbarFixed || !headerContent });
+    const toolbarStyle = { top: topBarHeight };
 
     return (
       <div id="page-top" className={ohPageClasses} onScroll={this.contentScrolled}>
-        {this.renderTopBar()}
-        {this.renderHeader()}
-        {this.renderToolbar()}
+        <HeaderTopBar
+          scrolled={this.state.scrolled || !headerContent}
+          onSearchChange={onSearchChange}
+          clearSearch={clearSearch}
+          searchValue={searchValue}
+          searchCallback={searchCallback}
+          history={history}
+          barRef={this.setTopBarRef}
+          homePage={homePage}
+        />
+        {headerContent && (
+          <div className="oh-header" style={headerContentStyle} ref={this.setHeaderRef}>
+            <div className="oh-header__inner">{headerContent}</div>
+          </div>
+        )}
+        {toolbarContent && (
+          <div className={toolbarClasses} ref={this.setToolbarRef} style={toolbarStyle}>
+            <div className="oh-page-toolbar__inner">{toolbarContent}</div>
+          </div>
+        )}
         <div className="oh-page-contents" style={pageStyle}>
           <div className="oh-page-contents__inner">{children}</div>
         </div>
