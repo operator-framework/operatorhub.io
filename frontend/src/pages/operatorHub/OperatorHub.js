@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import queryString from 'query-string';
 
-import { Alert, DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
+import { DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { FilterSidePanel } from 'patternfly-react-extensions';
 
 import { fetchOperators } from '../../services/operatorsService';
@@ -244,6 +244,7 @@ export const getFilterSearchParam = groupFilter => {
 
 class OperatorHub extends React.Component {
   state = {
+    categories: undefined,
     filteredItems: [],
     filterCounts: null,
     filterGroupsShowAll: {},
@@ -393,7 +394,16 @@ class OperatorHub extends React.Component {
   };
 
   refresh() {
-    this.props.fetchOperators();
+    const { loadOperators, operatorsUpdateTime } = this.props;
+
+    if (Date.now() - operatorsUpdateTime > 3600 * 1000) {
+      loadOperators();
+    } else {
+      // BIT HACKY
+      // @TODO refactor entire component to make it transparent - especially data flow!
+      this.setState({ refreshed: true });
+      this.updateFilteredItems(this.state.categories);
+    }
   }
 
   setURLParams = params => {
@@ -763,13 +773,9 @@ class OperatorHub extends React.Component {
 
     if (error) {
       return <ErrorMessage errorText={`Error retrieving operators: ${errorMessage}`} />;
-    }
-
-    if (pending) {
+    } else if (pending) {
       return <Loader text="Loading available operators" />;
-    }
-
-    if (!_.size(operators)) {
+    } else if (!Array.isArray(operators) || operators.length === 0) {
       return (
         <EmptyState className="blank-slate-content-pf">
           <EmptyState.Title className="oh-no-filter-results-title" aria-level="2">
@@ -826,6 +832,7 @@ class OperatorHub extends React.Component {
 
 OperatorHub.propTypes = {
   operators: PropTypes.array,
+  operatorsUpdateTime: PropTypes.number,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
@@ -833,7 +840,7 @@ OperatorHub.propTypes = {
     push: PropTypes.func.isRequired,
     replace: PropTypes.func.isRequired
   }).isRequired,
-  fetchOperators: PropTypes.func,
+  loadOperators: PropTypes.func,
   urlSearchString: PropTypes.string,
   viewType: PropTypes.string,
   activeFilters: PropTypes.object,
@@ -849,10 +856,11 @@ OperatorHub.propTypes = {
 
 OperatorHub.defaultProps = {
   operators: [],
+  operatorsUpdateTime: 0,
   error: false,
   errorMessage: '',
   pending: false,
-  fetchOperators: helpers.noop,
+  loadOperators: helpers.noop,
   activeFilters: [],
   selectedCategory: '',
   keywordSearch: '',
@@ -867,7 +875,7 @@ OperatorHub.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  fetchOperators: () => dispatch(fetchOperators()),
+  loadOperators: () => dispatch(fetchOperators()),
   storeActiveFilters: activeFilters =>
     dispatch({
       type: reduxConstants.SET_ACTIVE_FILTERS,

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash-es';
 import { connect } from 'react-redux';
-import { Alert, Breadcrumb, EmptyState, Grid } from 'patternfly-react';
+import { Breadcrumb, Grid } from 'patternfly-react';
 
 import { helpers } from '../../common/helpers';
 import { fetchOperator, fetchLatestOlmVersion } from '../../services/operatorsService';
