@@ -1,8 +1,8 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import queryString from 'query-string';
 
 import { DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
