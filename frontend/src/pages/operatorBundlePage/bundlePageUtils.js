@@ -185,8 +185,8 @@ const modifyOwnedCrdsDescriptors = (operator, descriptorMapperFn) => {
     /** @param {OperatorOwnedCrd} crd */
     crd => ({
       ...crd,
-      specDescriptors: crd.specDescriptors.map(descriptor => descriptorMapperFn(descriptor)),
-      statusDescriptors: crd.statusDescriptors.map(descriptor => descriptorMapperFn(descriptor))
+      specDescriptors: (crd.specDescriptors || []).map(descriptor => descriptorMapperFn(descriptor)),
+      statusDescriptors: (crd.statusDescriptors || []).map(descriptor => descriptorMapperFn(descriptor))
     })
   );
 
