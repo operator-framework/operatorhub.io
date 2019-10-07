@@ -1,20 +1,22 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import queryString from 'query-string';
 
-import { Alert, DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
+import { DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { FilterSidePanel } from 'patternfly-react-extensions';
 
 import { fetchOperators } from '../../services/operatorsService';
 import { helpers } from '../../common/helpers';
 
-import Page from '../../components/Page';
+import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';
 import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';
+import Loader from '../../components/other/Loader';
+import ErrorMessage from '../../components/other/ErrorMessage';
 
 const CATEGORY_URL_PARAM = 'category';
 const KEYWORD_URL_PARAM = 'keyword';
@@ -242,6 +244,7 @@ export const getFilterSearchParam = groupFilter => {
 
 class OperatorHub extends React.Component {
   state = {
+    categories: undefined,
     filteredItems: [],
     filterCounts: null,
     filterGroupsShowAll: {},
@@ -391,14 +394,20 @@ class OperatorHub extends React.Component {
   };
 
   refresh() {
-    this.props.fetchOperators();
+    const { loadOperators, operatorsUpdateTime } = this.props;
+
+    if (Date.now() - operatorsUpdateTime > 3600 * 1000) {
+      loadOperators();
+    } else {
+      // BIT HACKY
+      // @TODO refactor entire component to make it transparent - especially data flow!
+      this.setState({ refreshed: true });
+      this.updateFilteredItems(this.state.categories);
+    }
   }
 
   setURLParams = params => {
-    const url = new URL(window.location);
-    const searchParams = `?${params.toString()}`;
-
-    this.props.history.replace(`${url.pathname}${searchParams}`);
+    this.props.history.replace(`${window.location.pathname}?${params.toString()}`);
   };
 
   filtersInURL = searchObj => _.some(operatorHubFilterGroups, filterGroup => _.get(searchObj, filterGroup));
@@ -634,27 +643,6 @@ class OperatorHub extends React.Component {
     );
   }
 
-  renderPendingMessage = () => (
-    <EmptyState className="blank-slate-content-pf">
-      <div className="loading-state-pf loading-state-pf-lg">
-        <div className="spinner spinner-lg" />
-        Loading available operators
-      </div>
-    </EmptyState>
-  );
-
-  renderError = () => {
-    const { errorMessage } = this.props;
-
-    return (
-      <EmptyState className="blank-slate-content-pf">
-        <Alert type="error">
-          <span>Error retrieving operators: {errorMessage}</span>
-        </Alert>
-      </EmptyState>
-    );
-  };
-
   renderFilteredEmptyState() {
     return (
       <EmptyState className="blank-slate-content-pf">
@@ -742,10 +730,10 @@ class OperatorHub extends React.Component {
       <div className="oh-hub-page__toolbar">
         <div className="oh-hub-page__toolbar__item oh-hub-page__toolbar__item-left">
           {filteredItems.length}
-          <span className="oh-hub-page__toolbar__label oh-tiny">ITEMS</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">Items</span>
         </div>
         <div className="oh-hub-page__toolbar__item">
-          <span className="oh-hub-page__toolbar__label oh-tiny">VIEW</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">View</span>
           <DropdownButton
             className="oh-hub-page__toolbar__dropdown"
             title={this.getViewItem(viewType)}
@@ -761,7 +749,7 @@ class OperatorHub extends React.Component {
           </DropdownButton>
         </div>
         <div className="oh-hub-page__toolbar__item">
-          <span className="oh-hub-page__toolbar__label oh-tiny">SORT</span>
+          <span className="oh-hub-page__toolbar__label oh-tiny">Sort</span>
           <DropdownButton
             className="oh-hub-page__toolbar__dropdown"
             title={this.getSortItem(sortType)}
@@ -781,17 +769,13 @@ class OperatorHub extends React.Component {
   }
 
   renderView = () => {
-    const { error, pending, operators, viewType } = this.props;
+    const { error, pending, operators, viewType, errorMessage } = this.props;
 
     if (error) {
-      return this.renderError();
-    }
-
-    if (pending) {
-      return this.renderPendingMessage();
-    }
-
-    if (!_.size(operators)) {
+      return <ErrorMessage errorText={`Error retrieving operators: ${errorMessage}`} />;
+    } else if (pending) {
+      return <Loader text="Loading available operators" />;
+    } else if (!Array.isArray(operators) || operators.length === 0) {
       return (
         <EmptyState className="blank-slate-content-pf">
           <EmptyState.Title className="oh-no-filter-results-title" aria-level="2">
@@ -848,6 +832,7 @@ class OperatorHub extends React.Component {
 
 OperatorHub.propTypes = {
   operators: PropTypes.array,
+  operatorsUpdateTime: PropTypes.number,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
@@ -855,7 +840,7 @@ OperatorHub.propTypes = {
     push: PropTypes.func.isRequired,
     replace: PropTypes.func.isRequired
   }).isRequired,
-  fetchOperators: PropTypes.func,
+  loadOperators: PropTypes.func,
   urlSearchString: PropTypes.string,
   viewType: PropTypes.string,
   activeFilters: PropTypes.object,
@@ -871,10 +856,11 @@ OperatorHub.propTypes = {
 
 OperatorHub.defaultProps = {
   operators: [],
+  operatorsUpdateTime: 0,
   error: false,
   errorMessage: '',
   pending: false,
-  fetchOperators: helpers.noop,
+  loadOperators: helpers.noop,
   activeFilters: [],
   selectedCategory: '',
   keywordSearch: '',
@@ -889,7 +875,7 @@ OperatorHub.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  fetchOperators: () => dispatch(fetchOperators()),
+  loadOperators: () => dispatch(fetchOperators()),
   storeActiveFilters: activeFilters =>
     dispatch({
       type: reduxConstants.SET_ACTIVE_FILTERS,

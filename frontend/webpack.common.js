@@ -23,6 +23,7 @@ module.exports = {
     rules: [
       {
         test: /\.js?$/,
+        exclude: /node_modules/,
         use: [
           {
             loader: 'babel-loader'
@@ -99,13 +100,13 @@ module.exports = {
         },
         async_vendors: {
           test: /[\\/]node_modules[\\/]/,
-          priority: -10,
-          chunks: 'async'
+          priority: -5,
+          chunks: 'async',
+          enforce: true
         },
         common: {
           minChunks: 2,
-          priority: -20,
-          reuseExistingChunk: true
+          priority: -20
         }
       }
     }

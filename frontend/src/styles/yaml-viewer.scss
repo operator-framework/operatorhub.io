@@ -58,39 +58,6 @@
     flex-direction: column;
     justify-content: center;
     border-radius: 4px;
-
-    &.drag-drop {
-      background-color: $oh-color-background;
-      outline: 2px dashed #dededf;
-      outline-offset: -10px;
-      padding: 40px 30px;
-
-      &.drag-over {
-        outline-offset: -20px;
-        outline-color: #c8dadf;
-        background-color: #fff;
-      }
-    }
-
-    &__upload-file-box {
-      position: relative;
-      text-align: center;
-      width: 100%;
-
-      .oh-yaml-viewer__empty-state__upload-file-box__link {
-        cursor: pointer;
-        padding: 0 4px;
-      }
-
-      &__file {
-        width: 0.1px;
-        height: 0.1px;
-        opacity: 0;
-        overflow: hidden;
-        position: absolute;
-        z-index: -1;
-      }
-    }
   }
 
   &__acebox {
@@ -115,6 +82,10 @@
     }
   }
 
+  &__error {
+    margin: 20px;
+  }
+
   &__resizer {
     border: 1px solid $oh-color-rule;
     border-top: 0;
@@ -137,5 +108,88 @@
     &::before {
       top: 3px;
     }
+  }
+}
+
+.oh-drag-drop-box {
+  background-color: $oh-color-background;
+  outline: 2px dashed #dededf;
+  outline-offset: -10px;
+  padding: 40px 30px;
+
+  &.drag-over {
+    outline-offset: -20px;
+    outline-color: #c8dadf;
+    background-color: #fff;
+  }
+
+  &__upload-file-box {
+    position: relative;
+    text-align: center;
+    width: 100%;
+
+    &__link {
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    &__file {
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      position: absolute;
+      z-index: -1;
+    }
+  }
+}
+
+.oh-file-upload {
+  &__uploaded-file {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    &__name {
+      font-size: 16px;
+    }
+
+    &__size {
+      font-size: 12px;
+      margin-top: 2px;
+      margin-left: 10px;
+    }
+
+    &__clear {
+      margin-top: 2px;
+      margin-left: 10px;
+    }
+  }
+}
+
+.oh-yaml-upload-modal {
+
+  &__input-row {
+    display: flex;
+    flex-direction: row;
+
+    &__label {
+      padding-right: 20px;
+    }
+
+    &__input {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  input {
+    border-radius: 4px;
+    border-color: #dededf;
+  }
+  .alert {
+    margin-top: 20px;
+    margin-bottom: 0;
   }
 }

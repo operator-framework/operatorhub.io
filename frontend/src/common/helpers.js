@@ -1,4 +1,4 @@
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 
 const noop = Function.prototype;
 
@@ -38,10 +38,27 @@ const FULFILLED_ACTION = base => `${base}_FULFILLED`;
 const PENDING_ACTION = base => `${base}_PENDING`;
 const REJECTED_ACTION = base => `${base}_REJECTED`;
 
+let _advancedUploadAvailable;
+const advancedUploadAvailable = () => {
+  if (_advancedUploadAvailable === undefined) {
+    const div = document.createElement('div');
+    _advancedUploadAvailable =
+      'draggable' in div || ('ondragstart' in div && 'ondrop' in div && 'FormData' in window && 'FileReader' in window);
+  }
+  return advancedUploadAvailable;
+};
+
+const transformNameForPath = name => name.replace(/\./g, '_=_');
+
+const transformPathedName = name => name.replace(/_=_/g, '.');
+
 export const helpers = {
   noop,
   debounce,
+  transformNameForPath,
+  transformPathedName,
   getErrorMessageFromResults,
+  advancedUploadAvailable,
   FULFILLED_ACTION,
   PENDING_ACTION,
   REJECTED_ACTION
