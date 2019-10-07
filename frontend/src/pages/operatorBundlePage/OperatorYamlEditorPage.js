@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import { reduxConstants } from '../../redux/index';
 import YamlViewer from '../../components/YamlViewer';
 import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';

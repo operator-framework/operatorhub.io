@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import SimpleMdeWrapper from './SimpleMdeWrapper';
 import { markdownConverter } from '../../common/markdown';
 

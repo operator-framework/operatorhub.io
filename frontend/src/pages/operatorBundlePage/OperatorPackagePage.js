@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import { validateOperatorPackageField, validateOperatorPackage } from '../../utils/operatorUtils';

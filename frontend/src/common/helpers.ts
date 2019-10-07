@@ -1,6 +1,6 @@
 import _ from 'lodash-es';
 
-const noop = Function.prototype;
+export const noop = Function.prototype;
 
 /** Implementation of the debounce function */
 export const debounce = (func, wait) => {
@@ -13,7 +13,7 @@ export const debounce = (func, wait) => {
   return innerFunc;
 };
 
-const getErrorMessageFromResults = results => {
+export const getErrorMessageFromResults = results => {
   const responseData = _.get(results, 'response.data', results.message);
 
   if (typeof responseData === 'string') {
@@ -34,12 +34,14 @@ const getErrorMessageFromResults = results => {
   return _.join(getMessages(responseData), '\n');
 };
 
-const FULFILLED_ACTION = base => `${base}_FULFILLED`;
-const PENDING_ACTION = base => `${base}_PENDING`;
-const REJECTED_ACTION = base => `${base}_REJECTED`;
+export const FULFILLED_ACTION = base => `${base}_FULFILLED`;
+export const PENDING_ACTION = base => `${base}_PENDING`;
+export const REJECTED_ACTION = base => `${base}_REJECTED`;
 
 let _advancedUploadAvailable;
-const advancedUploadAvailable = () => {
+
+
+export const advancedUploadAvailable = () => {
   if (_advancedUploadAvailable === undefined) {
     const div = document.createElement('div');
     _advancedUploadAvailable =
@@ -48,20 +50,7 @@ const advancedUploadAvailable = () => {
   return advancedUploadAvailable;
 };
 
-const transformNameForPath = name => name.replace(/\./g, '_=_');
+export const transformNameForPath = name => name.replace(/\./g, '_=_');
 
-const transformPathedName = name => name.replace(/_=_/g, '.');
+export const transformPathedName = name => name.replace(/_=_/g, '.');
 
-export const helpers = {
-  noop,
-  debounce,
-  transformNameForPath,
-  transformPathedName,
-  getErrorMessageFromResults,
-  advancedUploadAvailable,
-  FULFILLED_ACTION,
-  PENDING_ACTION,
-  REJECTED_ACTION
-};
-
-export default helpers;

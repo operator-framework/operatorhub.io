@@ -1,24 +1,27 @@
 import React from 'react';
 import Loader from '../components/other/Loader';
-import helpers from './helpers';
 import Page from '../components/page/Page';
 
-/**
- * @callback GetComponentCallback
- * @returns {Promise<any>}
- */
+export interface AsyncComponentProps{
+  [key:string] : any
+}
 
 /**
  * Placeholder with loader for fetching async component
- * @param {GetComponentCallback} getComponent
+ * @param {() => any} getComponent
  */
-export default function asyncComponent(getComponent) {
-  class AsyncComponent extends React.Component {
-    static Component = null;
-    state = { Component: AsyncComponent.Component };
+export default function asyncComponent(getComponent: () => any) {
 
-    componentWillMount() {
+  class AsyncComponent extends React.Component<AsyncComponentProps> {
+
+    static Component = null;
+
+    state: {Component: React.ComponentClass | null} = { Component: AsyncComponent.Component };
+
+    UNSAFE_componentWillMount() {
+
       if (!this.state.Component) {
+
         getComponent().then(Component => {
           AsyncComponent.Component = Component;
           this.setState({ Component });

@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import { Alert, FormControl, Grid, HelpBlock, Modal } from 'patternfly-react';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import { urlRegExp } from '../../utils/operatorValidators';
 
 class ImportYamlModal extends React.Component {

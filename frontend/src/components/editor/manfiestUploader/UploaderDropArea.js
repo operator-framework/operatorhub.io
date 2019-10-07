@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { helpers } from '../../../common/helpers';
+import { helpers } from '../../../common';
 
 /**
  * Drop area for uploading files by draging them in

@@ -9,7 +9,7 @@ import { DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { FilterSidePanel } from 'patternfly-react-extensions';
 
 import { fetchOperators } from '../../services/operatorsService';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 
 import Page from '../../components/page/Page';
 import { reduxConstants } from '../../redux';

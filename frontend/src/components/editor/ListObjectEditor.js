@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 
 class ListObjectEditor extends React.Component {
   /**

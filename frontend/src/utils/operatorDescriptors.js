@@ -15,11 +15,11 @@ export const operatorFieldDescriptions = {
       'alm-examples': (
         <span>
           Users of your Operator will need ot be aware of which options are required vs optional. You can provide
-          templates for each of the owned CRDs with a minimum set of configuration as an annotation named{' '}
+          templates for each of the owned CRDs with a minimum set of configuration as an annotation named&nbsp;
           <code>alm-examples</code>. Compatible UIs will pre-enter this template for users to further customize.
           <br />
           <br />
-          The annotation consists of a list of the <code>kind</code>, e.g. the CRD name, and the corresponding{' '}
+          The annotation consists of a list of the <code>kind</code>, e.g. the CRD name, and the corresponding&nbsp;
           <code>metadata</code> and <code>spec</code> of the Kubernetes object. If you uploaded your CRD templates with
           other operator manifests, CRD templates will be populated into the corresponding CRD fields.
         </span>
@@ -34,9 +34,9 @@ export const operatorFieldDescriptions = {
      production use.`,
     icon: (
       <span>
-        A base 64 encoded image of the Operator logo or the logo of the publisher. The{' '}
-        <span className="oh-code">base64data</span> parameter contains the data and the{' '}
-        <span className="oh-code">mediatype</span> specifies the type of image, e.g.{' '}
+        A base 64 encoded image of the Operator logo or the logo of the publisher. The&nbsp;
+        <span className="oh-code">base64data</span> parameter contains the data and the&nbsp;
+        <span className="oh-code">mediatype</span> specifies the type of image, e.g.&nbsp;
         <span className="oh-code">image/png</span> or <span className="oh-code">image/svg+xml</span>.
       </span>
     ),
@@ -58,7 +58,7 @@ export const operatorFieldDescriptions = {
     installModes: (
       <span>
         A set of InstallModes that tell OLM which OperatorGroups an Operator can belong to. Belonging to an
-        OperatorGroup means that OLM provides the set of targeted namespaces as an annotation on the Operator{`'`}s CSV
+        OperatorGroup means that OLM provides the set of targeted namespaces as an annotation on the Operator&apos;s CSV
         and any deployments defined therein. These deployments can then utilize the Downward API to inject the list of
         namespaces into its container(s).
       </span>
@@ -94,9 +94,9 @@ export const operatorFieldDescriptions = {
             such as the Service or Ingress rule that exposes a database.
             <br />
             <br />
-            {"It's"} recommended to only list out the objects what are important to a human, not an exhaustive list of
-            everything you orchestrate. For example, ConfigMaps that store internal state that {"shouldn't"} be modified
-            by a user {"shouldn't"} appear here.
+            It&apos;s recommended to only list out the objects what are important to a human, not an exhaustive list of
+            everything you orchestrate. For example, ConfigMaps that store internal state that shouldn&apos;t be
+            modified by a user shouldn&apos;t appear here.
             <br />
             <br />
             Please ensure that resources added here are appropriately tagged with <code>ownerReferences</code> by your
@@ -141,7 +141,7 @@ export const operatorObjectDescriptions = {
         permissions: {
           description: (
             <span>
-              Describes the <code>permissions</code> required to successfully run the Operator. Ensure that the{' '}
+              Describes the <code>permissions</code> required to successfully run the Operator. Ensure that the&nbsp;
               <code>serviceAccountName</code> used in the <code>deployment</code> spec matches one of the Roles
               described under <code>permissions</code>.
             </span>
@@ -150,7 +150,8 @@ export const operatorObjectDescriptions = {
         clusterPermissions: {
           description: (
             <span>
-              Describes the <code>clusterPermissions</code> required to successfully run the Operator. Ensure that the{' '}
+              Describes the <code>clusterPermissions</code> required to successfully run the Operator. Ensure that
+              the&nbsp;
               <code>serviceAccountName</code> used in the <code>deployment</code> spec matches one of the Roles
               described under <code>clusterPermissions</code>.
             </span>

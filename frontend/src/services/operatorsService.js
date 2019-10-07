@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { helpers } from '../common/helpers';
+import { helpers } from '../common';
 import { reduxConstants } from '../redux';
 
 const serverHost = process.env.DEV_HOST || 'localhost';

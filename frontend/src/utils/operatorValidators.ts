@@ -1,5 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 import _ from 'lodash-es';
+import { OperatorLink, Operator, OperatorMaintainer, OperatorProvider } from './operatorTypes';
 
 const nameRegExp = /^[a-z][a-z-]*[a-z]$/;
 const nameRegExpMessage =
@@ -40,15 +41,24 @@ const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z]$/;
 const labelRegExpMessage =
   'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
 
-const linksValidator = links => {
+export type KeyValueItemError = {
+  key: string,
+  value: string,
+  keyError: string | null,
+  valueError: string | null
+};
+
+const linksValidator = (links: OperatorLink[]) => {
   if (!links || _.isEmpty(links) || (links.length === 1 && !links[0].name && !links[0].url)) {
     return 'At least one external link is required.';
   }
 
-  const linksErrors = [];
-  _.forEach(links, link => {
+  const linksErrors: KeyValueItemError[] = [];
+
+  links.forEach(link => {
     const nameError = link.name ? null : 'This field is required.';
     const urlError = urlRegExp.test(link.url) ? null : 'Must be a valid URL';
+
     if (nameError || urlError) {
       const error = {
         key: link.name,
@@ -60,21 +70,16 @@ const linksValidator = links => {
     }
   });
 
-  if (_.size(linksErrors)) {
+  if (linksErrors.length > 0) {
     return linksErrors;
   }
 
   return null;
 };
 
-/**
- * Validates provider name using context of other fields
- * @param {string} value
- * @param {*} operator
- * @returns {string | null}
- */
-const providerContextualValidator = (value, operator) => {
-  const maintainers = _.get(operator, 'spec.maintainers');
+
+const providerContextualValidator = (value: string, operator: Operator) => {
+  const maintainers: OperatorMaintainer[] = _.get(operator, 'spec.maintainers');
   const maintainersValidatorObject = operatorFieldValidators.spec.maintainers;
 
   if (!maintainersValidatorObject.isEmpty(maintainers) || value) {
@@ -84,15 +89,16 @@ const providerContextualValidator = (value, operator) => {
   return 'At least one provider or maintainer is required.';
 };
 
-const maintainersValidator = maintainers => {
+const maintainersValidator = (maintainers: OperatorMaintainer[]) => {
   if (!maintainers || _.isEmpty(maintainers)) {
     return 'At least one maintainer is required.';
   }
 
-  const maintainerErrors = [];
-  _.forEach(maintainers, maintainer => {
+  const maintainerErrors: KeyValueItemError[] = [];
+  maintainers.forEach(maintainer => {
     const nameError = maintainer.name ? null : 'This field is required.';
     const emailError = emailRegExp.test(maintainer.email) ? null : 'Must be a valid email address.';
+
     if (nameError || emailError) {
       const error = {
         key: maintainer.name,
@@ -112,19 +118,10 @@ const maintainersValidator = maintainers => {
 };
 
 /**
- * @typedef Maintainer
- * @prop {string} Maintainer.name
- * @prop {string} Maintainer.email
- */
-
-/**
  * Validates fields in context of other fields to catch field cross dependancies
- * @param {Maintainer[]} value
- * @param {*} operator
- * @param {*} fieldValidator
  */
-const maintainersContextualValidator = (value, operator, fieldValidator) => {
-  const provider = _.get(operator, 'spec.provider.name');
+const maintainersContextualValidator = (value: OperatorMaintainer[], operator: Operator, fieldValidator) => {
+  const provider: OperatorProvider = _.get(operator, 'spec.provider.name');
   const { validator } = fieldValidator;
 
   // Check for other alternatives if there is no or empty value
@@ -139,11 +136,9 @@ const maintainersContextualValidator = (value, operator, fieldValidator) => {
 
 /**
  * Validates deployment spec in context of entire operator
- * @param {*} value
- * @param {*} operator
  */
-const deploymentSpecContextualValidator = (value, operator) => {
-  const serviceAccountName = _.get(value, 'template.spec.serviceAccountName');
+const deploymentSpecContextualValidator = (value: any, operator: Operator) => {
+  const serviceAccountName: string = _.get(value, 'template.spec.serviceAccountName');
   // merge both permissions before search
   const permissions = (_.get(operator, 'spec.install.spec.permissions') || []).concat(
     _.get(operator, 'spec.install.spec.clusterPermissions') || []
@@ -161,7 +156,7 @@ const deploymentSpecContextualValidator = (value, operator) => {
   return null;
 };
 
-const nameValidator = name => {
+const nameValidator = (name: string) => {
   if (!name) {
     return 'This field is required.';
   }
@@ -184,7 +179,7 @@ const nameValidator = name => {
   return null;
 };
 
-const descriptionValidator = text => {
+const descriptionValidator = (text: string) => {
   const errorText =
     'Heading level 1 is discouraged in the description as it collides with the rest of the page. Please use heading level 2 or higher.';
 

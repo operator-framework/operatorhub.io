@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import { reduxConstants } from '../../redux/index';
 import EditorSection from '../../components/editor/EditorSection';
 import ManifestUploader from '../../components/editor/manfiestUploader/ManifestUploader';

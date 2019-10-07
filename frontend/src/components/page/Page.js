@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import * as _ from 'lodash-es';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import { HeaderTopBar } from './HeaderTopBar';
 import Footer from './Footer';
 

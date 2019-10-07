@@ -147,7 +147,7 @@ class InstallModal extends React.PureComponent {
                     </Tooltip>
                   </div>
                   <p>
-                    {`This Operator will be installed in the "`}
+                    This Operator will be installed in the &quot;
                     <span className="oh-install-modal__namespace-text">{operatorNamespace}</span>
                     {`" namespace and will be usable from ${
                       globalOperator ? 'all namespaces in the cluster' : 'this namespace only'
@@ -189,7 +189,10 @@ InstallModal.propTypes = {
   operator: PropTypes.object.isRequired,
   onClose: PropTypes.func.isRequired,
   history: PropTypes.shape({
-    push: PropTypes.func.isRequired
+    push: PropTypes.func.isRequired,
+    location: PropTypes.shape({
+      pathname: PropTypes.string
+    })
   }).isRequired
 };
 

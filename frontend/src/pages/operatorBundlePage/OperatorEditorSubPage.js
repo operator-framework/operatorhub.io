@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { Breadcrumb } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import Page from '../../components/page/Page';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 import { setSectionStatusAction } from '../../redux/actions/editorActions';

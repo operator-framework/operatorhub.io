@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { TypeAheadSelect } from 'patternfly-react';
 import { getOptionLabel } from 'react-bootstrap-typeahead/lib/utils';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 
 /**
  * Select with search and option to add new tags

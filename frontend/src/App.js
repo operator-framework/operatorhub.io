@@ -53,9 +53,9 @@ const OperatorMetadataPage = asyncComponent(() =>
   )
 );
 const OperatorDeploymentsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorDeploymentsPage" */ './pages/operatorBundlePage/deployments/OperatorDeploymentsPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorDeploymentsPage" */ './pages/operatorBundlePage/deployments/OperatorDeploymentsPage'
+  ).then(module => module.default)
 );
 const OperatorInstallModesPage = asyncComponent(() =>
   import(/* webpackChunkName: "OperatorInstallModesPage" */ './pages/operatorBundlePage/OperatorInstallModesPage').then(
@@ -68,44 +68,44 @@ const OperatorOwnedCRDsPage = asyncComponent(() =>
   )
 );
 const OperatorRequiredCRDsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorRequiredCRDsPage" */ './pages/operatorBundlePage/crds/OperatorRequiredCRDsPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorRequiredCRDsPage" */ './pages/operatorBundlePage/crds/OperatorRequiredCRDsPage'
+  ).then(module => module.default)
 );
 const OperatorPermissionsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorPermissionsPage" */ './pages/operatorBundlePage/permissions/OperatorPermissionsPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorPermissionsPage" */ './pages/operatorBundlePage/permissions/OperatorPermissionsPage'
+  ).then(module => module.default)
 );
 const OperatorClusterPermissionsPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorClusterPermissionsPage" */ './pages/operatorBundlePage/permissions/OperatorClusterPermissionsPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorClusterPermissionsPage" */ './pages/operatorBundlePage/permissions/OperatorClusterPermissionsPage'
+  ).then(module => module.default)
 );
 const OperatorOwnedCRDEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorOwnedCRDEditPage" */ './pages/operatorBundlePage/crds/OperatorOwnedCRDEditPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorOwnedCRDEditPage" */ './pages/operatorBundlePage/crds/OperatorOwnedCRDEditPage'
+  ).then(module => module.default)
 );
 const OperatorDeploymentEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorDeploymentEditPage" */ './pages/operatorBundlePage/deployments/OperatorDeploymentEditPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorDeploymentEditPage" */ './pages/operatorBundlePage/deployments/OperatorDeploymentEditPage'
+  ).then(module => module.default)
 );
 const OperatorRequiredCRDEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorRequiredCRDEditPage" */ './pages/operatorBundlePage/crds/OperatorRequiredCRDEditPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorRequiredCRDEditPage" */ './pages/operatorBundlePage/crds/OperatorRequiredCRDEditPage'
+  ).then(module => module.default)
 );
 const OperatorPermissionsEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorPermissionsEditPage" */ './pages/operatorBundlePage/permissions/OperatorPermissionsEditPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorPermissionsEditPage" */ './pages/operatorBundlePage/permissions/OperatorPermissionsEditPage'
+  ).then(module => module.default)
 );
 const OperatorClusterPermissionsEditPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorClusterPermissionsEditPage" */ './pages/operatorBundlePage/permissions/OperatorClusterPermissionsEditPage').then(
-    module => module.default
-  )
+  import(
+    /* webpackChunkName: "OperatorClusterPermissionsEditPage" */ './pages/operatorBundlePage/permissions/OperatorClusterPermissionsEditPage'
+  ).then(module => module.default)
 );
 const OperatorPackagePage = asyncComponent(() =>
   import(/* webpackChunkName: "OperatorPackagePage" */ './pages/operatorBundlePage/OperatorPackagePage').then(

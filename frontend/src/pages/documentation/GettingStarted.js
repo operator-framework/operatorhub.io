@@ -58,7 +58,7 @@ const GettingStarted = ({ history, ...props }) => {
           <td>Helm Operator</td>
           <td>
             <ul>
-              <li>A custom object via CRD containing the same properties as the chart{`'`}s values.yaml</li>
+              <li>A custom object via CRD containing the same properties as the chart&apos;s values.yaml</li>
               <li>A Go program that reads a helm chart and deploys all its resources</li>
               <li>
                 Watch statements to detect changes in the custom objects specification, re-deploying all resources with
@@ -95,7 +95,7 @@ const GettingStarted = ({ history, ...props }) => {
       content: (
         <React.Fragment>
           <p>
-            If you would like to get familiar with the Operator pattern,{' '}
+            If you would like to get familiar with the Operator pattern,&nbsp;
             <InternalLink route="/what-is-an-operator" history={history} text="please read on here" />.
           </p>
         </React.Fragment>
@@ -125,11 +125,11 @@ const GettingStarted = ({ history, ...props }) => {
             <img className="oh-page-getting-started__image" src={maturityDetailsImg} alt="" />
           </p>
           <p>
-            Interested? Try the operator-sdk today by following this{' '}
+            Interested? Try the operator-sdk today by following this&nbsp;
             <ExternalLink href={gettingStarted} text="Getting Started Guide" indicator={false} />.
           </p>
           <p>
-            Already have an Operator? Discover how to contribute it to OperatorHub.io{' '}
+            Already have an Operator? Discover how to contribute it to OperatorHub.io&nbsp;
             <InternalLink route="/contribute" history={history} text="here" />.
           </p>
         </React.Fragment>

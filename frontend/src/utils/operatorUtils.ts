@@ -1,5 +1,5 @@
-import * as _ from 'lodash-es';
-import { operatorFieldValidators, operatorPackageFieldValidators } from './operatorValidators';
+import _ from 'lodash-es';
+import { operatorFieldValidators, operatorPackageFieldValidators, KeyValueItemError } from './operatorValidators';
 import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_APPLICATION_HEADER,
@@ -7,12 +7,12 @@ import {
   LOCAL_STORAGE_KEY,
   sectionsFields
 } from './constants';
+import { Operator, CustomResourceFile, OperatorMetadataAnnotations, OperatorSpec, OperatorCrdDescriptor, OperatorPackage } from './operatorTypes';
 
 /**
  * Convert version format without dashes
- * @param {string} version
  */
-const normalizeVersion = version => {
+const normalizeVersion = (version: string) => {
   let normVersion = version.replace(/-beta/gi, 'beta');
   normVersion = normVersion.replace(/-alpha/gi, 'alpha');
 
@@ -29,9 +29,8 @@ export const validCapabilityStrings = [
 
 /**
  * Maps capability to fixed lists
- * @param {string} capability
  */
-const normalizeCapabilityLevel = capability => {
+const normalizeCapabilityLevel = (capability: string) => {
   if (validCapabilityStrings.includes(capability)) {
     return capability;
   }
@@ -40,10 +39,8 @@ const normalizeCapabilityLevel = capability => {
 
 /**
  * Search for deployment example by kind
- * @param {string} kind
- * @param {Operator} operator
  */
-const getExampleYAML = (kind, operator) => {
+const getExampleYAML = (kind: string, operator: Operator): object | null => {
   const examples = _.get(operator, 'metadata.annotations.alm-examples');
   if (!examples) {
     return null;
@@ -64,11 +61,9 @@ const getExampleYAML = (kind, operator) => {
 
 /**
  * Merge operator description subsections into single string
- * @param {*} operator
- * @returns {string}
  */
-export const mergeDescriptions = operator => {
-  const description = [
+export const mergeDescriptions = (operator: Operator) => {
+  const description: string[] = [
     _.get(operator, 'spec.description.aboutApplication', ''),
     _.get(operator, 'spec.description.aboutOperator', ''),
     _.get(operator, 'spec.description.prerequisites', '')
@@ -78,7 +73,7 @@ export const mergeDescriptions = operator => {
   return description.reduce((aggregator, value) => aggregator + (value.endsWith('\n') ? value : `${value}\n`), '');
 };
 
-const normalizeCRD = (crd, operator) => ({
+const normalizeCRD = (crd: CustomResourceFile, operator: Operator) => ({
   name: _.get(crd, 'name', 'Name Not Available'),
   kind: crd.kind,
   displayName: _.get(crd, 'displayName', 'Name Not Available'),
@@ -86,26 +81,25 @@ const normalizeCRD = (crd, operator) => ({
   yamlExample: getExampleYAML(crd.kind, operator)
 });
 
-const normalizeCRDs = operator => {
+const normalizeCRDs = (operator: Operator) => {
   const customResourceDefinitions = _.get(operator, 'spec.customresourcedefinitions.owned');
   return _.map(customResourceDefinitions, crd => normalizeCRD(crd, operator));
 };
 
-/** @param {string} name */
-export const generateIdFromVersionedName = name => name.slice(0, name.indexOf('.'));
+export const generateIdFromVersionedName = (name: string) => name.slice(0, name.indexOf('.'));
 
 const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamespaces', supported: true });
 
-export const normalizeOperator = operator => {
-  const annotations = _.get(operator, 'metadata.annotations', {});
-  const spec = _.get(operator, 'spec', {});
+export const normalizeOperator = (operator: Operator) => {
+  const annotations: OperatorMetadataAnnotations = _.get(operator, 'metadata.annotations', {});
+  const spec: OperatorSpec | null = _.get(operator, 'spec', null);
   const iconObj = _.get(spec, 'icon[0]');
   const categoriesString = _.get(annotations, 'categories');
   const packageInfo = _.get(operator, 'packageInfo', {});
 
-  const description = _.get(spec, 'description');
+  const description = _.get(spec, 'description', '');
   // fallback to short description
-  let longDescription = annotations.description;
+  let longDescription = annotations.description || '';
 
   // replace with proper long description if available
   if (typeof description === 'object') {
@@ -121,12 +115,12 @@ export const normalizeOperator = operator => {
     imgUrl: iconObj ? `data:${iconObj.mediatype};base64,${iconObj.base64data}` : '',
     longDescription,
     provider: _.get(spec, 'provider.name'),
-    version: spec.version,
-    versionForCompare: normalizeVersion(spec.version),
+    version: spec ? spec.version : '',
+    versionForCompare: normalizeVersion(spec ? spec.version : ''),
     capabilityLevel: normalizeCapabilityLevel(annotations.capabilities || ''),
-    links: spec.links,
+    links: spec ? spec.links : [],
     repository: annotations.repository,
-    maintainers: spec.maintainers,
+    maintainers: spec ? spec.maintainers : [],
     description: _.get(annotations, 'description'),
     categories: categoriesString && _.map(categoriesString.split(','), category => category.trim()),
     createdAt: annotations.createdAt && `${annotations.createdAt}`,
@@ -147,18 +141,17 @@ export const getDefaultAlmExample = () => ({
   spec: {}
 });
 
-/** @type Operator */
-const defaultOperator = {
+const defaultOperator: Operator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
   metadata: {
     name: '',
     namespace: 'placeholder',
     annotations: {
-      // @ts-ignore
       'alm-examples': `[${JSON.stringify(getDefaultAlmExample())}]`,
       categories: '',
       certified: 'false',
+      createdAt: '',
       description: '',
       containerImage: '',
       support: '',
@@ -185,7 +178,7 @@ const defaultOperator = {
       matchLabels: {}
     },
     links: [{ name: '', url: '' }],
-    icon: { base64data: '', mediatype: '' },
+    icon: [{ base64data: '', mediatype: '' }],
     customresourcedefinitions: {
       owned: [
         {
@@ -295,8 +288,7 @@ const defaultOperator = {
 // parsing json is significantly faster than deepCloning it
 const defaultOperatorJSON = JSON.stringify(defaultOperator);
 
-/** @returns {Operator} */
-export function getDefaultOperator() {
+export function getDefaultOperator(): Operator {
   return JSON.parse(defaultOperatorJSON);
 }
 
@@ -339,11 +331,7 @@ export function getDefaultDeployment() {
   return _.cloneDeep(defaultDeploymentRef);
 }
 
-/**
- * @returns {OperatorCrdDescriptor}
- */
-export function getDefaultCrdDescriptor() {
-  // @ts-ignore
+export function getDefaultCrdDescriptor(): OperatorCrdDescriptor {
   return { id: Date.now().toString(), displayName: '', description: '', path: '', 'x-descriptors': [] };
 }
 
@@ -380,24 +368,22 @@ export const convertExampleYamlToObj = examples => {
   return crdTemplates;
 };
 
-/**
- * @typedef AutoSavedData
- * @prop {Object} AutoSavedData.sectionStatus sections status
- * @prop {Object} AutoSavedData.operator serialized operator state
- * @prop {Object} AutoSavedData.operatorPackage serialized operator package data
- * @prop {Object} AutoSavedData.uploads uploaded files for operator
- */
+export interface AutoSavedData {
+  sectionStatus: any
+  operator: any
+  operatorPackage: any
+  uploads: any
+}
 
 /**
  * Load autosaved operator and editor metadata or use default if none is saved
  * or browser disabled local storage (e.g. some private modes)
- * @returns {AutoSavedData}
  */
 export const getAutoSavedOperatorData = () => {
-  let savedData = null;
+  let savedData: AutoSavedData | null = null;
 
   try {
-    savedData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+    savedData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '');
   } catch (e) {
     console.warn("Localstorage is disabled. Autosave won't worker.");
   }
@@ -414,30 +400,19 @@ export const clearAutosavedOperatorData = () => {
   return true;
 };
 
-/**
- * @typedef PropError
- * @prop {string} PropError.key
- * @prop {string} PropError.value
- * @prop {string} PropError.keyError
- * @prop {string} PropError.valueError
- */
 
 /**
  * Validate key - value object type and return array of error objects
- * @param {*} value
- * @param {FieldValidator} fieldValidator
- * @param {Operator} operator
- * @returns {string | PropError[] | null}
  */
-const getObjectPropsErrors = (value, fieldValidator, operator) => {
-  /** @type {PropError[]} */
-  const propErrors = [];
+const getObjectPropsErrors = (value: any, fieldValidator: FieldValidator, operator: Operator) => {
+
+  const propErrors: KeyValueItemError[] = [];
 
   if (fieldValidator.required && _.isEmpty(value)) {
     return 'This field is required';
   }
 
-  _.forEach(_.keys(value), key => {
+  _.keys(value).forEach(key => {
     if (key || value[key]) {
       // check separately key and value
       const keyError = getValueError(key, _.get(fieldValidator, 'key'), operator);
@@ -452,26 +427,23 @@ const getObjectPropsErrors = (value, fieldValidator, operator) => {
   return _.size(propErrors) ? propErrors : null;
 };
 
-/**
- * @typedef ArrayError
- * @prop {string} index
- * @prop {Object} errors - array of error messages for properties
- */
+
+export interface ArrayError {
+  index: number
+  errors: any
+}
 
 /**
  * Validates array of values and returns array of error objects
- * @param {*} value
- * @param {FieldValidator} fieldValidator
- * @param {Operator} operator
  */
-const getArrayValueErrors = (value, fieldValidator, operator) => {
-  /** @type {ArrayError[]} */
-  const fieldErrors = [];
+const getArrayValueErrors = (value: any[], fieldValidator: FieldValidator, operator: Operator) => {
+  const fieldErrors: ArrayError[] = [];
 
-  _.forEach(value, (nextValue, index) => {
+  (value || []).forEach((nextValue, index) => {
     const valueErrors = {};
-    _.forEach(_.keys(fieldValidator.itemValidator), key => {
-      const valueError = getValueError(nextValue[key], fieldValidator.itemValidator[key], operator);
+
+    _.keys(fieldValidator.itemValidator).forEach(key => {
+      const valueError = getValueError(nextValue[key], (fieldValidator.itemValidator as FieldValidator)[key], operator);
       if (valueError) {
         valueErrors[key] = valueError;
       }
@@ -488,27 +460,23 @@ const getArrayValueErrors = (value, fieldValidator, operator) => {
   return null;
 };
 
-/**
- * @typedef FieldValidator
- * @prop {boolean=} FieldValidator.isObjectProps
- * @prop {boolean=} FieldValidator.isArray
- * @prop {FieldValidator=} FieldValidator.itemValidator
- * @prop {boolean=} FieldValidator.required
- * @prop {string=} FieldValidator.requiredError
- * @prop {function=} FieldValidator.validator
- * @prop {function=} FieldValidator.contextualValidator
- * @prop {function=} FieldValidator.isEmpty
- * @prop {any=} FieldValidator.regex
- */
+
+export interface FieldValidator {
+  isObjectProps?: boolean
+  isArray?: boolean
+  itemValidator?: Record<string, FieldValidator>
+  required?: boolean
+  requiredError?: string
+  validator?: Function
+  contextualValidator?: Function
+  isEmpty?: Function
+  regex?: RegExp
+}
 
 /**
  * Validates single value
- * @param {*} value
- * @param {FieldValidator} fieldValidator
- * @param {Operator} operator
- * @returns {* | null}
  */
-export const getValueError = (value, fieldValidator, operator) => {
+export const getValueError = (value: any, fieldValidator: FieldValidator, operator: Operator) => {
   if (!fieldValidator) {
     return null;
   }
@@ -547,10 +515,8 @@ export const getValueError = (value, fieldValidator, operator) => {
 
 /**
  * Validates field at defined path in operator
- * @param {Operator} operator
- * @param {string} field field path
  */
-export const getFieldValueError = (operator, field) => {
+export const getFieldValueError = (operator: Operator, field: string | string[]) => {
   const value = _.get(operator, field);
   const fieldValidator = _.get(operatorFieldValidators, field);
 
@@ -559,18 +525,14 @@ export const getFieldValueError = (operator, field) => {
 
 /**
  * Check validity of the operator part at defined path
- * @param {*} operatorSubSection
- * @param {*} validators
- * @param {string[]} path
- * @param {Operator} operator
  */
-const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
+const areSubFieldValid = (operatorSubSection, validators, path: string[], operator: Operator): boolean => {
+
   const error = _.find(_.keys(validators), key => {
+
     const fieldValue = operatorSubSection[key];
     const fieldPath = path.concat([key]);
-
-    /** @type FieldValidator */
-    const validator = validators[key];
+    const validator: FieldValidator = validators[key];
 
     if (getValueError(fieldValue, validator, operator)) {
       console.log(`${fieldPath.join('.')}:`, getValueError(fieldValue, validator, operator));
@@ -600,9 +562,8 @@ const areSubFieldValid = (operatorSubSection, validators, path, operator) => {
 /**
  * Takes error object or array or error message
  * And checks if contains error messages
- * @param {any} formErrors
  */
-export const containsErrors = formErrors => {
+export const containsErrors = (formErrors: any): boolean => {
   // no value or null
   if (typeof formErrors === 'undefined' || formErrors === null) {
     return false;
@@ -617,9 +578,8 @@ export const containsErrors = formErrors => {
 /**
  * Removes empty values which are part of default operator,
  * but should not be part of final operator as they are invalid
- * @param {Operator} operator
  */
-export const removeEmptyOptionalValuesFromOperator = operator => {
+export const removeEmptyOptionalValuesFromOperator = (operator: Operator) => {
   const clonedOperator = _.cloneDeep(operator);
 
   const ownedCRDs = _.get(clonedOperator, sectionsFields['owned-crds'], []).filter(crd => !isOwnedCrdDefault(crd));
@@ -630,9 +590,8 @@ export const removeEmptyOptionalValuesFromOperator = operator => {
 
 /**
  * Validates complete operator
- * @param {Operator} operator
  */
-export const validateOperator = operator => {
+export const validateOperator = (operator: Operator) => {
   if (_.isEmpty(operator)) {
     return false;
   }
@@ -657,17 +616,14 @@ export const validateOperator = operator => {
 
 /**
  * Validates operator package field
- * @param {string} value
- * @param {string} fieldName
  */
-export const validateOperatorPackageField = (value, fieldName) =>
-  getValueError(value, _.get(operatorPackageFieldValidators, fieldName), {});
+export const validateOperatorPackageField = (value: string, fieldName: string) =>
+  getValueError(value, _.get(operatorPackageFieldValidators, fieldName), {} as any);
 
 /**
  * Validatates operator package
- * @param {OperatorPackage} operatorPackage
  */
-export const validateOperatorPackage = operatorPackage => {
+export const validateOperatorPackage = (operatorPackage: OperatorPackage) => {
   const FIELDS = ['name', 'channel'];
 
   return FIELDS.every(field => validateOperatorPackageField(operatorPackage[field], field) === null);

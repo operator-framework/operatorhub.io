@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import * as _ from 'lodash-es';
 import { Alert, Modal, Grid, Icon } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import UploadUrlModal from './UploadUrlModal';
 
 class UploadFileModal extends React.Component {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import { Grid, Modal } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import OperatorSidePanel from '../OperatorSidePanel';
 import { MarkdownView } from '../MarkdownView';
 import CustomResourceDefinitionsView from '../CustomResourceDefinitionsView';

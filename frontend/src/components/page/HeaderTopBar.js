@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { DropdownButton, MenuItem } from 'patternfly-react';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import hubLogo from '../../imgs/operatorhub-header-logo.svg';
 import { InternalLink } from '../InternalLink';
 

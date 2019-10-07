@@ -12,7 +12,7 @@ import 'brace/snippets/yaml';
 import copy from 'copy-to-clipboard';
 import UploadUrlModal from './modals/UploadUrlModal';
 import { reduxConstants } from '../redux';
-import { helpers } from '../common/helpers';
+import { helpers } from '../common';
 
 let id = 0;
 

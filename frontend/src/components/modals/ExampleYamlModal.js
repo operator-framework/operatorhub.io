@@ -4,7 +4,7 @@ import * as _ from 'lodash-es';
 import { safeDump } from 'js-yaml';
 import { Modal } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import YamlViewer from '../YamlViewer';
 
 const ExampleYamlModal = ({ show, customResourceDefinition, onClose }) => {

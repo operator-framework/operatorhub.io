@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
 import { Breadcrumb, Grid } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import { MarkdownView } from '../../components/MarkdownView';
 import Page from '../../components/page/Page';
 import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
@@ -152,7 +152,7 @@ class OperatorPreviewPage extends React.Component {
             <br />
             <b>Important:</b> This preview and operator-courier only check for syntax of your CSV. Please use the{' '}
             <ExternalLink href={operatorScorecard} indicator={false} text="scorecard" /> utility which is part of the
-            operator-sdk to validate your entire{' '}
+            operator-sdk to validate your entire&nbsp;
             <ExternalLink href={operatorBundle} indicator={false} text="Operator bundle" />
           </p>
           <h2>{editorDescription}</h2>

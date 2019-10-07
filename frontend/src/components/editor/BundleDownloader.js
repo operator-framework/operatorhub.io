@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { safeDump } from 'js-yaml';
 import { Icon } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import {
   getMissingCrdUploads,
   yamlFromOperator,

@@ -4,7 +4,7 @@ import _ from 'lodash-es';
 import { connect } from 'react-redux';
 import { Breadcrumb, Grid } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import { fetchOperator, fetchLatestOlmVersion } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import Page from '../../components/page/Page';

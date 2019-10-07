@@ -6,7 +6,7 @@ import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
 import { safeLoadAll } from 'js-yaml';
 
-import { helpers } from '../../../common/helpers';
+import { helpers } from '../../../common';
 import UploadUrlModal from '../../modals/UploadUrlModal';
 import { reduxConstants } from '../../../redux/index';
 import {

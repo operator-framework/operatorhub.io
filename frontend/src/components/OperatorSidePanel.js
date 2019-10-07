@@ -8,7 +8,7 @@ import { DropdownButton, Icon, MenuItem, OverlayTrigger, Popover } from 'pattern
 import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 import { ExternalLink } from './ExternalLink';
 import { capabilityLevelModelDiagram } from '../utils/documentationLinks';
-import { helpers } from '../common/helpers';
+import { helpers } from '../common';
 import * as capabilityLevelImgLevel1 from '../imgs/capability-level-imgs/level-1.svg';
 import * as capabilityLevelImgLevel2 from '../imgs/capability-level-imgs/level-2.svg';
 import * as capabilityLevelImgLevel3 from '../imgs/capability-level-imgs/level-3.svg';
