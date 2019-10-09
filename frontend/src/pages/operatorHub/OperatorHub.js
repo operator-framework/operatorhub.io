@@ -394,20 +394,15 @@ class OperatorHub extends React.Component {
   };
 
   refresh() {
-    const { loadOperators, operatorsUpdateTime } = this.props;
-
-    if (Date.now() - operatorsUpdateTime > 3600 * 1000) {
-      loadOperators();
-    } else {
-      // BIT HACKY
-      // @TODO refactor entire component to make it transparent - especially data flow!
-      this.setState({ refreshed: true });
-      this.updateFilteredItems(this.state.categories);
-    }
+    const { loadOperators } = this.props;
+    loadOperators();
   }
 
   setURLParams = params => {
-    this.props.history.replace(`${window.location.pathname}?${params.toString()}`);
+    const url = new URL(window.location);
+    const searchParams = `?${params.toString()}`;
+
+    this.props.history.replace(`${url.pathname}${searchParams}`);
   };
 
   filtersInURL = searchObj => _.some(operatorHubFilterGroups, filterGroup => _.get(searchObj, filterGroup));
@@ -773,9 +768,13 @@ class OperatorHub extends React.Component {
 
     if (error) {
       return <ErrorMessage errorText={`Error retrieving operators: ${errorMessage}`} />;
-    } else if (pending) {
+    }
+
+    if (pending) {
       return <Loader text="Loading available operators" />;
-    } else if (!Array.isArray(operators) || operators.length === 0) {
+    }
+
+    if (!_.size(operators)) {
       return (
         <EmptyState className="blank-slate-content-pf">
           <EmptyState.Title className="oh-no-filter-results-title" aria-level="2">
