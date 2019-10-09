@@ -202,13 +202,20 @@ export function addDefaultResourceStructureToCrd(crd) {
 export function mergeArrayOfObjectsByKey(initialValues, updatedValues, keyProperty, customMerger) {
   const map = new Map();
 
+  // recover from case when values are not an array - e.g. malformed data
+  if (!Array.isArray(updatedValues)) {
+    return initialValues;
+  } else if (!Array.isArray(initialValues)) {
+    return updatedValues;
+  }
+
   // fill map with first object values
-  initialValues.forEach(element => {
+  (initialValues || []).forEach(element => {
     map.set(element[keyProperty], element);
   });
 
   // merge second object into map by key value
-  updatedValues.forEach(element => {
+  (updatedValues || []).forEach(element => {
     const key = element[keyProperty];
     let merged = element;
 
