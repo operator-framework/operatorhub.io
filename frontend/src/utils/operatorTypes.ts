@@ -33,15 +33,15 @@ export type CustomResourceFile = K8ObjectBase & CustomResourceFileSpec;
 
 
 export type OperatorMetadataAnnotations = {
-    'alm-examples' :  string 
-    categories :  string 
+    'alm-examples': string
+    categories: string
     certified: 'true' | 'false'
     createdAt: string
-    description :  string 
-    containerImage :  string 
-    support :  string 
-    capabilities :  string 
-    repository :  string 
+    description: string
+    containerImage: string
+    support: string
+    capabilities: string
+    repository: string
 }
 
 export type OperatorMetadata = {
@@ -106,7 +106,7 @@ export type OperatorCrdDescriptor = {
 export type OperatorOwnedCrdResources = {
     resources: OperatorCrdResource[]
     specDescriptors: OperatorCrdDescriptor[]
-    statusDescriptors: OperatorCrdDescriptor[] 
+    statusDescriptors: OperatorCrdDescriptor[]
 }
 
 export type OperatorOwnedCrd = OperatorCrd & OperatorOwnedCrdResources;
@@ -141,19 +141,19 @@ export type OperatorSpec = {
     maturity: string
     version: string
     replaces: string
-    minKubeVersion :  string 
-    keywords :  string[] 
-    maintainers :  OperatorMaintainer[] 
+    minKubeVersion: string
+    keywords: string[]
+    maintainers: OperatorMaintainer[]
     provider: OperatorProvider
     labels: Record<string, string>
     selector: {
         matchLabels: Record<string, string>
     }
-    links :  OperatorLink[] 
-    icon :  OperatorIcon[] 
+    links: OperatorLink[]
+    icon: OperatorIcon[]
     customresourcedefinitions: {
-        owned:  OperatorOwnedCrd[]
-        required:  OperatorCrd[]
+        owned: OperatorOwnedCrd[]
+        required: OperatorCrd[]
     }
     install: OperatorInstall
     installModes: OperatorInstallModes
@@ -180,3 +180,33 @@ export type OperatorPackage = {
     channel: string
 }
 
+export type NormalizedCrdPreview = {
+    name: string
+    kind: string
+    displayName: string
+    description: string
+    yamlExample: object | null
+}
+
+export type NormalizedOperatorPreview = {
+    id: string
+    name: string
+    displayName: string
+    description: string
+    imgUrl: string
+    longDescription: string
+    provider: string
+    version: string
+    versionForCompare: string
+    capabilityLevel: string
+    links: OperatorLink[]
+    repository: string
+    maintainers: OperatorMaintainer[]
+    categories: string[]
+    createdAt: string
+    containerImage: string
+    customResourceDefinitions: NormalizedCrdPreview[]
+    packageName: string
+    channels: any[]
+    globalOperator: boolean
+}

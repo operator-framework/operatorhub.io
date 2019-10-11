@@ -8,7 +8,7 @@ import { helpers } from '../../common';
 import { MarkdownView } from '../../components/MarkdownView';
 import Page from '../../components/page/Page';
 import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
-import { reduxConstants } from '../../redux';
+import { reduxConstants } from '../../redux/constants';
 import YamlViewer from '../../components/YamlViewer';
 import { normalizeOperator } from '../../utils/operatorUtils';
 import OperatorSidePanel from '../../components/OperatorSidePanel';

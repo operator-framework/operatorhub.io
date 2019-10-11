@@ -3,19 +3,24 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Icon } from 'patternfly-react';
 
-import store from '../../redux/store';
-import { reduxConstants } from '../../redux/index';
+import { reduxConstants } from '../../redux/constants';
 import MessageDialog from './MessageDialog';
+import { StoreState } from '../../redux';
+import { ConfirmationModalReducerState } from '../../redux/confirmationModalReducer';
 
-class ConfirmationModal extends React.Component {
+export type ConfirmationModalProps = ConfirmationModalReducerState & {
+  hideModal: () => void
+};
+
+class ConfirmationModal extends React.PureComponent<ConfirmationModalProps> {
+
+  static propTypes;
+  static defaultProps;
+
   cancel = () => {
-    if (this.props.onCancel) {
-      this.props.onCancel();
-    } else {
-      store.dispatch({
-        type: reduxConstants.CONFIRMATION_MODAL_HIDE
-      });
-    }
+    const { onCancel, hideModal } = this.props;
+
+    onCancel ? onCancel() : hideModal();
   };
 
   render() {
@@ -75,6 +80,12 @@ ConfirmationModal.defaultProps = {
   onCancel: null
 };
 
-const mapStateToProps = state => ({ ...state.confirmationModal });
+const mapDispatchToProps = dispatch => ({
+  hideModal: () => dispatch({
+    type: reduxConstants.CONFIRMATION_MODAL_HIDE
+  })
+});
 
-export default connect(mapStateToProps)(ConfirmationModal);
+const mapStateToProps = (state: StoreState) => ({ ...state.confirmationModal });
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConfirmationModal);

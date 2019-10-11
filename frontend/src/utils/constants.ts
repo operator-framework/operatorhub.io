@@ -41,14 +41,29 @@ export const STATUS_CAPABILITIES = [
   'urn:alm:descriptor:io.kubernetes:'
 ];
 
-export const EDITOR_STATUS = {
+export const EDITOR_STATUS: {
+  empty: 'empty',
+  pending: 'pending',
+  complete: 'complete',
+  errors: 'errors'
+} = {
   empty: 'empty',
   pending: 'pending',
   complete: 'complete',
   errors: 'errors'
 };
 
-export const sectionsFields = {
+export interface ISectionFields{
+  metadata: string[]
+  'owned-crds': string
+  'required-crds': string
+  deployments: string
+  permissions: string
+  'cluster-permissions': string
+  'install-modes': string
+}
+
+export const sectionsFields: ISectionFields = {
   metadata: [
     'metadata.name',
     'spec.displayName',
@@ -77,6 +92,7 @@ export const sectionsFields = {
   'cluster-permissions': 'spec.install.spec.clusterPermissions',
   'install-modes': 'spec.installModes'
 };
+
 
 export const maturityOptions = ['planning', 'pre-alpha', 'alpha', 'beta', 'stable', 'mature', 'inactive', 'deprecated'];
 

@@ -1,11 +1,13 @@
 import store from './store';
 import { AUTOSAVE_FIELDS, LOCAL_STORAGE_KEY } from '../utils/constants';
 
-let lastStateSnapshot = null;
+let lastStateSnapshot: Record<string, any> | null = null;
 
 const autoSaveFieldsChanged = state => {
+  const snapshot = lastStateSnapshot || {}; 
+
   const changed = AUTOSAVE_FIELDS.some(field => {
-    const snapshotValue = lastStateSnapshot[field];
+    const snapshotValue = snapshot[field];
     const stateFieldValue = state.editorState[field];
 
     return snapshotValue !== stateFieldValue;

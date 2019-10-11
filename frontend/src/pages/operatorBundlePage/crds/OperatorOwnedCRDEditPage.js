@@ -16,9 +16,9 @@ import {
   getDefaultOnwedCRD,
   getDefaultAlmExample,
   convertExampleYamlToObj,
-  getDefaultCrdDescriptor,
-  containsErrors
+  getDefaultCrdDescriptor
 } from '../../../utils/operatorUtils';
+import { containsErrors } from '../../../utils/operatorValidation';
 import {
   setSectionStatusAction,
   storeEditorFormErrorsAction,

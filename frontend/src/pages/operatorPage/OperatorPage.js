@@ -11,7 +11,7 @@ import Page from '../../components/page/Page';
 import InstallModal from '../../components/modals/InstallModal';
 import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
 import * as operatorImg from '../../imgs/operator.svg';
-import { reduxConstants } from '../../redux';
+import { reduxConstants } from '../../redux/constants';
 import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';
 import OperatorSidePanel from '../../components/OperatorSidePanel';
 import Loader from '../../components/other/Loader';

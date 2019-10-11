@@ -2,7 +2,8 @@
     "files.eol": "\n",
     "javascript.referencesCodeLens.enabled": true,
     "javascript.validate.enable": true,
-    "editor.suggest.localityBonus": true,
+    "typescript.referencesCodeLens.enabled": true,
+    "editor.suggest.localityBonus": true,    
     "eslint.autoFixOnSave": true,
     "eslint.alwaysShowStatus": true,
     "eslint.packageManager": "npm" 

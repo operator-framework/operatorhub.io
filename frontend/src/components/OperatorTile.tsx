@@ -1,9 +1,15 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { CatalogTile } from 'patternfly-react-extensions';
-import * as operatorImg from '../imgs/operator.svg';
+//@ts-ignore
+import operatorImg from '../imgs/operator.svg';
 
-const OperatorTile = ({ operator, ...props }) => {
+export interface OperatorTileProps{
+  operator: any
+  [key: string]: any
+}
+
+const OperatorTile: React.FC<OperatorTileProps> = ({ operator, ...props }) => {
   if (!operator) {
     return null;
   }

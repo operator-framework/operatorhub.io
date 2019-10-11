@@ -1,11 +1,12 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 
 import { helpers } from '../../../common';
-import { getFieldValueError, containsErrors } from '../../../utils/operatorUtils';
+import { getFieldValueError, containsErrors } from '../../../utils/operatorValidation';
+
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
 import { getUpdatedFormErrors } from '../bundlePageUtils';

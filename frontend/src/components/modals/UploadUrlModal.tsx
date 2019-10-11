@@ -1,26 +1,56 @@
-import * as React from 'react';
+import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
-
 import { Alert, FormControl, Grid, HelpBlock, Modal } from 'patternfly-react';
+
 import { helpers } from '../../common';
 import { urlRegExp } from '../../utils/operatorValidators';
 
-class ImportYamlModal extends React.Component {
+export interface UploadUrlModalProps {
+  onUpload: (response: any, url: string) => any
+  show?: boolean,
+  onClose?: () => void,
+}
+
+interface UploadUrlModalState {
+  url: string
+  validURL: boolean,
+  uploadError: ReactNode
+}
+
+class UploadUrlModal extends React.PureComponent<UploadUrlModalProps, UploadUrlModalState> {
+
+  static propTypes;
+  static defaultProps;
+
   state = {
     url: '',
     validURL: false,
     uploadError: null
   };
 
+  componentDidUpdate(prevProps: UploadUrlModalProps) {
+    if (this.props.show && !prevProps.show) {
+      // reset upload states
+      this.setState({
+        url: '',
+        validURL: false,
+        uploadError: null
+      });
+    }
+  }
+
   uploadFile = () => {
     const { url } = this.state;
+
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url);
+
     xhr.onload = () => {
       if (xhr.status === 200) {
-        this.props.onUpload(xhr.response);
+        this.props.onUpload(xhr.response, url);
         return;
       }
+
       const error = (
         <React.Fragment>
           <span>{`Unable to upload url: ${url}`}</span>
@@ -34,6 +64,7 @@ class ImportYamlModal extends React.Component {
     };
 
     xhr.onerror = () => {
+
       const error = (
         <React.Fragment>
           <span>{`Unable to upload url: ${url}`}</span>
@@ -48,22 +79,21 @@ class ImportYamlModal extends React.Component {
     xhr.send();
   };
 
-  validURL = url => urlRegExp.test(url);
+  validURL = (url: string) => urlRegExp.test(url);
 
   urlChange = e => {
     const url = e.target.value;
-    const updateState = {
+
+    const updateState: Partial<UploadUrlModalState> = {
       url,
       validURL: this.validURL(url)
     };
 
     if (url && !this.state.url) {
-      updateState.uploadType = 'url';
-      updateState.uploadFile = null;
       updateState.uploadError = null;
     }
 
-    this.setState(updateState);
+    this.setState(updateState as UploadUrlModalState);
   };
 
   onKeyDown = event => {
@@ -121,15 +151,15 @@ class ImportYamlModal extends React.Component {
   }
 }
 
-ImportYamlModal.propTypes = {
+UploadUrlModal.propTypes = {
   show: PropTypes.bool,
   onClose: PropTypes.func,
   onUpload: PropTypes.func.isRequired
 };
 
-ImportYamlModal.defaultProps = {
+UploadUrlModal.defaultProps = {
   show: false,
   onClose: helpers.noop
 };
 
-export default ImportYamlModal;
+export default UploadUrlModal;

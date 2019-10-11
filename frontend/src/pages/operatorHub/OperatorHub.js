@@ -12,7 +12,7 @@ import { fetchOperators } from '../../services/operatorsService';
 import { helpers } from '../../common';
 
 import Page from '../../components/page/Page';
-import { reduxConstants } from '../../redux';
+import { reduxConstants } from '../../redux/constants';
 import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';
 import Loader from '../../components/other/Loader';
@@ -831,7 +831,6 @@ class OperatorHub extends React.Component {
 
 OperatorHub.propTypes = {
   operators: PropTypes.array,
-  operatorsUpdateTime: PropTypes.number,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
@@ -855,7 +854,6 @@ OperatorHub.propTypes = {
 
 OperatorHub.defaultProps = {
   operators: [],
-  operatorsUpdateTime: 0,
   error: false,
   errorMessage: '',
   pending: false,

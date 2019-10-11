@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { helpers } from '../../common';
-import { reduxConstants } from '../../redux/index';
+import { reduxConstants } from '../../redux/constants';
 import YamlViewer from '../../components/YamlViewer';
 import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';

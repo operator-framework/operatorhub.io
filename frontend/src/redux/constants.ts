@@ -1,11 +1,4 @@
-import { combineReducers } from 'redux';
-import { operatorsReducer } from './operatorsReducer';
-import { viewReducer } from './viewReducer';
-import { editorReducer } from './editorReducer';
-import { previewReducer } from './previewReducer';
-import { confirmationModalReducer } from './confirmationModalReducer';
-
-const reduxConstants = {
+export const reduxConstants = {
   GET_OPERATORS: 'GET_OPERATORS',
   GET_OPERATOR: 'GET_OPERATOR',
   GET_OLM_VERSION: 'GET_OLM_RELEASE_VERSION',
@@ -27,15 +20,3 @@ const reduxConstants = {
   CONFIRMATION_MODAL_SHOW: 'CONFIRMATION_MODAL_SHOW',
   CONFIRMATION_MODAL_HIDE: 'CONFIRMATION_MODAL_HIDE'
 };
-
-const reducers = {
-  operatorsState: operatorsReducer,
-  viewState: viewReducer,
-  editorState: editorReducer,
-  previewState: previewReducer,
-  confirmationModal: confirmationModalReducer
-};
-
-const reduxReducers = combineReducers(reducers);
-
-export { reduxConstants, reduxReducers, reducers };

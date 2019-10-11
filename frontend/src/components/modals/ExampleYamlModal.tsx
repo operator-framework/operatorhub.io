@@ -1,16 +1,22 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { safeDump } from 'js-yaml';
 import { Modal } from 'patternfly-react';
 
 import { helpers } from '../../common';
 import YamlViewer from '../YamlViewer';
 
-const ExampleYamlModal = ({ show, customResourceDefinition, onClose }) => {
+export interface ExampleYamlModalProps {
+  show?: boolean
+  customResourceDefinition: { displayName: string, yamlExample: string },
+  onClose?: (e?: React.MouseEvent) => void
+}
+
+const ExampleYamlModal: React.FC<ExampleYamlModalProps> = ({ show, customResourceDefinition, onClose }) => {
   const renderContents = () => {
     const { displayName, yamlExample } = customResourceDefinition;
-    let yaml;
+    let yaml = '';
 
     if (yamlExample) {
       try {
@@ -46,14 +52,16 @@ const ExampleYamlModal = ({ show, customResourceDefinition, onClose }) => {
 
 ExampleYamlModal.propTypes = {
   show: PropTypes.bool,
-  customResourceDefinition: PropTypes.object,
+  customResourceDefinition: PropTypes.shape({
+    displayName: PropTypes.string.isRequired,
+    yamlExample: PropTypes.string.isRequired
+  }).isRequired,
   onClose: PropTypes.func
 };
 
 ExampleYamlModal.defaultProps = {
   show: false,
-  customResourceDefinition: null,
-  onClose: helpers.noop
+  onClose: helpers.noop as any
 };
 
 export default ExampleYamlModal;

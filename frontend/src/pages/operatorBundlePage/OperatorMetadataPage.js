@@ -19,7 +19,7 @@ import {
 } from '../../redux/actions/editorActions';
 import OperatorTextArea from '../../components/editor/forms/OperatorTextArea';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
-import { containsErrors } from '../../utils/operatorUtils';
+import { containsErrors } from '../../utils/operatorValidation';
 import { EDITOR_STATUS, sectionsFields, maturityOptions, categoryOptions } from '../../utils/constants';
 import OperatorSelect from '../../components/editor/forms/OperatorSelect';
 

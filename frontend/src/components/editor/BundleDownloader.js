@@ -15,8 +15,8 @@ import {
   filterValidCrdUploads,
   getUpdatedFormErrors
 } from '../../pages/operatorBundlePage/bundlePageUtils';
-import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorUtils';
-import { reduxConstants } from '../../redux';
+import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorValidation';
+import { reduxConstants } from '../../redux/constants';
 import { setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 

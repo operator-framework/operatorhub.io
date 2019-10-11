@@ -1,4 +1,4 @@
-import { reduxConstants } from '../index';
+import { reduxConstants } from '../constants';
 import { clearAutosavedOperatorData } from '../../utils/operatorUtils';
 
 /**

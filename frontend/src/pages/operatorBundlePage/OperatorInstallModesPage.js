@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 
 import { helpers } from '../../common';
-import { getFieldValueError } from '../../utils/operatorUtils';
+import { getFieldValueError } from '../../utils/operatorValidation';
 import InstallModeEditor from '../../components/editor/InstallModeEditor';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
 import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';

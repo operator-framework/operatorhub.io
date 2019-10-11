@@ -1,14 +1,37 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { Alert, Modal, Grid, Icon } from 'patternfly-react';
 
 import { helpers } from '../../common';
 import UploadUrlModal from './UploadUrlModal';
 
-class UploadFileModal extends React.Component {
-  state = {
+
+export interface UploadFileModalProps {
+  onUpload: (response: any) => void
+  show?: BooleanConstructor,
+  onClose?: () => void
+
+}
+
+interface UploadFileModalState {
+  url: string
+  contents: string
+  advancedUpload: boolean
+  dragOver: boolean
+  uploadFile: File | null
+  uploadError: React.ReactNode
+  uploadUrlShown: boolean
+}
+
+class UploadFileModal extends React.PureComponent<UploadFileModalProps, UploadFileModalState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: UploadFileModalState = {
+    contents: '',
     url: '',
     advancedUpload: false,
     dragOver: false,
@@ -39,7 +62,7 @@ class UploadFileModal extends React.Component {
     this.setState({ url, contents, uploadError: null, uploadFile: null, uploadUrlShown: false });
   };
 
-  doUploadFile = files => {
+  doUploadFile = (files: FileList | null) => {
     const fileToUpload = files && files[0];
 
     if (!fileToUpload) {
@@ -49,7 +72,12 @@ class UploadFileModal extends React.Component {
     const reader = new FileReader();
 
     reader.onload = () => {
-      this.setState({ uploadFile: fileToUpload, contents: reader.result, uploadError: null, url: '' });
+      this.setState({
+        uploadFile: fileToUpload,
+        contents: reader.result as string,
+        uploadError: null,
+        url: ''
+      });
     };
 
     reader.onerror = () => {
@@ -58,7 +86,7 @@ class UploadFileModal extends React.Component {
           <span>{`Unable to upload file: ${fileToUpload.name}`}</span>
           <br />
           <br />
-          <span>{reader.error.message}</span>
+          <span>{reader.error && reader.error.message}</span>
         </React.Fragment>
       );
 
@@ -69,7 +97,7 @@ class UploadFileModal extends React.Component {
     reader.readAsText(fileToUpload);
   };
 
-  handleDragDropEvent = (e, dragOver) => {
+  handleDragDropEvent = (e: React.DragEvent, dragOver= false) => {
     e.preventDefault();
     e.stopPropagation();
     this.setState({ dragOver });
@@ -115,12 +143,12 @@ class UploadFileModal extends React.Component {
                   {!uploadFile && !url && (
                     <div
                       className={uploadFileClasses}
-                      onDrag={e => this.handleDragDropEvent(e)}
-                      onDragStart={e => this.handleDragDropEvent(e)}
-                      onDragEnd={e => this.handleDragDropEvent(e)}
-                      onDragOver={e => this.handleDragDropEvent(e)}
-                      onDragEnter={e => this.handleDragDropEvent(e)}
-                      onDragLeave={e => this.handleDragDropEvent(e)}
+                      onDrag={this.handleDragDropEvent}
+                      onDragStart={this.handleDragDropEvent}
+                      onDragEnd={this.handleDragDropEvent}
+                      onDragOver={this.handleDragDropEvent}
+                      onDragEnter={this.handleDragDropEvent}
+                      onDragLeave={this.handleDragDropEvent}
                       onDrop={e => {
                         this.handleDragDropEvent(e);
                         this.doUploadFile(e.dataTransfer.files);
@@ -131,12 +159,12 @@ class UploadFileModal extends React.Component {
                         method="post"
                         action=""
                         encType="multipart/form-data"
-                        onDrag={e => this.handleDragDropEvent(e)}
-                        onDragStart={e => this.handleDragDropEvent(e)}
-                        onDragEnd={e => this.handleDragDropEvent(e)}
+                        onDrag={this.handleDragDropEvent}
+                        onDragStart={this.handleDragDropEvent}
+                        onDragEnd={this.handleDragDropEvent}
                         onDragOver={e => this.handleDragDropEvent(e, true)}
                         onDragEnter={e => this.handleDragDropEvent(e, true)}
-                        onDragLeave={e => this.handleDragDropEvent(e)}
+                        onDragLeave={this.handleDragDropEvent}
                         onDrop={e => {
                           this.handleDragDropEvent(e);
                           this.doUploadFile(e.dataTransfer.files);

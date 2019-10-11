@@ -2,20 +2,23 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { createBrowserHistory } from 'history';
-import { reduxReducers } from './index';
 import { autoSaveEditor } from './editorAutosave';
+import { createRootReducer } from './rootReducer';
 
 const history = createBrowserHistory();
+
+// @ts-ignore
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = createStore(
-  connectRouter(history)(reduxReducers),
-  composeEnhancer(applyMiddleware(routerMiddleware(history), thunkMiddleware))
+  createRootReducer(history),
+  composeEnhancer(
+    applyMiddleware(
+      routerMiddleware(history),
+      thunkMiddleware
+    )
+  )
 );
-
-const reloadReducers = () => {
-  store.replaceReducer(connectRouter(history)(reduxReducers));
-};
 
 store.subscribe(autoSaveEditor);
 
@@ -27,4 +30,4 @@ window.onbeforeunload = e => {
   }
 };
 
-export { store as default, reloadReducers };
+export { store as default, history };

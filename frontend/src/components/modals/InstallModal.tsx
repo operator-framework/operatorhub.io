@@ -1,13 +1,16 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
+import {History} from 'history';
 import { Tooltip } from 'react-lightweight-tooltip';
 import copy from 'copy-to-clipboard';
 import { Icon, Modal } from 'patternfly-react';
 import { CatalogItemHeader } from 'patternfly-react-extensions';
 
+// @ts-ignore
 import * as operatorImg from '../../imgs/operator.svg';
 import { InternalLink } from '../InternalLink';
+import { NormalizedOperatorPreview } from '../../utils/operatorTypes';
 
 const olmRepo = 'https://github.com/operator-framework/operator-lifecycle-manager';
 
@@ -27,6 +30,18 @@ const tooltipOverrides = Object.freeze({
   }
 });
 
+export interface InstallModalProps {
+  olmVersion: string
+  operator: NormalizedOperatorPreview
+  onClose: () => void
+  history: History
+}
+
+interface InstallModalState{
+  installCommand: string
+   copied: boolean
+}
+
 /**
  * Provides install instructions for operator
  * @param {string} olmVersion
@@ -34,7 +49,11 @@ const tooltipOverrides = Object.freeze({
  * @param {*} history
  * @param {Function} onClose
  */
-class InstallModal extends React.PureComponent {
+class InstallModal extends React.PureComponent<InstallModalProps, InstallModalState> {
+
+  static propTypes;
+  static defaultProps;
+
   state = { installCommand: '', copied: false };
 
   componentDidMount() {
@@ -61,7 +80,7 @@ class InstallModal extends React.PureComponent {
     });
   }
 
-  copyToClipboard = (e, command) => {
+  copyToClipboard = (e, command: string) => {
     e.preventDefault();
     copy(command);
     this.setState({ copied: true });
@@ -109,6 +128,7 @@ class InstallModal extends React.PureComponent {
                   </p>
                   <div className="oh-install-modal__install-command-container">
                     <div className="oh-code">{`$ ${installOlmCommand}`}</div>
+                    // @ts-ignore
                     <Tooltip content={tooltipContent} styles={tooltipOverrides}>
                       <a
                         href="#"
@@ -134,6 +154,7 @@ class InstallModal extends React.PureComponent {
                   </p>
                   <div className="oh-install-modal__install-command-container">
                     <div className="oh-code">{`$ ${installCommand}`}</div>
+                    // @ts-ignore
                     <Tooltip content={tooltipContent} styles={tooltipOverrides}>
                       <a
                         href="#"
@@ -151,13 +172,14 @@ class InstallModal extends React.PureComponent {
                     <span className="oh-install-modal__namespace-text">{operatorNamespace}</span>
                     {`" namespace and will be usable from ${
                       globalOperator ? 'all namespaces in the cluster' : 'this namespace only'
-                    }.`}
+                      }.`}
                   </p>
                 </li>
                 <li>
                   <p>After install, watch your operator come up using next command.</p>
                   <div className="oh-install-modal__install-command-container">
                     <div className="oh-code">{`$ ${verifyOperatorCommandFull}`}</div>
+                    // @ts-ignore
                     <Tooltip content={tooltipContent} styles={tooltipOverrides}>
                       <a
                         href="#"

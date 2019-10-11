@@ -1,12 +1,31 @@
 /* eslint-disable jsx-a11y/no-autofocus */
-import React from 'react';
+import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Modal } from 'patternfly-react';
 
 import { helpers } from '../../common';
 
-const MessageDialog = ({
+export interface MessageDialogProps {
+  show: boolean
+    className?: string
+    primaryActionButtonContent: ReactNode
+    onHide: () => void
+    /** callback to trigger when clicking the default footer primary action button */
+    primaryAction?: (e: React.MouseEvent) => void
+    secondaryAction?: (e: React.MouseEvent) => void
+    primaryActionButtonBsStyle?: string
+    secondaryActionButtonBsStyle?: string
+    secondaryActionButtonContent?: ReactNode
+    title?: string
+    icon?: ReactNode
+    primaryText?: ReactNode
+    secondaryText?: ReactNode
+    footer?: ReactNode
+    restoreFocus?: boolean
+}
+
+const MessageDialog: React.FC<MessageDialogProps> = ({
   show,
   onHide,
   primaryAction,
@@ -87,8 +106,8 @@ MessageDialog.propTypes = {
 
 MessageDialog.defaultProps = {
   className: '',
-  primaryAction: helpers.noop,
-  secondaryAction: helpers.noop,
+  primaryAction: helpers.noop as any,
+  secondaryAction: helpers.noop as any,
   primaryActionButtonBsStyle: 'primary',
   secondaryActionButtonBsStyle: 'default',
   secondaryActionButtonContent: null,

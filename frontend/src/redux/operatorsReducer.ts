@@ -1,21 +1,34 @@
 import { helpers } from '../common';
-import { reduxConstants } from './index';
+import { reduxConstants } from './constants';
+import { NormalizedOperatorPreview } from '../utils/operatorTypes';
 
-const initialState = {
+export interface OperatorsReducersState{
+  error: boolean,
+  errorMessage: string
+  errorResults: any
+  pending: boolean
+  fulfilled: boolean
+  operators: any[]
+  operator: NormalizedOperatorPreview
+  olmVersion: string
+  olmVersionUpdated: boolean
+}
+
+const initialState: OperatorsReducersState = {
   error: false,
   errorMessage: '',
   errorResults: {},
   pending: false,
   fulfilled: false,
   operators: [],
-  operatorsUpdateTime: 0,
-  operator: {},
+  operator: {} as any,
   olmVersion: '0.11.0',
   olmVersionUpdated: false
 };
 
-const operatorsReducer = (state = initialState, action) => {
+const operatorsReducer = (state: OperatorsReducersState = initialState, action) => {  
   switch (action.type) {
+
     case helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS):
       return {
         ...state,

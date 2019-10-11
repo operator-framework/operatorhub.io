@@ -3,7 +3,7 @@ import _ from 'lodash-es';
 export const noop = Function.prototype;
 
 /** Implementation of the debounce function */
-export const debounce = (func, wait) => {
+export const debounce = (func: Function, wait: number) => {
   let timeout;
   function innerFunc(...args) {
     const context = this;
@@ -38,19 +38,19 @@ export const FULFILLED_ACTION = base => `${base}_FULFILLED`;
 export const PENDING_ACTION = base => `${base}_PENDING`;
 export const REJECTED_ACTION = base => `${base}_REJECTED`;
 
-let _advancedUploadAvailable;
-
+let _advancedUploadAvailable: boolean | undefined = undefined;
 
 export const advancedUploadAvailable = () => {
+
   if (_advancedUploadAvailable === undefined) {
     const div = document.createElement('div');
     _advancedUploadAvailable =
       'draggable' in div || ('ondragstart' in div && 'ondrop' in div && 'FormData' in window && 'FileReader' in window);
   }
-  return advancedUploadAvailable;
+  return _advancedUploadAvailable;
 };
 
-export const transformNameForPath = name => name.replace(/\./g, '_=_');
+export const transformNameForPath = (name: string) => name.replace(/\./g, '_=_');
 
-export const transformPathedName = name => name.replace(/_=_/g, '.');
+export const transformPathedName = (name: string) => name.replace(/_=_/g, '.');
 

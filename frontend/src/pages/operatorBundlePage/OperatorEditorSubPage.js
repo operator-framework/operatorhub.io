@@ -8,7 +8,7 @@ import { helpers } from '../../common';
 import Page from '../../components/page/Page';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 import { setSectionStatusAction } from '../../redux/actions/editorActions';
-import { reduxConstants } from '../../redux/index';
+import { reduxConstants } from '../../redux/constants';
 import { EDITOR_STATUS } from '../../utils/constants';
 
 class OperatorEditorSubPage extends React.Component {

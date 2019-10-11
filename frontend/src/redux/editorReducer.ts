@@ -1,5 +1,16 @@
-import { reduxConstants } from './index';
+import { reduxConstants } from './constants';
 import { getAutoSavedOperatorData, getDefaultOperator } from '../utils/operatorUtils';
+import { Operator, OperatorPackage } from '../utils/operatorTypes';
+import { ISectionFields, EDITOR_STATUS } from '../utils/constants';
+
+export interface EditorReducerState {
+  operator: Operator
+  operatorModified: boolean
+  operatorPackage: OperatorPackage
+  uploads: UploadMetadata[],
+  formErrors: any,
+  sectionStatus: Record<keyof ISectionFields, keyof EDITOR_STATUS>
+}
 
 const getInitialState = () => {
   const autoSaved = getAutoSavedOperatorData();
@@ -14,14 +25,14 @@ const getInitialState = () => {
     uploads: [],
     formErrors: {},
     sectionStatus: {
-      metadata: 'empty',
-      'owned-crds': 'empty',
-      'required-crds': 'empty',
-      deployments: 'empty',
-      permissions: 'empty',
-      'cluster-permissions': 'empty',
-      'install-modes': 'empty',
-      package: 'empty'
+      metadata: EDITOR_STATUS.empty,
+      'owned-crds': EDITOR_STATUS.empty,
+      'required-crds': EDITOR_STATUS.empty,
+      deployments: EDITOR_STATUS.empty,
+      permissions: EDITOR_STATUS.empty,
+      'cluster-permissions': EDITOR_STATUS.empty,
+      'install-modes': EDITOR_STATUS.empty,
+      package: EDITOR_STATUS.empty
     }
   };
 
@@ -35,7 +46,7 @@ const getInitialState = () => {
   return initialState;
 };
 
-const editorReducer = (state = getInitialState(), action) => {
+const editorReducer = (state: EditorReducerState = getInitialState(), action) => {
   switch (action.type) {
     case reduxConstants.SET_EDITOR_SECTION_STATUS:
       return {

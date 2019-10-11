@@ -2,12 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { withRouter } from 'react-router';
-import store from './redux/store';
-import { reduxConstants } from './redux';
+import store, {history} from './redux/store';
+import { reduxConstants } from './redux/constants';
 
 import OperatorHub from './pages/operatorHub/OperatorHub';
 import ConfirmationModal from './components/modals/ConfirmationModal';
 import asyncComponent from './common/AsyncComponent';
+import { ConnectedRouter } from 'connected-react-router';
 
 const OperatorPage = asyncComponent(() =>
   import(/* webpackChunkName: "OperatorPage" */ './pages/operatorPage/OperatorPage').then(module => module.default)
@@ -114,6 +115,8 @@ const OperatorPackagePage = asyncComponent(() =>
 );
 
 class App extends React.Component {
+  static propTypes;
+
   constructor(props) {
     super(props);
 
@@ -125,48 +128,56 @@ class App extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
-        <Switch>
-          <Route path="/operator/:packageName/:channel/:operatorId" component={OperatorPage} />
-          <Route path="/operator/:channel/:operatorId" component={OperatorPage} />
-          <Route path="/operator/:packageName" component={OperatorPage} />
-          <Route path="/preview" component={OperatorPreviewPage} />
-          <Route path="/bundle/metadata" component={OperatorMetadataPage} />
-          <Route path="/bundle/owned-crds/add" render={props => <OperatorOwnedCRDEditPage {...props} isNew />} />
-          <Route path="/bundle/owned-crds/edit/:index/:crd?" component={OperatorOwnedCRDEditPage} />
-          <Route path="/bundle/owned-crds" component={OperatorOwnedCRDsPage} />
-          <Route path="/bundle/required-crds/add" render={props => <OperatorRequiredCRDEditPage {...props} isNew />} />
-          <Route path="/bundle/required-crds/edit/:index/:crd?" component={OperatorRequiredCRDEditPage} />
-          <Route path="/bundle/required-crds" component={OperatorRequiredCRDsPage} />
-          <Route path="/bundle/deployments/add" render={props => <OperatorDeploymentEditPage {...props} isNew />} />
-          <Route path="/bundle/deployments/edit/:index/:deployment?" component={OperatorDeploymentEditPage} />
-          <Route path="/bundle/deployments" component={OperatorDeploymentsPage} />
-          <Route path="/bundle/permissions/add" render={props => <OperatorPermissionsEditPage {...props} isNew />} />
-          <Route path="/bundle/permissions/edit/:index/:serviceAccountName?" component={OperatorPermissionsEditPage} />
-          <Route path="/bundle/permissions" component={OperatorPermissionsPage} />
-          <Route path="/bundle/package" component={OperatorPackagePage} />
-          <Route
-            path="/bundle/cluster-permissions/add"
-            render={props => <OperatorClusterPermissionsEditPage {...props} isNew />}
-          />
-          <Route
-            path="/bundle/cluster-permissions/edit/:index/:serviceAccountName?"
-            component={OperatorClusterPermissionsEditPage}
-          />
-          <Route path="/bundle/cluster-permissions" component={OperatorClusterPermissionsPage} />
-          <Route path="/bundle/install-modes" component={OperatorInstallModesPage} />
-          <Route path="/bundle/yaml" component={OperatorYamlEditorPage} />
-          <Route path="/bundle" component={OperatorBundlePage} />
-          <Route path="/getting-started" component={GettingStarted} />
-          <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
-          <Route path="/contribute" component={Contribute} />
-          <Route path="/how-to-install-an-operator" component={HowToInstallOperators} />
-          <Route path="/about" component={About} />
-          <Route path="/" component={OperatorHub} />
-          <Redirect from="*" to="/" key="default-route" />
-        </Switch>
-        <ConfirmationModal key="confirmationModal" />
-      </React.Fragment>
+      <ConnectedRouter history={history}>
+        <React.Fragment>
+          <Switch>
+            <Route path="/operator/:packageName/:channel/:operatorId" component={OperatorPage} />
+            <Route path="/operator/:channel/:operatorId" component={OperatorPage} />
+            <Route path="/operator/:packageName" component={OperatorPage} />
+            <Route path="/preview" component={OperatorPreviewPage} />
+            <Route path="/bundle/metadata" component={OperatorMetadataPage} />
+            <Route path="/bundle/owned-crds/add" render={props => <OperatorOwnedCRDEditPage {...props} isNew />} />
+            <Route path="/bundle/owned-crds/edit/:index/:crd?" component={OperatorOwnedCRDEditPage} />
+            <Route path="/bundle/owned-crds" component={OperatorOwnedCRDsPage} />
+            <Route
+              path="/bundle/required-crds/add"
+              render={props => <OperatorRequiredCRDEditPage {...props} isNew />}
+            />
+            <Route path="/bundle/required-crds/edit/:index/:crd?" component={OperatorRequiredCRDEditPage} />
+            <Route path="/bundle/required-crds" component={OperatorRequiredCRDsPage} />
+            <Route path="/bundle/deployments/add" render={props => <OperatorDeploymentEditPage {...props} isNew />} />
+            <Route path="/bundle/deployments/edit/:index/:deployment?" component={OperatorDeploymentEditPage} />
+            <Route path="/bundle/deployments" component={OperatorDeploymentsPage} />
+            <Route path="/bundle/permissions/add" render={props => <OperatorPermissionsEditPage {...props} isNew />} />
+            <Route
+              path="/bundle/permissions/edit/:index/:serviceAccountName?"
+              component={OperatorPermissionsEditPage}
+            />
+            <Route path="/bundle/permissions" component={OperatorPermissionsPage} />
+            <Route path="/bundle/package" component={OperatorPackagePage} />
+            <Route
+              path="/bundle/cluster-permissions/add"
+              render={props => <OperatorClusterPermissionsEditPage {...props} isNew />}
+            />
+            <Route
+              path="/bundle/cluster-permissions/edit/:index/:serviceAccountName?"
+              component={OperatorClusterPermissionsEditPage}
+            />
+            <Route path="/bundle/cluster-permissions" component={OperatorClusterPermissionsPage} />
+            <Route path="/bundle/install-modes" component={OperatorInstallModesPage} />
+            <Route path="/bundle/yaml" component={OperatorYamlEditorPage} />
+            <Route path="/bundle" component={OperatorBundlePage} />
+            <Route path="/getting-started" component={GettingStarted} />
+            <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
+            <Route path="/contribute" component={Contribute} />
+            <Route path="/how-to-install-an-operator" component={HowToInstallOperators} />
+            <Route path="/about" component={About} />
+            <Route path="/" component={OperatorHub} />
+            <Redirect from="*" to="/" key="default-route" />
+          </Switch>
+          <ConfirmationModal key="confirmationModal" />
+        </React.Fragment>
+      </ConnectedRouter>
     );
   }
 }

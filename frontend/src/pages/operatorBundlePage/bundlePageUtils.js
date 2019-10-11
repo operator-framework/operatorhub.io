@@ -2,7 +2,8 @@ import React from 'react';
 import _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
-import { getFieldValueError, getDefaultDescription, mergeDescriptions } from '../../utils/operatorUtils';
+import { getDefaultDescription, mergeDescriptions } from '../../utils/operatorUtils';
+import { getFieldValueError } from '../../utils/operatorValidation';
 import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_PREREQUISITES_HEADER,

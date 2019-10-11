@@ -1,18 +1,38 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { Grid, Modal } from 'patternfly-react';
 
 import { helpers } from '../../common';
 import OperatorSidePanel from '../OperatorSidePanel';
 import { MarkdownView } from '../MarkdownView';
 import CustomResourceDefinitionsView from '../CustomResourceDefinitionsView';
+// @ts-ignore
 import * as operatorImg from '../../imgs/operator.svg';
 import ExampleYamlModal from './ExampleYamlModal';
 import { normalizeOperator } from '../../utils/operatorUtils';
+import { OperatorPackage, Operator, NormalizedOperatorPreview } from '../../utils/operatorTypes';
 
-class PreviewOperatorModal extends React.PureComponent {
-  state = {
+export interface PreviewOperatorModalProps{
+  yamlOperator: Operator
+  show?: boolean
+  operatorPackage?: OperatorPackage
+  onClose: () => void
+}
+
+interface PreviewOperatorModalState{
+  operator: NormalizedOperatorPreview | null,
+  exampleYamlShown: boolean,
+  crdExample: any
+}
+
+
+class PreviewOperatorModal extends React.PureComponent<PreviewOperatorModalProps, PreviewOperatorModalState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: PreviewOperatorModalState = {
     operator: null,
     exampleYamlShown: false,
     crdExample: null
@@ -23,6 +43,7 @@ class PreviewOperatorModal extends React.PureComponent {
 
     if (props.yamlOperator) {
       const normalizedOperator = normalizeOperator(props.yamlOperator);
+      // @ts-ignore
       normalizedOperator.channel = props.operatorPackage.channel;
 
       this.state.operator = normalizedOperator;

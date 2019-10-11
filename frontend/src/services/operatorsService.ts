@@ -1,16 +1,18 @@
 import axios from 'axios';
-import { helpers } from '../common';
-import { reduxConstants } from '../redux';
 
-const serverHost = process.env.DEV_HOST || 'localhost';
-const serverPort = process.env.DEV_PORT || 8080;
-const serverURL = `http://${serverHost}:${serverPort}`;
+import { helpers } from '../common';
+import { reduxConstants } from '../redux/constants';
+import { IDispatch } from '../redux';
+
+const serverHost = process.env.DEV_HOST || 'https://dev.operatorhub.io';
+const serverPort = process.env.DEV_PORT;
+const serverURL = serverPort ? `${serverHost}:${serverPort}` : serverHost;
 
 const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/api/operators` : `/api/operators`;
 const operatorRequest = process.env.DEV_MODE ? `${serverURL}/api/operator` : `/api/operator`;
 const latestOlmVersionRequest = 'https://api.github.com/repos/operator-framework/operator-lifecycle-manager/releases';
 
-export const fetchOperator = (operatorName, packageName, channel) => dispatch => {
+export const fetchOperator = (operatorName: string, packageName: string, channel: string) => (dispatch: IDispatch)  => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
@@ -41,7 +43,7 @@ export const fetchOperator = (operatorName, packageName, channel) => dispatch =>
 let lastOperatorsFetchTime = 0;
 let operatorsCache = [];
 
-export const fetchOperators = () => dispatch => {
+export const fetchOperators = () => (dispatch: IDispatch) => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
@@ -77,7 +79,7 @@ export const fetchOperators = () => dispatch => {
     });
 };
 
-export const fetchLatestOlmVersion = () => dispatch => {
+export const fetchLatestOlmVersion = () => (dispatch: IDispatch) => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OLM_VERSION)
   });

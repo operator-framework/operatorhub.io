@@ -1,9 +1,9 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Alert, Icon, OverlayTrigger, Tooltip } from 'patternfly-react';
-import * as ace from 'brace';
+import ace from 'brace';
 import 'brace/ext/searchbox';
 import 'brace/mode/yaml';
 import 'brace/theme/clouds';
@@ -11,33 +11,83 @@ import 'brace/ext/language_tools';
 import 'brace/snippets/yaml';
 import copy from 'copy-to-clipboard';
 import UploadUrlModal from './modals/UploadUrlModal';
-import { reduxConstants } from '../redux';
+import { reduxConstants } from '../redux/constants';
 import { helpers } from '../common';
 
 let id = 0;
 
-class YamlViewer extends React.Component {
+interface YamlViewerDispatch {
+  storePreviewYaml: (yaml: string, yamlChanged: boolean) => void
+  storeContentHeight: (contentHeight: number) => void
+  showConfirmModal: (onConfirm: any) => void
+  hideConfirmModal: () => void
+  showErrorModal: (error: React.ReactNode) => void
+}
+
+export type YamlViewerProps = YamlViewerDispatch & {
+  yaml: string
+  minHeight: number
+  editable: boolean
+  isPreview: boolean
+  saveButtonText: string
+  onSave: (documentText: string) => void
+  allowClear: boolean
+  showRemove: boolean
+  onRemove: (e: React.MouseEvent) => void
+  onChange: (yaml: string) => void
+  onBlur: (text: string) => void
+  onClear: () => string
+  error: React.ReactNode[] | string
+  initYaml: string
+  initYamlChanged: boolean
+  initContentHeight: number
+}
+
+interface YamlViewerState {
+  yamlEntered: boolean
+  yamlChanged: boolean
+  copied: boolean
+  uploadUrlShown: boolean
+  contentHeight: number
+  advancedUpload: boolean
+  dragOver: boolean
+  isDragging: boolean
+  initialPos: number
+}
+
+class YamlViewer extends React.Component<YamlViewerProps, YamlViewerState> {
+
+  static propTypes;
+  static defaultProps;
+
   id = `yaml-editor-${++id}`;
-  ace = null;
-  doc = null;
+  ace: ace.Editor | null = null;
+  doc: ace.Document | null = null;
+  contentView: HTMLElement | null = null;
+  formRef: HTMLFormElement | null = null;
+
   state = {
     yamlEntered: false,
     yamlChanged: false,
     copied: false,
     uploadUrlShown: false,
-    contentHeight: null,
+    contentHeight: 0,
     advancedUpload: false,
-    dragOver: false
+    dragOver: false,
+    isDragging: false,
+    initialPos: 0
   };
 
   componentDidUpdate(prevProps) {
     const { yaml, error } = this.props;
+
     if (yaml !== prevProps.yaml) {
-      this.doc.setValue(yaml);
+      this.doc && this.doc.setValue(yaml);
     }
 
     if (error && error !== prevProps.error) {
-      document.getElementById('yaml-editor-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const errorElement = document.getElementById('yaml-editor-error');
+      errorElement && errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
@@ -47,7 +97,7 @@ class YamlViewer extends React.Component {
 
     this.initEditor(currentYaml);
     this.setState({
-      contentHeight: (isPreview && initContentHeight) || this.contentView.clientHeight,
+      contentHeight: (isPreview && initContentHeight) || this.contentView && this.contentView.clientHeight || 0,
       yamlEntered: !!currentYaml,
       yamlChanged: isPreview && initYamlChanged,
       advancedUpload: helpers.advancedUploadAvailable()
@@ -62,19 +112,24 @@ class YamlViewer extends React.Component {
   componentWillUnmount() {
     if (this.ace) {
       this.ace.destroy();
-      this.ace.container.parentNode.removeChild(this.ace.container);
+
+      if (this.ace.container.parentNode) {
+        this.ace.container.parentNode.removeChild(this.ace.container);
+      }
       this.ace.off('blur', this.onYamlBlur);
       this.ace = null;
+      // @ts-ignore
       window.ace = null;
     }
 
     if (this.doc) {
+      // @ts-ignore
       this.doc.off('change', this.onYamlChange);
       this.doc = null;
     }
   }
 
-  onYamlChange = (event, yamlDoc) => {
+  onYamlChange = (event: ace.EditorChangeEvent, yamlDoc: ace.Document) => {
     const { editable, isPreview, storePreviewYaml, onChange } = this.props;
     if (!editable) {
       return;
@@ -88,7 +143,7 @@ class YamlViewer extends React.Component {
     onChange(yamlDoc.getValue());
   };
 
-  onYamlBlur = (event, yamlDoc) => {
+  onYamlBlur = (event: any, yamlDoc: ace.Document) => {
     const { onBlur } = this.props;
 
     onBlur(yamlDoc.getValue());
@@ -96,7 +151,7 @@ class YamlViewer extends React.Component {
 
   copyToClipboard = e => {
     e.preventDefault();
-    copy(this.doc.getValue());
+    this.doc && copy(this.doc.getValue());
     this.setState({ copied: true });
   };
 
@@ -106,7 +161,7 @@ class YamlViewer extends React.Component {
 
   clearYaml = e => {
     e.preventDefault();
-    this.ace.focus();
+    this.ace && this.ace.focus();
     this.props.showConfirmModal(this.confirmClearYaml);
   };
 
@@ -114,9 +169,10 @@ class YamlViewer extends React.Component {
     const { storePreviewYaml, isPreview, hideConfirmModal, onClear } = this.props;
 
     const newValue = onClear ? onClear() : '';
-    this.doc.setValue(newValue);
+    this.doc && this.doc.setValue(newValue);
+
     if (isPreview) {
-      storePreviewYaml(newValue, false, false);
+      storePreviewYaml(newValue, false);
     }
     hideConfirmModal();
     this.saveYAML();
@@ -132,12 +188,12 @@ class YamlViewer extends React.Component {
   };
 
   onUpload = uploadedYaml => {
-    this.doc.setValue(uploadedYaml);
+    this.doc && this.doc.setValue(uploadedYaml);
     this.saveYAML();
     this.hideUploadUrl();
   };
 
-  handleDragDropEvent = (e, dragOver) => {
+  handleDragDropEvent = (e, dragOver = false) => {
     e.preventDefault();
     e.stopPropagation();
     this.setState({ dragOver });
@@ -148,6 +204,7 @@ class YamlViewer extends React.Component {
 
     if (!this.ace) {
       this.ace = ace.edit(this.id);
+      // @ts-ignore
       window.ace = this.ace;
 
       // Squelch warning from Ace
@@ -158,11 +215,14 @@ class YamlViewer extends React.Component {
       this.ace.setTheme('ace/theme/clouds');
       es.setUseWrapMode(true);
       this.doc = es.getDocument();
+
+      // @ts-ignore
       this.doc.on('change', this.onYamlChange);
+      // @ts-ignore
       this.ace.on('blur', this.onYamlBlur);
     }
 
-    this.doc.setValue(currentYaml);
+    this.doc && this.doc.setValue(currentYaml);
     this.ace.moveCursorTo(0, 0);
     this.ace.clearSelection();
     this.ace.setOption('scrollPastEnd', 0.1);
@@ -180,13 +240,19 @@ class YamlViewer extends React.Component {
       return;
     }
 
-    const yamlEntered = !!this.doc.getValue();
+    if (this.doc !== null) {
+      const docValue = this.doc.getValue();
 
-    onSave(this.doc.getValue());
-    onChange(this.doc.getValue());
-    this.setState({ yamlEntered, yamlChanged: false });
-    if (isPreview) {
-      storePreviewYaml(this.doc.getValue(), false);
+      const yamlEntered = !!docValue;
+
+      onSave(docValue);
+      onChange(docValue);
+
+      this.setState({ yamlEntered, yamlChanged: false });
+
+      if (isPreview) {
+        storePreviewYaml(docValue, false);
+      }
     }
   };
 
@@ -199,7 +265,7 @@ class YamlViewer extends React.Component {
 
     const reader = new FileReader();
     reader.onload = () => {
-      this.doc.setValue(reader.result);
+      this.doc && this.doc.setValue(reader.result as string);
       this.saveYAML();
     };
 
@@ -210,11 +276,11 @@ class YamlViewer extends React.Component {
           <span>{`Unable to upload file: ${uploadFile.name}`}</span>
           <br />
           <br />
-          <span>{reader.error.message}</span>
+          <span>{reader.error && reader.error.message}</span>
         </React.Fragment>
       );
       this.props.showErrorModal(error);
-      this.formRef.reset();
+      this.formRef && this.formRef.reset();
     };
 
     reader.readAsText(uploadFile);
@@ -245,7 +311,7 @@ class YamlViewer extends React.Component {
 
       if (newHeight >= minHeight) {
         this.setState({ initialPos: event.clientY, contentHeight: newHeight });
-        this.ace.resize();
+        this.ace && this.ace.resize();
       }
     }
   };
@@ -266,18 +332,18 @@ class YamlViewer extends React.Component {
     return (
       <div
         className={uploadFileClasses}
-        onDrag={e => this.handleDragDropEvent(e)}
-        onDragStart={e => this.handleDragDropEvent(e)}
-        onDragEnd={e => this.handleDragDropEvent(e)}
-        onDragOver={e => this.handleDragDropEvent(e)}
-        onDragEnter={e => this.handleDragDropEvent(e)}
-        onDragLeave={e => this.handleDragDropEvent(e)}
+        onDrag={this.handleDragDropEvent}
+        onDragStart={this.handleDragDropEvent}
+        onDragEnd={this.handleDragDropEvent}
+        onDragOver={this.handleDragDropEvent}
+        onDragEnter={this.handleDragDropEvent}
+        onDragLeave={this.handleDragDropEvent}
         onDrop={e => {
           this.handleDragDropEvent(e);
           this.uploadFile(e.dataTransfer.files);
         }}
       >
-        <div
+        <form
           className="oh-drag-drop-box__upload-file-box"
           ref={ref => {
             this.formRef = ref;
@@ -285,12 +351,12 @@ class YamlViewer extends React.Component {
           method="post"
           action=""
           encType="multipart/form-data"
-          onDrag={e => this.handleDragDropEvent(e)}
-          onDragStart={e => this.handleDragDropEvent(e)}
-          onDragEnd={e => this.handleDragDropEvent(e)}
+          onDrag={this.handleDragDropEvent}
+          onDragStart={this.handleDragDropEvent}
+          onDragEnd={this.handleDragDropEvent}
           onDragOver={e => this.handleDragDropEvent(e, true)}
           onDragEnter={e => this.handleDragDropEvent(e, true)}
-          onDragLeave={e => this.handleDragDropEvent(e)}
+          onDragLeave={this.handleDragDropEvent}
           onDrop={e => {
             this.handleDragDropEvent(e);
             this.uploadFile(e.dataTransfer.files);
@@ -316,7 +382,7 @@ class YamlViewer extends React.Component {
             </label>
             from a URL.
           </div>
-        </div>
+        </form>
       </div>
     );
   };
@@ -392,12 +458,12 @@ class YamlViewer extends React.Component {
             id={this.id}
             key={this.id}
             className="oh-yaml-viewer__acebox"
-            onDrag={e => this.handleDragDropEvent(e)}
-            onDragStart={e => this.handleDragDropEvent(e)}
-            onDragEnd={e => this.handleDragDropEvent(e)}
-            onDragOver={e => this.handleDragDropEvent(e)}
-            onDragEnter={e => this.handleDragDropEvent(e)}
-            onDragLeave={e => this.handleDragDropEvent(e)}
+            onDrag={this.handleDragDropEvent}
+            onDragStart={this.handleDragDropEvent}
+            onDragEnd={this.handleDragDropEvent}
+            onDragOver={this.handleDragDropEvent}
+            onDragEnter={this.handleDragDropEvent}
+            onDragLeave={this.handleDragDropEvent}
             onDrop={e => {
               this.handleDragDropEvent(e);
               this.uploadFile(e.dataTransfer.files);

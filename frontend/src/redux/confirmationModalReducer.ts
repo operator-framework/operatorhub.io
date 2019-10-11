@@ -1,6 +1,19 @@
-import { reduxConstants } from './index';
+import { reduxConstants } from './constants';
 
-const initialState = {
+export interface ConfirmationModalReducerState {
+  show: boolean;
+  title: string;
+  heading: React.ReactNode;
+  icon: React.ReactNode;
+  body: React.ReactNode;
+  confirmButtonText: string;
+  cancelButtonText: React.ReactNode;
+  restoreFocus?: boolean
+  onConfirm?: () => void
+  onCancel?: () => void
+}
+
+const initialState: ConfirmationModalReducerState = {
   show: false,
   title: 'Confirm',
   heading: null,
@@ -10,10 +23,12 @@ const initialState = {
   cancelButtonText: null
 };
 
-const confirmationModalReducer = (state = initialState, action) => {
+const confirmationModalReducer = (state: ConfirmationModalReducerState = initialState, action): ConfirmationModalReducerState => {  
   switch (action.type) {
+
     case reduxConstants.CONFIRMATION_MODAL_SHOW:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         show: true,
         title: action.title,
         heading: action.heading,
@@ -24,12 +39,13 @@ const confirmationModalReducer = (state = initialState, action) => {
         onConfirm: action.onConfirm,
         onCancel: action.onCancel,
         restoreFocus: action.restoreFocus
-      });
+      };
 
     case reduxConstants.CONFIRMATION_MODAL_HIDE:
-      return Object.assign({}, state, {
+      return {
+        ...state,
         show: false
-      });
+      };
 
     default:
       return state;
