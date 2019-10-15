@@ -108,9 +108,12 @@ const Contribute = ({ history, ...props }) => {
           <h3>Operator Bundle Editor</h3>
           <p>
             You can now create your Operator bundle from Operatorhub.io using the{' '}
-            <InternalLink route="/bundle">bundle editor</InternalLink>. Starting by uploading your Kubernetes YAML
-            manifests, the forms on the page will be populated with all valid information and used to create the new
-            Operator bundle. You can modify or add properties through these forms as well.
+            <InternalLink route="/bundle" history={history}>
+              bundle editor
+            </InternalLink>
+            . Starting by uploading your Kubernetes YAML manifests, the forms on the page will be populated with all
+            valid information and used to create the new Operator bundle. You can modify or add properties through these
+            forms as well.
             <blockquote>
               The Operator bundle editor is now available in beta.{' '}
               <ExternalLink href={documentationLinks.fileAnIssue}>Feedback and questions</ExternalLink> are encouraged.

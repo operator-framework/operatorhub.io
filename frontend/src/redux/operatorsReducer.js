@@ -30,7 +30,8 @@ const operatorsReducer = (state = initialState, action) => {
         ...state,
         pending: true,
         error: false,
-        errorResults: {}
+        errorResults: {},
+        operators: []
       };
 
     case helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS):

@@ -38,17 +38,34 @@ export const fetchOperator = (operatorName, packageName, channel) => dispatch =>
     });
 };
 
+let lastOperatorsFetchTime = 0;
+let operatorsCache = [];
+
 export const fetchOperators = () => dispatch => {
   dispatch({
     type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
 
+  if (Date.now() - lastOperatorsFetchTime < 3600 * 1000 && operatorsCache.length > 0) {
+    dispatch({
+      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
+      // create new array so reference is different
+      payload: operatorsCache.slice(0)
+    });
+    return;
+  }
+
   axios
     .get(allOperatorsRequest)
     .then(response => {
+      const { operators } = response.data;
+
+      operatorsCache = operators;
+      lastOperatorsFetchTime = Date.now();
+
       dispatch({
         type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-        payload: response.data.operators
+        payload: operators
       });
     })
     .catch(e => {
