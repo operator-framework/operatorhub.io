@@ -49,7 +49,8 @@ export const fetchOperators = () => dispatch => {
   if (Date.now() - lastOperatorsFetchTime < 3600 * 1000 && operatorsCache.length > 0) {
     dispatch({
       type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
-      payload: operatorsCache
+      // create new array so reference is different
+      payload: operatorsCache.slice(0)
     });
     return;
   }

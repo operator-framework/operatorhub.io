@@ -321,7 +321,7 @@ class OperatorHub extends React.Component {
       this.updateURL(keywordSearch, activeFilters, selectedCategory, viewType, sortType);
     }
 
-    if (!_.isEqual(operators, prevProps.operators)) {
+    if (operators !== prevProps.operators) {
       const updatedCategories = determineAvailableCategories(operators);
       this.updateCurrentFilters();
 
@@ -390,7 +390,7 @@ class OperatorHub extends React.Component {
     const filterCounts = getFilterGroupCounts(filterOperators, activeFilters);
     const filteredItems = this.sortItems(filterItems(filterOperators, keywordSearch, activeFilters));
 
-    this.setState({ filteredItems, filterCounts });
+    this.setState({ filteredItems, filterCounts, refreshed: true });
   };
 
   refresh() {
