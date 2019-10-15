@@ -1,6 +1,6 @@
 import _ from 'lodash-es';
 
-export const noop = Function.prototype;
+export const noop = Function.prototype as () => void;
 
 /** Implementation of the debounce function */
 export const debounce = (func: Function, wait: number) => {

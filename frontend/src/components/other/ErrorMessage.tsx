@@ -4,10 +4,8 @@ import { EmptyState, Alert } from 'patternfly-react';
 
 /**
  * Display error message block
- * @param {object} param0
- * @param {string} param0.errorText
  */
-const ErrorMessage = ({ errorText }) => (
+const ErrorMessage: React.FC<{errorText: string}> = ({ errorText }) => (
   <EmptyState className="blank-slate-content-pf">
     <Alert type="error">
       <span>{errorText}</span>

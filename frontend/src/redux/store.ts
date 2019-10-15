@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunkMiddleware from 'redux-thunk';
-import { connectRouter, routerMiddleware } from 'connected-react-router';
+import { routerMiddleware } from 'connected-react-router';
 import { createBrowserHistory } from 'history';
 import { autoSaveEditor } from './editorAutosave';
 import { createRootReducer } from './rootReducer';

@@ -1,16 +1,37 @@
-import * as React from 'react';
+import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Breadcrumb } from 'patternfly-react';
+import { History } from 'history';
 
 import Page from './Page';
 import { helpers } from '../../common';
-import { reduxConstants } from '../../redux/constants';
+import { bindActionCreators } from 'redux';
+import { storeKeywordSearchAction } from '../../redux/actions';
 
-const idFromTitle = title => title.replace(/ /g, '-');
+const idFromTitle = (title: string) => title.replace(/ /g, '-');
 
-class DocumentationPage extends React.Component {
-  state = { topperHeight: 0, keywordSearch: '' };
+export interface DocumentationPageProps {
+  history: History
+  title: string
+  sections: {
+    title: string
+    content: ReactNode
+  }[]
+  storeKeywordSearch: typeof storeKeywordSearchAction
+}
+
+interface DocumentationPageState {
+  topperHeight: number
+  keywordSearch: string
+}
+
+class DocumentationPage extends React.PureComponent<DocumentationPageProps, DocumentationPageState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: DocumentationPageState = { topperHeight: 0, keywordSearch: '' };
 
   componentDidMount() {
     if (!window.location.hash) {
@@ -28,7 +49,7 @@ class DocumentationPage extends React.Component {
     this.props.history.push('/');
   };
 
-  onSearchChange = searchValue => {
+  onSearchChange = (searchValue: string) => {
     this.setState({ keywordSearch: searchValue });
   };
 
@@ -36,26 +57,29 @@ class DocumentationPage extends React.Component {
     this.onSearchChange('');
   };
 
-  searchCallback = searchValue => {
+  searchCallback = (searchValue: string) => {
     if (searchValue) {
       this.props.storeKeywordSearch(searchValue);
       this.props.history.push(`/?keyword=${searchValue}`);
     }
   };
 
-  onScroll = (scrollTop, topperHeight) => {
+  onScroll = (scrollTop, topperHeight: number) => {
     this.setState({ topperHeight });
   };
 
-  scrollTo = (e, id) => {
+  scrollTo = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
-    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const element = document.getElementById(id);
+    element && element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
     setTimeout(() => {
       window.location.hash = id;
     }, 500);
   };
 
-  renderSection = (sectionTitle, sectionContent) => {
+  renderSection = (sectionTitle: string, sectionContent: ReactNode) => {
     const offset = (this.state.topperHeight || 0) - 60;
 
     return (
@@ -68,7 +92,7 @@ class DocumentationPage extends React.Component {
     );
   };
 
-  renderSectionLink = sectionTitle => (
+  renderSectionLink = (sectionTitle: string) => (
     <div key={sectionTitle} className="oh-documentation-page__sidebar__link">
       <a href="#" onClick={e => this.scrollTo(e, idFromTitle(sectionTitle))}>
         {sectionTitle}
@@ -85,33 +109,9 @@ class DocumentationPage extends React.Component {
     </Breadcrumb>
   );
 
-  renderSidebar() {
-    const { sections } = this.props;
-
-    const sectionLinks = sections.map(section => this.renderSectionLink(section.title));
-
-    return (
-      <React.Fragment>
-        <div className="oh-documentation-page__sidebar__content-fixed hidden-xs">{sectionLinks}</div>
-        <div className="oh-documentation-page__sidebar__content visible-xs">
-          {sections.map(section => this.renderSectionLink(section.title))}
-        </div>
-      </React.Fragment>
-    );
-  }
-
-  renderContent() {
-    const { title, sections } = this.props;
-    return (
-      <div className="oh-documentation-page__content">
-        <h1>{title}</h1>
-        {sections.map(section => this.renderSection(section.title, section.content))}
-      </div>
-    );
-  }
 
   render() {
-    const { history } = this.props;
+    const { history, title, sections } = this.props;
     const { keywordSearch } = this.state;
 
     return (
@@ -127,9 +127,22 @@ class DocumentationPage extends React.Component {
       >
         <div className="oh-documentation-page row">
           <div className="oh-documentation-page__sidebar col-md-3 col-md-push-9 col-sm-4 col-sm-push-8 col-xs-12">
-            {this.renderSidebar()}
+            <React.Fragment>
+              <div className="oh-documentation-page__sidebar__content-fixed hidden-xs">
+              {sections.map(section => this.renderSectionLink(section.title))}
+              </div>
+              <div className="oh-documentation-page__sidebar__content visible-xs">
+                {sections.map(section => this.renderSectionLink(section.title))}
+              </div>
+            </React.Fragment>
           </div>
-          <div className="col-md-9 col-md-pull-3 col-sm-8 col-sm-pull-4 col-xs-12">{this.renderContent()}</div>
+          <div className="col-md-9 col-md-pull-3 col-sm-8 col-sm-pull-4 col-xs-12">
+            <div className="oh-documentation-page__content">
+              <h1>{title}</h1>
+              {sections.map(section => this.renderSection(section.title, section.content))}
+            </div>
+
+          </div>
         </div>
       </Page>
     );
@@ -157,11 +170,9 @@ DocumentationPage.defaultProps = {
 const mapStateToProps = () => ({});
 
 const mapDispatchToProps = dispatch => ({
-  storeKeywordSearch: keywordSearch =>
-    dispatch({
-      type: reduxConstants.SET_KEYWORD_SEARCH,
-      keywordSearch
-    })
+  ...bindActionCreators({
+    storeKeywordSearch: storeKeywordSearchAction
+  }, dispatch)
 });
 
 export default connect(

@@ -1,17 +1,46 @@
-import * as React from 'react';
+import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
+import { History } from 'history';
 
 import { helpers } from '../../common';
 import { HeaderTopBar } from './HeaderTopBar';
 import Footer from './Footer';
 
-class Page extends React.Component {
-  state = { scrolled: false };
+export interface PageProps {
+  history: History
+  searchValue: string
+  className?: string
+  headerContent?: ReactNode
+  toolbarContent?: ReactNode
+  showFooter?: boolean
+  children?: ReactNode
+  homePage?: boolean
+  onSearchChange?: (value: string) => void
+  searchCallback?: (value: string) => void
+  clearSearch?: () => void
+  scrollCallback?: (top: number, topBarHeight: number, toolbarHeight: number) => void
+}
+
+interface PageState {
+  scrolled: boolean
+  toolbarFixed: boolean
+}
+
+class Page extends React.PureComponent<PageProps, PageState> {
+
+  static propTypes;
+  static defaultProps: Partial<PageProps>;
+
+  state: PageState = { scrolled: false, toolbarFixed: false };
+
+  headerRef: HTMLElement | null;
+  topBarRef: HTMLElement | null;
+  toolbarRef: HTMLElement | null;
 
   componentDidMount() {
-    this.props.scrollCallback(
+    this.props.scrollCallback!(
       0,
       _.get(this.topBarRef, 'clientHeight') || 0,
       _.get(this.toolbarRef, 'clientHeight') || 0
@@ -28,13 +57,19 @@ class Page extends React.Component {
   }
 
   contentScrolled = () => {
-    const { toolbarContent, headerContent } = this.props;
+    const { toolbarContent, headerContent, scrollCallback } = this.props;
     const scrollTop = window.pageYOffset;
     const scrolled = scrollTop > 30;
+
     const toolbarFixed =
-      !headerContent || (toolbarContent && scrollTop > this.headerRef.offsetHeight - this.topBarRef.offsetHeight);
+      !headerContent ||
+      (!!toolbarContent && !!this.headerRef && !!this.topBarRef &&
+        (scrollTop > this.headerRef.offsetHeight - this.topBarRef.offsetHeight)
+      );
+
     this.setState({ scrolled, toolbarFixed });
-    this.props.scrollCallback(
+
+    scrollCallback!(
       scrollTop,
       _.get(this.topBarRef, 'clientHeight') || 0,
       _.get(this.toolbarRef, 'clientHeight') || 0
@@ -88,10 +123,10 @@ class Page extends React.Component {
       <div id="page-top" className={ohPageClasses} onScroll={this.contentScrolled}>
         <HeaderTopBar
           scrolled={this.state.scrolled || !headerContent}
-          onSearchChange={onSearchChange}
-          clearSearch={clearSearch}
+          onSearchChange={onSearchChange!}
+          clearSearch={clearSearch!}
           searchValue={searchValue}
-          searchCallback={searchCallback}
+          searchCallback={searchCallback!}
           history={history}
           barRef={this.setTopBarRef}
           homePage={homePage}
@@ -143,7 +178,7 @@ Page.defaultProps = {
   searchCallback: helpers.noop,
   clearSearch: helpers.noop,
   homePage: false,
-  scrollCallback: helpers.noop
+  scrollCallback: helpers.noop 
 };
 
 export default Page;

@@ -1,14 +1,35 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { History } from 'history';
 
 import { DropdownButton, MenuItem } from 'patternfly-react';
 import { helpers } from '../../common';
+//@ts-ignore
 import hubLogo from '../../imgs/operatorhub-header-logo.svg';
 import { InternalLink } from '../InternalLink';
 
-class HeaderTopBar extends React.Component {
-  state = {
+export interface HeaderTopBarProps {
+  history: History
+  scrolled?: boolean
+  searchValue?: string
+  onSearchChange: (value: string) => void
+  searchCallback: (value: string) => void
+  clearSearch: () => void
+  barRef?: (ref: HTMLElement | null) => void
+  homePage?: boolean
+}
+
+interface HeaderTopBarState {
+  searchValue: string
+}
+
+class HeaderTopBar extends React.PureComponent<HeaderTopBarProps, HeaderTopBarState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: HeaderTopBarState = {
     searchValue: ''
   };
 
@@ -18,7 +39,7 @@ class HeaderTopBar extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: HeaderTopBarProps) {
     if (this.props.searchValue !== undefined && this.props.searchValue !== prevProps.searchValue) {
       this.setState({ searchValue: this.props.searchValue });
     }
@@ -40,19 +61,19 @@ class HeaderTopBar extends React.Component {
     this.props.history.push('/getting-started');
   };
 
-  onSearchKeyPress = e => {
+  onSearchKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       this.props.searchCallback(this.state.searchValue);
     }
   };
 
-  onSearchChange = e => {
+  onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.props.onSearchChange(e.target.value);
     this.setState({ searchValue: e.target.value });
   };
 
-  clearSearch = e => {
+  clearSearch = (e: React.MouseEvent) => {
     e.preventDefault();
     this.setState({ searchValue: '' });
     this.props.clearSearch();
@@ -75,7 +96,7 @@ class HeaderTopBar extends React.Component {
             placeholder="Search OperatorHub..."
             autoCorrect="off"
             autoCapitalize="off"
-            spellCheck="false"
+            spellCheck={false}
             onChange={this.onSearchChange}
             onKeyPress={this.onSearchKeyPress}
           />
@@ -94,11 +115,11 @@ class HeaderTopBar extends React.Component {
   }
 
   render() {
-    const { scrolled } = this.props;
+    const { scrolled, barRef } = this.props;
     const topBarClasses = classNames('oh-header__top-bar', { scrolled });
 
     return (
-      <div className={topBarClasses} ref={this.props.barRef}>
+      <div className={topBarClasses} ref={barRef}>
         <div className="oh-header__top-bar__inner">
           <InternalLink route="/" history={this.props.history} noNavigation={this.props.homePage}>
             <img className="oh-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />

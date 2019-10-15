@@ -1,20 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {History} from 'history';
+
+// @ts-ignore
 import hubLogo from '../../imgs/operatorhub-header-logo.svg';
+// @ts-ignore
 import frameworkLogo from '../../imgs/operator-framework-logo-lite.svg';
 import { InternalLink } from '../InternalLink';
 import { ExternalLink } from '../ExternalLink';
-import {
-  gettingStarted,
-  operatorsFramework,
-  kubernetesSlack,
-  fileAnIssue,
-  privacyPolicy,
-  hubTwitter,
-  hubYoutube
-} from '../../utils/documentationLinks';
+import * as documentationLinks from '../../utils/documentationLinks';
 
-const Footer = ({ history, visible, ...props }) => (
+export interface FooterProps{
+  history: History
+  visible?: boolean
+  [prop: string]: any
+}
+
+const Footer: React.FC<FooterProps> = ({ history, visible, ...props }) => (
   <div className={`oh-footer${visible ? '' : ' oh-not-visible'}`} {...props}>
     <div className="oh-footer__top-bar">
       <h3>List your operator on OperatorHub.io</h3>
@@ -59,13 +61,13 @@ const Footer = ({ history, visible, ...props }) => (
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={gettingStarted}
+                href={documentationLinks.gettingStarted}
                 text="Documentation"
                 indicator={false}
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={`${privacyPolicy}`}
+                href={`${documentationLinks.privacyPolicy}`}
                 text="Privacy Policy"
                 indicator={false}
               />
@@ -74,31 +76,31 @@ const Footer = ({ history, visible, ...props }) => (
               <h4 className="oh-footer__contents-right__links__list__header">NETWORK</h4>
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={hubTwitter}
+                href={documentationLinks.hubTwitter}
                 text="Twitter"
                 indicator={false}
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={hubYoutube}
+                href={documentationLinks.hubYoutube}
                 text="YouTube"
                 indicator={false}
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={operatorsFramework}
+                href={documentationLinks.operatorsFramework}
                 text="GitHub"
                 indicator={false}
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={fileAnIssue}
+                href={documentationLinks.fileAnIssue}
                 text="File an issue on GitHub"
                 indicator={false}
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
-                href={kubernetesSlack}
+                href={documentationLinks.kubernetesSlack}
                 text="Join us on Slack"
                 indicator={false}
               />
@@ -111,9 +113,7 @@ const Footer = ({ history, visible, ...props }) => (
 );
 
 Footer.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired,
+  history: PropTypes.any.isRequired,
   visible: PropTypes.bool
 };
 

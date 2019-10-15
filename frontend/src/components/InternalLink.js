@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
  * @param {string} [param0.className]
  * @param {string} [param0.block]
  * @param {string} [param0.text]
- * @param {string} [param0.noNavigation]
+ * @param {boolean} [param0.noNavigation]
  */
 export const InternalLink = ({ text, children, className, block, route, history, noNavigation, ...otherProps }) => {
   const onClick = e => {

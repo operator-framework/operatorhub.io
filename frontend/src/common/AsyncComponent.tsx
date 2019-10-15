@@ -1,6 +1,7 @@
 import React from 'react';
 import Loader from '../components/other/Loader';
 import Page from '../components/page/Page';
+import { History } from 'history';
 
 export interface AsyncComponentProps{
   [key:string] : any
@@ -41,8 +42,9 @@ export default function asyncComponent(getComponent: () => any) {
             push: path => {
               window.location.pathname = path;
             }
-          }}
-          showFooter={false}
+          } as History}
+          searchValue={''}
+          showFooter={false}          
         >
           {
             // fix top offset so loader is not hidden behind top bar
