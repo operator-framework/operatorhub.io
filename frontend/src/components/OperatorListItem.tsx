@@ -1,8 +1,14 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+// @ts-ignore
 import * as operatorImg from '../imgs/operator.svg';
+import { NormalizedOperatorPreview } from '../utils/operatorTypes';
 
-const OperatorListItem = ({ operator, ...props }) => {
+export interface OperatorListItemProps{
+  operator: NormalizedOperatorPreview | null
+}
+
+const OperatorListItem: React.FC<OperatorListItemProps & React.AnchorHTMLAttributes<HTMLAnchorElement>> = ({ operator, ...props }) => {
   if (!operator) {
     return null;
   }
@@ -27,7 +33,7 @@ const OperatorListItem = ({ operator, ...props }) => {
 };
 
 OperatorListItem.propTypes = {
-  operator: PropTypes.object
+  operator: PropTypes.any.isRequired
 };
 
 OperatorListItem.defaultProps = {

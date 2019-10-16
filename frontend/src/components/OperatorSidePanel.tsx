@@ -1,6 +1,6 @@
-import * as React from 'react';
+import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import dateFormat from 'dateformat';
 import copy from 'copy-to-clipboard';
 import { Tooltip } from 'react-lightweight-tooltip';
@@ -9,12 +9,19 @@ import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 import { ExternalLink } from './ExternalLink';
 import { capabilityLevelModelDiagram } from '../utils/documentationLinks';
 import { helpers } from '../common';
+// @ts-ignore
 import * as capabilityLevelImgLevel1 from '../imgs/capability-level-imgs/level-1.svg';
+// @ts-ignore
 import * as capabilityLevelImgLevel2 from '../imgs/capability-level-imgs/level-2.svg';
+// @ts-ignore
 import * as capabilityLevelImgLevel3 from '../imgs/capability-level-imgs/level-3.svg';
+// @ts-ignore
 import * as capabilityLevelImgLevel4 from '../imgs/capability-level-imgs/level-4.svg';
+// @ts-ignore
 import * as capabilityLevelImgLevel5 from '../imgs/capability-level-imgs/level-5.svg';
+// @ts-ignore
 import * as capabilityLevelDiagram from '../imgs/capability-level-diagram.svg';
+import { NormalizedOperatorPreview, NormalizedOperatorChannel, NormalizedVersion, OperatorLink, OperatorMaintainer } from '../utils/operatorTypes';
 
 const notAvailable = <span className="properties-side-panel-pf-property-label">N/A</span>;
 
@@ -26,13 +33,29 @@ const capabilityLevelImages = {
   'Auto Pilot': capabilityLevelImgLevel5
 };
 
-class OperatorSidePanel extends React.Component {
-  state = {
+export interface OperatorSidePanelProps {
+  operator: NormalizedOperatorPreview
+  showInstall?: (e: React.MouseEvent) => void
+  updateChannel?: (channel: NormalizedOperatorChannel) => void
+  updateVersion?: (version: NormalizedVersion) => void
+}
+
+interface OperatorSidePanelState {
+  copied: boolean
+}
+
+class OperatorSidePanel extends React.PureComponent<OperatorSidePanelProps, OperatorSidePanelState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: OperatorSidePanelState = {
     copied: false
   };
 
-  copyToClipboard = (e, command) => {
+  copyToClipboard = (e: React.MouseEvent, command: string) => {
     e.preventDefault();
+
     copy(command);
     this.setState({ copied: true });
   };
@@ -41,44 +64,57 @@ class OperatorSidePanel extends React.Component {
     this.setState({ copied: false });
   };
 
-  getVersionString = (ver, currentVersion) => `${ver}${ver === _.get(currentVersion, 'version') ? ' (Current)' : ''}`;
+  getVersionString = (ver: string, currentVersion?: NormalizedVersion) => `${ver}${ver === _.get(currentVersion, 'version') ? ' (Current)' : ''}`;
 
-  renderPropertyItem = (label, value) =>
+  renderPropertyItem = (label: string | React.ReactElement, value: ReactNode) =>
     value ? <PropertyItem label={label} value={value} /> : <PropertyItem label={label} value={notAvailable} />;
 
-  renderChannel = (channels, channel) =>
-    _.size(channels) > 1 ? (
-      <DropdownButton className="oh-operator-page__side-panel__version-dropdown" title={channel} id="channel-dropdown">
-        {_.map(channels, (nextChannel, index) => (
-          <MenuItem key={nextChannel.name} eventKey={index} onClick={() => this.props.updateChannel(nextChannel)}>
-            {nextChannel.name}
-          </MenuItem>
-        ))}
-      </DropdownButton>
-    ) : (
-      channel
-    );
+  renderChannel = (channels: NormalizedOperatorChannel[], channel: string) => {
+    const {updateChannel} = this.props;
 
-  renderVersion = (versions, version, currentVersion) =>
-    _.size(versions) > 1 ? (
-      <DropdownButton
-        className="oh-operator-page__side-panel__version-dropdown"
-        title={this.getVersionString(version, currentVersion)}
-        id="version-dropdown"
-      >
-        {_.map(versions, (nextVersion, index) => (
-          <MenuItem key={nextVersion.version} eventKey={index} onClick={() => this.props.updateVersion(nextVersion)}>
-            {this.getVersionString(nextVersion.version, currentVersion)}
-          </MenuItem>
-        ))}
-      </DropdownButton>
-    ) : (
-      this.getVersionString(version, currentVersion)
-    );
+    if (_.size(channels) > 1) {
+      return (
+        <DropdownButton className="oh-operator-page__side-panel__version-dropdown" title={channel} id="channel-dropdown">
+          {_.map(channels, (nextChannel, index) => (
+            <MenuItem key={nextChannel.name} eventKey={index} onClick={() => updateChannel && updateChannel(nextChannel)}>
+              {nextChannel.name}
+            </MenuItem>
+          ))}
+        </DropdownButton>
+      )
+    }
 
-  renderLinks = links => {
-    const validLinks = _.filter(links, link => link.url && link.name);
-    if (_.size(validLinks)) {
+    return channel;
+  }
+
+  renderVersion = (versions: NormalizedVersion[], version: string, currentVersion?: NormalizedVersion) => {
+    const {updateVersion} = this.props;
+    const versionString = this.getVersionString(version, currentVersion);
+
+    if(_.size(versions) > 1){
+      return (
+        <DropdownButton
+          className="oh-operator-page__side-panel__version-dropdown"
+          title={versionString}
+          id="version-dropdown"
+        >
+          {_.map(versions, (nextVersion, index) => (
+            <MenuItem key={nextVersion.version} eventKey={index} onClick={() => updateVersion && updateVersion(nextVersion)}>
+              {this.getVersionString(nextVersion.version, currentVersion)}
+            </MenuItem>
+          ))}
+        </DropdownButton>
+      )
+    }
+
+    return versionString;
+  };
+
+
+  renderLinks = (links: OperatorLink[] = []) => {
+    const validLinks = links.filter(link => link.url && link.name);
+
+    if (validLinks.length > 0) {
       return (
         <React.Fragment>
           {_.map(links, link => (
@@ -91,8 +127,8 @@ class OperatorSidePanel extends React.Component {
     return notAvailable;
   };
 
-  renderMaintainers = maintainers =>
-    _.size(maintainers) && (
+  renderMaintainers = (maintainers: OperatorMaintainer[] = []) =>
+    maintainers.length > 0 && (
       <React.Fragment>
         {_.map(maintainers, maintainer => (
           <React.Fragment key={maintainer.name}>
@@ -103,7 +139,7 @@ class OperatorSidePanel extends React.Component {
       </React.Fragment>
     );
 
-  renderCapabilityLevel = capabilityLevel => (
+  renderCapabilityLevel = (capabilityLevel: string) => (
     <span>
       <span className="sr-only">{capabilityLevel}</span>
       <img
@@ -114,21 +150,21 @@ class OperatorSidePanel extends React.Component {
     </span>
   );
 
-  renderCategories = categories => {
-    if (!_.size(categories)) {
+  renderCategories = (categories: string[] = []) => {
+    if (categories.length === 0) {
       return <div>Other</div>;
     }
 
     return (
       <React.Fragment>
-        {_.map(categories, category => (
+        {categories.map(category => (
           <div key={category}>{category}</div>
         ))}
       </React.Fragment>
     );
   };
 
-  renderCreatedAt = createdAt => {
+  renderCreatedAt = (createdAt: string | Date) => {
     if (!createdAt) {
       return notAvailable;
     }
@@ -159,8 +195,8 @@ class OperatorSidePanel extends React.Component {
       categories
     } = operator;
 
-    const activeChannel = _.find(channels, { name: channel });
-    const versions = _.get(activeChannel, 'versions', [version]);
+    const activeChannel = _.find(channels, { name: channel });    
+    const versions = _.get(activeChannel, 'versions', [{name ,version: version}]);
     const currentVersion = _.find(versions, { name: _.get(activeChannel, 'currentCSV') });
     const allowInstall = name === _.get(currentVersion, 'name');
     const repoLink = repository ? <ExternalLink href={repository} text={repository} /> : notAvailable;
@@ -184,7 +220,7 @@ class OperatorSidePanel extends React.Component {
     const imageLink = containerImage ? (
       <span>
         {containerImage}
-        <Tooltip content={tooltipContent} styles={tooltipOverrides}>
+        <Tooltip content={tooltipContent} styles={tooltipOverrides as any}>
           <a
             href="#"
             className="oh-image-link"
@@ -197,8 +233,8 @@ class OperatorSidePanel extends React.Component {
         </Tooltip>
       </span>
     ) : (
-      notAvailable
-    );
+        notAvailable
+      );
 
     const capabilityLevelLabel = (
       <span>
@@ -234,13 +270,13 @@ class OperatorSidePanel extends React.Component {
             <button className="oh-button oh-button-primary oh-disabled">Install</button>
           </OverlayTrigger>
         ) : (
-          <button className="oh-button oh-button-primary" disabled={!showInstall} onClick={showInstall}>
-            Install
+            <button className="oh-button oh-button-primary" disabled={!showInstall} onClick={showInstall}>
+              Install
           </button>
-        )}
+          )}
         <div className="oh-operator-page__side-panel__separator" />
         <PropertiesSidePanel>
-          {this.renderPropertyItem('Channel', this.renderChannel(channels, channel))}
+          {this.renderPropertyItem('Channel', this.renderChannel(channels, channel || ''))}
           {this.renderPropertyItem('Version', this.renderVersion(versions, version, currentVersion))}
           {this.renderPropertyItem(capabilityLevelLabel, this.renderCapabilityLevel(capabilityLevel))}
           {this.renderPropertyItem('Provider', provider)}
@@ -257,14 +293,13 @@ class OperatorSidePanel extends React.Component {
 }
 
 OperatorSidePanel.propTypes = {
-  operator: PropTypes.object,
+  operator: PropTypes.any.isRequired,
   showInstall: PropTypes.func,
   updateChannel: PropTypes.func,
   updateVersion: PropTypes.func
 };
 
 OperatorSidePanel.defaultProps = {
-  operator: {},
   showInstall: null,
   updateChannel: helpers.noop,
   updateVersion: helpers.noop

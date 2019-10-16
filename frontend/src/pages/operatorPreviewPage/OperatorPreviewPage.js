@@ -8,7 +8,7 @@ import { helpers } from '../../common';
 import { MarkdownView } from '../../components/MarkdownView';
 import Page from '../../components/page/Page';
 import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
-import { reduxConstants } from '../../redux/constants';
+import { storeKeywordSearchAction } from '../../redux';
 import YamlViewer from '../../components/YamlViewer';
 import { normalizeOperator } from '../../utils/operatorUtils';
 import OperatorSidePanel from '../../components/OperatorSidePanel';
@@ -181,11 +181,7 @@ OperatorPreviewPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeKeywordSearch: keywordSearch =>
-    dispatch({
-      type: reduxConstants.SET_KEYWORD_SEARCH,
-      keywordSearch
-    })
+  storeKeywordSearch: keywordSearch => dispatch(storeKeywordSearchAction(keywordSearch))
 });
 
 const mapStateToProps = () => ({});

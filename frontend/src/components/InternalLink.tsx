@@ -1,47 +1,47 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { History } from 'history';
+
+export interface InternalLinkProps {
+  route: string
+  history: History
+  text?: string
+  className?: string
+  block?: boolean
+  noNavigation?: boolean
+  [prop: string]: any
+}
 
 /**
  * Internal link inside website. Scrolls to top on navigation
- * @param {object} param0
- * @param {string} param0.route
- * @param {*} param0.history
- * @param {string} [param0.text]
- * @param {*} [param0.children]
- * @param {string} [param0.className]
- * @param {string} [param0.block]
- * @param {string} [param0.text]
- * @param {boolean} [param0.noNavigation]
  */
-export const InternalLink = ({ text, children, className, block, route, history, noNavigation, ...otherProps }) => {
+const InternalLink: React.FC<InternalLinkProps> = ({ text, children, className, block, route, history, noNavigation, ...otherProps }) => {
+
   const onClick = e => {
     e.preventDefault();
+
     if (!noNavigation) {
       history.push(route);
+
     } else {
       const scrollToElem = document.getElementById('page-top');
-      if (scrollToElem) {
-        scrollToElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      scrollToElem && scrollToElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
   return (
     <a className={classNames({ block }, className)} href={route} onClick={onClick} {...otherProps}>
       {text}
-      {children}
+      {children || null}
     </a>
   );
 };
 
 InternalLink.propTypes = {
   route: PropTypes.string.isRequired,
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired,
+  history: PropTypes.any.isRequired,
   text: PropTypes.string,
-  children: PropTypes.node,
   block: PropTypes.bool,
   className: PropTypes.string,
   noNavigation: PropTypes.bool
@@ -50,7 +50,8 @@ InternalLink.propTypes = {
 InternalLink.defaultProps = {
   className: '',
   text: '',
-  children: null,
   block: false,
   noNavigation: false
 };
+
+export { InternalLink };

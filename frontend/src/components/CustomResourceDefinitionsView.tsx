@@ -1,26 +1,32 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
-import { helpers } from '../common';
 
-const CustomResourceDefinitionsView = ({ operator, showExampleYaml }) => {
+import { helpers } from '../common';
+import { NormalizedOperatorPreview, NormalizedCrdPreview } from '../utils/operatorTypes';
+
+export interface CustomResourceDefinitionsViewProps {
+  operator: NormalizedOperatorPreview | null
+  showExampleYaml: (e: React.MouseEvent, crd: NormalizedCrdPreview) => void
+}
+
+const CustomResourceDefinitionsView: React.FC<CustomResourceDefinitionsViewProps> = ({ operator, showExampleYaml }) => {
   if (!operator) {
     return null;
   }
 
-  const { customResourceDefinitions } = operator;
+  const { customResourceDefinitions=[] } = operator;
 
-  if (!_.size(customResourceDefinitions)) {
+  if (customResourceDefinitions.length === 0) {
     return null;
   }
 
-  const showExamples = _.some(customResourceDefinitions, crd => crd.yamlExample);
+  const showExamples = customResourceDefinitions.some(crd => crd.yamlExample);
 
   return (
     <React.Fragment>
       <h3>Custom Resource Definitions</h3>
       <div className="oh-crd-tile-view">
-        {_.map(customResourceDefinitions, crd => (
+        {customResourceDefinitions.map(crd => (
           <div className="oh-crd-tile" key={crd.name}>
             <div className="oh-crd-tile__title">{crd.displayName}</div>
             <div className="oh-crd-tile__rule" />
@@ -42,8 +48,8 @@ const CustomResourceDefinitionsView = ({ operator, showExampleYaml }) => {
 };
 
 CustomResourceDefinitionsView.propTypes = {
-  operator: PropTypes.object,
-  showExampleYaml: PropTypes.func
+  operator: PropTypes.any.isRequired,
+  showExampleYaml: PropTypes.func.isRequired
 };
 
 CustomResourceDefinitionsView.defaultProps = {

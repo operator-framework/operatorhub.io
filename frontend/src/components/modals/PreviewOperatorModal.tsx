@@ -11,7 +11,7 @@ import CustomResourceDefinitionsView from '../CustomResourceDefinitionsView';
 import * as operatorImg from '../../imgs/operator.svg';
 import ExampleYamlModal from './ExampleYamlModal';
 import { normalizeOperator } from '../../utils/operatorUtils';
-import { OperatorPackage, Operator, NormalizedOperatorPreview } from '../../utils/operatorTypes';
+import { OperatorPackage, Operator, NormalizedOperatorPreview, NormalizedCrdPreview } from '../../utils/operatorTypes';
 
 export interface PreviewOperatorModalProps{
   yamlOperator: Operator
@@ -43,14 +43,13 @@ class PreviewOperatorModal extends React.PureComponent<PreviewOperatorModalProps
 
     if (props.yamlOperator) {
       const normalizedOperator = normalizeOperator(props.yamlOperator);
-      // @ts-ignore
       normalizedOperator.channel = props.operatorPackage.channel;
 
       this.state.operator = normalizedOperator;
     }
   }
 
-  showExampleYaml = (e, crd) => {
+  showExampleYaml = (e: React.MouseEvent, crd: NormalizedCrdPreview) => {
     e.preventDefault();
     this.setState({ exampleYamlShown: true, crdExample: crd });
   };

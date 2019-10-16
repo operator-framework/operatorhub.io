@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { CatalogTile } from 'patternfly-react-extensions';
 //@ts-ignore
 import operatorImg from '../imgs/operator.svg';
+import { NormalizedOperatorPreview } from '../utils/operatorTypes';
 
 export interface OperatorTileProps{
-  operator: any
+  operator: NormalizedOperatorPreview | null
   [key: string]: any
 }
 
@@ -30,7 +31,7 @@ const OperatorTile: React.FC<OperatorTileProps> = ({ operator, ...props }) => {
 };
 
 OperatorTile.propTypes = {
-  operator: PropTypes.object
+  operator: PropTypes.any.isRequired
 };
 
 OperatorTile.defaultProps = {

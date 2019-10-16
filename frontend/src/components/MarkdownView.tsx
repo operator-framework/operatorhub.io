@@ -1,16 +1,16 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { markdownConverter } from '../common/markdown';
 
+export interface MarkdownViewProps{
+  markdown: string
+  className?: string}
+
 /**
  * Parse markdown and preview it
- * @param {object} param0
- * @param {string} param0.markdown
- * @param {string} [param0.className]
- *
  */
-export const MarkdownView = ({ className, markdown, ...props }) => (
+export const MarkdownView: React.FC<MarkdownViewProps & React.HTMLAttributes<HTMLDivElement>> = ({ className, markdown, ...props }) => (
   <div
     className={classNames('oh-markdown-view', className)}
     {...props}
@@ -19,8 +19,8 @@ export const MarkdownView = ({ className, markdown, ...props }) => (
 );
 
 MarkdownView.propTypes = {
-  className: PropTypes.string,
-  markdown: PropTypes.string
+  markdown: PropTypes.string.isRequired,
+  className: PropTypes.string
 };
 
 MarkdownView.defaultProps = {

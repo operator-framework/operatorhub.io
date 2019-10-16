@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Alert, Icon, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { bindActionCreators } from 'redux';
 import ace from 'brace';
 import 'brace/ext/searchbox';
 import 'brace/mode/yaml';
@@ -10,17 +11,20 @@ import 'brace/theme/clouds';
 import 'brace/ext/language_tools';
 import 'brace/snippets/yaml';
 import copy from 'copy-to-clipboard';
+
 import UploadUrlModal from './modals/UploadUrlModal';
 import { reduxConstants } from '../redux/constants';
 import { helpers } from '../common';
+import { hideConfirmModalAction, storePreviewYamlAction, storeContentHeightAction } from '../redux/actions';
 
 let id = 0;
 
+
 interface YamlViewerDispatch {
-  storePreviewYaml: (yaml: string, yamlChanged: boolean) => void
-  storeContentHeight: (contentHeight: number) => void
+  storePreviewYaml: typeof storePreviewYamlAction
+  storeContentHeight: typeof storeContentHeightAction
   showConfirmModal: (onConfirm: any) => void
-  hideConfirmModal: () => void
+  hideConfirmModal: typeof hideConfirmModalAction
   showErrorModal: (error: React.ReactNode) => void
 }
 
@@ -543,17 +547,11 @@ YamlViewer.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storePreviewYaml: (yaml, yamlChanged) =>
-    dispatch({
-      type: reduxConstants.SET_PREVIEW_YAML,
-      yaml,
-      yamlChanged
-    }),
-  storeContentHeight: contentHeight =>
-    dispatch({
-      type: reduxConstants.SET_PREVIEW_CONTENT_HEIGHT,
-      contentHeight
-    }),
+  ...bindActionCreators({
+    storePreviewYaml: storePreviewYamlAction,
+    storeContentHeight: storeContentHeightAction,
+    hideConfirmModal: hideConfirmModalAction
+  }, dispatch), 
   showConfirmModal: onConfirm =>
     dispatch({
       type: reduxConstants.CONFIRMATION_MODAL_SHOW,
@@ -562,11 +560,7 @@ const mapDispatchToProps = dispatch => ({
       confirmButtonText: 'Clear',
       cancelButtonText: 'Cancel',
       onConfirm
-    }),
-  hideConfirmModal: () =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_HIDE
-    }),
+    }), 
   showErrorModal: error =>
     dispatch({
       type: reduxConstants.CONFIRMATION_MODAL_SHOW,

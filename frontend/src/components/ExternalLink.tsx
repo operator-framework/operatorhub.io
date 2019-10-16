@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+export interface ExternalLinkProps{
+  href: string
+  text?: ReactNode
+  className?: string
+  block?: boolean
+  indicator?: boolean
+  [prop: string]: any
+}
+
 /**
  * Link pointing to external source opened in new tab.
- * @param {object} param0
- * @param {string} param0.href
- * @param {string|React.ReactNode} [param0.text]
- * @param {React.ReactNode} [param0.children]
- * @param {string} [param0.className]
- * @param {boolean} [param0.block]
- * @param {boolean} [param0.indicator]
  */
-export const ExternalLink = ({ href, text, className, children, block, indicator, ...otherProps }) => (
+export const ExternalLink: React.FC<ExternalLinkProps> = ({ href, text, className, children, block, indicator, ...otherProps }) => (
   <a
     className={classNames('oh-external-link', { block, indicator }, className)}
     href={href.startsWith('http') ? href : `http://${href}`}
@@ -21,7 +23,7 @@ export const ExternalLink = ({ href, text, className, children, block, indicator
     {...otherProps}
   >
     {text}
-    {children}
+    {children || null}
   </a>
 );
 

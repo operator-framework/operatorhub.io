@@ -7,8 +7,8 @@ import { Breadcrumb } from 'patternfly-react';
 import { helpers } from '../../common';
 import Page from '../../components/page/Page';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
-import { setSectionStatusAction } from '../../redux/actions/editorActions';
-import { reduxConstants } from '../../redux/constants';
+import { setSectionStatusAction, storeKeywordSearchAction } from '../../redux/actions';
+import { reduxConstants } from '../../redux';
 import { EDITOR_STATUS } from '../../utils/constants';
 
 class OperatorEditorSubPage extends React.Component {
@@ -231,11 +231,7 @@ OperatorEditorSubPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeKeywordSearch: keywordSearch =>
-    dispatch({
-      type: reduxConstants.SET_KEYWORD_SEARCH,
-      keywordSearch
-    }),
+  storeKeywordSearch: keywordSearch => dispatch(storeKeywordSearchAction(keywordSearch)),
   setSectionStatus: (section, status) => dispatch(setSectionStatusAction(section, status)),
   showPageErrorsMessage: () =>
     dispatch({

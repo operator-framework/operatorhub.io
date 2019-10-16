@@ -180,6 +180,17 @@ export type OperatorPackage = {
     channel: string
 }
 
+export type NormalizedVersion = {
+    name: string
+    version: string
+}
+
+export type NormalizedOperatorChannel = {
+    name: string
+    versions: NormalizedVersion[]
+    currentCSV: string
+}
+
 export type NormalizedCrdPreview = {
     name: string
     kind: string
@@ -207,6 +218,7 @@ export type NormalizedOperatorPreview = {
     containerImage: string
     customResourceDefinitions: NormalizedCrdPreview[]
     packageName: string
-    channels: any[]
+    channels: NormalizedOperatorChannel[]
+    channel?: string
     globalOperator: boolean
 }
