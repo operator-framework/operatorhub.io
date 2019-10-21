@@ -17,7 +17,7 @@ fi
 
 if [ ! $2 ]; then
   echo "Using master branch"
-  OPERATORS_BRANCH=converting-to-nested
+  OPERATORS_BRANCH=master
 else
   OPERATORS_BRANCH=$2
   echo "Using $OPERATORS_BRANCH branch"
