@@ -13,14 +13,14 @@ import ExampleYamlModal from './ExampleYamlModal';
 import { normalizeOperator } from '../../utils/operatorUtils';
 import { OperatorPackage, Operator, NormalizedOperatorPreview, NormalizedCrdPreview } from '../../utils/operatorTypes';
 
-export interface PreviewOperatorModalProps{
+export interface PreviewOperatorModalProps {
   yamlOperator: Operator
   show?: boolean
   operatorPackage?: OperatorPackage
   onClose: () => void
 }
 
-interface PreviewOperatorModalState{
+interface PreviewOperatorModalState {
   operator: NormalizedOperatorPreview | null,
   exampleYamlShown: boolean,
   crdExample: any
@@ -102,11 +102,15 @@ class PreviewOperatorModal extends React.PureComponent<PreviewOperatorModalProps
             </React.Fragment>
           )}
         </Modal.Body>
-        <ExampleYamlModal
-          show={exampleYamlShown}
-          customResourceDefinition={crdExample}
-          onClose={this.hideExampleYaml}
-        />
+        {
+          exampleYamlShown && 
+          <ExampleYamlModal
+            show={exampleYamlShown}
+            customResourceDefinition={crdExample}
+            onClose={this.hideExampleYaml}
+          />
+        }
+
       </Modal>
     );
   }

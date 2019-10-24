@@ -159,11 +159,13 @@ class OperatorPreviewPage extends React.Component {
           {this.renderYamlEditor()}
           {this.renderOperatorPreview()}
         </div>
-        <ExampleYamlModal
-          show={exampleYamlShown}
-          customResourceDefinition={crdExample}
-          onClose={this.hideExampleYaml}
-        />
+        {exampleYamlShown && (
+          <ExampleYamlModal
+            show={exampleYamlShown}
+            customResourceDefinition={crdExample}
+            onClose={this.hideExampleYaml}
+          />
+        )}
       </Page>
     );
   }

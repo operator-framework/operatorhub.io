@@ -9,7 +9,7 @@ import YamlViewer from '../YamlViewer';
 
 export interface ExampleYamlModalProps {
   show?: boolean
-  customResourceDefinition: { displayName: string, yamlExample: string },
+  customResourceDefinition: { displayName: string, yamlExample: any},
   onClose?: (e?: React.MouseEvent) => void
 }
 
@@ -54,7 +54,7 @@ ExampleYamlModal.propTypes = {
   show: PropTypes.bool,
   customResourceDefinition: PropTypes.shape({
     displayName: PropTypes.string.isRequired,
-    yamlExample: PropTypes.string.isRequired
+    yamlExample: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired
   }).isRequired,
   onClose: PropTypes.func
 };
