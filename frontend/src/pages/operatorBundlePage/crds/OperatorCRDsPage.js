@@ -4,10 +4,11 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 
-import { helpers } from '../../../common/helpers';
+import { helpers } from '../../../common';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
-import { getFieldValueError, convertExampleYamlToObj, containsErrors } from '../../../utils/operatorUtils';
+import { convertExampleYamlToObj } from '../../../utils/operatorUtils';
+import { getFieldValueError, containsErrors } from '../../../utils/operatorValidation';
 import { operatorObjectDescriptions } from '../../../utils/operatorDescriptors';
 import {
   storeEditorFormErrorsAction,

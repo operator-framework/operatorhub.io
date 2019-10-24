@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as _ from 'lodash-es';
 import SimpleMDE from 'simplemde';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 
 class SimpleMdeWrapper extends React.Component {
   simpleMDE = null;

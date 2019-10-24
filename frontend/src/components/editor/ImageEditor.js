@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Alert, Grid, Icon } from 'patternfly-react';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 
 class ImageEditor extends React.Component {
   constructor(props) {

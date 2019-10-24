@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
-import { helpers } from '../../../common/helpers';
+import { helpers } from '../../../common';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ResourcesEditor from '../../../components/editor/ResourcesEditor';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
@@ -16,10 +16,9 @@ import {
   getDefaultOnwedCRD,
   getDefaultAlmExample,
   convertExampleYamlToObj,
-  isCrdDescriptorDefault,
-  getDefaultCrdDescriptor,
-  containsErrors
+  getDefaultCrdDescriptor
 } from '../../../utils/operatorUtils';
+import { containsErrors } from '../../../utils/operatorValidation';
 import {
   setSectionStatusAction,
   storeEditorFormErrorsAction,

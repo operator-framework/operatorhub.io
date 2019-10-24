@@ -1,4 +1,4 @@
-import _ from 'lodash-es';
+import _, { isArray } from 'lodash-es';
 
 import {
   generateIdFromVersionedName,

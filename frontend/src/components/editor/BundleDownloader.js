@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { safeDump } from 'js-yaml';
 import { Icon } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import {
   getMissingCrdUploads,
   yamlFromOperator,
@@ -15,8 +15,8 @@ import {
   filterValidCrdUploads,
   getUpdatedFormErrors
 } from '../../pages/operatorBundlePage/bundlePageUtils';
-import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorUtils';
-import { reduxConstants } from '../../redux';
+import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorValidation';
+import { reduxConstants } from '../../redux/constants';
 import { setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 

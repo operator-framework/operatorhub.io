@@ -1,5 +1,3 @@
-const path = require('path');
-
 module.exports = {
   extends: ['plugin:patternfly-react/recommended'],
   rules: {
@@ -15,7 +13,8 @@ module.exports = {
         "printWidth": 120
       }
     ],
-    "max-len": ["error", {"code": 240, "ignoreUrls": true}],
-    "react/no-unused-prop-types": 1
+    "max-len": ["error", { "code": 240, "ignoreUrls": true }],
+    "react/no-unused-prop-types": 1,
+    "import/extensions": 'off'
   }
 };

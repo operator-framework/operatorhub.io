@@ -6,9 +6,9 @@ import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
 import { safeLoadAll } from 'js-yaml';
 
-import { helpers } from '../../../common/helpers';
+import { helpers } from '../../../common';
 import UploadUrlModal from '../../modals/UploadUrlModal';
-import { reduxConstants } from '../../../redux/index';
+import { reduxConstants } from '../../../redux/constants';
 import {
   normalizeYamlOperator,
   getMissingCrdUploads,
@@ -17,13 +17,13 @@ import {
 import {
   getDefaultOnwedCRD,
   isDeploymentDefault,
-  validateOperatorPackage,
   isOwnedCrdDefault,
   convertExampleYamlToObj,
   getDefaultAlmExample,
   isAlmExampleDefault,
   getDefaultOwnedCRDResources
 } from '../../../utils/operatorUtils';
+import { validateOperatorPackage } from '../../../utils/operatorValidation';
 import { EDITOR_STATUS, sectionsFields } from '../../../utils/constants';
 import * as actions from '../../../redux/actions/editorActions';
 import * as utils from './UploaderUtils';

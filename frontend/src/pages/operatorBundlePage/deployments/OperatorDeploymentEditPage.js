@@ -5,10 +5,11 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
-import { helpers } from '../../../common/helpers';
+import { helpers } from '../../../common';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import YamlViewer from '../../../components/YamlViewer';
-import { getValueError, getDefaultDeployment, isDeploymentDefault } from '../../../utils/operatorUtils';
+import { getDefaultDeployment, isDeploymentDefault } from '../../../utils/operatorUtils';
+import { getValueError } from '../../../utils/operatorValidation';
 import { operatorFieldValidators } from '../../../utils/operatorValidators';
 import {
   storeEditorFormErrorsAction,

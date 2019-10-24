@@ -1,18 +1,18 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import queryString from 'query-string';
-
+import { bindActionCreators } from 'redux';
 import { DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { FilterSidePanel } from 'patternfly-react-extensions';
 
 import { fetchOperators } from '../../services/operatorsService';
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
+import * as actions from '../../redux/actions';
 
 import Page from '../../components/page/Page';
-import { reduxConstants } from '../../redux';
 import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';
 import Loader from '../../components/other/Loader';
@@ -831,7 +831,6 @@ class OperatorHub extends React.Component {
 
 OperatorHub.propTypes = {
   operators: PropTypes.array,
-  operatorsUpdateTime: PropTypes.number,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,
   pending: PropTypes.bool,
@@ -855,7 +854,6 @@ OperatorHub.propTypes = {
 
 OperatorHub.defaultProps = {
   operators: [],
-  operatorsUpdateTime: 0,
   error: false,
   errorMessage: '',
   pending: false,
@@ -874,32 +872,17 @@ OperatorHub.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  loadOperators: () => dispatch(fetchOperators()),
-  storeActiveFilters: activeFilters =>
-    dispatch({
-      type: reduxConstants.SET_ACTIVE_FILTERS,
-      activeFilters
-    }),
-  storeSelectedCategory: selectedCategory =>
-    dispatch({
-      type: reduxConstants.SET_SELECTED_CATEGORY,
-      selectedCategory
-    }),
-  storeKeywordSearch: keywordSearch =>
-    dispatch({
-      type: reduxConstants.SET_KEYWORD_SEARCH,
-      keywordSearch
-    }),
-  storeSortType: sortType =>
-    dispatch({
-      type: reduxConstants.SET_SORT_TYPE,
-      sortType
-    }),
-  storeViewType: viewType =>
-    dispatch({
-      type: reduxConstants.SET_VIEW_TYPE,
-      viewType
-    })
+  ...bindActionCreators(
+    {
+      loadOperators: fetchOperators,
+      storeActiveFilters: actions.storeActiveFiltersAction,
+      storeSelectedCategory: actions.storeSelectedCategoryAction,
+      storeKeywordSearch: actions.storeKeywordSearchAction,
+      storeSortType: actions.storeSortType,
+      storeViewType: actions.storeViewType
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({

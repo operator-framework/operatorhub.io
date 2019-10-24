@@ -4,11 +4,11 @@ import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
 import { Breadcrumb, Grid } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { helpers } from '../../common';
 import { MarkdownView } from '../../components/MarkdownView';
 import Page from '../../components/page/Page';
 import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
-import { reduxConstants } from '../../redux';
+import { storeKeywordSearchAction } from '../../redux';
 import YamlViewer from '../../components/YamlViewer';
 import { normalizeOperator } from '../../utils/operatorUtils';
 import OperatorSidePanel from '../../components/OperatorSidePanel';
@@ -152,18 +152,20 @@ class OperatorPreviewPage extends React.Component {
             <br />
             <b>Important:</b> This preview and operator-courier only check for syntax of your CSV. Please use the{' '}
             <ExternalLink href={operatorScorecard} indicator={false} text="scorecard" /> utility which is part of the
-            operator-sdk to validate your entire{' '}
+            operator-sdk to validate your entire&nbsp;
             <ExternalLink href={operatorBundle} indicator={false} text="Operator bundle" />
           </p>
           <h2>{editorDescription}</h2>
           {this.renderYamlEditor()}
           {this.renderOperatorPreview()}
         </div>
-        <ExampleYamlModal
-          show={exampleYamlShown}
-          customResourceDefinition={crdExample}
-          onClose={this.hideExampleYaml}
-        />
+        {exampleYamlShown && (
+          <ExampleYamlModal
+            show={exampleYamlShown}
+            customResourceDefinition={crdExample}
+            onClose={this.hideExampleYaml}
+          />
+        )}
       </Page>
     );
   }
@@ -181,11 +183,7 @@ OperatorPreviewPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeKeywordSearch: keywordSearch =>
-    dispatch({
-      type: reduxConstants.SET_KEYWORD_SEARCH,
-      keywordSearch
-    })
+  storeKeywordSearch: keywordSearch => dispatch(storeKeywordSearchAction(keywordSearch))
 });
 
 const mapStateToProps = () => ({});
