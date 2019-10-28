@@ -1,10 +1,10 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { History } from 'history';
 
 import { DropdownButton, MenuItem } from 'patternfly-react';
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 //@ts-ignore
 import hubLogo from '../../imgs/operatorhub-header-logo.svg';
 import { InternalLink } from '../InternalLink';
@@ -171,10 +171,10 @@ HeaderTopBar.propTypes = {
 HeaderTopBar.defaultProps = {
   scrolled: false,
   searchValue: undefined,
-  onSearchChange: helpers.noop,
-  searchCallback: helpers.noop,
-  clearSearch: helpers.noop,
-  barRef: helpers.noop,
+  onSearchChange: noop,
+  searchCallback: noop,
+  clearSearch: noop,
+  barRef: noop,
   homePage: false
 };
 

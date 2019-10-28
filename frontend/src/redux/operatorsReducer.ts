@@ -1,4 +1,4 @@
-import { helpers } from '../common';
+import { REJECTED_ACTION, getErrorMessageFromResults, PENDING_ACTION, FULFILLED_ACTION } from '../common/helpers';
 import { reduxConstants } from './constants';
 import { NormalizedOperatorPreview } from '../utils/operatorTypes';
 
@@ -29,16 +29,16 @@ const initialState: OperatorsReducersState = {
 const operatorsReducer = (state: OperatorsReducersState = initialState, action) => {  
   switch (action.type) {
 
-    case helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS):
+    case REJECTED_ACTION(reduxConstants.GET_OPERATORS):
       return {
         ...state,
         pending: false,
         error: true,
-        errorMessage: helpers.getErrorMessageFromResults(action.error),
+        errorMessage: getErrorMessageFromResults(action.error),
         errorResults: action.error
       };
 
-    case helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS):
+    case PENDING_ACTION(reduxConstants.GET_OPERATORS):
       return {
         ...state,
         pending: true,
@@ -47,7 +47,7 @@ const operatorsReducer = (state: OperatorsReducersState = initialState, action) 
         operators: []
       };
 
-    case helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS):
+    case FULFILLED_ACTION(reduxConstants.GET_OPERATORS):
       return {
         ...state,
         operators: action.payload,
@@ -58,7 +58,7 @@ const operatorsReducer = (state: OperatorsReducersState = initialState, action) 
         operatorsUpdateTime: Date.now()
       };
 
-    case helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR):
+    case FULFILLED_ACTION(reduxConstants.GET_OPERATOR):
       return {
         ...state,
         operator: action.payload,
@@ -68,7 +68,7 @@ const operatorsReducer = (state: OperatorsReducersState = initialState, action) 
         fulfilled: true
       };
 
-    case helpers.FULFILLED_ACTION(reduxConstants.GET_OLM_VERSION):
+    case FULFILLED_ACTION(reduxConstants.GET_OLM_VERSION):
       return {
         ...state,
         olmVersionUpdated: true,
@@ -77,7 +77,7 @@ const operatorsReducer = (state: OperatorsReducersState = initialState, action) 
 
     // we use fallback version in case update fails - e.g. Github API not responding
     // no need to display error
-    case helpers.REJECTED_ACTION(reduxConstants.GET_OLM_VERSION):
+    case REJECTED_ACTION(reduxConstants.GET_OLM_VERSION):
       return {
         ...state,
         olmVersionUpdated: true

@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 
-import { helpers } from '../../../common';
+import { noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
 import { getFieldValueError, containsErrors } from '../../../utils/operatorValidation';
@@ -134,9 +134,9 @@ OperatorPermissionsPage.defaultProps = {
   objectPage: 'permissions',
   sectionStatus: {},
   formErrors: {},
-  storeEditorFormErrors: helpers.noop,
-  storeEditorOperator: helpers.noop,
-  setSectionStatus: helpers.noop
+  storeEditorFormErrors: noop,
+  storeEditorOperator: noop,
+  setSectionStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

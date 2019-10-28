@@ -14,7 +14,7 @@ import copy from 'copy-to-clipboard';
 
 import UploadUrlModal from './modals/UploadUrlModal';
 import { reduxConstants } from '../redux/constants';
-import { helpers } from '../common';
+import { noop, advancedUploadAvailable } from '../common/helpers';
 import { hideConfirmModalAction, storePreviewYamlAction, storeContentHeightAction } from '../redux/actions';
 
 let id = 0;
@@ -104,7 +104,7 @@ class YamlViewer extends React.Component<YamlViewerProps, YamlViewerState> {
       contentHeight: (isPreview && initContentHeight) || this.contentView && this.contentView.clientHeight || 0,
       yamlEntered: !!currentYaml,
       yamlChanged: isPreview && initYamlChanged,
-      advancedUpload: helpers.advancedUploadAvailable()
+      advancedUpload: advancedUploadAvailable()
     });
 
     if (currentYaml) {
@@ -479,7 +479,7 @@ class YamlViewer extends React.Component<YamlViewerProps, YamlViewerState> {
             {this.renderEmptyState()}
             <div className="oh-yaml-viewer__resizer" onMouseDown={this.startResize} />
             {this.renderError()}
-            {onSave !== helpers.noop && (
+            {onSave !== noop && (
               <div className="oh-yaml-viewer__button-bar">
                 <button
                   className="oh-button oh-button-primary"
@@ -528,19 +528,19 @@ YamlViewer.defaultProps = {
   editable: false,
   isPreview: false,
   saveButtonText: 'Save',
-  onSave: helpers.noop,
+  onSave: noop,
   allowClear: true,
   showRemove: false,
-  onRemove: helpers.noop,
-  onChange: helpers.noop,
-  onBlur: helpers.noop,
+  onRemove: noop,
+  onChange: noop,
+  onBlur: noop,
   onClear: null,
   error: null,
-  storePreviewYaml: helpers.noop,
-  storeContentHeight: helpers.noop,
-  showConfirmModal: helpers.noop,
-  hideConfirmModal: helpers.noop,
-  showErrorModal: helpers.noop,
+  storePreviewYaml: noop,
+  storeContentHeight: noop,
+  showConfirmModal: noop,
+  hideConfirmModal: noop,
+  showErrorModal: noop,
   initYaml: '',
   initYamlChanged: false,
   initContentHeight: 0

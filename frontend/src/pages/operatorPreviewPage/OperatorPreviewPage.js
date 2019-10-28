@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
 import { Breadcrumb, Grid } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import { MarkdownView } from '../../components/MarkdownView';
 import Page from '../../components/page/Page';
 import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
@@ -179,7 +179,7 @@ OperatorPreviewPage.propTypes = {
 };
 
 OperatorPreviewPage.defaultProps = {
-  storeKeywordSearch: helpers.noop
+  storeKeywordSearch: noop
 };
 
 const mapDispatchToProps = dispatch => ({

@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { Breadcrumb } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop, debounce } from '../../common/helpers';
 import Page from '../../components/page/Page';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
 import { setSectionStatusAction, storeKeywordSearchAction } from '../../redux/actions';
@@ -21,7 +21,7 @@ class OperatorEditorSubPage extends React.Component {
     const { validatePage, setSectionStatus, section, sectionStatus } = this.props;
 
     this.updateTitleHeight();
-    this.onWindowResize = helpers.debounce(this.updateTitleHeight, 100);
+    this.onWindowResize = debounce(this.updateTitleHeight, 100);
     window.addEventListener('resize', this.onWindowResize);
 
     // do not validate pristine page
@@ -222,11 +222,11 @@ OperatorEditorSubPage.defaultProps = {
   lastPageTitle: '',
   section: '',
   pageErrors: false,
-  validatePage: helpers.noop,
+  validatePage: noop,
   children: null,
-  setSectionStatus: helpers.noop,
-  showPageErrorsMessage: helpers.noop,
-  storeKeywordSearch: helpers.noop,
+  setSectionStatus: noop,
+  showPageErrorsMessage: noop,
+  storeKeywordSearch: noop,
   sectionStatus: {}
 };
 

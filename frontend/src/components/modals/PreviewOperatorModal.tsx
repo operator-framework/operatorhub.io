@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash-es';
 import { Grid, Modal } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import OperatorSidePanel from '../OperatorSidePanel';
 import { MarkdownView } from '../MarkdownView';
 import CustomResourceDefinitionsView from '../CustomResourceDefinitionsView';
@@ -103,7 +103,7 @@ class PreviewOperatorModal extends React.PureComponent<PreviewOperatorModalProps
           )}
         </Modal.Body>
         {
-          exampleYamlShown && 
+          exampleYamlShown &&
           <ExampleYamlModal
             show={exampleYamlShown}
             customResourceDefinition={crdExample}
@@ -127,7 +127,7 @@ PreviewOperatorModal.defaultProps = {
   show: false,
   yamlOperator: null,
   operatorPackage: {},
-  onClose: helpers.noop
+  onClose: noop
 };
 
 export default PreviewOperatorModal;

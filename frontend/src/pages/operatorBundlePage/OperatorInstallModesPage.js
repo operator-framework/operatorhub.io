@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import { getFieldValueError } from '../../utils/operatorValidation';
 import InstallModeEditor from '../../components/editor/InstallModeEditor';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
@@ -53,8 +53,8 @@ OperatorInstallModesPage.propTypes = {
 OperatorInstallModesPage.defaultProps = {
   operator: {},
   formErrors: {},
-  storeEditorFormErrors: helpers.noop,
-  storeEditorOperator: helpers.noop
+  storeEditorFormErrors: noop,
+  storeEditorOperator: noop
 };
 
 const mapDispatchToProps = dispatch => ({

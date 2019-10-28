@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import _ from 'lodash-es';
 import { Alert, Modal, Grid, Icon } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop, advancedUploadAvailable } from '../../common/helpers';
 import UploadUrlModal from './UploadUrlModal';
 
 
@@ -41,7 +41,7 @@ class UploadFileModal extends React.PureComponent<UploadFileModalProps, UploadFi
   };
 
   componentDidMount() {
-    this.setState({ advancedUpload: helpers.advancedUploadAvailable() });
+    this.setState({ advancedUpload: advancedUploadAvailable() });
   }
 
   componentDidUpdate(prevProps) {
@@ -237,7 +237,7 @@ UploadFileModal.propTypes = {
 
 UploadFileModal.defaultProps = {
   show: false,
-  onClose: helpers.noop
+  onClose: noop
 };
 
 export default UploadFileModal;

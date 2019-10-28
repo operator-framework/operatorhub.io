@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 
-import { helpers } from '../../../common';
+import { noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
 import { convertExampleYamlToObj } from '../../../utils/operatorUtils';
@@ -161,9 +161,9 @@ OperatorCRDsPage.defaultProps = {
   operator: {},
   formErrors: {},
   removeAlmExamples: false,
-  storeEditorFormErrors: helpers.noop,
-  storeEditorOperator: helpers.noop,
-  setSectionStatus: helpers.noop,
+  storeEditorFormErrors: noop,
+  storeEditorOperator: noop,
+  setSectionStatus: noop,
   sectionStatus: {}
 };
 

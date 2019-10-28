@@ -4,7 +4,7 @@ import _ from 'lodash-es';
 import { safeDump } from 'js-yaml';
 import { Modal } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import YamlViewer from '../YamlViewer';
 
 export interface ExampleYamlModalProps {
@@ -61,7 +61,7 @@ ExampleYamlModal.propTypes = {
 
 ExampleYamlModal.defaultProps = {
   show: false,
-  onClose: helpers.noop as any
+  onClose: noop
 };
 
 export default ExampleYamlModal;

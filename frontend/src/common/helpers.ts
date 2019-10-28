@@ -53,4 +53,3 @@ export const advancedUploadAvailable = () => {
 export const transformNameForPath = (name: string) => name.replace(/\./g, '_=_');
 
 export const transformPathedName = (name: string) => name.replace(/_=_/g, '.');
-

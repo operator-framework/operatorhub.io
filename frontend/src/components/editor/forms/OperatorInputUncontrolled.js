@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { operatorFieldPlaceholders, operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
 import OperatorInputWrapper from './OperatorInputWrapper';
-import { helpers } from '../../../common';
+import { noop } from '../../../common/helpers';
 import { operatorFieldValidators } from '../../../utils/operatorValidators';
 
 /**
@@ -56,7 +56,7 @@ OperatorInputUncontrolled.propTypes = {
 };
 
 OperatorInputUncontrolled.defaultProps = {
-  refCallback: helpers.noop,
+  refCallback: noop,
   descriptions: operatorFieldDescriptions
 };
 

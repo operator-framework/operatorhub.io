@@ -9,7 +9,7 @@ import { DropdownButton, EmptyState, Icon, MenuItem } from 'patternfly-react';
 import { FilterSidePanel } from 'patternfly-react-extensions';
 
 import { fetchOperators } from '../../services/operatorsService';
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import * as actions from '../../redux/actions';
 
 import Page from '../../components/page/Page';
@@ -857,18 +857,18 @@ OperatorHub.defaultProps = {
   error: false,
   errorMessage: '',
   pending: false,
-  loadOperators: helpers.noop,
+  loadOperators: noop,
   activeFilters: [],
   selectedCategory: '',
   keywordSearch: '',
   urlSearchString: '',
   viewType: '',
   sortType: '',
-  storeActiveFilters: helpers.noop,
-  storeSelectedCategory: helpers.noop,
-  storeKeywordSearch: helpers.noop,
-  storeSortType: helpers.noop,
-  storeViewType: helpers.noop
+  storeActiveFilters: noop,
+  storeSelectedCategory: noop,
+  storeKeywordSearch: noop,
+  storeSortType: noop,
+  storeViewType: noop
 };
 
 const mapDispatchToProps = dispatch => ({

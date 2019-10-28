@@ -5,7 +5,7 @@ import { Breadcrumb } from 'patternfly-react';
 import { History } from 'history';
 
 import Page from './Page';
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import { bindActionCreators } from 'redux';
 import { storeKeywordSearchAction } from '../../redux/actions';
 
@@ -164,7 +164,7 @@ DocumentationPage.propTypes = {
 };
 
 DocumentationPage.defaultProps = {
-  storeKeywordSearch: helpers.noop
+  storeKeywordSearch: noop
 };
 
 const mapStateToProps = () => ({});

@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import { reduxConstants } from '../../redux/constants';
 import EditorSection from '../../components/editor/EditorSection';
 import ManifestUploader from '../../components/editor/manfiestUploader/ManifestUploader';
@@ -254,10 +254,10 @@ OperatorBundlePage.defaultProps = {
   operator: {},
   sectionStatus: {},
   operatorPackage: {},
-  resetEditorOperator: helpers.noop,
-  showClearConfirmModal: helpers.noop,
-  hideConfirmModal: helpers.noop,
-  setBatchSectionsStatus: helpers.noop
+  resetEditorOperator: noop,
+  showClearConfirmModal: noop,
+  hideConfirmModal: noop,
+  setBatchSectionsStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

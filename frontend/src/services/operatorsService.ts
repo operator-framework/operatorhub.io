@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { helpers } from '../common';
+import { PENDING_ACTION, FULFILLED_ACTION, REJECTED_ACTION } from '../common/helpers';
 import { reduxConstants } from '../redux/constants';
 import { IDispatch } from '../redux';
 
@@ -14,7 +14,7 @@ const latestOlmVersionRequest = 'https://api.github.com/repos/operator-framework
 
 export const fetchOperator = (operatorName: string, packageName: string, channel: string) => (dispatch: IDispatch)  => {
   dispatch({
-    type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
+    type: PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
 
   const config = {
@@ -28,13 +28,13 @@ export const fetchOperator = (operatorName: string, packageName: string, channel
     .get(operatorRequest, config)
     .then(response => {
       dispatch({
-        type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
+        type: FULFILLED_ACTION(reduxConstants.GET_OPERATOR),
         payload: response.data.operator
       });
     })
     .catch(e => {
       dispatch({
-        type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
+        type: REJECTED_ACTION(reduxConstants.GET_OPERATORS),
         error: e
       });
     });
@@ -45,12 +45,12 @@ let operatorsCache = [];
 
 export const fetchOperators = () => (dispatch: IDispatch) => {
   dispatch({
-    type: helpers.PENDING_ACTION(reduxConstants.GET_OPERATORS)
+    type: PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });
 
   if (Date.now() - lastOperatorsFetchTime < 3600 * 1000 && operatorsCache.length > 0) {
     dispatch({
-      type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
+      type: FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
       // create new array so reference is different
       payload: operatorsCache.slice(0)
     });
@@ -66,14 +66,14 @@ export const fetchOperators = () => (dispatch: IDispatch) => {
       lastOperatorsFetchTime = Date.now();
 
       dispatch({
-        type: helpers.FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
+        type: FULFILLED_ACTION(reduxConstants.GET_OPERATORS),
         payload: operators
       });
     })
     .catch(e => {
       console.dir(e);
       dispatch({
-        type: helpers.REJECTED_ACTION(reduxConstants.GET_OPERATORS),
+        type: REJECTED_ACTION(reduxConstants.GET_OPERATORS),
         error: e
       });
     });
@@ -81,7 +81,7 @@ export const fetchOperators = () => (dispatch: IDispatch) => {
 
 export const fetchLatestOlmVersion = () => (dispatch: IDispatch) => {
   dispatch({
-    type: helpers.PENDING_ACTION(reduxConstants.GET_OLM_VERSION)
+    type: PENDING_ACTION(reduxConstants.GET_OLM_VERSION)
   });
 
   axios
@@ -91,12 +91,12 @@ export const fetchLatestOlmVersion = () => (dispatch: IDispatch) => {
 
       if (latestRelease && latestRelease.tag_name) {
         dispatch({
-          type: helpers.FULFILLED_ACTION(reduxConstants.GET_OLM_VERSION),
+          type: FULFILLED_ACTION(reduxConstants.GET_OLM_VERSION),
           payload: latestRelease.tag_name
         });
       } else {
         dispatch({
-          type: helpers.REJECTED_ACTION(reduxConstants.GET_OLM_VERSION),
+          type: REJECTED_ACTION(reduxConstants.GET_OLM_VERSION),
           error: null
         });
       }
@@ -104,7 +104,7 @@ export const fetchLatestOlmVersion = () => (dispatch: IDispatch) => {
     .catch(e => {
       console.dir(e);
       dispatch({
-        type: helpers.REJECTED_ACTION(reduxConstants.GET_OLM_VERSION),
+        type: REJECTED_ACTION(reduxConstants.GET_OLM_VERSION),
         error: e
       });
     });

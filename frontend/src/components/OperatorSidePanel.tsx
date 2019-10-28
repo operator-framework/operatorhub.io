@@ -8,7 +8,7 @@ import { DropdownButton, Icon, MenuItem, OverlayTrigger, Popover } from 'pattern
 import { PropertiesSidePanel, PropertyItem } from 'patternfly-react-extensions';
 import { ExternalLink } from './ExternalLink';
 import { capabilityLevelModelDiagram } from '../utils/documentationLinks';
-import { helpers } from '../common';
+import { noop } from '../common/helpers';
 // @ts-ignore
 import * as capabilityLevelImgLevel1 from '../imgs/capability-level-imgs/level-1.svg';
 // @ts-ignore
@@ -301,8 +301,8 @@ OperatorSidePanel.propTypes = {
 
 OperatorSidePanel.defaultProps = {
   showInstall: null,
-  updateChannel: helpers.noop,
-  updateVersion: helpers.noop
+  updateChannel: noop,
+  updateVersion: noop
 };
 
 export default OperatorSidePanel;

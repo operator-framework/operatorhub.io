@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
@@ -353,9 +353,9 @@ OperatorMetadataPage.defaultProps = {
   operator: {},
   formErrors: {},
   sectionStatus: {},
-  setSectionStatus: helpers.noop,
-  storeEditorFormErrors: helpers.noop,
-  storeEditorOperator: helpers.noop
+  setSectionStatus: noop,
+  storeEditorFormErrors: noop,
+  storeEditorOperator: noop
 };
 
 const mapDispatchToProps = dispatch => ({

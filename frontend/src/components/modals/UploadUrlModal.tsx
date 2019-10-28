@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import PropTypes from 'prop-types';
 import { Alert, FormControl, Grid, HelpBlock, Modal } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import { urlRegExp } from '../../utils/operatorValidators';
 
 export interface UploadUrlModalProps {
@@ -159,7 +159,7 @@ UploadUrlModal.propTypes = {
 
 UploadUrlModal.defaultProps = {
   show: false,
-  onClose: helpers.noop
+  onClose: noop
 };
 
 export default UploadUrlModal;

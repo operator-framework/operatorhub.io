@@ -1,8 +1,8 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
-import { helpers } from '../../common';
+import { transformNameForPath } from '../../common';
 
 class ListObjectEditor extends React.Component {
   /**
@@ -23,7 +23,7 @@ class ListObjectEditor extends React.Component {
 
   editOperatorObject = (operatorObject, index) => {
     const { history, objectPage, pagePathField } = this.props;
-    const transformedName = helpers.transformNameForPath(_.get(operatorObject, pagePathField, ''));
+    const transformedName = transformNameForPath(_.get(operatorObject, pagePathField, ''));
     history.push(`/bundle/${objectPage}/edit/${index}/${transformedName}`);
   };
 

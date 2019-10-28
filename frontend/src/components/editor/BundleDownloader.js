@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { safeDump } from 'js-yaml';
 import { Icon } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import {
   getMissingCrdUploads,
   yamlFromOperator,
@@ -220,10 +220,10 @@ OperatorBundleDownloader.defaultProps = {
   sectionStatus: {},
   uploads: [],
   operatorPackage: {},
-  showBundleConfirm: helpers.noop,
-  hideConfirmModal: helpers.noop,
-  showErrorModal: helpers.noop,
-  setBatchSectionsStatus: helpers.noop
+  showBundleConfirm: noop,
+  hideConfirmModal: noop,
+  showErrorModal: noop,
+  setBatchSectionsStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

@@ -6,7 +6,7 @@ import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
 import { safeLoadAll } from 'js-yaml';
 
-import { helpers } from '../../../common';
+import { noop } from '../../../common/helpers';
 import UploadUrlModal from '../../modals/UploadUrlModal';
 import { reduxConstants } from '../../../redux/constants';
 import {
@@ -675,12 +675,12 @@ ManifestUploader.defaultProps = {
   operator: {},
   operatorPackage: {},
   uploads: [],
-  showErrorModal: helpers.noop,
-  setSectionStatus: helpers.noop,
-  setAllSectionsStatusAction: helpers.noop,
-  updateOperatorPackage: helpers.noop,
-  setUploads: helpers.noop,
-  storeEditorOperator: helpers.noop
+  showErrorModal: noop,
+  setSectionStatus: noop,
+  setAllSectionsStatusAction: noop,
+  updateOperatorPackage: noop,
+  setUploads: noop,
+  storeEditorOperator: noop
 };
 
 const mapDispatchToProps = dispatch => ({

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import _ from 'lodash-es';
 import { History } from 'history';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import { HeaderTopBar } from './HeaderTopBar';
 import Footer from './Footer';
 
@@ -174,11 +174,11 @@ Page.defaultProps = {
   showFooter: true,
   children: null,
   searchValue: undefined,
-  onSearchChange: helpers.noop,
-  searchCallback: helpers.noop,
-  clearSearch: helpers.noop,
+  onSearchChange: noop,
+  searchCallback: noop,
+  clearSearch: noop,
   homePage: false,
-  scrollCallback: helpers.noop 
+  scrollCallback: noop 
 };
 
 export default Page;

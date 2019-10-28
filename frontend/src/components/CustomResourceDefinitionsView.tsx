@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { helpers } from '../common';
+import { noop } from '../common/helpers';
 import { NormalizedOperatorPreview, NormalizedCrdPreview } from '../utils/operatorTypes';
 
 export interface CustomResourceDefinitionsViewProps {
@@ -54,7 +54,7 @@ CustomResourceDefinitionsView.propTypes = {
 
 CustomResourceDefinitionsView.defaultProps = {
   operator: null,
-  showExampleYaml: helpers.noop
+  showExampleYaml: noop
 };
 
 export default CustomResourceDefinitionsView;

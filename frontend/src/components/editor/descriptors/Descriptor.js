@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { Icon } from 'patternfly-react';
 import DescriptorInput from './DescriptorInput';
 import { operatorFieldPlaceholders } from '../../../utils/operatorDescriptors';
-import { helpers } from '../../../common';
+import { noop } from '../../../common/helpers';
 import EditorSelect from '../EditorSelect';
 import { sectionsFields } from '../../../utils/constants';
 
@@ -202,7 +202,7 @@ Descriptor.defaultProps = {
   errors: {},
   removable: false,
   dirtyFields: {},
-  onDescriptorRemove: helpers.noop
+  onDescriptorRemove: noop
 };
 
 export default Descriptor;

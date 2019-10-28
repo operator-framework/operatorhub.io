@@ -4,25 +4,25 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Modal } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 
 export interface MessageDialogProps {
   show: boolean
-    className?: string
-    primaryActionButtonContent: ReactNode
-    onHide: () => void
-    /** callback to trigger when clicking the default footer primary action button */
-    primaryAction?: (e: React.MouseEvent) => void
-    secondaryAction?: (e: React.MouseEvent) => void
-    primaryActionButtonBsStyle?: string
-    secondaryActionButtonBsStyle?: string
-    secondaryActionButtonContent?: ReactNode
-    title?: string
-    icon?: ReactNode
-    primaryText?: ReactNode
-    secondaryText?: ReactNode
-    footer?: ReactNode
-    restoreFocus?: boolean
+  className?: string
+  primaryActionButtonContent: ReactNode
+  onHide: () => void
+  /** callback to trigger when clicking the default footer primary action button */
+  primaryAction?: (e: React.MouseEvent) => void
+  secondaryAction?: (e: React.MouseEvent) => void
+  primaryActionButtonBsStyle?: string
+  secondaryActionButtonBsStyle?: string
+  secondaryActionButtonContent?: ReactNode
+  title?: string
+  icon?: ReactNode
+  primaryText?: ReactNode
+  secondaryText?: ReactNode
+  footer?: ReactNode
+  restoreFocus?: boolean
 }
 
 const MessageDialog: React.FC<MessageDialogProps> = ({
@@ -42,36 +42,36 @@ const MessageDialog: React.FC<MessageDialogProps> = ({
   footer,
   ...props
 }) => (
-  <Modal className={classNames('message-dialog-pf', className)} show={show} onHide={onHide} {...props}>
-    <Modal.Header>
-      <Modal.CloseButton onClick={onHide} />
-      <Modal.Title>{title}</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      {icon && icon}
-      <div>
-        {primaryText && primaryText}
-        {secondaryText && secondaryText}
-      </div>
-    </Modal.Body>
-    <Modal.Footer>
-      {!footer ? (
-        <React.Fragment>
-          {secondaryActionButtonContent && (
-            <button className="oh-button oh-button-secondary" onClick={secondaryAction}>
-              {secondaryActionButtonContent}
+    <Modal className={classNames('message-dialog-pf', className)} show={show} onHide={onHide} {...props}>
+      <Modal.Header>
+        <Modal.CloseButton onClick={onHide} />
+        <Modal.Title>{title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {icon && icon}
+        <div>
+          {primaryText && primaryText}
+          {secondaryText && secondaryText}
+        </div>
+      </Modal.Body>
+      <Modal.Footer>
+        {!footer ? (
+          <React.Fragment>
+            {secondaryActionButtonContent && (
+              <button className="oh-button oh-button-secondary" onClick={secondaryAction}>
+                {secondaryActionButtonContent}
+              </button>
+            )}
+            <button autoFocus className="oh-button oh-button-primary" onClick={primaryAction}>
+              {primaryActionButtonContent}
             </button>
+          </React.Fragment>
+        ) : (
+            footer
           )}
-          <button autoFocus className="oh-button oh-button-primary" onClick={primaryAction}>
-            {primaryActionButtonContent}
-          </button>
-        </React.Fragment>
-      ) : (
-        footer
-      )}
-    </Modal.Footer>
-  </Modal>
-);
+      </Modal.Footer>
+    </Modal>
+  );
 
 MessageDialog.propTypes = {
   /** additional class(es) */
@@ -106,8 +106,8 @@ MessageDialog.propTypes = {
 
 MessageDialog.defaultProps = {
   className: '',
-  primaryAction: helpers.noop as any,
-  secondaryAction: helpers.noop as any,
+  primaryAction: noop,
+  secondaryAction: noop,
   primaryActionButtonBsStyle: 'primary',
   secondaryActionButtonBsStyle: 'default',
   secondaryActionButtonContent: null,

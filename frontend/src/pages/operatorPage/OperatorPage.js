@@ -4,7 +4,7 @@ import _ from 'lodash-es';
 import { connect } from 'react-redux';
 import { Breadcrumb, Grid } from 'patternfly-react';
 
-import { helpers } from '../../common';
+import { noop } from '../../common/helpers';
 import { fetchOperator, fetchLatestOlmVersion } from '../../services/operatorsService';
 import { MarkdownView } from '../../components/MarkdownView';
 import Page from '../../components/page/Page';
@@ -231,9 +231,9 @@ OperatorPage.defaultProps = {
   errorMessage: '',
   pending: false,
   olmVersionUpdated: false,
-  fetchOperator: helpers.noop,
-  storeKeywordSearch: helpers.noop,
-  fetchOlmVersion: helpers.noop
+  fetchOperator: noop,
+  storeKeywordSearch: noop,
+  fetchOlmVersion: noop
 };
 
 export default connect(
