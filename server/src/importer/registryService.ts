@@ -7,3 +7,10 @@ import { REGISTRY_ADDRESS } from '../utils/constants';
 
 
 export const registryService: IRegistryClient = new RegistryClient(REGISTRY_ADDRESS, grpc.credentials.createInsecure());
+
+/**
+ * Close client connections if any are opened
+ */
+export function closeClient(){
+    grpc.closeClient(registryService as RegistryClient);
+}

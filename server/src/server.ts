@@ -10,6 +10,7 @@ import { serverPort, secureServerPort, useSSL, keysDirectory } from './utils/con
 import uiRoutes from './routes/uiRoutes';
 import apiRoutes from './routes/apiRoutes';
 import { importDataAndPrepareForStartup } from './utils';
+import { loadOperators } from './importer/legacy/loader';
 
 
 const getHttpsServer = (app: Express): Server => {

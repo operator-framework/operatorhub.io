@@ -5,6 +5,8 @@ import { listPackages } from './channels/listPackages';
 import { getPackages, getAllBundlesInPackage } from './channels/getPackages';
 import { normalizePackages } from './normalizer/converter';
 import { RawPackages, Packages } from './types';
+import { NormalizedOperatorPackage } from '../sharedTypes';
+import { closeClient } from './registryService';
 
 
 /**
@@ -31,7 +33,9 @@ async function collectPackageBundles(packageSet: RawPackages) {
     return packageMapWithChannels;
 }
 
-
+/**
+ * Fetch data from registry and convert them to desired internal format
+ */
 export async function importData() {
 
     const PROCESSOR_NAME = 'CollectPackages';
@@ -45,7 +49,9 @@ export async function importData() {
         packages = await getPackages(packageList);
     } catch (e) {
         Logger.error(`[${PROCESSOR_NAME}] failed to get package list. No data to export.`);
-        return [];
+        closeClient();
+
+        throw Error('Failed to get package list');
     }
 
     if (packages.size > 0) {
@@ -54,12 +60,24 @@ export async function importData() {
         packageMapWithChannels = await collectPackageBundles(packages);
 
     } else {
-        Logger.warn(`[${PROCESSOR_NAME}] Something went wrong and no packages are fetched. Existing.`);
-        return [];
+        Logger.error(`[${PROCESSOR_NAME}] Something went wrong and no packages are fetched.`);
+        closeClient();
+
+        throw Error('Failed to fetch packages');
     }
 
-    // convert packages into desired output format for use in OperatorHub.io
-    const normalizedPackages = await normalizePackages(packageMapWithChannels);
+    let normalizedPackages: NormalizedOperatorPackage[] ;
+
+    try{
+        // convert packages into desired output format for use in OperatorHub.io
+        normalizedPackages = await normalizePackages(packageMapWithChannels);
+
+    } catch(e){
+        Logger.error(`[${PROCESSOR_NAME}] Something went wrong while normalizing packages.`);
+        closeClient();
+
+        throw Error('Failed to normalize packages');
+    }
 
     try {
         await outputJSON('./cache/operators.json', normalizedPackages, { encoding: 'utf-8' });
@@ -70,6 +88,7 @@ export async function importData() {
 
     } finally {
         console.log(`Operators index created in ${Date.now() - timerStart} ms`);
+        closeClient();
     }
     
     return normalizedPackages;

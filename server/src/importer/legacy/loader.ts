@@ -1,9 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const yaml = require('js-yaml');
-const { operatorsDirectory } = require('../utils/constants');
-const { normalizeOperators, normalizePackages } = require('../utils/operatorUtils');
-const persistentStore = require('../store/persistentStore');
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
+import { operatorsDirectory, normalizeOperators, normalizePackages } from './utils';
 
 const operatorsFrameworkDirectory = `./data/community-operators/${operatorsDirectory}`;
 
@@ -120,6 +118,7 @@ const extractOperatorData = (dirPath, fileName) => {
   if (fileType === 'PKG') {
     packageFile = content;
   } else if (fileType === 'CSV') {
+    //@ts-ignore
     csvFiles.push(content);
   } else if (fileType === 'Unknown') {
     console.warn(`Cannot identify file ${fileName} at folder ${dirPath}. Ignoring file`);
@@ -135,8 +134,9 @@ const extractOperatorData = (dirPath, fileName) => {
  * Loads all operators with packages and csv and normalize them
  * @param {*} callback
  */
-const loadOperators = callback => {
-  const packages = [];
+export const loadOperators = async () => {
+
+  const packages: any[] = [];
   const operators = [];
   const operatorDirs = fs.readdirSync(operatorsFrameworkDirectory);
 
@@ -148,7 +148,7 @@ const loadOperators = callback => {
 
       const operatorFiles = fs.readdirSync(dirPath);
 
-      let operatorPackage = null;
+      let operatorPackage: any = null;
       let operatorCSVs = [];
 
       operatorFiles.forEach(file => {
@@ -163,9 +163,11 @@ const loadOperators = callback => {
         operatorCSVs = operatorCSVs.concat(csvFiles);
       });
 
-      if (operatorPackage) {
+      if (operatorPackage) {     
+
         // add package data to operator
         operatorCSVs.forEach(operator => {
+          // @ts-ignore
           operator.packageInfo = operatorPackage;
 
           // add to operator list
@@ -173,6 +175,7 @@ const loadOperators = callback => {
         });
 
         if (operatorCSVs.length > 0) {
+          
           packages.push(operatorPackage);
         } else {
           console.warn(`No valid CSVs found for operator ${dir}. Skipping this package.`);
@@ -183,20 +186,8 @@ const loadOperators = callback => {
     }
   });
 
-  normalizeOperators(operators).then(normalizedOperators => {
-    const normalizedPackages = normalizePackages(packages, normalizedOperators);
+  const normalizedOperators = await normalizeOperators(operators);
+  const normalizedPackages = normalizePackages(packages, normalizedOperators);
 
-    persistentStore.setPackages(normalizedPackages, packagesErr => {
-      if (packagesErr) {
-        console.error(packagesErr.message);
-      }
-
-      persistentStore.setOperators(normalizedOperators, callback);
-    });
-  });
+  return normalizedPackages;
 };
-
-const loadService = {
-  loadOperators
-};
-module.exports = loadService;

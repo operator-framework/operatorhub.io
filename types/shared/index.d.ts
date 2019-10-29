@@ -6,7 +6,7 @@ interface GenericOperatorChannel<T> {
         version: string
     }[],
     csvFiles: T[]
-}
+} 
 
 interface GenericOperatorPackage<T> {
     name: string,

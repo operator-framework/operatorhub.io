@@ -3,12 +3,40 @@ import {importData} from '../importer/client'
 
 import { getDefaultOperatorForPackage } from './utils';
 import { NormalizedOperatorPackage, OperatorIndexMetadata } from '../sharedTypes';
+import { loadOperators } from '../importer/legacy/loader';
+import { USE_REGISTRY } from './constants';
 
 let operatorsIndexRaw: ReadonlyArray<NormalizedOperatorPackage>;
 let operatorsIndex: OperatorIndexMetadata[];
+let ready = false;
+let healthy = true;
 
+export function getReadyState(){
+    return ready;
+}
+
+export function getHealthState(){
+    return healthy;
+}
+
+/**
+ * Import data from registry in normalized format and preprocess operators index
+ * and cache it
+ */
 export async function importDataAndPrepareForStartup(){
-    operatorsIndexRaw = await importData();
+
+    // catch health state after import
+    try{
+        if(USE_REGISTRY){
+            operatorsIndexRaw = await importData();
+            
+        } else {
+            operatorsIndexRaw = await loadOperators();
+        }
+        
+    } catch(e){
+        healthy = false;        
+    }
 
     operatorsIndex = operatorsIndexRaw.map((operatorPackage): OperatorIndexMetadata | null => {
         const defaultOperator = getDefaultOperatorForPackage(operatorPackage);
@@ -31,6 +59,8 @@ export async function importDataAndPrepareForStartup(){
     
         return null;
     }).filter(operator => operator !== null) as OperatorIndexMetadata[];
+
+    ready = true;
 }
 
 export const getOperatorsData = () => operatorsIndexRaw;

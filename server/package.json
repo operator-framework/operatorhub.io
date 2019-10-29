@@ -12,6 +12,7 @@
         "fs-extra": "~8.1.0",
         "google-protobuf": "~3.8.0",
         "grpc": "~1.22.2",
+        "js-yaml": "^3.13.1",
         "lodash": "~4.17.15",
         "self-signed-https": "~1.0.5",
         "sharp": "^0.23.0"
@@ -29,7 +30,7 @@
         "typescript": "~3.5.3"
     },
     "scripts": {
-        "start": "npm run tsc && node ./dist/server.js --log=1",
+        "start": "npm run tsc && node ./dist/server.js --log=1 --registry=localhost:50051",
         "npm build": "npm run tsc",
         "server": "node ./dist/server.js",
         "gents": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./proto --ts_out=service=true:./proto --grpc_out=./proto --plugin=./node_modules/.bin/protoc_gen-ts ./registry.proto",

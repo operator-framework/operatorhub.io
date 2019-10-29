@@ -20,6 +20,7 @@ RUN cd ${APP_ROOT}/frontend; npm install \
 COPY server/ ${APP_ROOT}/server
 RUN cd ${APP_ROOT}/server \
     && npm install \
+    && npm run tsc \
     && rm -rdf /opt/app-root/src/.npm /tmp/v8-compile-cache-0
 
 # prepare upstream operators for server processing

@@ -4,6 +4,7 @@ import { Express, Request, Response, NextFunction } from 'express';
 import { useSSL } from '../utils/constants';
 import { fetchOperators, fetchOperator, generateInstallYaml } from '../services';
 import { isArray } from 'util';
+import { getHealthState } from '../utils';
 
 // TODO
 // what is the purpose??
@@ -20,7 +21,7 @@ const addCORSHeader = (request: Request, response: Response, next: NextFunction)
     const originHeader = isArray(request.headers.origin) ? request.headers.origin[0] : request.headers.origin || '*';
 
     // based on https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
-    if(hasOrigin){
+    if (hasOrigin) {
         response.set('Access-Control-Allow-Origin', originHeader);
         response.set('Vary', 'Origin');
     }
@@ -51,6 +52,15 @@ const forceToSSL = (request: Request, response: Response, next: NextFunction) =>
     next();
 };
 
+/**
+ * Provide server health information for Kube probe
+ * @param request 
+ * @param response 
+ */
+export function healthCheck(request: Request, response: Response) {
+    const healthy = getHealthState();
+    response.sendStatus(healthy ? 200 : 500);
+};
 
 export default function (app: Express) {
     app.get('/api/*', forceToSSL, addCORSHeader);
@@ -58,4 +68,5 @@ export default function (app: Express) {
     app.get('/api/operators', fetchOperators);
     app.get('/api/operator', fetchOperator);
     app.get('/install/*.yaml', generateInstallYaml);
+    app.get('/healthz', healthCheck);
 };
