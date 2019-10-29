@@ -47,4 +47,5 @@ module.exports = app => {
   app.get('/api/releasedate', sendReleaseDate, addCORSHeader);
 
   app.get('/install/*.yaml', yamlService.generateInstallYaml);
+  app.get('/healthz', (request, response) => {response.sendStatus(200)});
 };
