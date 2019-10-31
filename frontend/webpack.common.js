@@ -111,8 +111,11 @@ module.exports = {
       loaders: ['babel-loader']
     }),
     new ForkTsCheckerWebpackPlugin({
+      async: false,
       checkSyntacticErrors: true,
-      measureCompilationTime: true
+      measureCompilationTime: true,
+      tslint: false,
+      useTypescriptIncrementalApi: false
     }),
     new HtmlWebpackPlugin({
       template: './src/index.html'
