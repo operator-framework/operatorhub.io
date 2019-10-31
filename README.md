@@ -10,7 +10,7 @@ able to run anywhere that Kubernetes can run.
 ##### Frontend
 
 ```
-npm run-script build
+npm run build
 ```
 
 ### Run
@@ -26,33 +26,26 @@ npm start
 ###### Running the local server
 ```
 $cd server
-yarn
-yarn server
+npm install
+npm run server
 ```
 
 ###### Running the local UI in dev mode
 
 ```
 $cd frontend
-yarn
-yarn start
+npm install
+npm start
 http://0.0.0.0:9060/
 ```
 
 ###### Running the local UI 
 ```
 $cd frontend
-yarn
-yarn build
+npm install
+npm run build
 http://0.0.0.0:8080/
 
-```
-
-##### Mock Mode
-
-```
-$cd frontend
-yarn mock
 ```
 
 ##### Contributing Code
