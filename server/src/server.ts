@@ -27,7 +27,17 @@ const getHttpsServer = (app: Express): Server => {
 
 (async () => {
 
-  await importDataAndPrepareForStartup();
+  try{
+    await importDataAndPrepareForStartup();
+
+  } catch(e){
+
+    // import failed without possibility to recover
+    // end process so pod does not reach ready state
+    console.error('Failed to import data for server',e);
+    process.exit(1)
+  }
+
   console.log('Ready to start server');
 
   const app = express();

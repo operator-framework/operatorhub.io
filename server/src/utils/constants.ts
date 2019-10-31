@@ -46,8 +46,8 @@ export const serverPort = env.PORT || process_args.options.port || 8080;
 export const secureServerPort = env.SECUREPORT || process_args.options.secureport || 8443;
 
 
-export const USE_REGISTRY = !!env.REGISTRY_ADDRESS || !!process_args.options.registry || false;
-export const REGISTRY_ADDRESS = env.REGISTRY_ADDRESS || process_args.options.registry || 'localhost:50051';
+export const USE_REGISTRY = !!env.REGISTRY || !!process_args.options.registry || false;
+export const REGISTRY_ADDRESS = env.REGISTRY || process_args.options.registry || 'localhost:50051';
 export const LOG_LEVEL = env.LOG_LEVEL && parseInt(env.LOG_LEVEL) || process_args.options.log || LogLevel.warn;
 
 

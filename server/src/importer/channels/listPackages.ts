@@ -41,6 +41,8 @@ export async function listPackages() {
                     reject(error);
                 }
             })
+            // @ts-ignore
+            .on('error', (e) => Logger.log(`${ENDPOINT_NAME} stream end`))
             // does not work
             // @see https://github.com/grpc/grpc-web/issues/289
             .on('end', () => Logger.log(`${ENDPOINT_NAME} stream end`))

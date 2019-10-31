@@ -13,19 +13,20 @@ Server process accepts set of arguments. In order to pass parameters to npm comm
         --help, -h
                 Displays help information about this script
 
-        --port, -p
+        --port, -p [PORT env variable]
                 Defines port where runs server http instance
                 ... -p 8080 or --port=8080
+                
 
-        --secureport, -sp
+        --secureport, -sp [SECUREPORT env variable]
                 Defines port where runs server https instance
                 ... -sp 8443 or --secureport=8443
 
-        --registry, -r
+        --registry, -r [REGISTRY env variable]
                 Defines location of operators registry instance with port
                 ... -r localhost:50051 or --registry=localhost:50051
 
-        --log, -l
+        --log, -l [LOG_LEVEL env variable]
                 Defines log level where 0=debug, 1=log, 2=warn and 3=error
                 ... -l 2 or --log=2
 
