@@ -2,7 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HappyPack = require('happypack');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+// const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -110,13 +110,13 @@ module.exports = {
     new HappyPack({
       loaders: ['babel-loader']
     }),
-    new ForkTsCheckerWebpackPlugin({
-      async: false,
-      checkSyntacticErrors: true,
-      measureCompilationTime: true,
-      tslint: false,
-      useTypescriptIncrementalApi: false
-    }),
+    // new ForkTsCheckerWebpackPlugin({
+    //   async: false,
+    //   checkSyntacticErrors: true,
+    //   measureCompilationTime: true,
+    //   tslint: false,
+    //   useTypescriptIncrementalApi: false
+    // }),
     new HtmlWebpackPlugin({
       template: './src/index.html'
     }),

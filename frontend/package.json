@@ -83,6 +83,7 @@
   },
   "scripts": {
     "build": "webpack --config webpack.prod.js",
+    "build:check": "webpack --config webpack.compile.js",
     "start": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.DEV_MODE='\"true\"'",
     "mock": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.MOCK_MODE='\"true\"'",
     "lint": "eslint ./src/",
@@ -90,5 +91,13 @@
     "bundle-profile:analyze": "npm run build:bundle-profile && webpack-bundle-analyzer ./stats.json",
     "clean": "rimraf dist"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "husky": "^3.0.9"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build:check",
+      "pre-push": "npm run build:check"
+    }
+  }
 }
