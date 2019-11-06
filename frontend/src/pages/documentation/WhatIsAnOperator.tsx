@@ -1,14 +1,18 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import DocumentationPage from '../../components/page/DocumentationPage';
 import { introBlog, sampleCode } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
+import { History } from 'history';
 
-const pageTitle = 'What is an Operator';
 
-const WhatIsAnOperator = ({ history, ...props }) => {
+export interface WhatIsAnOperatorPageProps{
+  history: History
+}
+
+const WhatIsAnOperator: React.FC<WhatIsAnOperatorPageProps> = ({ history, ...props }) => {
   const sections = [
     {
       title: `What is an Operator after all?`,
@@ -16,7 +20,7 @@ const WhatIsAnOperator = ({ history, ...props }) => {
         <React.Fragment>
           <p>
             Operators are a design pattern made public in a 2016 CoreOS{' '}
-            <ExternalLink href={introBlog} text="blog" indicator={false} /> post. The goal of an Operator is to put
+            <ExternalLink href={introBlog} text="blog" /> post. The goal of an Operator is to put
             operational knowledge into software. Previously this knowledge only resided in the minds of administrators,
             various combinations of shell scripts or automation software like Ansible. It was outside of your Kubernetes
             cluster and hard to integrate. With Operators, CoreOS changed that.
@@ -58,7 +62,7 @@ const WhatIsAnOperator = ({ history, ...props }) => {
             objects. That’s also when it will start running its loop to ensure that the application service is actually
             available and configured in the way the user expressed in the specification of <code>FooBarApp</code>{' '}
             objects. This is called a reconciliation loop (
-            <ExternalLink href={sampleCode} text="example code" indicator={false} />
+            <ExternalLink href={sampleCode} text="example code" />
             ). The application service may in turn be implemented with more basic objects like <code>Pods</code>,{' '}
             <code>Secrets</code> or <code>PersistentVolumes</code>, but carefully arranged and initialized, specific to
             the needs of this application. Furthermore, the Operator could possibly introduce an object of type
@@ -79,13 +83,16 @@ const WhatIsAnOperator = ({ history, ...props }) => {
     }
   ];
 
-  return <DocumentationPage title={pageTitle} sections={sections} history={history} {...props} />;
+  return <DocumentationPage
+    title="What is an Operator"
+    sections={sections}
+    history={history}
+    {...props}
+  />;
 };
 
 WhatIsAnOperator.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired
+  history: PropTypes.any.isRequired
 };
 
 export default WhatIsAnOperator;

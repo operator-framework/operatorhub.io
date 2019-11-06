@@ -41,5 +41,5 @@ ExternalLink.defaultProps = {
   text: '',
   children: null,
   block: false,
-  indicator: true
+  indicator: false
 };

@@ -17,14 +17,34 @@ import OperatorTile from '../../components/OperatorTile';
 import OperatorListItem from '../../components/OperatorListItem';
 import { ExternalLink } from '../../components/ExternalLink';
 import { buildYourCSV, operatorBundle, operatorCourier, operatorScorecard } from '../../utils/documentationLinks';
+import { History } from 'history';
+import { Operator, NormalizedCrdPreview, NormalizedOperatorPreview } from '../../utils/operatorTypes';
+import { bindActionCreators } from 'redux';
 
-const editorDescription = `Enter your operator's CSV YAML:`;
+export interface OperatorPreviewPageProps {
+  history: History
+  storeKeywordSearch: typeof storeKeywordSearchAction
+}
 
-class OperatorPreviewPage extends React.Component {
-  state = {
+interface OperatorPreviewPageState {
+  operator: NormalizedOperatorPreview | null
+  yamlError: string
+  exampleYamlShown: boolean
+  keywordSearch: string
+  crdExample: NormalizedCrdPreview | null
+}
+
+class OperatorPreviewPage extends React.PureComponent<OperatorPreviewPageProps, OperatorPreviewPageState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: OperatorPreviewPageState = {
     operator: null,
     yamlError: '',
-    exampleYamlShown: false
+    exampleYamlShown: false,
+    keywordSearch: '',
+    crdExample: null
   };
 
   componentDidMount() {
@@ -36,7 +56,7 @@ class OperatorPreviewPage extends React.Component {
     this.props.history.push('/');
   };
 
-  onSearchChange = searchValue => {
+  onSearchChange = (searchValue: string) => {
     this.setState({ keywordSearch: searchValue });
   };
 
@@ -44,14 +64,14 @@ class OperatorPreviewPage extends React.Component {
     this.onSearchChange('');
   };
 
-  searchCallback = searchValue => {
+  searchCallback = (searchValue: string) => {
     if (searchValue) {
       this.props.storeKeywordSearch(searchValue);
       this.props.history.push(`/?keyword=${searchValue}`);
     }
   };
 
-  showExampleYaml = (e, crd) => {
+  showExampleYaml = (e: React.MouseEvent, crd: NormalizedCrdPreview) => {
     e.preventDefault();
     this.setState({ exampleYamlShown: true, crdExample: crd });
   };
@@ -60,7 +80,7 @@ class OperatorPreviewPage extends React.Component {
     this.setState({ exampleYamlShown: false });
   };
 
-  previewYAML = yaml => {
+  previewYAML = (yaml?: string) => {
     if (!yaml) {
       this.setState({ operator: null, yamlError: '' });
       return;
@@ -70,55 +90,19 @@ class OperatorPreviewPage extends React.Component {
       const yamlOperator = safeLoad(yaml);
       const operator = normalizeOperator(yamlOperator);
       this.setState({ operator, yamlError: '' });
+
       setTimeout(() => {
-        document.getElementById('operator-preview').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const element = document.getElementById('operator-preview');
+        element && element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
+
     } catch (e) {
       this.setState({ operator: null, yamlError: e.message });
     }
   };
 
-  renderOperatorPreview = () => {
-    const { operator } = this.state;
-
-    if (!operator) {
-      return null;
-    }
-
-    return (
-      <React.Fragment>
-        <h2>Preview of your Operator</h2>
-        <div id="operator-preview" className="oh-preview-page-yaml__card-container">
-          <OperatorTile operator={operator} />
-          <OperatorListItem operator={operator} />
-        </div>
-        <div className="oh-preview-page-yaml__preview-separator" />
-        <div className="oh-operator-page row">
-          <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9}>
-            <OperatorSidePanel operator={operator} />
-          </Grid.Col>
-          <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
-            <h1>{operator.displayName}</h1>
-            {operator.longDescription && <MarkdownView markdown={operator.longDescription} />}
-            <CustomResourceDefinitionsView operator={operator} showExampleYaml={this.showExampleYaml} />
-          </Grid.Col>
-        </div>
-      </React.Fragment>
-    );
-  };
-
-  renderYamlEditor() {
-    const { yamlError } = this.state;
-
-    return (
-      <div className="oh-preview-page-yaml">
-        <YamlViewer isPreview onSave={this.previewYAML} editable error={yamlError} saveButtonText="Preview Operator" />
-      </div>
-    );
-  }
-
   render() {
-    const { exampleYamlShown, crdExample, keywordSearch } = this.state;
+    const { operator, exampleYamlShown, crdExample, keywordSearch, yamlError } = this.state;
 
     const toolbarContent = (
       <Breadcrumb>
@@ -145,21 +129,42 @@ class OperatorPreviewPage extends React.Component {
             This preview editor helps you verify visual appearance of styling of your Operator’s appearance on
             OperatorHub.io.
             <br />
-            Please use <ExternalLink href={operatorCourier} indicator={false} text="operator-courier" /> to validate
-            your <span className="oh-code">ClusterServiceVersion</span> for completeness and syntax. Read more{' '}
-            <ExternalLink href={buildYourCSV} indicator={false} text="here" /> on how to create your CSV.
+            Please use <ExternalLink href={operatorCourier} text="operator-courier" /> to validate your{' '}
+            <span className="oh-code">ClusterServiceVersion</span> for completeness and syntax. Read more{' '}
+            <ExternalLink href={buildYourCSV} text="here" /> on how to create your CSV.
             <br />
             <br />
             <b>Important:</b> This preview and operator-courier only check for syntax of your CSV. Please use the{' '}
-            <ExternalLink href={operatorScorecard} indicator={false} text="scorecard" /> utility which is part of the
-            operator-sdk to validate your entire&nbsp;
-            <ExternalLink href={operatorBundle} indicator={false} text="Operator bundle" />
+            <ExternalLink href={operatorScorecard} text="scorecard" /> utility which is part of the operator-sdk to
+            validate your entire&nbsp;
+            <ExternalLink href={operatorBundle} text="Operator bundle" />
           </p>
-          <h2>{editorDescription}</h2>
-          {this.renderYamlEditor()}
-          {this.renderOperatorPreview()}
+          <h2>Enter your operator&apos;s CSV YAML:</h2>
+          <div className="oh-preview-page-yaml">
+            <YamlViewer isPreview onSave={this.previewYAML} editable error={yamlError} saveButtonText="Preview Operator" />
+          </div>
+          {operator && (
+            <React.Fragment>
+              <h2>Preview of your Operator</h2>
+              <div id="operator-preview" className="oh-preview-page-yaml__card-container">
+                <OperatorTile operator={operator} />
+                <OperatorListItem operator={operator} />
+              </div>
+              <div className="oh-preview-page-yaml__preview-separator" />
+              <div className="oh-operator-page row">
+                <Grid.Col xs={12} sm={4} smPush={8} md={3} mdPush={9}>
+                  <OperatorSidePanel operator={operator} />
+                </Grid.Col>
+                <Grid.Col xs={12} sm={8} smPull={4} md={9} mdPull={3}>
+                  <h1>{operator.displayName}</h1>
+                  {operator.longDescription && <MarkdownView markdown={operator.longDescription} />}
+                  <CustomResourceDefinitionsView operator={operator} showExampleYaml={this.showExampleYaml} />
+                </Grid.Col>
+              </div>
+            </React.Fragment>
+          )}
         </div>
-        {exampleYamlShown && (
+        {exampleYamlShown && crdExample && (
           <ExampleYamlModal
             show={exampleYamlShown}
             customResourceDefinition={crdExample}
@@ -183,7 +188,10 @@ OperatorPreviewPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeKeywordSearch: keywordSearch => dispatch(storeKeywordSearchAction(keywordSearch))
+  ...bindActionCreators({
+    storeKeywordSearch: storeKeywordSearchAction
+  }, dispatch)
+
 });
 
 const mapStateToProps = () => ({});

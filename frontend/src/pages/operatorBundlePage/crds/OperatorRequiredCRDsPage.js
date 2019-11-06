@@ -10,7 +10,7 @@ const OperatorRequiredCRDsPage = ({ operator, history }) => {
     <span>
       It&apos;s common for your Operator to use multiple CRDs to link together concepts, such as top-level database
       configuration in one object and a representation of replica sets in another. List out each one in the CSV file.
-      Checkout more in <ExternalLink href="#" text="Owned CRDs" />.
+      Checkout more in <ExternalLink href="#" text="Owned CRDs" indicator />.
     </span>
   );
 

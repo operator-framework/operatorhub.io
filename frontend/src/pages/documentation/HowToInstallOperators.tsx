@@ -1,14 +1,16 @@
-/* eslint-disable react/jsx-curly-brace-presence */
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { History } from 'history';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import DocumentationPage from '../../components/page/DocumentationPage';
 import { olm, olmArchitecture, manageOperatorWithOlm, operatorGroupDesign } from '../../utils/documentationLinks';
 
-const pageTitle = 'How to install an Operator from OperatorHub.io';
+export interface HowToInstallOperatorsPageProps{
+  history: History
+}
 
-const HowToInstallOperators = ({ history, ...props }) => {
+const HowToInstallOperators: React.FC<HowToInstallOperatorsPageProps> = ({ history, ...props }) => {
   const sections = [
     {
       title: `How do I install an Operator from OperatorHub.io?`,
@@ -18,12 +20,12 @@ const HowToInstallOperators = ({ history, ...props }) => {
             In order to install an Operator from OperatorHub.io, first be sure that you have a Kubernetes cluster (v1.7
             or newer) running with privileges to create new namespaces, <i>ClusterRoles</i>, <i>ClusterRoleBindings</i>{' '}
             and <i>CustomResourceDefinitions</i>. The{' '}
-            <ExternalLink href={olm} text="Operator Lifecycle Manager" indicator={false} /> (OLM), a component of the{' '}
-            <ExternalLink href={manageOperatorWithOlm} text="Operator Framework" indicator={false} />, must also be
+            <ExternalLink href={olm} text="Operator Lifecycle Manager" /> (OLM), a component of the{' '}
+            <ExternalLink href={manageOperatorWithOlm} text="Operator Framework" />, must also be
             present in your cluster. OLM makes Operators available for users to install based on the concept of{' '}
             <i>catalogs</i>
             which are repositories of Operators packaged for use with OLM. If you like to learn more about how OLM
-            delivers Operators, click <ExternalLink href={olmArchitecture} text="here" indicator={false} />.
+            delivers Operators, click <ExternalLink href={olmArchitecture} text="here" />.
           </p>
           <p>
             From there, simply click <b>Install</b> on any Operators detail page. To use the Operator without this
@@ -79,7 +81,7 @@ const HowToInstallOperators = ({ history, ...props }) => {
             <ExternalLink
               href="https://github.com/operator-framework/operator-lifecycle-manager/releases/tag/0.10.1"
               text="upstream OLM"
-              indicator={false}
+
             />
             . If you make modifications or have an existing OLM deployment that deviates please adjust the generated
             YAML manifests.
@@ -165,7 +167,7 @@ const HowToInstallOperators = ({ history, ...props }) => {
           </p>
           <p>
             This behavior is controlled by the OperatorGroup , you can read more about it{' '}
-            <ExternalLink href={operatorGroupDesign} text="here" indicator={false} />. In short, the list in{' '}
+            <ExternalLink href={operatorGroupDesign} text="here" />. In short, the list in{' '}
             <code>spec.targetNamespace</code> of the OperatorGroup and controls namespaces in which you want this
             Operator to be usable.
           </p>
@@ -174,13 +176,16 @@ const HowToInstallOperators = ({ history, ...props }) => {
     }
   ];
 
-  return <DocumentationPage title={pageTitle} sections={sections} history={history} {...props} />;
+  return <DocumentationPage
+    title="How to install an Operator from OperatorHub.io"
+    sections={sections}
+    history={history}
+    {...props}
+  />;
 };
 
 HowToInstallOperators.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired
+  history: PropTypes.any.isRequired
 };
 
 export default HowToInstallOperators;

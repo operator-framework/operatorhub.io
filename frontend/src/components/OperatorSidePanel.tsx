@@ -118,7 +118,7 @@ class OperatorSidePanel extends React.PureComponent<OperatorSidePanelProps, Oper
       return (
         <React.Fragment>
           {_.map(links, link => (
-            <ExternalLink key={link.name} block href={link.url} text={link.name} />
+            <ExternalLink key={link.name} block href={link.url} text={link.name} indicator />
           ))}
         </React.Fragment>
       );
@@ -199,7 +199,7 @@ class OperatorSidePanel extends React.PureComponent<OperatorSidePanelProps, Oper
     const versions = _.get(activeChannel, 'versions', [{name ,version: version}]);
     const currentVersion = _.find(versions, { name: _.get(activeChannel, 'currentCSV') });
     const allowInstall = name === _.get(currentVersion, 'name');
-    const repoLink = repository ? <ExternalLink href={repository} text={repository} /> : notAvailable;
+    const repoLink = repository ? <ExternalLink href={repository} text={repository} indicator/> : notAvailable;
     const tooltipText = this.state.copied ? 'Copied' : 'Copy to Clipboard';
     const tooltipContent = [
       <span className="oh-nowrap" key="nowrap">
@@ -252,7 +252,7 @@ class OperatorSidePanel extends React.PureComponent<OperatorSidePanelProps, Oper
         >
           <Icon className="oh-capability-level-popover__icon" type="pf" name="help" />
         </OverlayTrigger>
-        <ExternalLink className="oh-capability-level-popover__link" href={capabilityLevelModelDiagram} text="" />
+        <ExternalLink className="oh-capability-level-popover__link" href={capabilityLevelModelDiagram} text="" indicator />
       </span>
     );
 
