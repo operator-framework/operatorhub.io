@@ -1,47 +1,77 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import { History } from 'history';
 import _ from 'lodash-es';
-import { connect } from 'react-redux';
 import { Breadcrumb, Grid } from 'patternfly-react';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { match, RouteProps } from 'react-router';
 
 import { noop } from '../../common/helpers';
-import { fetchOperator, fetchLatestOlmVersion } from '../../services/operatorsService';
-import { MarkdownView } from '../../components/MarkdownView';
-import Page from '../../components/page/Page';
-import InstallModal from '../../components/modals/InstallModal';
-import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
-import * as operatorImg from '../../imgs/operator.svg';
-import { storeKeywordSearchAction } from '../../redux';
 import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';
+import { MarkdownView } from '../../components/MarkdownView';
+import ExampleYamlModal from '../../components/modals/ExampleYamlModal';
+import InstallModal from '../../components/modals/InstallModal';
 import OperatorSidePanel from '../../components/OperatorSidePanel';
-import Loader from '../../components/other/Loader';
 import ErrorMessage from '../../components/other/ErrorMessage';
+import Loader from '../../components/other/Loader';
+import Page from '../../components/page/Page';
+// @ts-ignore
+import * as operatorImg from '../../imgs/operator.svg';
+import { storeKeywordSearchAction, StoreState } from '../../redux';
+import { fetchLatestOlmVersion, fetchOperator } from '../../services/operatorsService';
+import { bindActionCreators } from 'redux';
+import { OperatorsReducersState } from '../../redux/operatorsReducer';
+import { NormalizedCrdPreview } from '../../utils/operatorTypes';
 
-class OperatorPage extends React.Component {
-  state = {
+export type OperatorPageProps = {
+  history: History
+  match: match<{ packageName: string, channel: string, operatorId: string }>
+  fetchOperator: typeof fetchOperator
+  fetchOlmVersion: typeof fetchLatestOlmVersion
+  storeKeywordSearch: typeof storeKeywordSearchAction
+} & OperatorsReducersState;
+
+interface OperatorPageState {
+  installShown: boolean
+  refreshed: boolean
+  keywordSearch: string
+  exampleYamlShown: boolean,
+  crdExample: NormalizedCrdPreview | null
+}
+
+class OperatorPage extends React.PureComponent<OperatorPageProps, OperatorPageState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: OperatorPageState = {
     installShown: false,
     refreshed: false,
     keywordSearch: '',
-    exampleYamlShown: false
+    exampleYamlShown: false,
+    crdExample: null
   };
 
   componentDidMount() {
-    const { olmVersionUpdated, fetchOlmVersion } = this.props;
+    const { olmVersionUpdated, fetchOlmVersion, match } = this.props;
+    const {packageName, channel, operatorId} = match.params;
 
     if (!olmVersionUpdated) {
       fetchOlmVersion();
     }
-
-    this.refresh();
+    this.refresh(packageName, channel, operatorId);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: OperatorPageProps) {
     const { match } = this.props;
 
-    if (!_.isEqual(match, prevProps.match)) {
-      this.refresh();
+    if (prevProps.match.url !== match.url) {
+      const {packageName, channel, operatorId} = match.params;
+
+      this.refresh(packageName, channel, operatorId);
     }
   }
+
   static getDerivedStateFromProps(props, state) {
     if (!state.refreshed && props.pending) {
       return { refreshed: true };
@@ -49,12 +79,8 @@ class OperatorPage extends React.Component {
     return null;
   }
 
-  refresh() {
-    const channel = _.get(this.props.match, 'params.channel');
-    const packageName = _.get(this.props.match, 'params.packageName');
-    const operatorName = _.get(this.props.match, 'params.operatorId');
-
-    this.props.fetchOperator(operatorName, packageName, channel);
+  refresh(packageName: string, channel?: string, operatorName?: string) {
+    this.props.fetchOperator(packageName, channel, operatorName);
   }
 
   onHome = e => {
@@ -100,7 +126,7 @@ class OperatorPage extends React.Component {
     this.setState({ installShown: false });
   };
 
-  showExampleYaml = (e, crd) => {
+  showExampleYaml = (e: React.MouseEvent, crd: NormalizedCrdPreview) => {
     e.preventDefault();
     this.setState({ exampleYamlShown: true, crdExample: crd });
   };
@@ -187,7 +213,7 @@ class OperatorPage extends React.Component {
             history={this.props.history}
           />
         )}
-        {crdExample && (
+        {exampleYamlShown && crdExample && (
           <ExampleYamlModal
             show={exampleYamlShown}
             customResourceDefinition={crdExample}
@@ -200,12 +226,14 @@ class OperatorPage extends React.Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  fetchOperator: (name, packageName, channel) => dispatch(fetchOperator(name, packageName, channel)),
-  fetchOlmVersion: () => dispatch(fetchLatestOlmVersion()),
-  storeKeywordSearch: keywordSearch => dispatch(storeKeywordSearchAction(keywordSearch))
+  ...bindActionCreators({
+    fetchOperator,
+    fetchOlmVersion: fetchLatestOlmVersion,
+    storeKeywordSearch: storeKeywordSearchAction
+  }, dispatch)
 });
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   ...state.operatorsState
 });
 

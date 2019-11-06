@@ -1,15 +1,19 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { ExternalLink } from '../../components/ExternalLink';
 import DocumentationPage from '../../components/page/DocumentationPage';
+// @ts-ignore
 import maturityDetailsImg from '../../imgs/capability-level-diagram.svg';
 import { operatorSdk, gettingStarted, introBlog } from '../../utils/documentationLinks';
 import { InternalLink } from '../../components/InternalLink';
+import { History } from 'history';
 
-const pageTitle = 'Jump Start Using the Operator-SDK';
+export interface GettingStartedPageProps{
+  history: History
+}
 
-const GettingStarted = ({ history, ...props }) => {
+const GettingStarted: React.FC<GettingStartedPageProps> = ({ history, ...props }) => {
   const renderOperatorTypesTable = () => (
     <table className="oh-documentation-page-table">
       <tbody>
@@ -111,8 +115,8 @@ const GettingStarted = ({ history, ...props }) => {
             watching for certain events or objects in Kubernetes.
           </p>
           <p>
-            Fortunately there is the <ExternalLink href={operatorSdk} text="operator-sdk" indicator={false} />, part of
-            the <ExternalLink href={introBlog} text="Operator Framework" indicator={false} />, a community project that
+            Fortunately there is the <ExternalLink href={operatorSdk} text="operator-sdk" />, part of
+            the <ExternalLink href={introBlog} text="Operator Framework" />, a community project that
             aims at simplifying the whole process of Operator creation to just writing the custom operational logic
             inside the control loop.
           </p>
@@ -126,7 +130,7 @@ const GettingStarted = ({ history, ...props }) => {
           </p>
           <p>
             Interested? Try the operator-sdk today by following this&nbsp;
-            <ExternalLink href={gettingStarted} text="Getting Started Guide" indicator={false} />.
+            <ExternalLink href={gettingStarted} text="Getting Started Guide" />.
           </p>
           <p>
             Already have an Operator? Discover how to contribute it to OperatorHub.io&nbsp;
@@ -137,13 +141,16 @@ const GettingStarted = ({ history, ...props }) => {
     }
   ];
 
-  return <DocumentationPage title={pageTitle} sections={sections} history={history} {...props} />;
+  return <DocumentationPage
+    title="Jump Start Using the Operator-SDK"
+    sections={sections}
+    history={history}
+    {...props}
+  />;
 };
 
 GettingStarted.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired
+  history: PropTypes.any.isRequired
 };
 
 export default GettingStarted;

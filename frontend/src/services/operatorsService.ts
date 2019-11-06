@@ -12,7 +12,7 @@ const allOperatorsRequest = process.env.DEV_MODE ? `${serverURL}/api/operators` 
 const operatorRequest = process.env.DEV_MODE ? `${serverURL}/api/operator` : `/api/operator`;
 const latestOlmVersionRequest = 'https://api.github.com/repos/operator-framework/operator-lifecycle-manager/releases';
 
-export const fetchOperator = (operatorName: string, packageName: string, channel: string) => (dispatch: IDispatch)  => {
+export const fetchOperator = (packageName: string, channel?: string, operatorName?: string) => (dispatch: IDispatch)  => {
   dispatch({
     type: PENDING_ACTION(reduxConstants.GET_OPERATORS)
   });

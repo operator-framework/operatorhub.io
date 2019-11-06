@@ -63,13 +63,13 @@ const Footer: React.FC<FooterProps> = ({ history, visible, ...props }) => (
                 className="oh-footer__contents-right__links__list__link"
                 href={documentationLinks.gettingStarted}
                 text="Documentation"
-                indicator={false}
+                
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
                 href={`${documentationLinks.privacyPolicy}`}
                 text="Privacy Policy"
-                indicator={false}
+                
               />
             </div>
             <div className="oh-footer__contents-right__links__list">
@@ -78,31 +78,31 @@ const Footer: React.FC<FooterProps> = ({ history, visible, ...props }) => (
                 className="oh-footer__contents-right__links__list__link"
                 href={documentationLinks.hubTwitter}
                 text="Twitter"
-                indicator={false}
+                
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
                 href={documentationLinks.hubYoutube}
                 text="YouTube"
-                indicator={false}
+                
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
                 href={documentationLinks.operatorsFramework}
                 text="GitHub"
-                indicator={false}
+                
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
                 href={documentationLinks.fileAnIssue}
                 text="File an issue on GitHub"
-                indicator={false}
+                
               />
               <ExternalLink
                 className="oh-footer__contents-right__links__list__link"
                 href={documentationLinks.kubernetesSlack}
                 text="Join us on Slack"
-                indicator={false}
+                
               />
             </div>
           </div>
