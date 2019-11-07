@@ -2,16 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Icon } from 'patternfly-react';
 import UploaderStatusIcon, { IconStatus } from './UploaderStatusIcon';
+import { UploadMetadata, MissingCRD } from './UploaderTypes';
+
+export interface UploaderObjectListProps {
+  uploads: UploadMetadata[]
+  missingUploads: MissingCRD[]
+  removeUpload: (e: React.MouseEvent, id: string) => void
+  removeAllUploads: (e: React.MouseEvent) => void
+}
 
 /**
  * List uploaded and missing files
- * @param {Object} param0
- * @param {UploadMetadata[]} param0.uploads
- * @param {MissingCRD[]} param0.missingUploads
- * @param {*} param0.removeUpload
- * @param {*} param0.removeAllUploads
  */
-function UploaderObjectList({ uploads, missingUploads, removeUpload, removeAllUploads }) {
+const UploaderObjectList: React.FC<UploaderObjectListProps> = ({ uploads, missingUploads, removeUpload, removeAllUploads }) => {
   if (uploads.length === 0 && missingUploads.length === 0) {
     return null;
   }
@@ -35,7 +38,7 @@ function UploaderObjectList({ uploads, missingUploads, removeUpload, removeAllUp
             xs={3}
             className={`oh-operator-editor-upload__uploads__row__name ${
               upload.overwritten ? 'upload__overwritten' : ''
-            }`}
+              }`}
             title={upload.name}
           >
             {upload.name}
@@ -76,21 +79,8 @@ function UploaderObjectList({ uploads, missingUploads, removeUpload, removeAllUp
 }
 
 UploaderObjectList.propTypes = {
-  uploads: PropTypes.arrayOf(
-    PropTypes.shape({
-      fileName: PropTypes.string.isRequired,
-      data: PropTypes.object,
-      errored: PropTypes.bool.isRequired,
-      status: PropTypes.string.isRequired,
-      overwritten: PropTypes.bool.isRequired,
-      id: PropTypes.string.isRequired
-    })
-  ).isRequired,
-  missingUploads: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired
-    })
-  ),
+  uploads: PropTypes.arrayOf(PropTypes.any).isRequired,
+  missingUploads: PropTypes.arrayOf(PropTypes.any).isRequired,
   removeUpload: PropTypes.func.isRequired,
   removeAllUploads: PropTypes.func.isRequired
 };

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash-es';
 
 import { noop } from '../../../common/helpers';
-import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
 import { getFieldValueError, containsErrors } from '../../../utils/operatorValidation';
 import { operatorObjectDescriptions } from '../../../utils/operatorDescriptors';

@@ -450,9 +450,13 @@ export const operatorFieldValidators = {
 
 export const operatorPackageFieldValidators = {
   name: {
-    required: true
+    required: true,
+    regex: nameRegExp,
+    regexErrorMessage: nameRegExpMessage,
   },
   channel: {
-    required: true
+    required: true,
+    regex: nameRegExp,
+    regexErrorMessage: nameRegExpMessage,
   }
 };

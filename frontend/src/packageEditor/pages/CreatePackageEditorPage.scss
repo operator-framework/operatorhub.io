@@ -1,0 +1,38 @@
+#oh-operator-package-editor-page {
+  .oh-operator-package-editor-page {
+    &__button-bar {
+      display: block;
+
+      .oh-button-secondary {
+        margin-left: 10px;
+      }
+    }
+
+    &__tab-pane {
+      margin: 20px 0 30px;
+    }
+  }
+
+  #oh-operator-package-editor-tabs {
+    border-top: 1px solid #eaeaea;
+    margin-top: 40px;
+
+    > li > a {
+      padding: 20px;
+
+      &:before {
+        width: 100%;
+      }
+    }
+  }
+
+  .oh-operator-editor-page {
+    &__title-area {
+      padding-bottom: 0;
+    }
+
+    &__page-area {
+      padding-top: 10px;
+    }
+  }
+}

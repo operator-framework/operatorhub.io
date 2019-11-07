@@ -4,11 +4,24 @@ import PropTypes from 'prop-types';
 
 import { advancedUploadAvailable } from '../../../common/helpers';
 
+export interface UploaderDropAreaProps {
+  showUploadUrl: (e: React.MouseEvent) => void
+  doUploadFile: (files: FileList | null) => void
+}
+
+interface UploaderDropAreaState {
+  dragOver: boolean
+  advancedUpload: boolean
+}
+
 /**
  * Drop area for uploading files by draging them in
  */
-class UploaderDropArea extends React.Component {
-  state = {
+class UploaderDropArea extends React.PureComponent<UploaderDropAreaProps, UploaderDropAreaState> {
+
+  static propTypes;
+
+  state: UploaderDropAreaState = {
     dragOver: false,
     advancedUpload: false
   };
@@ -20,17 +33,17 @@ class UploaderDropArea extends React.Component {
   /**
    * Visually notify user where to drop files on drag over
    */
-  highlightOnDragEnter = e => {
+  highlightOnDragEnter = (e: React.DragEvent) => {
     this.handleDragDropEvent(e);
     this.setState({ dragOver: true });
   };
 
-  clearOnDragLeave = e => {
+  clearOnDragLeave = (e: React.DragEvent) => {
     this.handleDragDropEvent(e);
     this.setState({ dragOver: false });
   };
 
-  handleDragDropEvent = e => {
+  handleDragDropEvent = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
@@ -38,7 +51,7 @@ class UploaderDropArea extends React.Component {
   /**
    * Upload files on drop
    */
-  onDropEvent = e => {
+  onDropEvent = (e: React.DragEvent) => {
     const { doUploadFile } = this.props;
 
     this.handleDragDropEvent(e);
@@ -49,16 +62,6 @@ class UploaderDropArea extends React.Component {
     const { showUploadUrl, doUploadFile } = this.props;
     const { dragOver, advancedUpload } = this.state;
 
-    const onDragEvents = {
-      onDrag: this.handleDragDropEvent,
-      onDragStart: this.handleDragDropEvent,
-      onDragEnd: this.handleDragDropEvent,
-      onDragOver: this.handleDragDropEvent,
-      onDragEnter: this.handleDragDropEvent,
-      onDragLeave: this.handleDragDropEvent,
-      onDrop: this.onDropEvent
-    };
-
     const uploadFileClasses = classNames({
       'oh-file-upload_empty-state': true,
       'oh-drag-drop-box': advancedUpload,
@@ -67,26 +70,32 @@ class UploaderDropArea extends React.Component {
 
     return (
       <div className="oh-file-upload__form">
-        <div className={uploadFileClasses} {...onDragEvents}>
+        <div className={uploadFileClasses}>
           <form
             className="oh-drag-drop-box__upload-file-box"
             method="post"
             action=""
             encType="multipart/form-data"
-            {...onDragEvents}
+            onDrag={this.handleDragDropEvent}
+            onDragStart={this.handleDragDropEvent}
+            onDragEnd={this.handleDragDropEvent}
             onDragOver={this.highlightOnDragEnter}
             onDragEnter={this.highlightOnDragEnter}
             onDragLeave={this.clearOnDragLeave}
+            onDrop={this.onDropEvent}
           >
-            <input
-              className="oh-drag-drop-box__upload-file-box__file"
-              type="file"
-              name="fileModalUploadFile"
-              id="fileModalUploadFile"
-              multiple
-              accept=".yaml"
-              onChange={e => doUploadFile(e.target.files)}
-            />
+            {
+              // @ts-ignore            
+              <input
+                className="oh-drag-drop-box__upload-file-box__file"
+                type="file"
+                webkitdirectory=" webkitdirectory"
+                name="fileModalUploadFile"
+                id="fileModalUploadFile"
+                multiple
+                onChange={e => doUploadFile(e.target.files)}
+              />
+            }
             {advancedUpload ? 'Drag your file here,' : ''}
             <label htmlFor="fileModalUploadFile">
               <a className="oh-drag-drop-box__upload-file-box__link">{advancedUpload ? 'browse' : 'Browse'}</a>

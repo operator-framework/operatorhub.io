@@ -114,6 +114,12 @@ const OperatorPackagePage = asyncComponent(() =>
   )
 );
 
+const OperatorPackageEditorPage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPackageEditorPage" */ './packageEditor/pages/CreatePackageEditorPage').then(
+    module => module.default
+  )
+);
+
 class App extends React.Component {
   static propTypes;
 
@@ -167,6 +173,10 @@ class App extends React.Component {
             <Route path="/bundle/install-modes" component={OperatorInstallModesPage} />
             <Route path="/bundle/yaml" component={OperatorYamlEditorPage} />
             <Route path="/bundle" component={OperatorBundlePage} />
+
+            <Route path="/packages" component={OperatorPackageEditorPage} />
+            
+
             <Route path="/getting-started" component={GettingStarted} />
             <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
             <Route path="/contribute" component={Contribute} />

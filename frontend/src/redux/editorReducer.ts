@@ -2,6 +2,7 @@ import { reduxConstants } from './constants';
 import { getAutoSavedOperatorData, getDefaultOperator } from '../utils/operatorUtils';
 import { Operator, OperatorPackage } from '../utils/operatorTypes';
 import { ISectionFields, EDITOR_STATUS } from '../utils/constants';
+import { UploadMetadata } from '../components/editor/manfiestUploader/UploaderTypes';
 
 export interface EditorReducerState {
   operator: Operator

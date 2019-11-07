@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash-es';
 
 import { transformPathedName, noop } from '../../../common/helpers';
-import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
 import { getUpdatedFormErrors } from '../bundlePageUtils';
 import {
   setSectionStatusAction,
