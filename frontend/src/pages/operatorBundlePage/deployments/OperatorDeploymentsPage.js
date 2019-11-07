@@ -7,7 +7,7 @@ import _ from 'lodash-es';
 import { noop } from '../../../common/helpers';
 import { getFieldValueError, containsErrors } from '../../../utils/operatorValidation';
 
-import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
 import { getUpdatedFormErrors } from '../bundlePageUtils';
 

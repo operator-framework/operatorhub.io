@@ -7,7 +7,7 @@ import _ from 'lodash-es';
 import { noop } from '../../common/helpers';
 import { getFieldValueError } from '../../utils/operatorValidation';
 import InstallModeEditor from '../../components/editor/InstallModeEditor';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
+import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import { storeEditorFormErrorsAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
 import { sectionsFields } from '../../utils/constants';
 

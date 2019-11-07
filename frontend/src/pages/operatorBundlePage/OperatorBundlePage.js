@@ -9,7 +9,7 @@ import { reduxConstants } from '../../redux/constants';
 import EditorSection from '../../components/editor/EditorSection';
 import ManifestUploader from '../../components/editor/manfiestUploader/ManifestUploader';
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
+import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
 import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../redux/actions/editorActions';

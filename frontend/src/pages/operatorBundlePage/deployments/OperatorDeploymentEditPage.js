@@ -6,7 +6,7 @@ import _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
 import { noop } from '../../../common/helpers';
-import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
 import YamlViewer from '../../../components/YamlViewer';
 import { getDefaultDeployment, isDeploymentDefault } from '../../../utils/operatorUtils';
 import { getValueError } from '../../../utils/operatorValidation';

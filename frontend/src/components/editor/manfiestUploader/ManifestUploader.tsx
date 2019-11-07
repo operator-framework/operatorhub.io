@@ -14,15 +14,7 @@ import {
   getMissingCrdUploads,
   getUpdatedFormErrors
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
-import {
-  getDefaultOnwedCRD,
-  isDeploymentDefault,
-  isOwnedCrdDefault,
-  convertExampleYamlToObj,
-  getDefaultAlmExample,
-  isAlmExampleDefault,
-  getDefaultOwnedCRDResources
-} from '../../../utils/operatorUtils';
+import * as operatorUtils from '../../../utils/operatorUtils';
 import { validateOperatorPackage } from '../../../utils/operatorValidation';
 import { EDITOR_STATUS, sectionsFields } from '../../../utils/constants';
 import * as actions from '../../../redux/actions/editorActions';
@@ -30,20 +22,43 @@ import * as utils from './UploaderUtils';
 
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
+import { Operator, OperatorPackage, CustomResourceFile, OperatorOwnedCrd, CustomResourceTemplateFile } from '../../../utils/operatorTypes';
+import { UploadMetadata, KubernetesRoleObject, KubernetsRoleBindingObject } from './UploaderTypes';
 
 const validFileTypesRegExp = new RegExp(`(${['.yaml'].join('|').replace(/\./g, '\\.')})$`, 'i');
 
-class ManifestUploader extends React.Component {
-  state = {
+export interface ManifestUploaderProps {
+  operator: Operator,
+  operatorPackage: OperatorPackage,
+  uploads: UploadMetadata[],
+  showErrorModal: (error: string) => void
+  setSectionStatus: typeof actions.setSectionStatusAction
+  setAllSectionsStatus: typeof actions.setBatchSectionsStatusAction,
+  updateOperatorPackage: typeof actions.updateOperatorPackageAction,
+  setUploads: typeof actions.setUploadsAction,
+  storeEditorOperator: typeof actions.storeEditorOperatorAction
+}
+
+interface ManifestUploaderState {
+  uploadUrlShown: boolean
+  uploadExpanded: boolean
+}
+
+class ManifestUploader extends React.PureComponent<ManifestUploaderProps, ManifestUploaderState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: ManifestUploaderState = {
     uploadUrlShown: false,
     uploadExpanded: true
   };
 
   /**
    * Parse uploaded file
-   * @param {UploadMetadata} upload upload metadata object
+   * @param upload upload metadata object
    */
-  processUploadedObject = upload => {
+  processUploadedObject = (upload: UploadMetadata) => {
     const typeAndName = utils.getObjectNameAndType(upload.data || {});
 
     if (!typeAndName) {
@@ -78,11 +93,11 @@ class ManifestUploader extends React.Component {
 
   /**
    * Converts file content into separate objects after upload
-   * @param {string} fileContent yaml string to parse
-   * @param {string} fileName
+   * @param  fileContent yaml string to parse
+   * @param  fileName
    */
-  splitUploadedFileToObjects = (fileContent, fileName) => {
-    let parsedObjects = [];
+  splitUploadedFileToObjects = (fileContent: string, fileName: string) => {
+    let parsedObjects: any[] = [];
 
     try {
       parsedObjects = safeLoadAll(fileContent);
@@ -128,11 +143,9 @@ class ManifestUploader extends React.Component {
 
   /**
    * Parse CRD file and create Owned CRD and relevant alm example (cr template) for it
-   * @param {CustomResourceFile} parsedFile
    */
-  processCrdFile = parsedFile => {
+  processCrdFile = (parsedFile: CustomResourceFile) => {
     const { operator, storeEditorOperator } = this.props;
-    /** @type {Operator} */
     const newOperator = _.cloneDeep(operator);
 
     const specDescriptors = Object.keys(
@@ -141,27 +154,25 @@ class ManifestUploader extends React.Component {
     const statusDescriptors = Object.keys(
       _.get(parsedFile, 'spec.validation.openAPIV3Schema.properties.status.properties', {})
     );
-    const kind = _.get(parsedFile, 'spec.names.kind', '');
+    const kind: string = _.get(parsedFile, 'spec.names.kind', '');
 
-    /** @type {OperatorOwnedCrd} */
-    const uploadedCrd = {
+    const uploadedCrd: OperatorOwnedCrd = {
       name: _.get(parsedFile, 'metadata.name', ''),
       displayName: _.startCase(kind),
       kind,
       version: _.get(parsedFile, 'spec.versions[0].name') || _.get(parsedFile, 'spec.version', ''),
       description: _.startCase(kind),
-      resources: getDefaultOwnedCRDResources(),
+      resources: operatorUtils.getDefaultOwnedCRDResources(),
       specDescriptors: specDescriptors.map(utils.generateDescriptorFromPath),
       statusDescriptors: statusDescriptors.map(utils.generateDescriptorFromPath)
     };
     // use kind as display name - user can customize it later on
     uploadedCrd.displayName = uploadedCrd.kind;
 
-    /** @type {OperatorOwnedCrd[]} */
-    const ownedCrds = _.get(newOperator, sectionsFields['owned-crds'], []);
+    const ownedCrds: OperatorOwnedCrd[] = _.get(newOperator, sectionsFields['owned-crds'], []);
     let crd = ownedCrds.find(owned => owned.kind === uploadedCrd.kind);
     const examples = _.get(operator, 'metadata.annotations.alm-examples');
-    const crdTemplates = convertExampleYamlToObj(examples);
+    const crdTemplates = operatorUtils.convertExampleYamlToObj(examples);
 
     if (crd) {
       console.log('Found existing CRD. Not overriding it.');
@@ -173,10 +184,10 @@ class ManifestUploader extends React.Component {
         ownedCrds[index] = _.merge({}, crd, uploadedCrd);
       }
     } else {
-      crd = _.merge(getDefaultOnwedCRD(), uploadedCrd);
+      crd = _.merge(operatorUtils.getDefaultOnwedCRD(), uploadedCrd);
 
       // replace default crd example
-      if (ownedCrds.length === 1 && isOwnedCrdDefault(ownedCrds[0])) {
+      if (ownedCrds.length === 1 && operatorUtils.isOwnedCrdDefault(ownedCrds[0])) {
         ownedCrds[0] = crd;
       } else {
         ownedCrds.push(crd);
@@ -185,7 +196,7 @@ class ManifestUploader extends React.Component {
 
     const crdTemplate = this.findCustomResourceTemplate(crdTemplates, uploadedCrd.kind);
 
-    if (crdTemplates.length === 1 && isAlmExampleDefault(crdTemplates[0])) {
+    if (crdTemplates.length === 1 && operatorUtils.isAlmExampleDefault(crdTemplates[0])) {
       crdTemplates[0] = crdTemplate;
     } else {
       crdTemplates.push(crdTemplate);
@@ -200,13 +211,10 @@ class ManifestUploader extends React.Component {
 
   /**
    * Find and provide relevant CR Template matching uploaded CRD
-   * @param {CustomResourceTemplateFile[]} crdTemplates
-   * @param {string} kind
    */
-  findCustomResourceTemplate = (crdTemplates, kind) => {
+  findCustomResourceTemplate = (crdTemplates: CustomResourceTemplateFile[], kind: string) => {
     const { uploads } = this.props;
 
-    /** @type {UploadMetadata|null} */
     const matchingCrdTemplateUpload = uploads.find(upload => upload.type === kind);
 
     if (matchingCrdTemplateUpload) {
@@ -218,16 +226,15 @@ class ManifestUploader extends React.Component {
     if (crdTemplate) {
       return crdTemplate;
     }
-    crdTemplate = getDefaultAlmExample();
+    crdTemplate = operatorUtils.getDefaultAlmExample();
     crdTemplate.kind = kind;
     return crdTemplate;
   };
 
   /**
    * Extract ALM example out of CR template if relevant CRD already exists
-   * @param {CustomResourceTemplateFile} parsedFile
    */
-  processCrTemplate = parsedFile => {
+  processCrTemplate = (parsedFile: CustomResourceTemplateFile) => {
     const { operator } = this.props;
 
     const crds = _.get(operator, sectionsFields['owned-crds'], []);
@@ -240,7 +247,6 @@ class ManifestUploader extends React.Component {
 
   /**
    * Pre-process CSV file and store it redux
-   * @param {*} parsedFile
    */
   processDeployment = parsedFile => {
     const { operator, storeEditorOperator } = this.props;
@@ -256,7 +262,7 @@ class ManifestUploader extends React.Component {
       };
 
       // replace default deployment
-      if (deployments.length === 1 && isDeploymentDefault(deployments[0])) {
+      if (deployments.length === 1 && operatorUtils.isDeploymentDefault(deployments[0])) {
         deployments = [newDeployment];
       } else {
         deployments.push(newDeployment);
@@ -275,12 +281,10 @@ class ManifestUploader extends React.Component {
   /**
    * Checks latest permission related object and decide
    * if we have enough uploaded data to create from it permission record
-   * @param {UploadMetadata} upload
    */
-  processPermissionObject = upload => {
+  processPermissionObject = (upload: UploadMetadata) => {
     const { uploads } = this.props;
 
-    /** @type {UploadMetadata[]} uploadsWithRecent */
     const uploadsWithRecent = uploads.concat(upload);
 
     // ensure that obejcts share namespace
@@ -315,10 +319,8 @@ class ManifestUploader extends React.Component {
 
   /**
    * Set permissions from collected kubernets objects
-   * @param {KubernetesRoleObject} roleObject
-   * @param {KubernetsRoleBindingObject} roleBindingObject
    */
-  setPermissions = (roleObject, roleBindingObject) => {
+  setPermissions = (roleObject: KubernetesRoleObject, roleBindingObject: KubernetsRoleBindingObject) => {
     const { operator, storeEditorOperator } = this.props;
     const newOperator = _.cloneDeep(operator);
 
@@ -367,7 +369,6 @@ class ManifestUploader extends React.Component {
 
   /**
    * Pre-process CSV file and store it redux
-   * @param {*} parsedFile
    */
   processCsvFile = parsedFile => {
     const { operator, storeEditorOperator } = this.props;
@@ -406,20 +407,19 @@ class ManifestUploader extends React.Component {
 
   /**
    * Proccess uploaded custom resource example file into ALM examples
-   * @param {CustomResourceTemplateFile} template
    */
-  addCustomResourceExampleTemplate = template => {
+  addCustomResourceExampleTemplate = (template: CustomResourceTemplateFile) => {
     const { operator, storeEditorOperator } = this.props;
     const newOperator = _.cloneDeep(operator);
 
     const almExamples = _.get(newOperator, 'metadata.annotations.alm-examples', []);
-    const crdExamples = convertExampleYamlToObj(almExamples);
+    const crdExamples = operatorUtils.convertExampleYamlToObj(almExamples);
 
     const exampleIndex = crdExamples.findIndex(example => example.kind === template.kind);
 
     if (exampleIndex === -1) {
       // override default template
-      if (crdExamples.length === 1 && isAlmExampleDefault(crdExamples[0])) {
+      if (crdExamples.length === 1 && operatorUtils.isAlmExampleDefault(crdExamples[0])) {
         crdExamples[0] = template;
       } else {
         crdExamples.push(template);
@@ -436,14 +436,14 @@ class ManifestUploader extends React.Component {
 
   /**
    * Check defined editor sections and mark them for review if are affected by upload
-   * @param {Operator} operator operator state before upload
-   * @param {Operator} merged operator state after upload is applied
-   * @param {Operator} uploaded actual uploaded operator
+   * @param  operator operator state before upload
+   * @param  merged operator state after upload is applied
+   * @param  uploaded actual uploaded operator
    */
-  compareSections = (operator, merged, uploaded) => {
-    const { setAllSectionsStatusAction } = this.props;
+  compareSections = (operator: Operator, merged: Operator, uploaded: Operator) => {
+    const { setAllSectionsStatus } = this.props;
 
-    const updatedSectionsStatus = {};
+    const updatedSectionsStatus: Record<EditorSectionNames, keyof typeof EDITOR_STATUS> = {} as any;
 
     Object.keys(sectionsFields).forEach(sectionName => {
       const fields = sectionsFields[sectionName];
@@ -470,16 +470,14 @@ class ManifestUploader extends React.Component {
 
     if (Object.keys(updatedSectionsStatus).length > 0) {
       // section has errors / missing content so draw attention
-      setAllSectionsStatusAction(updatedSectionsStatus);
+      setAllSectionsStatus(updatedSectionsStatus);
     }
   };
 
   /**
    * Validates section and updates errors
-   * @param {Operator} operator
-   * @param {EditorSectionNames} sectionName
    */
-  validateSection = (operator, sectionName) => {
+  validateSection = (operator: Operator, sectionName: EditorSectionNames) => {
     const { setSectionStatus } = this.props;
     const fields = sectionsFields[sectionName];
 
@@ -541,7 +539,7 @@ class ManifestUploader extends React.Component {
       reader.onload = () => {
         const { uploads, setUploads } = this.props;
 
-        const upload = this.splitUploadedFileToObjects(reader.result, fileToUpload.name);
+        const upload = this.splitUploadedFileToObjects(reader.result as string, fileToUpload.name);
         const newUploads = utils.markReplacedObjects([...uploads, ...upload]);
 
         setUploads(newUploads);
@@ -549,8 +547,9 @@ class ManifestUploader extends React.Component {
 
       reader.onerror = () => {
         const { uploads, setUploads } = this.props;
+        const errorMsg = reader.error && reader.error.message || '';
 
-        const upload = utils.createErroredUpload(fileToUpload.name, reader.error.message);
+        const upload = utils.createErroredUpload(fileToUpload.name, errorMsg);
 
         // skip finding replaced files as this file errored
 
@@ -576,10 +575,8 @@ class ManifestUploader extends React.Component {
 
   /**
    * Remove specific upload by its index
-   * @param {*} e
-   * @param {number} id index (id) of the upload to remove
    */
-  removeUpload = (e, id) => {
+  removeUpload = (e: React.MouseEvent, id: string) => {
     const { uploads, setUploads } = this.props;
 
     e.preventDefault();
@@ -596,7 +593,7 @@ class ManifestUploader extends React.Component {
     setUploads(newUploads);
   };
 
-  showUploadUrl = e => {
+  showUploadUrl = (e: React.MouseEvent) => {
     e.preventDefault();
     this.setState({ uploadUrlShown: true });
   };
@@ -665,7 +662,7 @@ ManifestUploader.propTypes = {
   uploads: PropTypes.array,
   showErrorModal: PropTypes.func,
   setSectionStatus: PropTypes.func,
-  setAllSectionsStatusAction: PropTypes.func,
+  setAllSectionsStatus: PropTypes.func,
   updateOperatorPackage: PropTypes.func,
   setUploads: PropTypes.func,
   storeEditorOperator: PropTypes.func
@@ -677,7 +674,7 @@ ManifestUploader.defaultProps = {
   uploads: [],
   showErrorModal: noop,
   setSectionStatus: noop,
-  setAllSectionsStatusAction: noop,
+  setAllSectionsStatus: noop,
   updateOperatorPackage: noop,
   setUploads: noop,
   storeEditorOperator: noop
@@ -694,7 +691,7 @@ const mapDispatchToProps = dispatch => ({
         confirmButtonText: 'OK'
       }),
       setSectionStatus: actions.setSectionStatusAction,
-      setAllSectionsStatusAction: actions.setBatchSectionsStatusAction,
+      setAllSectionsStatus: actions.setBatchSectionsStatusAction,
       updateOperatorPackage: actions.updateOperatorPackageAction,
       setUploads: actions.setUploadsAction,
       storeEditorOperator: actions.storeEditorOperatorAction

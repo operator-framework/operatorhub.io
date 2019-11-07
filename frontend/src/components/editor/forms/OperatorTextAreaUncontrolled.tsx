@@ -6,19 +6,16 @@ import { operatorFieldPlaceholders, operatorFieldDescriptions } from '../../../u
 import OperatorInputWrapper from './OperatorInputWrapper';
 import { noop } from '../../../common/helpers';
 import { operatorFieldValidators } from '../../../utils/operatorValidators';
+import { SharedOperatorInputProps } from './OperatorFormTypes';
+
+export interface OperatorTextAreaUncontrolledProps extends SharedOperatorInputProps {
+  defaultValue: string
+}
 
 /**
  * Create input wrapped into Operator Editor styling
- * @param {object} param0
- * @param {string} param0.title
- * @param {string} param0.field
- * @param {string} param0.defaultValue
- * @param {*} param0.formErrors
- * @param {import('./OperatorInputWrapper').CommitOperatorFieldFromInputCallback} param0.commitField
- * @param {Function=} [param0.refCallback]
- * @param {*} [param0.descriptions]
  */
-const OperatorTextAreaUncontrolled = ({
+const OperatorTextAreaUncontrolled: React.FC<OperatorTextAreaUncontrolledProps> = ({
   title,
   field,
   defaultValue,
