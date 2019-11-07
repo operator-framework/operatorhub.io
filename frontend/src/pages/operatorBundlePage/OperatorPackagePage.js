@@ -6,7 +6,7 @@ import _ from 'lodash-es';
 
 import { noop } from '../../common/helpers';
 
-import OperatorEditorSubPage from './OperatorEditorSubPage';
+import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import { validateOperatorPackageField, validateOperatorPackage } from '../../utils/operatorValidation';
 import { setSectionStatusAction, updateOperatorPackageAction } from '../../redux/actions/editorActions';
 import OperatorInput from '../../components/editor/forms/OperatorInput';

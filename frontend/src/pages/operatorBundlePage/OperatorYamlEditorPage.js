@@ -8,7 +8,7 @@ import { noop } from '../../common/helpers';
 import { reduxConstants } from '../../redux/constants';
 import YamlViewer from '../../components/YamlViewer';
 import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
+import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { isDefaultOperator } from '../../utils/operatorUtils';
 import { resetEditorOperatorAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';

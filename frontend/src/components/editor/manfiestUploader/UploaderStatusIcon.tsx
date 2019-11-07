@@ -8,10 +8,15 @@ export const IconStatus = {
   MISSING: 'upload'
 };
 
+export interface UploaderStatusIconProps{
+  status: string
+  text: string
+}
+
 /**
  * Upload result icon with type of 'success' or 'failure' or 'missing
  */
-function UploaderStatusIcon({ status, text }) {
+const  UploaderStatusIcon: React.FC<UploaderStatusIconProps> = ({ status, text }) => {
   return (
     <span className="oh-operator-editor-upload__uploads__status">
       <Icon type="fa" name={status} />

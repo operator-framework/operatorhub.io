@@ -10,7 +10,7 @@ import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
 import ImageEditor from '../../components/editor/ImageEditor';
 import { getUpdatedFormErrors } from './bundlePageUtils';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
+import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import {
   setSectionStatusAction,
