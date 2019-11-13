@@ -1,17 +1,17 @@
 import React from 'react';
-import OperatorInputWrapper from '../../components/editor/forms/OperatorInputWrapper';
-import { operatorPackageFieldValidators } from '../../utils/operatorValidators';
-import { validateOperatorPackageField } from '../../utils/operatorValidation';
+
+import OperatorInputWrapper from '../../editor/forms/OperatorInputWrapper';
+import { validateOperatorPackageField } from '../../../utils/operatorValidation';
 
 export interface CreateNewOperatorPackageSectionProps {
-    onSectionValidatedCallback: (isValid: boolean) => void
+    onSectionValidatedCallback: (isValid: boolean, packageName: string, channelName: string) => void
 }
 
 interface CreateNewOperatorPackageSectionState {
     packageName: string
     packageNameValid: boolean
     defaultChannel: string
-    defaultChannelValid: false,
+    defaultChannelValid: boolean,
     formErrors: any
 }
 
@@ -21,7 +21,7 @@ class CreateNewOperatorPackageSection extends React.PureComponent<CreateNewOpera
         packageName: '',
         packageNameValid: false,
         defaultChannel: 'stable',
-        defaultChannelValid: false,
+        defaultChannelValid: true,
         formErrors: {}
     }
 
@@ -30,23 +30,29 @@ class CreateNewOperatorPackageSection extends React.PureComponent<CreateNewOpera
         defaultChannel: 'Channels allow you to specify different upgrade paths for different users (e.g. alpha vs. stable).'
     }
 
-  
+
 
     commitField = (field: string, value: string) => {
-        const {onSectionValidatedCallback} = this.props;
-        const {formErrors} = this.state;
+        const { onSectionValidatedCallback } = this.props;
+        const { formErrors } = this.state;
+        const validationKey: 'defaultChannelValid' | 'packageNameValid' = field + 'Valid' as any;
 
         // reused package name validation as we follow same rules here
         const error: string | null = validateOperatorPackageField(value, 'name');
-        console.log(error);      
 
-        this.setState({ formErrors: {
-            ...formErrors,
-            [field + 'Valid']: typeof error !== 'string',
-            [field]: error
-        }});
+        // @ts-ignore
+        this.setState({
+            formErrors: {
+                ...formErrors,
+                [field]: error
+            },
+            [validationKey]: typeof error !== 'string'
 
-        onSectionValidatedCallback(this.state.defaultChannelValid && this.state.packageNameValid);      
+        }, () => {
+            const {packageName, packageNameValid, defaultChannel, defaultChannelValid } = this.state;
+            const isValid = defaultChannelValid && packageNameValid;
+            onSectionValidatedCallback(isValid, packageName, defaultChannel);
+        });
     }
 
     updateField = (field: string, value: string) => {

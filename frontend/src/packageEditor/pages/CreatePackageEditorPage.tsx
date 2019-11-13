@@ -1,29 +1,38 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { History } from 'history';
-import { Nav, NavItem, TabContainer } from 'patternfly-react';
 
 import OperatorEditorSubPage from '../../pages/operatorBundlePage/subPage/OperatorEditorSubPage';
 
-import './CreatePackageEditorPage.scss';
-import OperatorInput from '../../components/editor/forms/OperatorInput';
-import OperatorInputWrapper from '../../components/editor/forms/OperatorInputWrapper';
-import CreateNewOperatorPackageSection from './CreateNewPackageSection';
+import { CreatePackagePageButtonBar, CreatePackagePageHeader, CreateNewPackageSection } from '../../components/packageEditor/createPackage';
+import { bindActionCreators } from 'redux';
+import { resetEditorOperatorAction } from '../../redux/actions';
+import OperatorPackageUploader  from '../../components/uploader/package/PackageUploader';
 
 export interface OperatorPackagePageProps {
     history: History
 }
 
+const OperatorPackagePageActions = {
+    resetEditorOperator: resetEditorOperatorAction
+}
+
 interface OperatorPackageEditorPageState {
     activeTab: number
     pageIsValid: boolean
+    packageName: string
+    defaultChannelName: string
 }
 
 class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageProps, OperatorPackageEditorPageState>{
 
+    props: OperatorPackagePageProps & typeof OperatorPackagePageActions;
+
     state: OperatorPackageEditorPageState = {
-        activeTab: 1,
-        pageIsValid: true
+        activeTab: 2,
+        pageIsValid: false,
+        packageName: '',
+        defaultChannelName: ''
     }
 
     title = 'Create your Operator Package';
@@ -33,11 +42,18 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
         these forms as well.`
 
 
-    onPackageCreate(e: React.MouseEvent) {
+    onPackageCreate = (e: React.MouseEvent) => {
+        const { history, resetEditorOperator } = this.props;
+        const { pageIsValid, defaultChannelName, packageName } = this.state;
         e.preventDefault();
+
+        if (pageIsValid) {
+            resetEditorOperator();
+            history.push(`/bundle/${packageName}/${defaultChannelName}`)
+        }
     }
 
-    onPackageClear(e: React.MouseEvent) {
+    onPackageClear = (e: React.MouseEvent) => {
         e.preventDefault();
     }
 
@@ -45,41 +61,18 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
         this.setState({ activeTab, pageIsValid: false });
     }
 
-    renderButtonBar() {
-        const { pageIsValid } = this.state;
+    onNewPackageValidated = (pageIsValid: boolean, packageName: string, defaultChannelName: string) => {
+        this.setState({
+            pageIsValid,
+            packageName,
+            defaultChannelName
+        });
+    };
 
-        return (
-            <div className="oh-operator-package-editor-page__button-bar">
-                <button className="oh-button oh-button-primary" disabled={pageIsValid} onClick={this.onPackageCreate}>
-                    Create
-            </button>
-                <button className="oh-button oh-button-secondary" onClick={this.onPackageClear}>
-                    Clear
-          </button>
-            </div>
-        )
-    }
-
-    renderHeader() {
-        return (
-            <React.Fragment>
-                <h1>{this.title}</h1>
-                <p>
-                    {this.desc}
-                </p>
-                <TabContainer id="oh-operator-package-editor-tabs" defaultActiveKey={1}>
-                    <Nav bsClass="nav nav-tabs nav-tabs-pf" onSelect={this.onNavSelect}>
-                        <NavItem eventKey={1}>Create from Scratch</NavItem>
-                        <NavItem eventKey={2}>Create from Existing Operator Package</NavItem>
-                    </Nav>
-                </TabContainer>
-            </React.Fragment>
-        );
-    }
 
     render() {
         const { history } = this.props;
-        const { activeTab } = this.state;
+        const { activeTab, pageIsValid } = this.state;
 
         return (
             <OperatorEditorSubPage
@@ -87,37 +80,49 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
                 title="Create your Operator Package"
                 field=""
                 history={history}
-                description={this.desc}
+                description=""
                 pageErrors={false}
-                buttonBar={this.renderButtonBar()}
-                header={this.renderHeader()}
+                buttonBar={
+                    <CreatePackagePageButtonBar
+                        valid={pageIsValid}
+                        onCreate={this.onPackageCreate}
+                        onClear={this.onPackageClear}
+                    />
+                }
+                header={
+                    <CreatePackagePageHeader
+                        title={this.title}
+                        desc={this.desc}
+                        activeTab={1}
+                        onNavSelect={this.onNavSelect}
+                    />
+                }
+                validatePage={() => true}
             >
                 <div className="oh-operator-package-editor-page__tab-pane">
                     {activeTab === 1 &&
                         <div className="oh-operator-package-editor-page__tab-content">
-                            <CreateNewOperatorPackageSection
-                                onSectionValidatedCallback={pageIsValid => {
-                                    this.setState({ pageIsValid})
-                                }}
+                            <CreateNewPackageSection
+                                onSectionValidatedCallback={this.onNewPackageValidated}
                             />
                         </div>
                     }
                     {activeTab === 2 &&
                         <div className="oh-operator-package-editor-page__tab-content">
                             <div className="oh-operator-editor-form__field-section">
-
+                                <OperatorPackageUploader  createFromScratch={() => this.onNavSelect(1)} />
                             </div>
                         </div>
                     }
                 </div>
-
             </OperatorEditorSubPage>
         );
     }
 }
 
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = dispatch => ({
+    ...bindActionCreators(OperatorPackagePageActions, dispatch)
+});
 
-const mapStateToProps = state => ({});
 
-export default connect(mapStateToProps, mapDispatchToProps)(OperatorPackageEditorPage);
+export default connect(null, mapDispatchToProps)(OperatorPackageEditorPage);

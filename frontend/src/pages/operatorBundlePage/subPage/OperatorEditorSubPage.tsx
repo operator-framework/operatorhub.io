@@ -9,7 +9,7 @@ import Page from '../../../components/page/Page';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
 import { setSectionStatusAction, storeKeywordSearchAction } from '../../../redux/actions';
 import { reduxConstants } from '../../../redux';
-import { EDITOR_STATUS } from '../../../utils/constants';
+import { EDITOR_STATUS, EditorSectionNames } from '../../../utils/constants';
 import EditorButtonBar from './EditorButtonBar';
 import EditorBreadcrumbs from './EditorBreadCrumbs';
 
@@ -25,7 +25,7 @@ export interface OperatorEditorSubPageProps {
   tertiary?: boolean
   lastPage?: string
   lastPageTitle?: string
-  section: EditorSectionNames
+  section?: EditorSectionNames
   pageErrors: boolean
   validatePage: () => boolean
   sectionStatus: keyof typeof EDITOR_STATUS
@@ -63,9 +63,9 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     window.addEventListener('resize', this.onWindowResize);
 
     // do not validate pristine page
-    if (sectionStatus[section] !== EDITOR_STATUS.empty) {
+    if (section && sectionStatus[section] !== EDITOR_STATUS.empty) {
       // validate page to display errors when opened
-      if (section && validatePage() === false) {
+      if (validatePage() === false) {
         setSectionStatus(section, EDITOR_STATUS.errors);
       }
     }
@@ -87,6 +87,11 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
 
   allSet = e => {
     const { validatePage, setSectionStatus, section, secondary, showPageErrorsMessage } = this.props;
+
+    // skip if no section exists - user has to implement own button bar with validation
+    if(!section){
+      return;
+    }
 
     if (validatePage() === false) {
       showPageErrorsMessage();

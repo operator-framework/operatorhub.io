@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Icon } from 'patternfly-react';
-import UploaderStatusIcon, { IconStatus } from './UploaderStatusIcon';
-import { UploadMetadata, MissingCRD } from './UploaderTypes';
+import UploaderStatusIcon, { IconStatus } from '../UploaderStatusIcon';
+import { UploadMetadata, MissingCRD } from '../UploaderTypes';
 
 export interface UploaderObjectListProps {
   uploads: UploadMetadata[]
