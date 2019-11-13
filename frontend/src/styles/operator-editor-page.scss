@@ -546,6 +546,14 @@
           margin-right: 4px;
         }
       }
+      &__folder,
+      &__file {
+        .fa,
+        .pficon {
+          margin-right: 8px;
+          color: $oh-color-primary;
+        }
+      }
     }
   }
 

@@ -30,21 +30,21 @@ interface YamlViewerDispatch {
 
 export type YamlViewerProps = YamlViewerDispatch & {
   yaml: string
-  minHeight: number
-  editable: boolean
-  isPreview: boolean
-  saveButtonText: string
-  onSave: (documentText: string) => void
-  allowClear: boolean
-  showRemove: boolean
-  onRemove: (e: React.MouseEvent) => void
-  onChange: (yaml: string) => void
-  onBlur: (text: string) => void
-  onClear: () => string
-  error: React.ReactNode[] | string
-  initYaml: string
-  initYamlChanged: boolean
-  initContentHeight: number
+  minHeight?: number
+  editable?: boolean
+  isPreview?: boolean
+  saveButtonText?: string
+  onSave?: (documentText: string) => void
+  allowClear?: boolean
+  showRemove?: boolean
+  onRemove?: (e: React.MouseEvent) => void
+  onChange?: (yaml: string) => void
+  onBlur?: (text: string) => void
+  onClear?: () => string
+  error?: React.ReactNode[] | string
+  initYaml?: string
+  initYamlChanged?: boolean
+  initContentHeight?: number
 }
 
 interface YamlViewerState {
@@ -96,20 +96,20 @@ class YamlViewer extends React.Component<YamlViewerProps, YamlViewerState> {
   }
 
   componentDidMount() {
-    const { yaml, isPreview, initYaml, initYamlChanged, initContentHeight } = this.props;
+    const { yaml, isPreview, initYaml, initYamlChanged, initContentHeight = 0, onChange, onSave } = this.props;
     const currentYaml = yaml || (isPreview && initYaml) || '';
 
     this.initEditor(currentYaml);
     this.setState({
-      contentHeight: (isPreview && initContentHeight) || this.contentView && this.contentView.clientHeight || 0,
+      contentHeight: (isPreview && initContentHeight) || (this.contentView && this.contentView.clientHeight) || 0,
       yamlEntered: !!currentYaml,
-      yamlChanged: isPreview && initYamlChanged,
+      yamlChanged: isPreview && initYamlChanged || false,
       advancedUpload: advancedUploadAvailable()
     });
 
     if (currentYaml) {
-      this.props.onChange(currentYaml);
-      this.props.onSave(currentYaml);
+      onChange && onChange(currentYaml);
+      onSave && onSave(currentYaml);
     }
   }
 
@@ -144,13 +144,13 @@ class YamlViewer extends React.Component<YamlViewerProps, YamlViewerState> {
     if (isPreview) {
       storePreviewYaml(yamlDoc.getValue(), true);
     }
-    onChange(yamlDoc.getValue());
+    onChange && onChange(yamlDoc.getValue());
   };
 
   onYamlBlur = (event: any, yamlDoc: ace.Document) => {
     const { onBlur } = this.props;
 
-    onBlur(yamlDoc.getValue());
+    onBlur && onBlur(yamlDoc.getValue());
   };
 
   copyToClipboard = e => {
@@ -249,8 +249,8 @@ class YamlViewer extends React.Component<YamlViewerProps, YamlViewerState> {
 
       const yamlEntered = !!docValue;
 
-      onSave(docValue);
-      onChange(docValue);
+      onSave && onSave(docValue);
+      onChange && onChange(docValue);
 
       this.setState({ yamlEntered, yamlChanged: false });
 
@@ -308,7 +308,7 @@ class YamlViewer extends React.Component<YamlViewerProps, YamlViewerState> {
 
   resizeViewer = event => {
     if (this.state.isDragging) {
-      const { minHeight } = this.props;
+      const { minHeight = 0 } = this.props;
       const { contentHeight, initialPos } = this.state;
       const delta = event.clientY - initialPos;
       const newHeight = contentHeight + delta;
@@ -492,7 +492,7 @@ class YamlViewer extends React.Component<YamlViewerProps, YamlViewerState> {
             )}
           </React.Fragment>
         )}
-        <UploadUrlModal show={uploadUrlShown} onClose={this.hideUploadUrl} onUpload={this.onUpload} />
+        {uploadUrlShown && <UploadUrlModal onClose={this.hideUploadUrl} onUpload={this.onUpload} />}
       </div>
     );
   }

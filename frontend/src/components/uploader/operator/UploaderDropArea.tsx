@@ -3,15 +3,17 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { advancedUploadAvailable } from '../../../common/helpers';
+import UploadUrlModal from '../../modals/UploadUrlModal';
 
 export interface UploaderDropAreaProps {
-  showUploadUrl: (e: React.MouseEvent) => void
-  doUploadFile: (files: FileList | null) => void
+  onFileUpload: (files: FileList | null) => void
+  onUrlDownload: (contents: string, url: string) => void
 }
 
 interface UploaderDropAreaState {
   dragOver: boolean
   advancedUpload: boolean
+  uploadUrlShown: boolean
 }
 
 /**
@@ -19,11 +21,13 @@ interface UploaderDropAreaState {
  */
 class UploaderDropArea extends React.PureComponent<UploaderDropAreaProps, UploaderDropAreaState> {
 
+  props: UploaderDropAreaProps;
   static propTypes;
 
   state: UploaderDropAreaState = {
     dragOver: false,
-    advancedUpload: false
+    advancedUpload: false,
+    uploadUrlShown: false
   };
 
   componentDidMount() {
@@ -48,19 +52,37 @@ class UploaderDropArea extends React.PureComponent<UploaderDropAreaProps, Upload
     e.stopPropagation();
   };
 
+  showUploadUrl = (e: React.MouseEvent) => {
+    e.preventDefault();
+    this.setState({ uploadUrlShown: true });
+  };
+
+  hideUploadUrl = () => {
+    this.setState({ uploadUrlShown: false });
+  };
+
+  onUrlDownloaded = (contents: string, url: string) => {
+    const {onUrlDownload} = this.props;
+
+    this.setState({uploadUrlShown: false});
+
+    onUrlDownload(contents, url);
+  };
+
   /**
    * Upload files on drop
    */
   onDropEvent = (e: React.DragEvent) => {
-    const { doUploadFile } = this.props;
+    const { onFileUpload: doUploadFile } = this.props;
 
     this.handleDragDropEvent(e);
     doUploadFile(e.dataTransfer.files);
   };
+  
 
   render() {
-    const { showUploadUrl, doUploadFile } = this.props;
-    const { dragOver, advancedUpload } = this.state;
+    const { onFileUpload } = this.props;
+    const { dragOver, advancedUpload, uploadUrlShown } = this.state;
 
     const uploadFileClasses = classNames({
       'oh-file-upload_empty-state': true,
@@ -85,15 +107,13 @@ class UploaderDropArea extends React.PureComponent<UploaderDropAreaProps, Upload
             onDrop={this.onDropEvent}
           >
             {
-              // @ts-ignore            
               <input
                 className="oh-drag-drop-box__upload-file-box__file"
                 type="file"
-                webkitdirectory=" webkitdirectory"
                 name="fileModalUploadFile"
                 id="fileModalUploadFile"
                 multiple
-                onChange={e => doUploadFile(e.target.files)}
+                onChange={e => onFileUpload(e.target.files)}
               />
             }
             {advancedUpload ? 'Drag your file here,' : ''}
@@ -102,21 +122,22 @@ class UploaderDropArea extends React.PureComponent<UploaderDropAreaProps, Upload
             </label>
             to upload, or
             <label>
-              <a href="#" className="oh-drag-drop-box__upload-file-box__link" onClick={showUploadUrl}>
+              <a href="#" className="oh-drag-drop-box__upload-file-box__link" onClick={this.showUploadUrl}>
                 upload
               </a>
             </label>
             from a URL.
           </form>
         </div>
+        {uploadUrlShown && <UploadUrlModal onUpload={this.onUrlDownloaded} onClose={this.hideUploadUrl} />}
       </div>
     );
   }
 }
 
 UploaderDropArea.propTypes = {
-  showUploadUrl: PropTypes.func.isRequired,
-  doUploadFile: PropTypes.func.isRequired
+  onFileUpload: PropTypes.func.isRequired,
+  onUrlDownload: PropTypes.func.isRequired
 };
 
 export default UploaderDropArea;

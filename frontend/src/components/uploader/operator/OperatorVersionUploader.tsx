@@ -7,7 +7,6 @@ import { Icon } from 'patternfly-react';
 import { safeLoadAll } from 'js-yaml';
 
 import { noop } from '../../../common/helpers';
-import UploadUrlModal from '../../modals/UploadUrlModal';
 import { reduxConstants } from '../../../redux/constants';
 import {
   normalizeYamlOperator,
@@ -16,18 +15,19 @@ import {
 } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import * as operatorUtils from '../../../utils/operatorUtils';
 import { validateOperatorPackage } from '../../../utils/operatorValidation';
-import { EDITOR_STATUS, sectionsFields } from '../../../utils/constants';
+import { EDITOR_STATUS, sectionsFields, EditorSectionNames } from '../../../utils/constants';
 import * as actions from '../../../redux/actions/editorActions';
-import * as utils from './UploaderUtils';
+import * as utils from '../UploaderUtils';
 
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
 import { Operator, OperatorPackage, CustomResourceFile, OperatorOwnedCrd, CustomResourceTemplateFile } from '../../../utils/operatorTypes';
-import { UploadMetadata, KubernetesRoleObject, KubernetsRoleBindingObject } from './UploaderTypes';
+import { UploadMetadata, KubernetesRoleObject, KubernetsRoleBindingObject } from '../UploaderTypes';
+import UploaderBase from '../UploaderBase';
 
 const validFileTypesRegExp = new RegExp(`(${['.yaml'].join('|').replace(/\./g, '\\.')})$`, 'i');
 
-export interface ManifestUploaderProps {
+export interface OperatorVersionUploaderProps {
   operator: Operator,
   operatorPackage: OperatorPackage,
   uploads: UploadMetadata[],
@@ -39,20 +39,11 @@ export interface ManifestUploaderProps {
   storeEditorOperator: typeof actions.storeEditorOperatorAction
 }
 
-interface ManifestUploaderState {
-  uploadUrlShown: boolean
-  uploadExpanded: boolean
-}
 
-class ManifestUploader extends React.PureComponent<ManifestUploaderProps, ManifestUploaderState> {
+class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploaderProps> {
 
   static propTypes;
   static defaultProps;
-
-  state: ManifestUploaderState = {
-    uploadUrlShown: false,
-    uploadExpanded: true
-  };
 
   /**
    * Parse uploaded file
@@ -498,12 +489,10 @@ class ManifestUploader extends React.PureComponent<ManifestUploaderProps, Manife
   /**
    * Handle upload using URL dialog
    */
-  doUploadUrl = (contents, url) => {
+  doUploadUrl = (contents: string, url: string) => {
     const { uploads, setUploads } = this.props;
 
     const recentUploads = this.splitUploadedFileToObjects(contents, url);
-
-    this.setState({ uploadUrlShown: false });
 
     const newUploads = utils.markReplacedObjects([...uploads, ...recentUploads]);
 
@@ -593,70 +582,41 @@ class ManifestUploader extends React.PureComponent<ManifestUploaderProps, Manife
     setUploads(newUploads);
   };
 
-  showUploadUrl = (e: React.MouseEvent) => {
-    e.preventDefault();
-    this.setState({ uploadUrlShown: true });
-  };
 
-  hideUploadUrl = () => {
-    this.setState({ uploadUrlShown: false });
-  };
-
-  /**
-   * Exapnd / collapse uploader and file list
-   */
-  toggleUploadExpanded = event => {
-    const { uploadExpanded } = this.state;
-
-    event.preventDefault();
-    this.setState({ uploadExpanded: !uploadExpanded });
-  };
 
   render() {
     const { uploads, operator } = this.props;
-    const { uploadUrlShown, uploadExpanded } = this.state;
     const missingCrds = getMissingCrdUploads(uploads, operator);
 
     return (
-      <div id="manifest-uploader" className="oh-operator-editor-page__section">
-        <div className="oh-operator-editor-page__section__header">
-          <div className="oh-operator-editor-page__section__header__text">
-            <h2 id="oh-operator--editor-page__manifest-uploader">Upload your Kubernetes manifests</h2>
-            <p>
-              Upload your existing YAML manifests of your Operators deployment. We support <code>Deployments</code>,
-              <code>(Cluster)Roles</code>, <code>(Cluster)RoleBindings</code>, <code>ServiceAccounts</code> and{' '}
-              <code>CustomResourceDefinition</code> objects. The information from these objects will be used to populate
+      <UploaderBase
+        description={(
+          <p>
+            Upload your existing YAML manifests of your Operators deployment. We support <code>Deployments</code>,
+                 <code>(Cluster)Roles</code>, <code>(Cluster)RoleBindings</code>, <code>ServiceAccounts</code> and{' '}
+            <code>CustomResourceDefinition</code> objects. The information from these objects will be used to populate
               your Operator metadata. Alternatively, you can also upload an existing CSV.
-              <br />
-              <br />
-              <b>Note:</b> For a complete bundle the CRDs manifests are required.
-            </p>
-          </div>
-          <div className="oh-operator-editor-page__section__status">
-            <a onClick={this.toggleUploadExpanded}>
-              <Icon type="fa" name={uploadExpanded ? 'compress' : 'expand'} />
-              {uploadExpanded ? 'Collapse' : 'Expand'}
-            </a>
-          </div>
-        </div>
-        {uploadExpanded && (
-          <React.Fragment>
-            <UploaderDropArea showUploadUrl={this.showUploadUrl} doUploadFile={this.doUploadFiles} />
-            <UploaderObjectList
-              uploads={uploads}
-              missingUploads={missingCrds}
-              removeUpload={this.removeUpload}
-              removeAllUploads={this.removeAllUploads}
-            />
-            <UploadUrlModal show={uploadUrlShown} onUpload={this.doUploadUrl} onClose={this.hideUploadUrl} />
-          </React.Fragment>
+                 <br />
+            <br />
+            <b>Note:</b> For a complete bundle the CRDs manifests are required.
+          </p>
         )}
-      </div>
-    );
+      >
+        <React.Fragment>
+          <UploaderDropArea onFileUpload={this.doUploadFiles} onUrlDownload={this.doUploadUrl} />
+          <UploaderObjectList
+            uploads={uploads}
+            missingUploads={missingCrds}
+            removeUpload={this.removeUpload}
+            removeAllUploads={this.removeAllUploads}
+          />
+        </React.Fragment>
+      </UploaderBase>
+    ); 
   }
 }
 
-ManifestUploader.propTypes = {
+OperatorVersionUploader.propTypes = {
   operator: PropTypes.object,
   operatorPackage: PropTypes.object,
   uploads: PropTypes.array,
@@ -668,7 +628,7 @@ ManifestUploader.propTypes = {
   storeEditorOperator: PropTypes.func
 };
 
-ManifestUploader.defaultProps = {
+OperatorVersionUploader.defaultProps = {
   operator: {},
   operatorPackage: {},
   uploads: [],
@@ -709,4 +669,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ManifestUploader);
+)(OperatorVersionUploader);

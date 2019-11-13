@@ -1,7 +1,7 @@
 import { reduxConstants } from '../constants';
 import { clearAutosavedOperatorData } from '../../utils/operatorUtils';
 import { Operator, OperatorPackage } from '../../utils/operatorTypes';
-import { UploadMetadata } from '../../components/editor/manfiestUploader/UploaderTypes';
+import { UploadMetadata } from '../../components/uploader';
 import { EditorSectionNames, EDITOR_STATUS } from '../../utils/constants';
 
 /**
@@ -15,7 +15,6 @@ export const setSectionStatusAction = (section: EditorSectionNames, status: keyo
 
 /**
  * Update status of multiple sections at once
- * @param {Record<EditorSectionNames, EDITOR_STATUS>} status
  */
 export const setBatchSectionsStatusAction = (status: Record<EditorSectionNames, keyof typeof EDITOR_STATUS>) => ({
   type: reduxConstants.SET_EDITOR_ALL_SECTIONS_STATUS,

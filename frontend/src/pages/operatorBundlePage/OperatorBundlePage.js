@@ -7,7 +7,7 @@ import { Icon } from 'patternfly-react';
 import { noop } from '../../common/helpers';
 import { reduxConstants } from '../../redux/constants';
 import EditorSection from '../../components/editor/EditorSection';
-import ManifestUploader from '../../components/editor/manfiestUploader/ManifestUploader';
+import OperatorVersionUploader from '../../components/uploader/operator/OperatorVersionUploader';
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
@@ -207,7 +207,7 @@ class OperatorBundlePage extends React.Component {
         buttonBar={this.renderButtonBar()}
         history={history}
       >
-        <ManifestUploader />
+        <OperatorVersionUploader />
         <div className="oh-operator-editor-page__spacer">
           <h2>General Info</h2>
           <a href="#" className="oh-operator-editor-page__new-operator" onClick={this.clearContents}>
