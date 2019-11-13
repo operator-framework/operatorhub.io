@@ -116,6 +116,11 @@
   outline: 2px dashed #dededf;
   outline-offset: -10px;
 
+  &.oh-folder-upload-disabled{
+    opacity: 0.5;
+    cursor: no-drop;
+  }
+
   &.drag-over {
     outline-offset: -20px;
     outline-color: #c8dadf;
