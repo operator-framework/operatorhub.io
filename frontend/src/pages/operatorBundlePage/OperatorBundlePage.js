@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
+import { bindActionCreators } from 'redux';
 
 import { noop } from '../../common/helpers';
-import { reduxConstants } from '../../redux/constants';
 import EditorSection from '../../components/editor/EditorSection';
 import OperatorVersionUploader from '../../components/uploader/operator/OperatorVersionUploader';
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
@@ -18,6 +18,7 @@ import { getUpdatedFormErrors } from './bundlePageUtils';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';
+import { showConfirmationModalAction, hideConfirmModalAction } from '../../redux';
 
 class OperatorBundlePage extends React.Component {
   state = {
@@ -261,21 +262,22 @@ OperatorBundlePage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  resetEditorOperator: () => dispatch(resetEditorOperatorAction()),
-  showClearConfirmModal: onConfirm =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
-      title: 'Clear Content',
-      heading: <span>Are you sure you want to clear the current content of the editor?</span>,
-      confirmButtonText: 'Clear',
-      cancelButtonText: 'Cancel',
-      onConfirm
-    }),
-  hideConfirmModal: () =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_HIDE
-    }),
-  setBatchSectionsStatus: status => dispatch(setBatchSectionsStatusAction(status))
+  ...bindActionCreators(
+    {
+      resetEditorOperator: resetEditorOperatorAction,
+      showClearConfirmModal: onConfirm =>
+        showConfirmationModalAction({
+          title: 'Clear Content',
+          heading: 'Are you sure you want to clear the current content of the editor?',
+          confirmButtonText: 'Clear',
+          cancelButtonText: 'Cancel',
+          onConfirm
+        }),
+      hideConfirmModal: hideConfirmModalAction,
+      setBatchSectionsStatus: setBatchSectionsStatusAction
+    },
+    dispatch
+  )
 });
 
 const mapStateToProps = state => ({

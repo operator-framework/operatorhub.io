@@ -1,9 +1,9 @@
 import _ from 'lodash-es';
 
-import * as operatorUtils from '../../utils/operatorUtils';
-import { addIdToDescriptor } from '../../pages/operatorBundlePage/bundlePageUtils';
+import * as operatorUtils from '../../../utils/operatorUtils';
+import { addIdToDescriptor } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import { TypeAndName, UploadMetadata } from './UploaderTypes';
-import { Operator, OperatorCrdDescriptor, OperatorOwnedCrd, OperatorCrdResource } from '../../utils/operatorTypes';
+import { Operator, OperatorCrdDescriptor, OperatorOwnedCrd, OperatorCrdResource } from '../../../utils/operatorTypes';
 
 export const securityObjectTypes = ['ClusterRole', 'Role', 'ClusterRoleBinding', 'RoleBinding'];
 type SecurityObjectTypes = 'ClusterRole' | 'Role' | 'ClusterRoleBinding' | 'RoleBinding' | 'ServiceAccount';

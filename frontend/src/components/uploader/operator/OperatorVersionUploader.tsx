@@ -3,27 +3,22 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash-es';
-import { Icon } from 'patternfly-react';
 import { safeLoadAll } from 'js-yaml';
 
 import { noop } from '../../../common/helpers';
-import { reduxConstants } from '../../../redux/constants';
-import {
-  normalizeYamlOperator,
-  getMissingCrdUploads,
-  getUpdatedFormErrors
-} from '../../../pages/operatorBundlePage/bundlePageUtils';
+import { normalizeYamlOperator, getMissingCrdUploads, getUpdatedFormErrors } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import * as operatorUtils from '../../../utils/operatorUtils';
 import { validateOperatorPackage } from '../../../utils/operatorValidation';
 import { EDITOR_STATUS, sectionsFields, EditorSectionNames } from '../../../utils/constants';
 import * as actions from '../../../redux/actions/editorActions';
-import * as utils from '../UploaderUtils';
+import * as utils from './UploaderUtils';
 
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
 import { Operator, OperatorPackage, CustomResourceFile, OperatorOwnedCrd, CustomResourceTemplateFile } from '../../../utils/operatorTypes';
-import { UploadMetadata, KubernetesRoleObject, KubernetsRoleBindingObject } from '../UploaderTypes';
+import { UploadMetadata, KubernetesRoleObject, KubernetsRoleBindingObject } from './UploaderTypes';
 import UploaderBase from '../UploaderBase';
+import { showConfirmationModalAction } from '../../../redux';
 
 const validFileTypesRegExp = new RegExp(`(${['.yaml'].join('|').replace(/\./g, '\\.')})$`, 'i');
 
@@ -612,7 +607,7 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
           />
         </React.Fragment>
       </UploaderBase>
-    ); 
+    );
   }
 }
 
@@ -643,10 +638,9 @@ OperatorVersionUploader.defaultProps = {
 const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
-      showErrorModal: error => ({
-        type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+      showErrorModal: error => showConfirmationModalAction({
         title: 'Error Uploading File',
-        icon: <Icon type="pf" name="error-circle-o" />,
+        iconName: 'error-circle-o',
         heading: error,
         confirmButtonText: 'OK'
       }),

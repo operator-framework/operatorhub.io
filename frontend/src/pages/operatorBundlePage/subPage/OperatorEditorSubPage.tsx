@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 import { History } from 'history';
+import { bindActionCreators } from 'redux';
 
 import { noop, debounce } from '../../../common/helpers';
 import Page from '../../../components/page/Page';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
-import { setSectionStatusAction, storeKeywordSearchAction } from '../../../redux/actions';
-import { reduxConstants } from '../../../redux';
+import { setSectionStatusAction, storeKeywordSearchAction, showConfirmationModalAction } from '../../../redux/actions';
 import { EDITOR_STATUS, EditorSectionNames } from '../../../utils/constants';
 import EditorButtonBar from './EditorButtonBar';
 import EditorBreadcrumbs from './EditorBreadCrumbs';
@@ -74,7 +74,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
   componentWillUnmount() {
     window.removeEventListener('resize', this.onWindowResize);
   }
- 
+
   onEditor = e => {
     e.preventDefault();
     this.props.history.push('/bundle');
@@ -89,7 +89,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     const { validatePage, setSectionStatus, section, secondary, showPageErrorsMessage } = this.props;
 
     // skip if no section exists - user has to implement own button bar with validation
-    if(!section){
+    if (!section) {
       return;
     }
 
@@ -257,15 +257,16 @@ OperatorEditorSubPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeKeywordSearch: keywordSearch => dispatch(storeKeywordSearchAction(keywordSearch)),
-  setSectionStatus: (section, status) => dispatch(setSectionStatusAction(section, status)),
-  showPageErrorsMessage: () =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
-      title: 'Errors',
-      heading: <span>There are errors or missing required fields on the page</span>,
-      confirmButtonText: 'OK'
-    })
+  ...bindActionCreators({
+    storeKeywordSearch: storeKeywordSearchAction,
+    setSectionStatus: setSectionStatusAction,
+    showPageErrorsMessage: () =>
+      showConfirmationModalAction({
+        title: 'Errors',
+        heading: 'There are errors or missing required fields on the page',
+        confirmButtonText: 'OK'
+      })
+  }, dispatch)
 });
 
 const mapStateToProps = state => ({
