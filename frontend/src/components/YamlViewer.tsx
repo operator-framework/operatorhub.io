@@ -13,9 +13,8 @@ import 'brace/snippets/yaml';
 import copy from 'copy-to-clipboard';
 
 import UploadUrlModal from './modals/UploadUrlModal';
-import { reduxConstants } from '../redux/constants';
 import { noop, advancedUploadAvailable } from '../common/helpers';
-import { hideConfirmModalAction, storePreviewYamlAction, storeContentHeightAction } from '../redux/actions';
+import { hideConfirmModalAction, storePreviewYamlAction, storeContentHeightAction, showConfirmationModalAction } from '../redux/actions';
 
 let id = 0;
 
@@ -550,24 +549,21 @@ const mapDispatchToProps = dispatch => ({
   ...bindActionCreators({
     storePreviewYaml: storePreviewYamlAction,
     storeContentHeight: storeContentHeightAction,
-    hideConfirmModal: hideConfirmModalAction
-  }, dispatch), 
-  showConfirmModal: onConfirm =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+    hideConfirmModal: hideConfirmModalAction,
+    showConfirmModal: onConfirm => showConfirmationModalAction({
       title: 'Clear Content',
-      heading: <span>Are you sure you want to clear the current content of the editor?</span>,
+      heading: 'Are you sure you want to clear the current content of the editor?',
       confirmButtonText: 'Clear',
       cancelButtonText: 'Cancel',
       onConfirm
-    }), 
-  showErrorModal: error =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+    }),
+    showErrorModal: error =>showConfirmationModalAction({
       title: 'Error Uploading File',
       heading: error,
       confirmButtonText: 'OK'
     })
+
+  }, dispatch)
 });
 
 const mapStateToProps = state => ({

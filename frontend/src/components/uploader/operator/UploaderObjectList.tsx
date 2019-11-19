@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Icon } from 'patternfly-react';
 import UploaderStatusIcon, { IconStatus } from '../UploaderStatusIcon';
-import { UploadMetadata, MissingCRD } from '../UploaderTypes';
+import { UploadMetadata, MissingCRD } from './UploaderTypes';
 
 export interface UploaderObjectListProps {
   uploads: UploadMetadata[]
@@ -27,7 +27,6 @@ const UploaderObjectList: React.FC<UploaderObjectListProps> = ({ uploads, missin
         <Grid.Col xs={2}>Status</Grid.Col>
         <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
           <a href="#" onClick={removeAllUploads}>
-            <Icon type="fa" name="trash" />
             <span>Remove All</span>
           </a>
         </Grid.Col>

@@ -114,12 +114,7 @@
 .oh-drag-drop-box {
   background-color: $oh-color-background;
   outline: 2px dashed #dededf;
-  outline-offset: -10px;
-
-  &.oh-folder-upload-disabled{
-    opacity: 0.5;
-    cursor: no-drop;
-  }
+  outline-offset: -10px;  
 
   &.drag-over {
     outline-offset: -20px;
