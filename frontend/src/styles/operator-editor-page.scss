@@ -497,6 +497,11 @@
         padding-top: 10px;
         padding-bottom: 10px;
 
+        &:first-of-type{
+          text-transform: uppercase;
+          color: $oh-color-text-metadata;
+        }        
+
         & > div {
           white-space: nowrap;
           text-overflow: ellipsis;
@@ -520,6 +525,9 @@
         display: flex;
         justify-content: flex-end;
         white-space: nowrap;
+        text-transform: initial;
+        font-weight: 600;
+        
         @media screen and (max-width: $screen-xs) {
           text-align: end;
           white-space: normal;

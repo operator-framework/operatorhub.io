@@ -1,51 +1,128 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { safeLoad } from 'js-yaml';
 
-import UploaderBase from '../UploaderBase';
 import PackageUploaderDropArea from './PackageUploaderDropArea';
 import { noop } from '../../../common/helpers';
-import { PackageEntry } from '../../../utils/packageEditorTypes';
-import { setPackageUploadsAction } from '../../../redux/actions';
+import { PackageEntry, PackageFileEntry, PackageDirectoryEntry } from '../../../utils/packageEditorTypes';
 import { StoreState } from '../../../redux';
 import PackageUploaderObjectList from './PackageUploaderObjectList';
+
+import * as actions from '../../../redux/actions';
+
+const operatorPackageUploaderActions = {
+    setPackageUploads: actions.setPackageUploadsAction,
+    removePackageUpload: actions.removePackageUploadAction,
+    clearPackageUploads: actions.clearPackageUploadsAction,
+    showGithubPackageUpload: actions.showGithubPackageUploadAction,
+    hideGithubPackageUpload: actions.hideGithubPackageUploadAction,
+    showErrorModal: actions.showUploaderErrorConfirmationModalAction   
+};
+
 
 
 interface OperatorPackageUploaderDerivedProps {
     uploads: PackageEntry[]
 }
 
-interface OperatorPackageUploaderActions {
-    setPackageUploads: typeof setPackageUploadsAction
-}
+type OperatorPackageUploaderActions = typeof operatorPackageUploaderActions;
 
-export interface OperatorPackageUploaderProps extends OperatorPackageUploaderDerivedProps, OperatorPackageUploaderActions {
-    createFromScratch: () => void
-}
+
+export interface OperatorPackageUploaderProps extends OperatorPackageUploaderDerivedProps, OperatorPackageUploaderActions { };
 
 
 class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploaderProps> {
 
 
-    static defaultProps;
+    /**
+     * Parse file content and read out object type and name from file
+     */
+    deriveObjectMetadata = (data: string) => {
 
+        let metadata = {
+            type: 'Unknown',
+            name: '',
+            parsedContent: null
+        };
+
+        try {
+            const content = metadata.parsedContent = safeLoad(data);
+
+            // partial implementation (copied over...)
+            // @see UploaderUtils -> getObjectNameAndType method for complete
+            // identification of Kube objects
+            if (content.kind && content.apiVersion && content.metadata) {
+
+                const type = content.kind;
+                const { name } = content.metadata;
+                const apiName = content.apiVersion.substring(0, content.apiVersion.indexOf('/'));
+
+
+                if (type === 'ClusterServiceVersion' && apiName === 'operators.coreos.com') {
+                    metadata.name = name;
+                    metadata.type = type;
+
+                } else if (type === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
+                    metadata.name = name;
+                    metadata.type = type;
+                }
+
+            } else if (content.packageName && content.channels) {
+                metadata.name = content.packageName;
+                metadata.type = 'Package';
+            }
+
+        } catch (e) {
+            console.warn('Failed to identify some kind of Operator package object!', data);
+        }
+
+        return metadata;
+    }
+
+    addFileMetadata = (entry: PackageFileEntry) => {
+        const metadata = this.deriveObjectMetadata(entry.content);
+
+        if (metadata.type === 'Unknown') {
+            entry.errored = true;
+
+        } else {
+            entry.objectName = metadata.name;
+            entry.objectType = metadata.type;
+            entry.content = metadata.parsedContent;
+        }
+
+        return entry;
+    }
 
     /**
      * Parse uploaded file
      * @param upload upload metadata object
      */
-    processUploadedObject = (upload: any) => {
+    processUploadedObject = (entries: PackageEntry[]) => entries.map(entry => {
 
+        // enhance based on derived data from file content
+        if (entry.kind === 'file') {
+            return this.addFileMetadata(entry);
 
-        return upload;
-    };
+        } else {
+            // add metadata to files in version folder
+            const enhancedDirEntry: PackageDirectoryEntry = {
+                ...entry,
+                content: entry.content.map(file => file.kind === 'file' ? this.addFileMetadata(file) : file)
+            }
+
+            return enhancedDirEntry;
+        }
+    });
 
 
 
     onPackageUpload = (entries: PackageEntry[]) => {
         const { setPackageUploads } = this.props;
+        const processedEntries = this.processUploadedObject(entries);
 
-        setPackageUploads(entries);
+        setPackageUploads(processedEntries);
     }
 
 
@@ -54,54 +131,53 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
      */
     removeAllUploads = e => {
         e.preventDefault();
+
+        this.props.clearPackageUploads();
     };
 
     /**
      * Remove specific upload by its index
      */
-    removeUpload = (e: React.MouseEvent, id: string) => {
+    removeUpload = (e: React.MouseEvent, path: string, nested: boolean) => {
         e.preventDefault();
 
+        this.props.removePackageUpload(path, nested);
     };
 
 
     render() {
-        const { createFromScratch, uploads } = this.props;
+        const { uploads, showGithubPackageUpload } = this.props;
 
         return (
-            <UploaderBase
-                description={(
-                    <p>
-                        Upload your entire Operator Package directory with Kubernetes YAML manifests. The editor will parses
-                        and recognizes all the contained bundle versions and the associated channel definition.
-                    </p>
-                )}
-            >
+            <React.Fragment>
+                <div className="oh-operator-editor-page__section__header">
+                    <div className="oh-operator-editor-page__section__header__text">
+                        <p>
+                            Drag and drop your entire Operator Package directory with Kubernetes YAML manifests.
+                            The editor will parses and recognizes all the contained bundle versions and the associated channel definition.
+                        </p>
+                    </div>
+                </div>
                 <PackageUploaderDropArea
+                    showGithubUpload={showGithubPackageUpload}
+                    showUploadWarning={noop}
                     onUpload={this.onPackageUpload}
-                    onUrlDownload={noop}
-                    createFromScratch={createFromScratch}
                 />
                 <PackageUploaderObjectList
                     uploads={uploads}
-                    removeUpload={noop}
-                    removeAllUploads={noop}
+                    removeUpload={this.removeUpload}
+                    removeAllUploads={this.removeAllUploads}
                 />
-            </UploaderBase>
+                {/* {gitUploadShown && <UploadUrlModal onUpload={this.onUrlDownloaded} onClose={this.hideUploadUrl} />} */}
+
+            </React.Fragment>
         );
     }
 }
 
-OperatorPackageUploader.defaultProps = {
-};
 
 const mapDispatchToProps = dispatch => ({
-    ...bindActionCreators(
-        {
-            setPackageUploads: setPackageUploadsAction
-        },
-        dispatch
-    )
+    ...bindActionCreators(operatorPackageUploaderActions, dispatch)
 });
 
 const mapStateToProps = (state: StoreState) => ({

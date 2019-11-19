@@ -25,6 +25,15 @@
         }
       }
     }
+
+    .oh-operator-package-editor-page__tab-pane{
+
+      .oh-folder-upload-disabled{
+        cursor: no-drop;
+        opacity: 0.5;
+      }
+    }
+
   
     .oh-operator-editor-page {
       &__title-area {
@@ -35,13 +44,30 @@
         padding-top: 10px;
       }
     }
+    
+  .oh-drag-drop-box{
+    margin-top: 10px;
+    outline-offset: -5px;
+    outline-width: 3px;
   }
 
   .oh-operator-editor-upload {
     &__uploads {
 
+      &__row{
+        &:first-of-type{
+          text-transform: uppercase;
+          color: $oh-color-text-metadata;
+        }
+
+        .oh-operator-editor-upload__uploads__actions-col{
+          text-transform: initial;
+          font-weight: 600;
+        }
+      }
+
       &__nested-space {
-        width: 15px;
+        width: 27px;
         display: inline-block;
     }
   
@@ -52,8 +78,10 @@
           width: 17px;
           margin-right: 8px;
           color: $oh-color-primary;
+          cursor: pointer;
         }
       }
     }
   }
+}
   

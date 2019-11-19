@@ -1,22 +1,18 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Alert } from 'patternfly-react';
 
-import { advancedUploadAvailable, supportFileSystemEntry, noop } from '../../../common/helpers';
-import UploadUrlModal from '../../modals/UploadUrlModal';
 import { PackageEntry, PackageFileEntry, PackageDirectoryEntry } from '../../../utils/packageEditorTypes';
 
 
 export interface PackageUploaderDropAreaProps {
+    showGithubUpload: () => void
+    showUploadWarning: (error: string) => void
     onUpload: (entires: PackageEntry[]) => void
-    onUrlDownload: (contents: string, url: string) => void
-    createFromScratch: () => void
+
 }
 
 interface PackageUploaderDropAreaState {
     dragOver: boolean
-    supportFileSystemEntry: boolean
-    uploadUrlShown: boolean
 }
 
 /**
@@ -27,15 +23,8 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
     static propTypes;
 
     state: PackageUploaderDropAreaState = {
-        dragOver: false,
-        supportFileSystemEntry: false,
-        uploadUrlShown: false
+        dragOver: false
     };
-
-    componentDidMount() {
-        // we need extra support for traversing directory structure in uploaded folder
-        this.setState({ supportFileSystemEntry: advancedUploadAvailable() && supportFileSystemEntry() });
-    }
 
     /**
      * Visually notify user where to drop files on drag over
@@ -55,21 +44,27 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
         e.stopPropagation();
     };
 
+    /**
+     * Read content and metadata about file in dropped package
+     * @param entry - FileSystemFileEntry 
+     */
     readFile = (entry, nested: boolean) => new Promise<PackageFileEntry>((resolve, reject) => {
 
         entry.file((file: File) => {
             let reader = new FileReader();
 
             reader.onload = () => {
-
-                resolve({
-                    type: 'file',
+                const fileEntry: PackageFileEntry = {
+                    kind: 'file',
                     path: entry.fullPath,
                     name: file.name,
                     objectName: file.name.replace('.yaml', ''),
-                    nested,                    
+                    objectType: '',
+                    nested,
                     content: reader.result as string
-                });
+                };
+
+                resolve(fileEntry);
             }
             reader.onerror = () => reject(reader.error);
 
@@ -77,14 +72,20 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
         }, (e) => reject(e));
     });
 
+    /**
+     * Read out dropped dir content
+     * @param entry - FileSystemDirectoryEntry 
+
+     */
     readDir = entry => new Promise<PackageDirectoryEntry>((resolve) => {
 
         const directoryReader = entry.createReader();
         const directoryEntry: PackageDirectoryEntry = {
-            type: 'dir',
+            kind: 'dir',
             path: entry.fullPath,
             name: entry.name,
             objectName: '/',
+            objectType: 'Folder',
             nested: false,
             content: []
         }
@@ -108,6 +109,10 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
         });
     })
 
+    /**
+     * Read content of dropped directory using FileSystemApi
+     * @param entry - FileSystemEntry 
+     */
     listContent = (entry: any) => new Promise<PackageEntry[]>((resolve) => {
         const directoryReader = entry.createReader();
 
@@ -132,6 +137,9 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
     });
 
 
+    /**
+     * Validate package directory that it contains package file and at least one version dir
+     */
     isValidPackageDir = (entry: any) => new Promise<boolean>((resolve, reject) => {
 
         if (entry.isDirectory) {
@@ -148,7 +156,7 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
                     const foundPackageFile = entries.some(entry => entry.isFile);
                     const foundDirectory = entries.some(entry => entry.isDirectory);
 
-                    if(foundDirectory && foundPackageFile){
+                    if (foundDirectory && foundPackageFile) {
                         resolve();
                     } else {
                         reject('Directory has to contiant package file and version folder.');
@@ -198,78 +206,38 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
 
     };
 
-    showUploadUrl = (e: React.MouseEvent) => {
-        e.preventDefault();
-        this.setState({ uploadUrlShown: true });
-    };
-
-    hideUploadUrl = () => {
-        this.setState({ uploadUrlShown: false });
-    };
-
-    onUrlDownloaded = (contents: string, url: string) => {
-        const { onUrlDownload } = this.props;
-
-        this.setState({ uploadUrlShown: false });
-
-        onUrlDownload(contents, url);
-    };
-
-    onCreateFromScratch = (e: React.MouseEvent) => {
-        const { createFromScratch } = this.props;
-        e.preventDefault();
-
-        createFromScratch();
-    }
 
     render() {
-        const { } = this.props;
-        const { dragOver, supportFileSystemEntry, uploadUrlShown } = this.state;
+        const { showGithubUpload } = this.props;
+        const { dragOver } = this.state;
 
         const uploadFileClasses = classNames({
-            'oh-file-upload_empty-state': true,
             'oh-drag-drop-box': true,
-            'drag-over': dragOver,
-            'oh-folder-upload-disabled': !supportFileSystemEntry
+            'drag-over': dragOver
         });
 
         return (
             <React.Fragment>
-                {
-                    !supportFileSystemEntry && (
-                        <Alert type="warning">
-                            <p>The Folder Uploader is not compatible with the browser you are using. Use Google Chrome, Mozila Firefox or Microsoft Edge
-                            instead for uploading your entire package folder.
-                            Your can upload package folder from &nbsp;
-                          <a href="#" className="oh-drag-drop-box__upload-file-box__link" onClick={this.showUploadUrl}>Github community operators repository.</a>
-                                Alternatively, you can <a href="#" onClick={this.onCreateFromScratch}>create your Operator Package from Scratch.</a>
-                            </p>
-                        </Alert>
-                    )
-                }
-                <div className="oh-file-upload__form">
-                    <div className={uploadFileClasses}>
-                        <form
-                            className="oh-drag-drop-box__upload-file-box"
-                            method="post"
-                            action=""
-                            encType="multipart/form-data"
-                            onDrag={this.handleDragDropEvent}
-                            onDragStart={this.handleDragDropEvent}
-                            onDragEnd={this.handleDragDropEvent}
-                            onDragOver={this.highlightOnDragEnter}
-                            onDragEnter={this.highlightOnDragEnter}
-                            onDragLeave={this.clearOnDragLeave}
-                            onDrop={this.onDropEvent}
-                        >
-                            <span>Drag your file here to upload, or</span>
-                            <label>
-                                <a href="#" className="oh-drag-drop-box__upload-file-box__link" onClick={this.showUploadUrl}>upload</a>
-                            </label>
-                            <span>from the Github community operators repository.</span>
-                        </form>
-                    </div>
-                    {uploadUrlShown && <UploadUrlModal onUpload={this.onUrlDownloaded} onClose={this.hideUploadUrl} />}
+                <div className={uploadFileClasses}>
+                    <form
+                        className="oh-drag-drop-box__upload-file-box"
+                        method="post"
+                        action=""
+                        encType="multipart/form-data"
+                        onDrag={this.handleDragDropEvent}
+                        onDragStart={this.handleDragDropEvent}
+                        onDragEnd={this.handleDragDropEvent}
+                        onDragOver={this.highlightOnDragEnter}
+                        onDragEnter={this.highlightOnDragEnter}
+                        onDragLeave={this.clearOnDragLeave}
+                        onDrop={this.onDropEvent}
+                    >
+                        <span>Drag your file here to upload, or</span>
+                        <label>
+                            <a href="#" className="oh-drag-drop-box__upload-file-box__link" onClick={showGithubUpload}>upload</a>
+                        </label>
+                        <span>from the Github.</span>
+                    </form>
                 </div>
             </React.Fragment>
         );

@@ -1,19 +1,23 @@
 export interface PackageFileEntry {
-    type: 'file';
+    kind: 'file';
     path: string;
     name: string;
     objectName: string;
-    content: string;
+    objectType: string;
+    content: any;
     nested: boolean;
     opened?: boolean;
+    errored?: boolean
 }
 export interface PackageDirectoryEntry {
-    type: 'dir';
+    kind: 'dir';
     path: string;
     name: string;
     objectName: '/';
+    objectType: string,
     nested: boolean;
-    opened?: boolean;
     content: PackageEntry[];
+    opened?: boolean;
+    errored?: boolean;
 }
 export type PackageEntry = PackageDirectoryEntry | PackageFileEntry;
