@@ -1,14 +1,15 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
-import { helpers } from '../../../common/helpers';
+import { noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import YamlViewer from '../../../components/YamlViewer';
-import { getValueError, getDefaultDeployment, isDeploymentDefault } from '../../../utils/operatorUtils';
+import { getDefaultDeployment, isDeploymentDefault } from '../../../utils/operatorUtils';
+import { getValueError } from '../../../utils/operatorValidation';
 import { operatorFieldValidators } from '../../../utils/operatorValidators';
 import {
   storeEditorFormErrorsAction,
@@ -178,8 +179,8 @@ OperatorDeploymentEditPage.propTypes = {
 OperatorDeploymentEditPage.defaultProps = {
   operator: {},
   isNew: false,
-  storeEditorOperator: helpers.noop,
-  setSectionStatus: helpers.noop
+  storeEditorOperator: noop,
+  setSectionStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

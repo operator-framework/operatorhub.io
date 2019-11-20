@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { safeDump } from 'js-yaml';
 import { Icon } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
+import { noop } from '../../common/helpers';
 import {
   getMissingCrdUploads,
   yamlFromOperator,
@@ -15,8 +15,8 @@ import {
   filterValidCrdUploads,
   getUpdatedFormErrors
 } from '../../pages/operatorBundlePage/bundlePageUtils';
-import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorUtils';
-import { reduxConstants } from '../../redux';
+import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorValidation';
+import { reduxConstants } from '../../redux/constants';
 import { setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 
@@ -220,10 +220,10 @@ OperatorBundleDownloader.defaultProps = {
   sectionStatus: {},
   uploads: [],
   operatorPackage: {},
-  showBundleConfirm: helpers.noop,
-  hideConfirmModal: helpers.noop,
-  showErrorModal: helpers.noop,
-  setBatchSectionsStatus: helpers.noop
+  showBundleConfirm: noop,
+  hideConfirmModal: noop,
+  showErrorModal: noop,
+  setBatchSectionsStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

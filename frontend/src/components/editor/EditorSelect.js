@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { TypeAheadSelect } from 'patternfly-react';
 import { getOptionLabel } from 'react-bootstrap-typeahead/lib/utils';
 
-import { helpers } from '../../common/helpers';
+import { noop } from '../../common';
 
 /**
  * Select with search and option to add new tags
@@ -71,7 +71,7 @@ const EditorSelect = ({
    * @param {*} option
    */
   const editOption = (props, option) => {
-    if (typeAhead && isMulti && onValueEdit !== helpers.noop) {
+    if (typeAhead && isMulti && onValueEdit !== noop) {
       const instance = typeAhead.getInstance();
       const label = getOptionLabel(option, props.labelKey);
 
@@ -157,12 +157,12 @@ EditorSelect.defaultProps = {
   dropup: false,
   labelKey: 'label',
   placeholder: 'Select options',
-  onChange: helpers.noop,
-  onBlur: helpers.noop,
+  onChange: noop,
+  onBlur: noop,
   initialValue: '',
   newSelectionPrefix: undefined,
   customSelectValidator: undefined,
-  onValueEdit: helpers.noop
+  onValueEdit: noop
 };
 
 export default EditorSelect;

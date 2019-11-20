@@ -1,0 +1,4 @@
+{
+    "typescript.referencesCodeLens.enabled": true,
+    "editor.suggest.localityBonus": true
+}

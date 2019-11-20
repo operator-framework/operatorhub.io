@@ -1,6 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { helpers } from '../../common/helpers';
+import { noop } from '../../common/helpers';
 import SimpleMdeWrapper from './SimpleMdeWrapper';
 import { markdownConverter } from '../../common/markdown';
 
@@ -136,8 +136,8 @@ MarkdownEditor.propTypes = {
 MarkdownEditor.defaultProps = {
   markdown: '',
   validationError: null,
-  onChange: helpers.noop,
-  onValidate: helpers.noop,
+  onChange: noop,
+  onValidate: noop,
   minHeadlineLevel: false
 };
 

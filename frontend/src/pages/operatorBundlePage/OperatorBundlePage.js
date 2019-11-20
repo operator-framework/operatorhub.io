@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
 
-import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux/index';
+import { noop } from '../../common/helpers';
+import { reduxConstants } from '../../redux/constants';
 import EditorSection from '../../components/editor/EditorSection';
 import ManifestUploader from '../../components/editor/manfiestUploader/ManifestUploader';
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
@@ -13,7 +13,7 @@ import OperatorEditorSubPage from './OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
 import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
-import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorUtils';
+import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValidation';
 import { getUpdatedFormErrors } from './bundlePageUtils';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
@@ -254,10 +254,10 @@ OperatorBundlePage.defaultProps = {
   operator: {},
   sectionStatus: {},
   operatorPackage: {},
-  resetEditorOperator: helpers.noop,
-  showClearConfirmModal: helpers.noop,
-  hideConfirmModal: helpers.noop,
-  setBatchSectionsStatus: helpers.noop
+  resetEditorOperator: noop,
+  showClearConfirmModal: noop,
+  hideConfirmModal: noop,
+  setBatchSectionsStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

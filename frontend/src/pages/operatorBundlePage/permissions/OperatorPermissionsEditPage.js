@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 
-import { helpers } from '../../../common/helpers';
+import { noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import { getUpdatedFormErrors } from '../bundlePageUtils';
 import { operatorObjectDescriptions, operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
@@ -192,9 +192,9 @@ OperatorPermissionsEditPage.defaultProps = {
   ),
   formErrors: {},
   isNew: false,
-  storeEditorOperator: helpers.noop,
-  setSectionStatus: helpers.noop,
-  storeEditorFormErrors: helpers.noop
+  storeEditorOperator: noop,
+  setSectionStatus: noop,
+  storeEditorFormErrors: noop
 };
 
 const mapDispatchToProps = dispatch => ({

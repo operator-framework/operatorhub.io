@@ -1,11 +1,12 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 
-import { helpers } from '../../../common/helpers';
-import { getFieldValueError, containsErrors } from '../../../utils/operatorUtils';
+import { noop } from '../../../common/helpers';
+import { getFieldValueError, containsErrors } from '../../../utils/operatorValidation';
+
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
 import { getUpdatedFormErrors } from '../bundlePageUtils';
@@ -126,9 +127,9 @@ OperatorDeploymentsPage.defaultProps = {
   operator: {},
   formErrors: {},
   sectionStatus: {},
-  storeEditorFormErrors: helpers.noop,
-  storeEditorOperator: helpers.noop,
-  setSectionStatus: helpers.noop
+  storeEditorFormErrors: noop,
+  storeEditorOperator: noop,
+  setSectionStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { helpers } from '../../../common/helpers';
+import { advancedUploadAvailable } from '../../../common/helpers';
 
 /**
  * Drop area for uploading files by draging them in
@@ -14,7 +14,7 @@ class UploaderDropArea extends React.Component {
   };
 
   componentDidMount() {
-    this.setState({ advancedUpload: helpers.advancedUploadAvailable() });
+    this.setState({ advancedUpload: advancedUploadAvailable() });
   }
 
   /**

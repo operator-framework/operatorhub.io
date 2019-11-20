@@ -263,8 +263,11 @@ const mergeOwnedCRD = (initial, updated) =>
 export const mergeOwnedCRDs = (initialValue, newValue) => {
   let mergedCrds = mergeArrayOfObjectsByKey(initialValue, newValue, 'kind', mergeOwnedCRD);
 
-  // remove sample crd if there is any other crd
-  mergedCrds = mergedCrds.filter((crd, index, array) => array.length > 1 && !isOwnedCrdDefault(crd));
+  // keep sample crd if it is the only one
+  if (mergedCrds.length > 1) {
+    // remove sample crd if there is any other crd
+    mergedCrds = mergedCrds.filter(crd => !isOwnedCrdDefault(crd));
+  }
 
   // add default resources to CRDs which are missing them
   mergedCrds = mergedCrds.map(crd => addDefaultResourceStructureToCrd(crd));

@@ -1,10 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { helpers } from '../../common/helpers';
-import { reduxConstants } from '../../redux/index';
+
+import { noop } from '../../common/helpers';
+import { reduxConstants } from '../../redux/constants';
 import YamlViewer from '../../components/YamlViewer';
 import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
 import OperatorEditorSubPage from './OperatorEditorSubPage';
@@ -143,10 +144,10 @@ OperatorYamlEditorPage.propTypes = {
 
 OperatorYamlEditorPage.defaultProps = {
   operator: {},
-  storeEditorOperator: helpers.noop,
-  resetEditorOperator: helpers.noop,
-  showConfirmModal: helpers.noop,
-  hideConfirmModal: helpers.noop
+  storeEditorOperator: noop,
+  resetEditorOperator: noop,
+  showConfirmModal: noop,
+  hideConfirmModal: noop
 };
 
 const mapDispatchToProps = dispatch => ({

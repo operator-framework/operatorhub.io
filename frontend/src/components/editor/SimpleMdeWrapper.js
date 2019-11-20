@@ -1,8 +1,8 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import SimpleMDE from 'simplemde';
-import { helpers } from '../../common/helpers';
+import { noop } from '../../common/helpers';
 
 class SimpleMdeWrapper extends React.Component {
   simpleMDE = null;
@@ -74,9 +74,9 @@ SimpleMdeWrapper.defaultProps = {
   style: {},
   options: {},
   markdown: '',
-  onReady: helpers.noop,
-  onChange: helpers.noop,
-  onBlur: helpers.noop
+  onReady: noop,
+  onChange: noop,
+  onBlur: noop
 };
 
 export default SimpleMdeWrapper;

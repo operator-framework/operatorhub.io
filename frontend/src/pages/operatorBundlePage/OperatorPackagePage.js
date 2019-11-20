@@ -1,13 +1,13 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 
-import { helpers } from '../../common/helpers';
+import { noop } from '../../common/helpers';
 
 import OperatorEditorSubPage from './OperatorEditorSubPage';
-import { validateOperatorPackageField, validateOperatorPackage } from '../../utils/operatorUtils';
+import { validateOperatorPackageField, validateOperatorPackage } from '../../utils/operatorValidation';
 import { setSectionStatusAction, updateOperatorPackageAction } from '../../redux/actions/editorActions';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
 import { EDITOR_STATUS } from '../../utils/constants';
@@ -123,8 +123,8 @@ OperatorPackagePage.propTypes = {
 OperatorPackagePage.defaultProps = {
   operatorPackage: {},
   sectionStatus: {},
-  setSectionStatus: helpers.noop,
-  storeEditorOperatorPackage: helpers.noop
+  setSectionStatus: noop,
+  storeEditorOperatorPackage: noop
 };
 
 const mapDispatchToProps = dispatch => ({

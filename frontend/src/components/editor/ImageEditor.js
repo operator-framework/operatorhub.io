@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Alert, Grid, Icon } from 'patternfly-react';
 import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
-import { helpers } from '../../common/helpers';
+import { advancedUploadAvailable } from '../../common/helpers';
 
 class ImageEditor extends React.Component {
   constructor(props) {
@@ -17,7 +17,7 @@ class ImageEditor extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({ advancedUpload: helpers.advancedUploadAvailable() });
+    this.setState({ advancedUpload: advancedUploadAvailable() });
   }
 
   doUploadFile = files => {

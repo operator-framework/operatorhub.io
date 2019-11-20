@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
-import { helpers } from '../../../common/helpers';
+import { noop, transformPathedName } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import ResourcesEditor from '../../../components/editor/ResourcesEditor';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
@@ -16,10 +16,9 @@ import {
   getDefaultOnwedCRD,
   getDefaultAlmExample,
   convertExampleYamlToObj,
-  isCrdDescriptorDefault,
-  getDefaultCrdDescriptor,
-  containsErrors
+  getDefaultCrdDescriptor
 } from '../../../utils/operatorUtils';
+import { containsErrors } from '../../../utils/operatorValidation';
 import {
   setSectionStatusAction,
   storeEditorFormErrorsAction,
@@ -72,7 +71,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     let specDescriptorsExpandedByError = false;
     let statusDescriptorsExpandedByError = false;
 
-    this.name = helpers.transformPathedName(_.get(this.props.match, 'params.crd', ''));
+    this.name = transformPathedName(_.get(this.props.match, 'params.crd', ''));
 
     // find crd by name or take default empty one
     let crd = operatorCRDs[this.crdIndex];
@@ -460,9 +459,9 @@ OperatorOwnedCRDEditPage.defaultProps = {
   sectionStatus: {},
   location: {},
   isNew: false,
-  storeEditorOperator: helpers.noop,
-  storeEditorFormErrors: helpers.noop,
-  setSectionStatus: helpers.noop
+  storeEditorOperator: noop,
+  storeEditorFormErrors: noop,
+  setSectionStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

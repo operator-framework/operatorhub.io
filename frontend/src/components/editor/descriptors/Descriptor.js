@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { Icon } from 'patternfly-react';
 import DescriptorInput from './DescriptorInput';
 import { operatorFieldPlaceholders } from '../../../utils/operatorDescriptors';
-import { helpers } from '../../../common/helpers';
+import { noop } from '../../../common/helpers';
 import EditorSelect from '../EditorSelect';
 import { sectionsFields } from '../../../utils/constants';
 
@@ -174,7 +174,7 @@ class Descriptor extends React.PureComponent {
               {xDescriptorError && <div className="oh-operator-editor-form__error-block">{xDescriptorError}</div>}
             </div>
             <span className="oh-operator-editor-form__description  col-sm-6">
-              Used to determine which {'"capabilities"'} this descriptor has and which UI component to use.
+              Used to determine which &quot;capabilities&quot; this descriptor has and which UI component to use.
             </span>
           </div>
         </div>
@@ -202,7 +202,7 @@ Descriptor.defaultProps = {
   errors: {},
   removable: false,
   dirtyFields: {},
-  onDescriptorRemove: helpers.noop
+  onDescriptorRemove: noop
 };
 
 export default Descriptor;

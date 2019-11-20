@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 
-import { helpers } from '../../../common/helpers';
+import { transformPathedName, noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../OperatorEditorSubPage';
 import { getUpdatedFormErrors } from '../bundlePageUtils';
 import {
@@ -39,7 +39,7 @@ class OperatorRequiredCRDEditPage extends React.Component {
     const clonedOperator = _.cloneDeep(operator);
     const operatorCRDs = _.get(clonedOperator, crdsField, []);
 
-    this.name = helpers.transformPathedName(_.get(this.props.match, 'params.crd', ''));
+    this.name = transformPathedName(_.get(this.props.match, 'params.crd', ''));
     let crd = operatorCRDs[this.crdIndex];
 
     if (isNew) {
@@ -209,9 +209,9 @@ OperatorRequiredCRDEditPage.defaultProps = {
   formErrors: {},
   location: {},
   isNew: false,
-  storeEditorOperator: helpers.noop,
-  storeEditorFormErrors: helpers.noop,
-  setSectionStatus: helpers.noop
+  storeEditorOperator: noop,
+  storeEditorFormErrors: noop,
+  setSectionStatus: noop
 };
 
 const mapDispatchToProps = dispatch => ({

@@ -1,6 +1,8 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HappyPack = require('happypack');
+// const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -11,24 +13,15 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/static/'
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: './src/index.html'
-    }),
-    new MiniCssExtractPlugin({
-      filename: 'app-bundle.[contenthash:6].css'
-    })
-  ],
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js']
+  },
   module: {
     rules: [
       {
-        test: /\.js?$/,
+        test: /\.(js|ts)[x]?$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader'
-          }
-        ]
+        use: 'happypack/loader'
       },
       {
         test: /\.s?css$/,
@@ -40,8 +33,6 @@ module.exports = {
               publicPath: './'
             }
           },
-          { loader: 'cache-loader' },
-          { loader: 'thread-loader' },
           {
             loader: 'css-loader',
             options: {
@@ -58,7 +49,9 @@ module.exports = {
             loader: 'sass-loader',
             options: {
               sourceMap: true,
-              outputStyle: 'compressed'
+              sassOptions: {
+                outputStyle: 'compressed'
+              }
             }
           }
         ]
@@ -110,5 +103,25 @@ module.exports = {
         }
       }
     }
-  }
+  },
+  plugins: [
+    // runs loaders in multiple parallel threads
+    // significantly speed up app build with moderate to big code base
+    new HappyPack({
+      loaders: ['babel-loader']
+    }),
+    // new ForkTsCheckerWebpackPlugin({
+    //   async: false,
+    //   checkSyntacticErrors: true,
+    //   measureCompilationTime: true,
+    //   tslint: false,
+    //   useTypescriptIncrementalApi: false
+    // }),
+    new HtmlWebpackPlugin({
+      template: './src/index.html'
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'app-bundle.[contenthash:6].css'
+    })
+  ]
 };
