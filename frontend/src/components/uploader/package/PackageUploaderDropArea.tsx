@@ -157,19 +157,18 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
                     const foundDirectory = entries.some(entry => entry.isDirectory);
 
                     if (foundDirectory && foundPackageFile) {
-                        resolve();
+                        resolve(true);
                     } else {
-                        reject('Directory has to contiant package file and version folder.');
+                        reject('Directory has to contain package file and version folder.');
                     }
 
                 } else {
-                    reject('Directory has to contiant package file and version folder.');
+                    reject('Directory has to contain package file and version folder.');
                 }
             });
         } else {
-            reject('Invalid directory. Has to be package root directory.');
+            reject('Invalid directory. Operator package folder should be uploaded.');
         }
-
     });
 
 
@@ -178,29 +177,22 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
      * Upload files on drop
      */
     onDropEvent = (e: React.DragEvent) => {
-        const { onUpload } = this.props;
+        const { onUpload, showUploadWarning } = this.props;
         const items = e.dataTransfer.items;
         const entry = items[0].webkitGetAsEntry();
 
         this.handleDragDropEvent(e);
 
         if (items.length > 1) {
-            // @TODO show warning that only single dir should be used!
+            showUploadWarning('Only single operator package directory is supported');
         } else {
 
             this.isValidPackageDir(entry)
-                .then(() => {
-                    console.log('dir', entry.name, entry);
-
-                    return this.listContent(entry);
-
-                })
-                .then(entries => {
-                    onUpload(entries);
-                })
+                .then(_success => this.listContent(entry))
+                .then(entries => onUpload(entries))
                 .catch(e => {
-                    console.log(e);
-                    // @TODO show warning
+                    console.warn(e);
+                    showUploadWarning(e);
                 })
         }
 

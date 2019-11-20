@@ -1,9 +1,17 @@
-export const showUploaderErrorConfirmationModalAction = (error) => showConfirmationModalAction({
+export const showUploaderErrorConfirmationModalAction = (error: string) => showConfirmationModalAction({
     title: 'Error Uploading File',
     heading: error,
     iconName: "error-circle-o",
     confirmButtonText: 'OK'
-})
+});
+
+export const showClearConfirmationModalAction = (onConfirm: () => void) => showConfirmationModalAction({
+    title: 'Clear Content',
+    heading: 'Are you sure you want to clear the current content of the editor?',
+    confirmButtonText: 'Clear',
+    cancelButtonText: 'Cancel',
+    onConfirm
+});
 
 export const showConfirmationModalAction = (options: {
     title: string,
@@ -17,7 +25,7 @@ export const showConfirmationModalAction = (options: {
     onCancel?: () => void
 }) => ({
     type: 'CONFIRMATION_MODAL_SHOW' as 'CONFIRMATION_MODAL_SHOW',
-       ...options
+    ...options
 })
 
 export const hideConfirmModalAction = () => ({

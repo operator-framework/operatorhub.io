@@ -10,7 +10,7 @@ import { normalizeYamlOperator, getMissingCrdUploads, getUpdatedFormErrors } fro
 import * as operatorUtils from '../../../utils/operatorUtils';
 import { validateOperatorPackage } from '../../../utils/operatorValidation';
 import { EDITOR_STATUS, sectionsFields, EditorSectionNames } from '../../../utils/constants';
-import * as actions from '../../../redux/actions/editorActions';
+import * as actions from '../../../redux/actions';
 import * as utils from './UploaderUtils';
 
 import UploaderDropArea from './UploaderDropArea';
@@ -18,7 +18,6 @@ import UploaderObjectList from './UploaderObjectList';
 import { Operator, OperatorPackage, CustomResourceFile, OperatorOwnedCrd, CustomResourceTemplateFile } from '../../../utils/operatorTypes';
 import { UploadMetadata, KubernetesRoleObject, KubernetsRoleBindingObject } from './UploaderTypes';
 import UploaderBase from '../UploaderBase';
-import { showConfirmationModalAction } from '../../../redux';
 
 const validFileTypesRegExp = new RegExp(`(${['.yaml'].join('|').replace(/\./g, '\\.')})$`, 'i');
 
@@ -638,12 +637,7 @@ OperatorVersionUploader.defaultProps = {
 const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
-      showErrorModal: error => showConfirmationModalAction({
-        title: 'Error Uploading File',
-        iconName: 'error-circle-o',
-        heading: error,
-        confirmButtonText: 'OK'
-      }),
+      showErrorModal: actions.showUploaderErrorConfirmationModalAction,
       setSectionStatus: actions.setSectionStatusAction,
       setAllSectionsStatus: actions.setBatchSectionsStatusAction,
       updateOperatorPackage: actions.updateOperatorPackageAction,
