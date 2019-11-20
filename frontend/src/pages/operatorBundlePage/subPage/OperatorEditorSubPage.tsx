@@ -2,20 +2,58 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
-import { Breadcrumb } from 'patternfly-react';
+import { History } from 'history';
+import { bindActionCreators } from 'redux';
 
-import { noop, debounce } from '../../common/helpers';
-import Page from '../../components/page/Page';
-import { operatorFieldDescriptions } from '../../utils/operatorDescriptors';
-import { setSectionStatusAction, storeKeywordSearchAction } from '../../redux/actions';
-import { reduxConstants } from '../../redux';
-import { EDITOR_STATUS } from '../../utils/constants';
+import { noop, debounce } from '../../../common/helpers';
+import Page from '../../../components/page/Page';
+import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
+import { setSectionStatusAction, storeKeywordSearchAction, showConfirmationModalAction } from '../../../redux/actions';
+import { EDITOR_STATUS, EditorSectionNames } from '../../../utils/constants';
+import EditorButtonBar from './EditorButtonBar';
+import EditorBreadcrumbs from './EditorBreadCrumbs';
 
-class OperatorEditorSubPage extends React.Component {
-  state = {
+export interface OperatorEditorSubPageProps {
+  title: React.ReactNode
+  field: string
+  history: History
+  header?: React.ReactNode
+  buttonBar?: React.ReactNode
+  description: React.ReactNode
+  secondary?: boolean
+  pageId?: string
+  tertiary?: boolean
+  lastPage?: string
+  lastPageTitle?: string
+  section?: EditorSectionNames
+  pageErrors: boolean
+  validatePage: () => boolean
+  sectionStatus: keyof typeof EDITOR_STATUS
+  storeKeywordSearch: typeof storeKeywordSearchAction
+  setSectionStatus: typeof setSectionStatusAction
+  showPageErrorsMessage: () => void
+}
+
+interface OperatorEditorSubPageState {
+  headerHeight: number
+  titleHeight: number
+  keywordSearch: string
+}
+
+class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPageProps, OperatorEditorSubPageState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: OperatorEditorSubPageState = {
     headerHeight: 0,
-    titleHeight: 0
+    titleHeight: 0,
+    keywordSearch: ''
   };
+
+  onWindowResize: any;
+
+  titleAreaRef: HTMLElement | null;
 
   componentDidMount() {
     const { validatePage, setSectionStatus, section, sectionStatus } = this.props;
@@ -25,9 +63,9 @@ class OperatorEditorSubPage extends React.Component {
     window.addEventListener('resize', this.onWindowResize);
 
     // do not validate pristine page
-    if (sectionStatus[section] !== EDITOR_STATUS.empty) {
+    if (section && sectionStatus[section] !== EDITOR_STATUS.empty) {
       // validate page to display errors when opened
-      if (section && validatePage() === false) {
+      if (validatePage() === false) {
         setSectionStatus(section, EDITOR_STATUS.errors);
       }
     }
@@ -36,11 +74,6 @@ class OperatorEditorSubPage extends React.Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.onWindowResize);
   }
-
-  onHome = e => {
-    e.preventDefault();
-    this.props.history.push('/');
-  };
 
   onEditor = e => {
     e.preventDefault();
@@ -54,6 +87,11 @@ class OperatorEditorSubPage extends React.Component {
 
   allSet = e => {
     const { validatePage, setSectionStatus, section, secondary, showPageErrorsMessage } = this.props;
+
+    // skip if no section exists - user has to implement own button bar with validation
+    if (!section) {
+      return;
+    }
 
     if (validatePage() === false) {
       showPageErrorsMessage();
@@ -70,7 +108,7 @@ class OperatorEditorSubPage extends React.Component {
     this.onBack(e);
   };
 
-  onScroll = (scrollTop, topperHeight, toolbarHeight) => {
+  onScroll = (scrollTop: number, topperHeight: number, toolbarHeight: number) => {
     const { headerHeight } = this.state;
     if (headerHeight !== topperHeight + toolbarHeight) {
       this.setState({ headerHeight: topperHeight + toolbarHeight });
@@ -78,10 +116,12 @@ class OperatorEditorSubPage extends React.Component {
   };
 
   updateTitleHeight = () => {
-    this.setState({ titleHeight: this.titleAreaRef.scrollHeight });
+    const titleHeight = this.titleAreaRef ? this.titleAreaRef.scrollHeight : 0;
+
+    this.setState({ titleHeight });
   };
 
-  onSearchChange = searchValue => {
+  onSearchChange = (searchValue: string) => {
     this.setState({ keywordSearch: searchValue });
   };
 
@@ -89,39 +129,20 @@ class OperatorEditorSubPage extends React.Component {
     this.onSearchChange('');
   };
 
-  searchCallback = searchValue => {
+  searchCallback = (searchValue: string) => {
     if (searchValue) {
       this.props.storeKeywordSearch(searchValue);
       this.props.history.push(`/?keyword=${searchValue}`);
     }
   };
 
-  setTitleAreaRef = ref => {
+  setTitleAreaRef = (ref: HTMLElement | null) => {
     this.titleAreaRef = ref;
   };
 
-  renderBreadcrumbs = () => (
-    <Breadcrumb>
-      <Breadcrumb.Item onClick={e => this.onHome(e)} href={window.location.origin}>
-        Home
-      </Breadcrumb.Item>
-      {(this.props.secondary || this.props.tertiary) && (
-        <Breadcrumb.Item onClick={e => this.onEditor(e)} href={`${window.location.origin}/bundle`}>
-          Package your Operator
-          <span className="oh-beta-label">BETA</span>
-        </Breadcrumb.Item>
-      )}
-      {this.props.tertiary && (
-        <Breadcrumb.Item onClick={e => this.onBack(e)} href={`${window.location.origin}/bundle/${this.props.lastPage}`}>
-          {this.props.lastPageTitle}
-        </Breadcrumb.Item>
-      )}
-      <Breadcrumb.Item active>{this.props.title}</Breadcrumb.Item>
-    </Breadcrumb>
-  );
-
   render() {
     const {
+      history,
       header,
       title,
       field,
@@ -130,6 +151,8 @@ class OperatorEditorSubPage extends React.Component {
       pageId,
       buttonBar,
       secondary,
+      lastPage,
+      lastPageTitle,
       tertiary,
       pageErrors
     } = this.props;
@@ -138,8 +161,17 @@ class OperatorEditorSubPage extends React.Component {
     return (
       <Page
         className="oh-page-operator-editor"
-        toolbarContent={this.renderBreadcrumbs()}
-        history={this.props.history}
+        toolbarContent={
+          <EditorBreadcrumbs
+            lastPageSubPath={lastPage}
+            lastPageTitle={lastPageTitle}
+            history={history}
+            title={title}
+            secondary={secondary}
+            tertiary={tertiary}
+          />
+        }
+        history={history}
         searchValue={keywordSearch}
         onSearchChange={this.onSearchChange}
         clearSearch={this.clearSearch}
@@ -162,23 +194,17 @@ class OperatorEditorSubPage extends React.Component {
             {children}
           </div>
           {buttonBar ||
-            (secondary && (
-              <div className="oh-operator-editor-page__button-bar">
-                <button className="oh-button oh-button-secondary" onClick={this.onEditor}>
-                  Back to Package your Operator
-                </button>
-                <button className="oh-button oh-button-primary" disabled={pageErrors} onClick={this.allSet}>
-                  {`All set with ${this.props.title}`}
-                </button>
-              </div>
-            )) ||
-            (tertiary && (
-              <div className="oh-operator-editor-page__button-bar__tertiary">
-                <button className="oh-button oh-button-primary" onClick={this.onBack}>
-                  {`Back to ${this.props.lastPageTitle}`}
-                </button>
-              </div>
-            ))}
+            <EditorButtonBar
+              lastPageSubPath={lastPage}
+              lastPageTitle={lastPageTitle}
+              history={history}
+              title={title}
+              secondary={secondary}
+              tertiary={tertiary}
+              pageHasErrors={pageErrors}
+              onAllSet={this.allSet}
+            />
+          }
         </div>
       </Page>
     );
@@ -231,15 +257,16 @@ OperatorEditorSubPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  storeKeywordSearch: keywordSearch => dispatch(storeKeywordSearchAction(keywordSearch)),
-  setSectionStatus: (section, status) => dispatch(setSectionStatusAction(section, status)),
-  showPageErrorsMessage: () =>
-    dispatch({
-      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
-      title: 'Errors',
-      heading: <span>There are errors or missing required fields on the page</span>,
-      confirmButtonText: 'OK'
-    })
+  ...bindActionCreators({
+    storeKeywordSearch: storeKeywordSearchAction,
+    setSectionStatus: setSectionStatusAction,
+    showPageErrorsMessage: () =>
+      showConfirmationModalAction({
+        title: 'Errors',
+        heading: 'There are errors or missing required fields on the page',
+        confirmButtonText: 'OK'
+      })
+  }, dispatch)
 });
 
 const mapStateToProps = state => ({

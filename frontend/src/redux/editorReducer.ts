@@ -2,6 +2,7 @@ import { reduxConstants } from './constants';
 import { getAutoSavedOperatorData, getDefaultOperator } from '../utils/operatorUtils';
 import { Operator, OperatorPackage } from '../utils/operatorTypes';
 import { ISectionFields, EDITOR_STATUS } from '../utils/constants';
+import { UploadMetadata } from '../components/uploader';
 
 export interface EditorReducerState {
   operator: Operator
@@ -9,7 +10,7 @@ export interface EditorReducerState {
   operatorPackage: OperatorPackage
   uploads: UploadMetadata[],
   formErrors: any,
-  sectionStatus: Record<keyof ISectionFields, keyof EDITOR_STATUS>
+  sectionStatus: Record<keyof ISectionFields, keyof typeof EDITOR_STATUS>
 }
 
 const getInitialState = () => {

@@ -6,7 +6,7 @@ import _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
 
 import { noop, transformPathedName } from '../../../common/helpers';
-import OperatorEditorSubPage from '../OperatorEditorSubPage';
+import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
 import ResourcesEditor from '../../../components/editor/ResourcesEditor';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
 import DescriptorsEditor from '../../../components/editor/descriptors/DescriptorsEditor';

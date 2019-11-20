@@ -6,34 +6,25 @@ import { operatorFieldPlaceholders } from '../../../utils/operatorDescriptors';
 import OperatorInputWrapper from './OperatorInputWrapper';
 import EditorSelect from '../EditorSelect';
 
-/**
- * Update operator value while field is edited
- * @callback UpdaterOperatorFromSelectCallback
- * @param {string} field
- * @param {string[]} values
- */
 
-/**
- * @callback CommitOperatorFieldFromSelectCallback
- * @param {string=} field
- */
+ export interface OperatorSelectProps{
+  title: string
+  field: string
+  formErrors: any
+  values: string[]
+  options: string[]
+  updateOperator: (field: string, values: string[]) => void
+  commitField: (field: string) => void
+  isMulti?: boolean
+  customSelect?: boolean
+  emptyLabel?: string
+  newSelectionPrefix?: string
+ }
 
 /**
  * Create input wrapped into Operator Editor styling
- * @param {object} param0
- * @param {string} param0.title
- * @param {string} param0.field
- * @param {string[]} param0.values
- * @param {string[]} param0.options
- * @param {*} param0.formErrors
- * @param {boolean} [param0.isMulti]
- * @param {boolean} [param0.customSelect=false]
- * @param {string=} [param0.emptyLabel]
- * @param {string=} [param0.newSelectionPrefix]
- * @param {UpdaterOperatorFromSelectCallback} param0.updateOperator
- * @param {CommitOperatorFieldFromSelectCallback} param0.commitField
  */
-const OperatorSelect = ({
+const OperatorSelect: React.FC<OperatorSelectProps> = ({
   title,
   field,
   formErrors,
@@ -61,8 +52,8 @@ const OperatorSelect = ({
 OperatorSelect.propTypes = {
   title: PropTypes.string.isRequired,
   field: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.string).isRequired,
-  values: PropTypes.arrayOf(PropTypes.string).isRequired,
+  options: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  values: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   formErrors: PropTypes.any.isRequired,
   isMulti: PropTypes.bool,
   customSelect: PropTypes.bool,

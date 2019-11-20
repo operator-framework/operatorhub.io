@@ -5,13 +5,13 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { noop } from '../../common/helpers';
-import { reduxConstants } from '../../redux/constants';
 import YamlViewer from '../../components/YamlViewer';
 import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
-import OperatorEditorSubPage from './OperatorEditorSubPage';
+import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { isDefaultOperator } from '../../utils/operatorUtils';
 import { resetEditorOperatorAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
+import { hideConfirmModalAction, showClearConfirmationModalAction } from '../../redux';
 
 class OperatorYamlEditorPage extends React.Component {
   state = {
@@ -155,17 +155,8 @@ const mapDispatchToProps = dispatch => ({
     {
       storeEditorOperator: storeEditorOperatorAction,
       resetEditorOperator: resetEditorOperatorAction,
-      showConfirmModal: onConfirm => ({
-        type: reduxConstants.CONFIRMATION_MODAL_SHOW,
-        title: 'Clear Content',
-        heading: <span>Are you sure you want to clear the current content of the editor?</span>,
-        confirmButtonText: 'Clear',
-        cancelButtonText: 'Cancel',
-        onConfirm
-      }),
-      hideConfirmModal: () => ({
-        type: reduxConstants.CONFIRMATION_MODAL_HIDE
-      })
+      showConfirmModal: showClearConfirmationModalAction,
+      hideConfirmModal: hideConfirmModalAction
     },
     dispatch
   )

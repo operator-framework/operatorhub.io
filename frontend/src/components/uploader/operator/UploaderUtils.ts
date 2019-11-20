@@ -1,23 +1,17 @@
 import _ from 'lodash-es';
 
-import {
-  generateIdFromVersionedName,
-  getDefaultOperator,
-  getDefaultOnwedCRD,
-  isOwnedCrdDefault,
-  isDeploymentDefault,
-  isAlmExampleDefault
-} from '../../../utils/operatorUtils';
+import * as operatorUtils from '../../../utils/operatorUtils';
 import { addIdToDescriptor } from '../../../pages/operatorBundlePage/bundlePageUtils';
+import { TypeAndName, UploadMetadata } from './UploaderTypes';
+import { Operator, OperatorCrdDescriptor, OperatorOwnedCrd, OperatorCrdResource } from '../../../utils/operatorTypes';
 
 export const securityObjectTypes = ['ClusterRole', 'Role', 'ClusterRoleBinding', 'RoleBinding'];
+type SecurityObjectTypes = 'ClusterRole' | 'Role' | 'ClusterRoleBinding' | 'RoleBinding' | 'ServiceAccount';
 
 /**
  * Derive file type from its content
- * @param {*} content
- * @returns {TypeAndName|null}
  */
-export function getObjectNameAndType(content) {
+export function getObjectNameAndType(content): TypeAndName | null {
   if (content.kind && content.apiVersion && content.metadata) {
     const type = content.kind;
     const { name } = content.metadata;
@@ -55,9 +49,8 @@ export function getObjectNameAndType(content) {
 
 /**
  * Detects file upload overwriting other version of same file
- * @param {UploadMetadata[]} uploads
  */
-export function markReplacedObjects(uploads) {
+export function markReplacedObjects(uploads: UploadMetadata[]) {
   // iterate over uploads backwards
   for (let i = uploads.length - 1; i >= 0; i--) {
     const upload = uploads[i];
@@ -67,7 +60,7 @@ export function markReplacedObjects(uploads) {
       (upload.type === 'ClusterServiceVersion' || upload.type === 'CustomResourceDefinition') &&
       upload.data
     ) {
-      const id = generateIdFromVersionedName(upload.name);
+      const id = operatorUtils.generateIdFromVersionedName(upload.name);
 
       if (id) {
         // search for CSVs or CRDs with same name (but not version) and mark them as overriden
@@ -75,7 +68,7 @@ export function markReplacedObjects(uploads) {
         uploads.forEach((otherUpload, index) => {
           // check only older files before current index
           if (index < i && !otherUpload.errored && otherUpload.data && otherUpload.type === upload.type) {
-            const otherId = generateIdFromVersionedName(otherUpload.name);
+            const otherId = operatorUtils.generateIdFromVersionedName(otherUpload.name);
 
             if (otherId === id) {
               otherUpload.overwritten = true;
@@ -95,13 +88,10 @@ export function markReplacedObjects(uploads) {
 
 /**
  * Identify if operator field was changed by upload
- * @param {string} fieldName
- * @param {Operator} operator
- * @param {Operator} uploadedOperator
- * @param {Operator} mergedOperator
+
  */
-export function operatorFieldWasUpdated(fieldName, operator, uploadedOperator, mergedOperator) {
-  const defaultOperator = getDefaultOperator();
+export function operatorFieldWasUpdated(fieldName: string, operator: Operator, uploadedOperator: Operator, mergedOperator: Operator) {
+  const defaultOperator = operatorUtils.getDefaultOperator();
 
   // field changed when either its value changed
   // or uploaded operator was same as default values
@@ -113,11 +103,8 @@ export function operatorFieldWasUpdated(fieldName, operator, uploadedOperator, m
   );
 }
 
-/**
- * @param {string} fileName
- * @returns {UploadMetadata}
- */
-export const createtUpload = fileName => ({
+
+export const createtUpload = (fileName: string): UploadMetadata => ({
   id: `${Date.now()}_${Math.random().toString()}`,
   name: '',
   data: undefined,
@@ -130,11 +117,9 @@ export const createtUpload = fileName => ({
 
 /**
  * Creates errored upload status
- * @param {string} fileName
- * @param {string} errorStatus
  */
-export function createErroredUpload(fileName, errorStatus) {
-  const upload = this.createtUpload(fileName);
+export function createErroredUpload(fileName: string, errorStatus: string) {
+  const upload = createtUpload(fileName);
   upload.errored = true;
   upload.status = errorStatus;
 
@@ -143,15 +128,12 @@ export function createErroredUpload(fileName, errorStatus) {
 
 /**
  * Creates descriptor from path
- * @param {string} path
- * @returns {OperatorCrdDescriptor}
  */
-export const generateDescriptorFromPath = path => {
+export const generateDescriptorFromPath = (path: string): OperatorCrdDescriptor => {
   const descriptor = {
     path,
     description: _.startCase(path),
     displayName: _.startCase(path),
-    // @ts-ignore
     'x-descriptors': []
   };
 
@@ -161,11 +143,8 @@ export const generateDescriptorFromPath = path => {
 /**
  * Filter latest object based on defined type and namespace
  * Used for filtering roles / role bindings / service account
- * @param {UploadMetadata[]} uploads
- * @param {'ClusterRole'|'Role'|'ClusterRoleBinding'|'RoleBinding'|'ServiceAccount'} type
- * @param {string} namespace
  */
-export function filterPermissionUploads(uploads, type, namespace) {
+export function filterPermissionUploads(uploads: UploadMetadata[], type: SecurityObjectTypes, namespace: string) {
   return uploads
     .filter(up => {
       const name = _.get(up.data, 'metadata.name');
@@ -177,8 +156,8 @@ export function filterPermissionUploads(uploads, type, namespace) {
 /**
  * Add default list of resources to CRD which have them undefined
  */
-export function addDefaultResourceStructureToCrd(crd) {
-  const resources = crd.resources && crd.resources.length > 0 ? crd.resources : getDefaultOnwedCRD().resources;
+export function addDefaultResourceStructureToCrd(crd: OperatorOwnedCrd) {
+  const resources = crd.resources && crd.resources.length > 0 ? crd.resources : operatorUtils.getDefaultOnwedCRD().resources;
   return {
     ...crd,
     resources
@@ -186,21 +165,20 @@ export function addDefaultResourceStructureToCrd(crd) {
 }
 
 /**
- * @callback CustomMergerCallback
- * @param {*} initialValue
- * @param {*} updatedValue
- */
-
-/**
  * Merge array of objects using defined object property as key (unique identifier)
  * By default _.merge is used to merge objects with same ID, but custom implementation can be supplied
- * @param {*[]} initialValues base value
- * @param {*[]} updatedValues applied new value
- * @param {string} keyProperty property name used to identify objects
- * @param {CustomMergerCallback} [customMerger] custom implementation of applying updatedValues into objects map
+ * @param  initialValues base value
+ * @param  updatedValues applied new value
+ * @param  keyProperty property name used to identify objects
+ * @param  customMerger custom implementation of applying updatedValues into objects map
  */
-export function mergeArrayOfObjectsByKey(initialValues, updatedValues, keyProperty, customMerger) {
-  const map = new Map();
+export function mergeArrayOfObjectsByKey<T>(
+  initialValues: T[],
+  updatedValues: T[],
+  keyProperty: string,
+  customMerger?: (initialValue: T | undefined, updatedValue: T) => T
+) {
+  const map = new Map<string, T>();
 
   // recover from case when values are not an array - e.g. malformed data
   if (!Array.isArray(updatedValues)) {
@@ -237,18 +215,16 @@ export function mergeArrayOfObjectsByKey(initialValues, updatedValues, keyProper
 
 /**
  * Merge CRD and merge its subcontent (resources & descriptors) preserving object uniqueness
- * @param {OperatorOwnedCrd} initial
- * @param {OperatorOwnedCrd} updated
  */
-const mergeOwnedCRD = (initial, updated) =>
-  _.mergeWith(initial, updated, (objValue, srcValue, key) => {
+const mergeOwnedCRD = (initial: OperatorOwnedCrd, updated: OperatorOwnedCrd) =>
+  _.mergeWith(initial, updated, (objValue: any[], srcValue: any[], key) => {
     switch (key) {
       case 'specDescriptors':
       case 'statusDescriptors':
-        return mergeArrayOfObjectsByKey(objValue, srcValue, 'path');
+        return mergeArrayOfObjectsByKey<OperatorCrdDescriptor>(objValue, srcValue, 'path');
 
       case 'resources':
-        return mergeArrayOfObjectsByKey(objValue, srcValue, 'kind');
+        return mergeArrayOfObjectsByKey<OperatorCrdResource>(objValue, srcValue, 'kind');
 
       default:
         return undefined;
@@ -257,16 +233,14 @@ const mergeOwnedCRD = (initial, updated) =>
 
 /**
  * Merge owned CRDs using their kind as ID
- * @param {OperatorOwnedCrd[]} initialValue
- * @param {OperatorOwnedCrd[]} newValue
  */
-export const mergeOwnedCRDs = (initialValue, newValue) => {
+export const mergeOwnedCRDs = (initialValue: OperatorOwnedCrd[], newValue: OperatorOwnedCrd[]) => {
   let mergedCrds = mergeArrayOfObjectsByKey(initialValue, newValue, 'kind', mergeOwnedCRD);
 
   // keep sample crd if it is the only one
   if (mergedCrds.length > 1) {
     // remove sample crd if there is any other crd
-    mergedCrds = mergedCrds.filter(crd => !isOwnedCrdDefault(crd));
+    mergedCrds = mergedCrds.filter(crd => !operatorUtils.isOwnedCrdDefault(crd));
   }
 
   // add default resources to CRDs which are missing them
@@ -277,8 +251,6 @@ export const mergeOwnedCRDs = (initialValue, newValue) => {
 
 /**
  * Converts Alm examples to JSON and merge them by kind before stringifying
- * @param {*} initialValue
- * @param {*} newValue
  */
 export const mergeAlmExamples = (initialValue, newValue) => {
   const parsedInitialValue = typeof initialValue === 'string' ? JSON.parse(initialValue) : initialValue;
@@ -288,7 +260,7 @@ export const mergeAlmExamples = (initialValue, newValue) => {
 
   // removed default sample if any other is present (has to be synced with OwnedCRDs behavior!)
   mergedAlmExamples = mergedAlmExamples.filter(
-    (example, index, array) => array.length > 1 && !isAlmExampleDefault(example)
+    (example, index, array) => array.length > 1 && !operatorUtils.isAlmExampleDefault(example)
   );
 
   return JSON.stringify(mergedAlmExamples);
@@ -297,14 +269,12 @@ export const mergeAlmExamples = (initialValue, newValue) => {
 /**
  * In case of deployments we do not merge them, but overwrite
  * as they do not follow same structure which can be easily merged
- * @param {*[]} initialValue
- * @param {*[]} newValue
  */
-export const mergeDeployments = (initialValue, newValue) => {
+export const mergeDeployments = (initialValue: any[], newValue: any[]) => {
   let deployments = mergeArrayOfObjectsByKey(initialValue, newValue, 'name', (initial, updated) => updated);
 
   // remove default sample deployment if any other is provided
-  deployments = deployments.filter((deployment, index, array) => array.length > 1 && !isDeploymentDefault(deployment));
+  deployments = deployments.filter((deployment, index, array) => array.length > 1 && !operatorUtils.isDeploymentDefault(deployment));
 
   return deployments;
 };

@@ -6,23 +6,21 @@ import { operatorFieldPlaceholders, operatorFieldDescriptions } from '../../../u
 import OperatorInputWrapper from './OperatorInputWrapper';
 import { noop } from '../../../common/helpers';
 import { operatorFieldValidators } from '../../../utils/operatorValidators';
+import { OperatorInputChangeCallback, SharedOperatorInputProps } from './OperatorFormTypes';
+
+export interface OperatorInputProps extends SharedOperatorInputProps {
+  inputType: string 
+  value: string|string[]|null 
+  updateOperator: OperatorInputChangeCallback
+}
 
 /**
  * Create input wrapped into Operator Editor styling
- * @param {object} param0
- * @param {string} param0.title
- * @param {string} param0.field
- * @param {string|string[]|null} [param0.value]
- * @param {*} param0.formErrors
- * @param {import('./OperatorInputWrapper').UpdaterOperatorFromInputCallback} param0.updateOperator
- * @param {import('./OperatorInputWrapper').CommitOperatorFieldFromInputCallback} param0.commitField
- * @param {string|null} [param0.defaultValue]
- * @param {Function=} [param0.refCallback]
- * @param {*} [param0.descriptions]
  */
-const OperatorTextArea = ({
+const OperatorInput: React.FC<OperatorInputProps> = ({
   title,
   field,
+  inputType,
   formErrors,
   value,
   updateOperator,
@@ -31,13 +29,13 @@ const OperatorTextArea = ({
   descriptions
 }) => (
   <OperatorInputWrapper title={title} field={field} formErrors={formErrors} descriptions={descriptions}>
-    <textarea
+    <input
       id={field}
       className="form-control"
-      rows={3}
+      type={inputType}
       {..._.get(_.get(operatorFieldValidators, field), 'props')}
-      onChange={e => updateOperator(field, e.target.value)}
       onBlur={e => commitField(field, e.target.value)}
+      onChange={e => updateOperator(field, e.target.value)}
       placeholder={_.get(operatorFieldPlaceholders, field)}
       value={value}
       ref={refCallback}
@@ -45,9 +43,10 @@ const OperatorTextArea = ({
   </OperatorInputWrapper>
 );
 
-OperatorTextArea.propTypes = {
+OperatorInput.propTypes = {
   title: PropTypes.string.isRequired,
   field: PropTypes.string.isRequired,
+  inputType: PropTypes.string.isRequired,
   formErrors: PropTypes.any.isRequired,
   commitField: PropTypes.func.isRequired,
   updateOperator: PropTypes.func.isRequired,
@@ -56,9 +55,9 @@ OperatorTextArea.propTypes = {
   descriptions: PropTypes.object
 };
 
-OperatorTextArea.defaultProps = {
+OperatorInput.defaultProps = {
   refCallback: noop,
   descriptions: operatorFieldDescriptions
 };
 
-export default OperatorTextArea;
+export default OperatorInput;
