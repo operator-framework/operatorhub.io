@@ -11,7 +11,7 @@ import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { isDefaultOperator } from '../../utils/operatorUtils';
 import { resetEditorOperatorAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
-import { showConfirmationModalAction, hideConfirmModalAction } from '../../redux';
+import { hideConfirmModalAction, showClearConfirmationModalAction } from '../../redux';
 
 class OperatorYamlEditorPage extends React.Component {
   state = {
@@ -155,14 +155,7 @@ const mapDispatchToProps = dispatch => ({
     {
       storeEditorOperator: storeEditorOperatorAction,
       resetEditorOperator: resetEditorOperatorAction,
-      showConfirmModal: onConfirm =>
-        showConfirmationModalAction({
-          title: 'Clear Content',
-          heading: 'Are you sure you want to clear the current content of the editor?',
-          confirmButtonText: 'Clear',
-          cancelButtonText: 'Cancel',
-          onConfirm
-        }),
+      showConfirmModal: showClearConfirmationModalAction,
       hideConfirmModal: hideConfirmModalAction
     },
     dispatch

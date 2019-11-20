@@ -3,6 +3,8 @@ import { Grid, Icon } from 'patternfly-react';
 import UploaderStatusIcon, { IconStatus } from '../UploaderStatusIcon';
 import { PackageEntry } from '../../../utils/packageEditorTypes';
 import PackageUploaderFolderIcon, { PackageUploaderFolderIconStatus } from './PackageUploaderFolderIcon';
+import UploaderBase from '../UploaderBase';
+import PackageUploaderSortIcon from './PackageUploaderSortIcon';
 
 export interface PackageUploaderObjectListProps {
     uploads: PackageEntry[]
@@ -11,7 +13,8 @@ export interface PackageUploaderObjectListProps {
 }
 
 interface PackageUploaderObjectListState {
-    expanded: string[]
+    expanded: string[],
+    sorting: 'asc' | 'desc'
 }
 
 /**
@@ -20,7 +23,8 @@ interface PackageUploaderObjectListState {
 class PackageUploaderObjectList extends React.PureComponent<PackageUploaderObjectListProps, PackageUploaderObjectListState>{
 
     state: PackageUploaderObjectListState = {
-        expanded: []
+        expanded: [],
+        sorting: 'asc'
     };
 
     /**
@@ -46,46 +50,65 @@ class PackageUploaderObjectList extends React.PureComponent<PackageUploaderObjec
         });
     }
 
+    toggleSorting = (e: React.MouseEvent) => {
+        const { sorting } = this.state;
+
+        this.setState({
+            sorting: sorting === 'asc' ? 'desc' : 'asc'
+        });
+    }
+
     /**
      * Curried function 
      * Add content of expanded version dirs into to the entries array so they are shown in list
      */
-    showNestedFilesOnExpandedDirs = (expanded: string[]) => (upload: PackageEntry) => {
+    showNestedFilesOnExpandedDirs = (expanded: string[], sorting: 'asc' | 'desc') => (upload: PackageEntry) => {
 
         if (upload.kind === 'dir') {
             const opened = expanded.some(value => value === upload.path);
 
-            if (!opened) {
-                return [upload];
-
-                // add file list only when folder gets expanded
-            } else {
+            // add file list only when folder gets expanded
+            if (opened) {
                 return [
                     {
                         ...upload,
                         opened
                     } as PackageEntry
-                ].concat(upload.content);
+                    // add folder content as next items to show and sort them properly :)
+                ].concat(upload.content.sort(this.sortEntriesByName(sorting)));
             }
 
         }
         return [upload];
     }
 
+    sortEntriesByName = (sorting: 'asc' | 'desc') => (a: PackageEntry, b: PackageEntry) => {
+        if (a.name < b.name) {
+            return sorting === 'asc' ? -1 : 1;
+        } else if (a.name > b.name) {
+            return sorting === 'asc' ? 1 : -1;
+        } else {
+            return 0;
+        }
+    }
+
     render() {
         const { uploads, removeUpload, removeAllUploads } = this.props;
-        const { expanded } = this.state;
+        const { expanded, sorting } = this.state;
 
         if (uploads.length === 0) {
             return null;
         }
 
-        const addExpanded = this.showNestedFilesOnExpandedDirs(expanded);
-
         return (
             <Grid fluid className="oh-operator-editor-upload__uploads">
                 <Grid.Row className="oh-operator-editor-upload__uploads__row">
-                    <Grid.Col xs={3}>Name</Grid.Col>
+                    <Grid.Col xs={3}>
+                        <span>Name</span>
+                        <span onClick={this.toggleSorting}>
+                            <PackageUploaderSortIcon direction={sorting} />
+                        </span>
+                    </Grid.Col>
                     <Grid.Col xs={3}>Object Name</Grid.Col>
                     <Grid.Col xs={3}>Object Type</Grid.Col>
                     <Grid.Col xs={2}>Status</Grid.Col>
@@ -96,8 +119,10 @@ class PackageUploaderObjectList extends React.PureComponent<PackageUploaderObjec
                     </Grid.Col>
                 </Grid.Row>
                 {uploads
-                    .flatMap(addExpanded)
+                    .sort(this.sortEntriesByName(sorting))
+                    .flatMap(this.showNestedFilesOnExpandedDirs(expanded, sorting))
                     .map((upload: PackageEntry) => {
+
                         const isDir = upload.kind === "dir";
                         const folderState = upload.opened ? PackageUploaderFolderIconStatus.OPENED : PackageUploaderFolderIconStatus.CLOSED;
 

@@ -18,7 +18,7 @@ import { getUpdatedFormErrors } from './bundlePageUtils';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';
-import { showConfirmationModalAction, hideConfirmModalAction } from '../../redux';
+import { hideConfirmModalAction, showClearConfirmationModalAction } from '../../redux';
 
 class OperatorBundlePage extends React.Component {
   state = {
@@ -265,14 +265,7 @@ const mapDispatchToProps = dispatch => ({
   ...bindActionCreators(
     {
       resetEditorOperator: resetEditorOperatorAction,
-      showClearConfirmModal: onConfirm =>
-        showConfirmationModalAction({
-          title: 'Clear Content',
-          heading: 'Are you sure you want to clear the current content of the editor?',
-          confirmButtonText: 'Clear',
-          cancelButtonText: 'Cancel',
-          onConfirm
-        }),
+      showClearConfirmModal: showClearConfirmationModalAction,
       hideConfirmModal: hideConfirmModalAction,
       setBatchSectionsStatus: setBatchSectionsStatusAction
     },

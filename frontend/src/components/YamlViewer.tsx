@@ -14,16 +14,16 @@ import copy from 'copy-to-clipboard';
 
 import UploadUrlModal from './modals/UploadUrlModal';
 import { noop, advancedUploadAvailable } from '../common/helpers';
-import { hideConfirmModalAction, storePreviewYamlAction, storeContentHeightAction, showConfirmationModalAction } from '../redux/actions';
+import * as actions from '../redux/actions';
 
 let id = 0;
 
 
 interface YamlViewerDispatch {
-  storePreviewYaml: typeof storePreviewYamlAction
-  storeContentHeight: typeof storeContentHeightAction
+  storePreviewYaml: typeof actions.storePreviewYamlAction
+  storeContentHeight: typeof actions.storeContentHeightAction
   showConfirmModal: (onConfirm: any) => void
-  hideConfirmModal: typeof hideConfirmModalAction
+  hideConfirmModal: typeof actions.hideConfirmModalAction
   showErrorModal: (error: React.ReactNode) => void
 }
 
@@ -547,21 +547,11 @@ YamlViewer.defaultProps = {
 
 const mapDispatchToProps = dispatch => ({
   ...bindActionCreators({
-    storePreviewYaml: storePreviewYamlAction,
-    storeContentHeight: storeContentHeightAction,
-    hideConfirmModal: hideConfirmModalAction,
-    showConfirmModal: onConfirm => showConfirmationModalAction({
-      title: 'Clear Content',
-      heading: 'Are you sure you want to clear the current content of the editor?',
-      confirmButtonText: 'Clear',
-      cancelButtonText: 'Cancel',
-      onConfirm
-    }),
-    showErrorModal: error =>showConfirmationModalAction({
-      title: 'Error Uploading File',
-      heading: error,
-      confirmButtonText: 'OK'
-    })
+    storePreviewYaml: actions.storePreviewYamlAction,
+    storeContentHeight: actions.storeContentHeightAction,
+    hideConfirmModal: actions.hideConfirmModalAction,
+    showConfirmModal: actions.showClearConfirmationModalAction,
+    showErrorModal: actions.showUploaderErrorConfirmationModalAction
 
   }, dispatch)
 });

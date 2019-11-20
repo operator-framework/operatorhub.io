@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
 
 import PackageUploaderDropArea from './PackageUploaderDropArea';
-import { noop } from '../../../common/helpers';
 import { PackageEntry, PackageFileEntry, PackageDirectoryEntry } from '../../../utils/packageEditorTypes';
 import { StoreState } from '../../../redux';
 import PackageUploaderObjectList from './PackageUploaderObjectList';
@@ -17,7 +16,10 @@ const operatorPackageUploaderActions = {
     clearPackageUploads: actions.clearPackageUploadsAction,
     showGithubPackageUpload: actions.showGithubPackageUploadAction,
     hideGithubPackageUpload: actions.hideGithubPackageUploadAction,
-    showErrorModal: actions.showUploaderErrorConfirmationModalAction   
+    showErrorModal: actions.showUploaderErrorConfirmationModalAction,
+    showClearConfirmationModal: actions.showClearConfirmationModalAction,
+    hideConfirmationModal: actions.hideConfirmModalAction
+
 };
 
 
@@ -29,7 +31,9 @@ interface OperatorPackageUploaderDerivedProps {
 type OperatorPackageUploaderActions = typeof operatorPackageUploaderActions;
 
 
-export interface OperatorPackageUploaderProps extends OperatorPackageUploaderDerivedProps, OperatorPackageUploaderActions { };
+export interface OperatorPackageUploaderProps extends OperatorPackageUploaderDerivedProps, OperatorPackageUploaderActions {
+    onUploadChangeCallback: (isValid: boolean) => void
+ };
 
 
 class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploaderProps> {
@@ -119,10 +123,12 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
 
 
     onPackageUpload = (entries: PackageEntry[]) => {
-        const { setPackageUploads } = this.props;
+        const { setPackageUploads, onUploadChangeCallback } = this.props;
         const processedEntries = this.processUploadedObject(entries);
 
         setPackageUploads(processedEntries);
+        // DUMB upload validation. Extend if required
+        onUploadChangeCallback(processedEntries.some(entry => !entry.errored));
     }
 
 
@@ -130,23 +136,34 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
      * Remove all uploaded files from the list
      */
     removeAllUploads = e => {
+        const { clearPackageUploads, showClearConfirmationModal, hideConfirmationModal, onUploadChangeCallback } = this.props;
         e.preventDefault();
 
-        this.props.clearPackageUploads();
+        showClearConfirmationModal(() => {
+            clearPackageUploads();
+            hideConfirmationModal();
+            onUploadChangeCallback(false);
+        });
     };
 
     /**
      * Remove specific upload by its index
      */
     removeUpload = (e: React.MouseEvent, path: string, nested: boolean) => {
+        const {uploads, removePackageUpload, onUploadChangeCallback} = this.props;
         e.preventDefault();
-
-        this.props.removePackageUpload(path, nested);
+        
+        // ensure, that we notify page to disable create button if no upload left 
+        // might become more complex validation later
+        if(uploads.length === 1){
+            onUploadChangeCallback(false);
+        }
+        removePackageUpload(path, nested);
     };
 
 
     render() {
-        const { uploads, showGithubPackageUpload } = this.props;
+        const { uploads, showGithubPackageUpload, showErrorModal } = this.props;
 
         return (
             <React.Fragment>
@@ -160,7 +177,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
                 </div>
                 <PackageUploaderDropArea
                     showGithubUpload={showGithubPackageUpload}
-                    showUploadWarning={noop}
+                    showUploadWarning={showErrorModal}
                     onUpload={this.onPackageUpload}
                 />
                 <PackageUploaderObjectList
