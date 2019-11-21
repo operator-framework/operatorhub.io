@@ -24,7 +24,7 @@ npm install
 npm run build
 ```
 
-### Running local server server
+### Running local server
 In server directory
 ```
 $npm run server
