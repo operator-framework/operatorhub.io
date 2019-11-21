@@ -6,29 +6,42 @@ Operators deliver the automation advantages of cloud services like provisioning,
 able to run anywhere that Kubernetes can run.
 
 ### Build
+In order to build and run the web application in the same way as it does in production follow the next steps.
 
-##### Frontend
+##### Build Frontend
 
 ```
+$pushd frontend
+npm install
+npm run build
+popd
+```
+
+##### Build Backend
+```
+$pushd backend
+npm install
 npm run build
 ```
 
-### Run
+### Running local server server
+In server directory
+```
+$npm run server
+```
 
+Other way to do this is to use Docker image in the repo root folder
 ```
-npm start
+$docker build -t operatorhub .
+`docker run operatorhub
 ```
+
 
 ### Contributing
 
 ##### Running in Development Mode
+This is prefered way when working on front end code. You do not have to care about backend data and front end web server is running in watch mode - it updates when any of the source files is modified and saved.
 
-###### Running the local server
-```
-$cd server
-npm install
-npm run server
-```
 
 ###### Running the local UI in dev mode
 
@@ -39,14 +52,6 @@ npm start
 http://0.0.0.0:9060/
 ```
 
-###### Running the local UI 
-```
-$cd frontend
-npm install
-npm run build
-http://0.0.0.0:8080/
-
-```
 
 ##### Contributing Code
 
