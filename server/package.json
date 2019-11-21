@@ -31,7 +31,7 @@
     },
     "scripts": {
         "start": "npm run tsc && node ./dist/server.js --log=1 --registry=localhost:50051",
-        "npm build": "npm run tsc",
+        "build": "npm run tsc",
         "server": "node ./dist/server.js",
         "gents": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./proto --ts_out=service=true:./proto --grpc_out=./proto --plugin=./node_modules/.bin/protoc_gen-ts ./registry.proto",
         "tsc": "tsc -p .",
