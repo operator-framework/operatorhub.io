@@ -12,6 +12,7 @@ export const gettingStarted = `${operatorsFramework}/getting-started`;
 export const operatorRegistry = `${operatorsFramework}/operator-registry`;
 export const manualTestingOnKubernetes = `${operatorsRepo}/blob/master/docs/testing-operators.md#manual-testing-on-kubernetes`;
 export const prometheusOperator = `${contributions}/prometheus`;
+export const prometheusOperatorVersion = `${contributions}/prometheus/0.22.2`;
 export const olmArchitecture = `${olm}/blob/master/doc/design/architecture.md`;
 export const buildYourCSV = `${olm}/blob/master/doc/design/building-your-csv.md`;
 export const discoveryCatalogs = `${olm}#discovery-catalogs-and-automated-upgrades`;

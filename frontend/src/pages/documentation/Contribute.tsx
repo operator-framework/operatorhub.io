@@ -23,19 +23,17 @@ const Contribute: React.FC<ContributePageProps> = ({ history, ...props }) => {
         </tr>
         <tr>
           <td>
-            <span className="oh-code">alertmanager.crd.yaml,</span>
-            <span className="oh-code">prometheus.crd.yaml,</span>
-            <span className="oh-code">prometheusrule.crd.yaml,</span>
-            <span className="oh-code">servicemonitor.crd.yaml</span>
+            <span className="oh-code">/0.22.2/alertmanagers.monitoring.coreos.com.crd.yaml,</span>
+            <span className="oh-code">/0.22.2/prometheuses.monitoring.coreos.com.crd.yaml,</span>
+            <span className="oh-code">/0.22.2/prometheusrules.monitoring.coreos.com.crd.yaml,</span>
+            <span className="oh-code">/0.22.2/servicemonitors.monitoring.coreos.com.crd.yaml</span>
           </td>
           <td>Custom Resource Definition (CRD)</td>
           <td>Kubernetes Custom Resource Definitions that are owned and watched by the Operator</td>
         </tr>
         <tr>
           <td>
-            <span className="oh-code">prometheusoperator.0.14.0.clusterserviceversion.yaml,</span>
-            <span className="oh-code">prometheusoperator.0.15.0.clusterserviceversion.yaml</span>
-            <span className="oh-code">prometheusoperator.0.22.2.clusterserviceversion.yaml</span>
+            <span className="oh-code">/0.22.2/prometheusoperator.0.22.2.clusterserviceversion.yaml</span>
           </td>
           <td>Cluster Service Version (CSV)</td>
           <td>
@@ -110,6 +108,61 @@ const Contribute: React.FC<ContributePageProps> = ({ history, ...props }) => {
             component like embedded OperatorHub in OpenShift. Either way, this requires some catalog data to be created
             in the form of YAML manifests that follow a specific directory structure.
           </p>
+          <p>
+            Let’s take a look at an example from the&nbsp;
+            <ExternalLink href={documentationLinks.contributions} text="community repository" />:
+          </p>
+          <p>
+            Your catalog data should live in a directory named after your Operator, e.g. the following files exist
+            for the&nbsp;
+            <ExternalLink href={documentationLinks.prometheusOperator} text="Prometheus Operator" />
+            &nbsp;in a directory called <code>prometheus</code>. Within the directory, we refer to a subdirectory that
+            consists of files with one ClusterServiceVersion (CSV) as a &quot;bundle&quot; (an Operator Version).
+            The subdirectory&apos;s folder name is the same as the semantic version of the Operator., e.g.&nbsp;
+            <ExternalLink href={documentationLinks.prometheusOperatorVersion} text="0.22.2" />,
+            which is typically consist of files with one CSV and the CRDs that defines the owned APIs of the CSV,
+            though additional objects may be included.
+          </p>
+          {renderTable()}
+          <p>
+            This catalog data will enable OLM to serve, install, and update your Operator in a predictable way instead
+            of requiring cluster maintainers to manually deploy (e.g. <code>kubectl create -f ...</code>) required
+            manifests that contain CRDs, RBAC rules, Service Accounts, Deployments etc. If you want to learn more about
+            how OLM does this, read about it&nbsp;
+            <ExternalLink href={documentationLinks.olmArchitecture} text="here" />.
+          </p>
+          <h3>Custom Resource Definitions</h3>
+          <p>
+            These should already exist if your Operator watches CRDs. Place each CRD that your Operator owns in it’s own
+            YAML file. CRDs that your Operator does not own but watches are handled by OLMs dependency management.
+          </p>
+          <h3>Cluster Service Version</h3>
+          <p>
+            {`
+            The bulk of your Operator's catalog metadata will reside in a CSV file, of which there is one per version of
+            your Operator. This file contains the specifications of how to deploy your Operator, and information on
+            which CRDs it owns and those it depends on from other Operators. In addition this is where you put a
+            description, logo, version, maturity level, authoring info, links etc. for your Operator. This information
+            will be used to render the detail page on OperatorHub.io. Follow
+            `}
+            <ExternalLink href={documentationLinks.buildYourCSV} text="these instructions" /> to
+            create this file.
+          </p>
+          <p>
+            If you add CSV files for newer versions of your Operator, don’t forget to use the <code>spec.replaces</code>
+            &nbsp;property to point to the previous version.
+          </p>
+          <h3>Package Manifest</h3>
+          <p>
+            {`
+            The package manifest is a simple list of channels that point to a particular CSV name. This allows OLM to
+            serve the Operator from multiple channels, each named to convey that CSV versions' stability and update
+            frequency, e.g. stable and alpha. Your package manifest must have at least one channel. For reference, use
+            one of the examples in the
+            `}
+            <ExternalLink href={documentationLinks.contributions} text="community repository" />.
+          </p>
+          <p>Feel free to use existing Community Operators catalog data as a template.</p>
           <h3>Operator Bundle Editor</h3>
           <p>
             You can now create your Operator bundle from Operatorhub.io using the&nbsp;
@@ -124,56 +177,6 @@ const Contribute: React.FC<ContributePageProps> = ({ history, ...props }) => {
             The Operator bundle editor is now available in beta.&nbsp;
             <ExternalLink href={documentationLinks.fileAnIssue} indicator>Feedback and questions</ExternalLink> are encouraged.
           </blockquote>
-          <p>
-            Let’s take a look at an example from the&nbsp;
-            <ExternalLink href={documentationLinks.contributions} text="community repository" />:
-          </p>
-          <p>
-            Your catalog data should live in a flat directory named after your Operator, e.g. the following files exist
-            for the&nbsp;
-            <ExternalLink href={documentationLinks.prometheusOperator} text="Prometheus Operator" />
-            &nbsp;in a directory called <code>prometheus</code>.
-          </p>
-          {renderTable()}
-          <p>
-            This catalog data will enable OLM to serve, install, and update your Operator in a predictable way instead
-            of requiring cluster maintainers to manually deploy (e.g. <code>kubectl create -f ...</code>) required
-            manifests that contain CRDs, RBAC rules, Service Accounts, Deployments etc. If you want to learn more about
-            how OLM does this, read about it&nbsp;
-            <ExternalLink href={documentationLinks.olmArchitecture} text="here" />.
-          </p>
-          <h3>Custom Resource Definitions:</h3>
-          <p>
-            These should already exist if your Operator watches CRDs. Place each CRD that your Operator owns in it’s own
-            YAML file. CRDs that your Operator does not own but watches are handled by OLMs dependency management.
-          </p>
-          <h3>Cluster Service Version:</h3>
-          <p>
-            {`
-            The bulk of your Operator's catalog metadata will reside in a CSV file, of which there is one per version of
-            your Operator. This file contains the specifications of how to deploy your Operator, and information on
-            which CRDs it owns and those it depends on from other Operators. In addition this is where you put a
-            description, logo, version, maturity level, authoring info, links etc. for your Operator. This information
-            will be used to render the detail page on OperatorHub.io. Follow$&nbsp;
-            `}
-            <ExternalLink href={documentationLinks.buildYourCSV} text="these instructions" /> to
-            create this file.
-          </p>
-          <p>
-            If you add CSV files for newer versions of your Operator, don’t forget to use the <code>spec.replaces</code>
-            &nbsp;property to point to the previous version.
-          </p>
-          <h3>Package Manifest:</h3>
-          <p>
-            {`
-            The package manifest is a simple list of channels that point to a particular CSV name. This allows OLM to
-            serve the Operator from multiple channels, each named to convey that CSV versions' stability and update
-            frequency, e.g. stable and alpha. Your package manifest must have at least one channel. For reference, use
-            one of the examples in the$&nbsp;
-            `}
-            <ExternalLink href={documentationLinks.contributions} text="community repository" />.
-          </p>
-          <p>Feel free to use existing Community Operators catalog data as a template.</p>
         </React.Fragment>
       )
     },
@@ -196,7 +199,7 @@ const Contribute: React.FC<ContributePageProps> = ({ history, ...props }) => {
       )
     },
     {
-      title: `Create Catalog Data with the Operator SDK:`,
+      title: `Create Catalog Data with the Operator SDK`,
       content: (
         <React.Fragment>
           <p>
