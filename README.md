@@ -11,7 +11,7 @@ In order to build and run the web application in the same way as it does in prod
 ##### Build Frontend
 
 ```
-$pushd frontend
+$ pushd frontend
 npm install
 npm run build
 popd
@@ -19,7 +19,7 @@ popd
 
 ##### Build Backend
 ```
-$pushd backend
+$ pushd backend
 npm install
 npm run build
 ```
@@ -27,13 +27,13 @@ npm run build
 ### Running local server
 In server directory
 ```
-$npm run server
+$ npm run server
 ```
 
 Other way to do this is to use Docker image in the repo root folder
 ```
-$docker build -t operatorhub .
-`docker run operatorhub
+$ docker build -t operatorhub .
+docker run operatorhub
 ```
 
 
@@ -46,7 +46,7 @@ This is prefered way when working on front end code. You do not have to care abo
 ###### Running the local UI in dev mode
 
 ```
-$cd frontend
+$ cd frontend
 npm install
 npm start
 http://0.0.0.0:9060/
@@ -78,7 +78,7 @@ $ git checkout -b my-branch -t upstream/master
 
 Verify there are no lint errors
 ```text
-$ yarn lint
+$ npm run lint
 ```
 
 Add and Commit your files
