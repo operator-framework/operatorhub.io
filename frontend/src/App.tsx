@@ -115,7 +115,7 @@ const OperatorPackagePage = asyncComponent(() =>
 );
 
 const OperatorPackageEditorPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorPackageEditorPage" */ './packageEditor/pages/CreatePackageEditorPage').then(
+  import(/* webpackChunkName: "OperatorPackageEditorPage" */ './pages/packageEditor/CreatePackageEditorPage').then(
     module => module.default
   )
 );

@@ -193,7 +193,7 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
                 .catch(e => {
                     console.warn(e);
                     showUploadWarning(e);
-                })
+                });
         }
 
     };
