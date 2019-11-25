@@ -3,7 +3,7 @@ import React from 'react';
 import OperatorInputWrapper from '../../editor/forms/OperatorInputWrapper';
 import { validateOperatorPackageField, getValueError } from '../../../utils/operatorValidation';
 import _ from 'lodash';
-import { operatorPackageFieldValidators, operatorFieldValidators } from '../../../utils/operatorValidators';
+import {  operatorFieldValidators } from '../../../utils/operatorValidators';
 
 export interface CreateNewOperatorPackageSectionProps {
     onSectionValidatedCallback: (isValid: boolean) => void
