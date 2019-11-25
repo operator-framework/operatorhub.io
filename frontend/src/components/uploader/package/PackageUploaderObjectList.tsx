@@ -52,6 +52,7 @@ class PackageUploaderObjectList extends React.PureComponent<PackageUploaderObjec
 
     toggleSorting = (e: React.MouseEvent) => {
         const { sorting } = this.state;
+        e.preventDefault();
 
         this.setState({
             sorting: sorting === 'asc' ? 'desc' : 'asc'
@@ -83,13 +84,9 @@ class PackageUploaderObjectList extends React.PureComponent<PackageUploaderObjec
     }
 
     sortEntriesByName = (sorting: 'asc' | 'desc') => (a: PackageEntry, b: PackageEntry) => {
-        if (a.name < b.name) {
-            return sorting === 'asc' ? -1 : 1;
-        } else if (a.name > b.name) {
-            return sorting === 'asc' ? 1 : -1;
-        } else {
-            return 0;
-        }
+        const result = a.name.localeCompare(b.name);
+
+        return sorting === 'asc' ? result : result * -1;
     }
 
     render() {

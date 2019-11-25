@@ -4,7 +4,7 @@ import { History } from 'history';
 import { bindActionCreators } from 'redux';
 import { Alert } from 'patternfly-react';
 
-import OperatorEditorSubPage from '../../pages/operatorBundlePage/subPage/OperatorEditorSubPage';
+import OperatorEditorSubPage from '../operatorBundlePage/subPage/OperatorEditorSubPage';
 import { advancedUploadAvailable, supportFileSystemEntry } from '../../common/helpers';
 import { CreatePackagePageButtonBar, CreatePackagePageHeader, CreateNewPackageSection } from '../../components/packageEditor/createPackage';
 import { resetEditorOperatorAction, showGithubPackageUploadAction, clearPackageUploadsAction, showClearConfirmationModalAction, hideConfirmModalAction } from '../../redux/actions';

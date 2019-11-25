@@ -5,10 +5,12 @@ import { safeLoad } from 'js-yaml';
 
 import PackageUploaderDropArea from './PackageUploaderDropArea';
 import { PackageEntry, PackageFileEntry, PackageDirectoryEntry } from '../../../utils/packageEditorTypes';
-import { StoreState } from '../../../redux';
+import { StoreState, hideGithubPackageUploadAction } from '../../../redux';
 import PackageUploaderObjectList from './PackageUploaderObjectList';
 
 import * as actions from '../../../redux/actions';
+import UploadPackageFromGithubModal from '../../modals/UploadPackageFromGithubModal';
+import { PackageEditorState } from '../../../redux/packageEditorReducer';
 
 const operatorPackageUploaderActions = {
     setPackageUploads: actions.setPackageUploadsAction,
@@ -24,16 +26,14 @@ const operatorPackageUploaderActions = {
 
 
 
-interface OperatorPackageUploaderDerivedProps {
-    uploads: PackageEntry[]
-}
+type OperatorPackageUploaderDerivedProps = PackageEditorState;
 
 type OperatorPackageUploaderActions = typeof operatorPackageUploaderActions;
 
 
 export interface OperatorPackageUploaderProps extends OperatorPackageUploaderDerivedProps, OperatorPackageUploaderActions {
     onUploadChangeCallback: (isValid: boolean) => void
- };
+};
 
 
 class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploaderProps> {
@@ -150,20 +150,26 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
      * Remove specific upload by its index
      */
     removeUpload = (e: React.MouseEvent, path: string, nested: boolean) => {
-        const {uploads, removePackageUpload, onUploadChangeCallback} = this.props;
+        const { uploads, removePackageUpload, onUploadChangeCallback } = this.props;
         e.preventDefault();
-        
+
         // ensure, that we notify page to disable create button if no upload left 
         // might become more complex validation later
-        if(uploads.length === 1){
+        if (uploads.length === 1) {
             onUploadChangeCallback(false);
         }
         removePackageUpload(path, nested);
     };
 
+    onGithubUploadError = (e: string) => {
+        const {hideGithubPackageUpload, showErrorModal} = this.props;
+
+        hideGithubPackageUpload();
+        showErrorModal(e);
+    }
 
     render() {
-        const { uploads, showGithubPackageUpload, showErrorModal } = this.props;
+        const { uploads, showGithubPackageUpload, showErrorModal, hideGithubPackageUpload, githubUploadShown } = this.props;
 
         return (
             <React.Fragment>
@@ -185,7 +191,13 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
                     removeUpload={this.removeUpload}
                     removeAllUploads={this.removeAllUploads}
                 />
-                {/* {gitUploadShown && <UploadUrlModal onUpload={this.onUrlDownloaded} onClose={this.hideUploadUrl} />} */}
+                {githubUploadShown &&
+                    <UploadPackageFromGithubModal
+                        onUpload={this.onPackageUpload}
+                        onClose={hideGithubPackageUpload}
+                        onError={this.onGithubUploadError}
+                    />
+                }
 
             </React.Fragment>
         );
@@ -198,7 +210,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = (state: StoreState) => ({
-    uploads: state.packageEditorState.uploads
+    ...state.packageEditorState
 });
 
 export default connect(
