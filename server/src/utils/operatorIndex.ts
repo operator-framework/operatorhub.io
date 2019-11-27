@@ -4,7 +4,7 @@ import {importData} from '../importer/client'
 import { getDefaultOperatorForPackage } from './utils';
 import { NormalizedOperatorPackage, OperatorIndexMetadata } from '../sharedTypes';
 import { loadOperators } from '../importer/legacy/loader';
-import { USE_REGISTRY } from './constants';
+import { USE_REGISTRY, REGISTRY_ADDRESS } from './constants';
 
 let operatorsIndexRaw: ReadonlyArray<NormalizedOperatorPackage>;
 let operatorsIndex: OperatorIndexMetadata[];
@@ -28,9 +28,11 @@ export async function importDataAndPrepareForStartup(){
     // catch health state after import
     try{
         if(USE_REGISTRY){
+            console.log(`Importing data from operator registry at address ${REGISTRY_ADDRESS}`);
             operatorsIndexRaw = await importData();
             
         } else {
+            console.log('Parsing  data from local copy of communuity operators repo');
             operatorsIndexRaw = await loadOperators();
         }
         
