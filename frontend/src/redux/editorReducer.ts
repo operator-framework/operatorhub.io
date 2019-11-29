@@ -1,5 +1,5 @@
 import { reduxConstants } from './constants';
-import { getAutoSavedOperatorData, getDefaultOperator } from '../utils/operatorUtils';
+import { getDefaultOperator } from '../utils/operatorUtils';
 import { Operator, OperatorPackage } from '../utils/operatorTypes';
 import { ISectionFields, EDITOR_STATUS } from '../utils/constants';
 import { UploadMetadata } from '../components/uploader';
@@ -14,7 +14,6 @@ export interface EditorReducerState {
 }
 
 const getInitialState = () => {
-  const autoSaved = getAutoSavedOperatorData();
 
   const initialState = {
     operator: getDefaultOperator(),
@@ -36,13 +35,6 @@ const getInitialState = () => {
       package: EDITOR_STATUS.empty
     }
   };
-
-  if (autoSaved) {
-    initialState.operator = autoSaved.operator || initialState.operator;
-    initialState.operatorPackage = autoSaved.operatorPackage || initialState.operatorPackage;
-    initialState.sectionStatus = autoSaved.sectionStatus || autoSaved.sectionStatus;
-    initialState.uploads = autoSaved.uploads || [];
-  }
 
   return initialState;
 };
