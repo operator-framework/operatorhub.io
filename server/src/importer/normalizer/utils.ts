@@ -81,4 +81,4 @@ export const normalizeCRDs = (operator: Operator) => {
     return customResourceDefinitions.map(crd => normalizeCRD(crd, operator));
 };
 
-export const isGlobalOperator = (installModes: OperatorInstallMode[]) => installModes.some(mode => mode.type === 'AllNamespaces' && mode.supported);
+export const isGlobalOperator = (installModes: OperatorInstallMode[] = []) => installModes.some(mode => mode.type === 'AllNamespaces' && mode.supported);
