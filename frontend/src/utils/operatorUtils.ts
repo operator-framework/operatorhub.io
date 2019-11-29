@@ -5,7 +5,8 @@ import {
   OPERATOR_DESCRIPTION_PREREQUISITES_HEADER,
   LOCAL_STORAGE_KEY
 } from './constants';
-import { Operator, CustomResourceFile, OperatorMetadataAnnotations, OperatorSpec, OperatorCrdDescriptor, OperatorLink, OperatorMaintainer, NormalizedOperatorPreview, NormalizedCrdPreview } from './operatorTypes';
+import * as operatorTypes from './operatorTypes';
+import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionsMap } from './packageEditorTypes';
 
 /**
  * Convert version format without dashes
@@ -38,7 +39,7 @@ const normalizeCapabilityLevel = (capability: string) => {
 /**
  * Search for deployment example by kind
  */
-const getExampleYAML = (kind: string, operator: Operator): object | null => {
+const getExampleYAML = (kind: string, operator: operatorTypes.Operator): object | null => {
   const examples = _.get(operator, 'metadata.annotations.alm-examples');
   if (!examples) {
     return null;
@@ -60,7 +61,7 @@ const getExampleYAML = (kind: string, operator: Operator): object | null => {
 /**
  * Merge operator description subsections into single string
  */
-export const mergeDescriptions = (operator: Operator) => {
+export const mergeDescriptions = (operator: operatorTypes.Operator) => {
   const description: string[] = [
     _.get(operator, 'spec.description.aboutApplication', ''),
     _.get(operator, 'spec.description.aboutOperator', ''),
@@ -73,7 +74,7 @@ export const mergeDescriptions = (operator: Operator) => {
 
 
 
-const normalizeCRD = (crd: CustomResourceFile, operator: Operator): NormalizedCrdPreview => ({
+const normalizeCRD = (crd: operatorTypes.CustomResourceFile, operator: operatorTypes.Operator): operatorTypes.NormalizedCrdPreview => ({
   name: _.get(crd, 'name', 'Name Not Available'),
   kind: crd.kind,
   displayName: _.get(crd, 'displayName', 'Name Not Available'),
@@ -81,7 +82,7 @@ const normalizeCRD = (crd: CustomResourceFile, operator: Operator): NormalizedCr
   yamlExample: getExampleYAML(crd.kind, operator)
 });
 
-const normalizeCRDs = (operator: Operator) => {
+const normalizeCRDs = (operator: operatorTypes.Operator) => {
   const customResourceDefinitions = _.get(operator, 'spec.customresourcedefinitions.owned');
   return _.map(customResourceDefinitions, crd => normalizeCRD(crd, operator));
 };
@@ -93,9 +94,9 @@ const isGlobalOperator = installModes => _.some(installModes, { type: 'AllNamesp
 
 
 
-export const normalizeOperator = (operator: Operator) => {
-  const annotations: OperatorMetadataAnnotations = _.get(operator, 'metadata.annotations', {});
-  const spec: OperatorSpec | null = _.get(operator, 'spec', null);
+export const normalizeOperator = (operator: operatorTypes.Operator) => {
+  const annotations: operatorTypes.OperatorMetadataAnnotations = _.get(operator, 'metadata.annotations', {});
+  const spec: operatorTypes.OperatorSpec | null = _.get(operator, 'spec', null);
   const iconObj = _.get(spec, 'icon[0]');
   const categoriesString = _.get(annotations, 'categories', '');
   const packageInfo = _.get(operator, 'packageInfo', {});
@@ -111,7 +112,7 @@ export const normalizeOperator = (operator: Operator) => {
     longDescription = description;
   }
 
-  const normalized: NormalizedOperatorPreview = {
+  const normalized: operatorTypes.NormalizedOperatorPreview = {
     id: generateIdFromVersionedName(operator.metadata.name),
     name: operator.metadata.name,
     displayName: _.get(spec, 'displayName', operator.metadata.name),
@@ -146,7 +147,7 @@ export const getDefaultAlmExample = () => ({
   spec: {}
 });
 
-const defaultOperator: Operator = {
+const defaultOperator: operatorTypes.Operator = {
   apiVersion: 'operators.coreos.com/v1alpha1',
   kind: 'ClusterServiceVersion',
   metadata: {
@@ -293,7 +294,7 @@ const defaultOperator: Operator = {
 // parsing json is significantly faster than deepCloning it
 const defaultOperatorJSON = JSON.stringify(defaultOperator);
 
-export function getDefaultOperator(): Operator {
+export function getDefaultOperator(): operatorTypes.Operator {
   return JSON.parse(defaultOperatorJSON);
 }
 
@@ -336,11 +337,11 @@ export function getDefaultDeployment() {
   return _.cloneDeep(defaultDeploymentRef);
 }
 
-export function getDefaultCrdDescriptor(): OperatorCrdDescriptor {
+export function getDefaultCrdDescriptor(): operatorTypes.OperatorCrdDescriptor {
   return { id: Date.now().toString(), displayName: '', description: '', path: '', 'x-descriptors': [] };
 }
 
-/** @param {Operator} operator */
+/** @param {operatorTypes.Operator} operator */
 export const isDefaultOperator = operator => _.isEqual(operator, defaultOperator);
 export const isOwnedCrdDefault = crd => _.isEqual(crd, defaultOnwedCrdRef);
 export const isRequiredCrdDefault = crd => _.isEqual(crd, getDefaultRequiredCRD());
@@ -374,10 +375,9 @@ export const convertExampleYamlToObj = examples => {
 };
 
 export interface AutoSavedData {
-  sectionStatus: any
-  operator: any
-  operatorPackage: any
-  uploads: any
+  packageName: string,
+  channels: PacakgeEditorChannel[],
+  operatorVersions: PackageEditorOperatorVersionsMap,
 }
 
 /**

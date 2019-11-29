@@ -1,18 +1,47 @@
-import { PackageEntry } from '../utils/packageEditorTypes';
+import { PackageEntry, PackageEditorOperatorVersionsMap, PacakgeEditorChannel } from '../utils/packageEditorTypes';
 import { PackageEditorActions } from './actions';
+import { getAutoSavedOperatorData } from '../utils/operatorUtils';
+
 
 export interface PackageEditorState {
+  packageName: string,
   uploads: PackageEntry[],
+  channels: PacakgeEditorChannel[],
+  operatorVersions: PackageEditorOperatorVersionsMap,
   githubUploadShown: boolean
 }
 
-const initialState: PackageEditorState = {
-  uploads: [],
-  githubUploadShown: false
+
+const getInitialState = () => {
+  const autoSaved = getAutoSavedOperatorData();
+
+  const initialState: PackageEditorState = {
+    packageName: '',
+    uploads: [],
+    channels: [],
+    operatorVersions: {},
+    githubUploadShown: false
+  };
+
+  if (autoSaved) {
+    initialState.packageName = autoSaved.packageName || '';
+    initialState.channels = autoSaved.channels || [];
+    initialState.operatorVersions = autoSaved.operatorVersions || {};
+  }
+
+  return initialState;
 };
 
-const packageEditorReducer = (state: PackageEditorState = initialState, action: PackageEditorActions): PackageEditorState => {
+const packageEditorReducer = (state: PackageEditorState = getInitialState(), action: PackageEditorActions): PackageEditorState => {
+
   switch (action.type) {
+
+    case 'SET_PACKAGE_EDITOR_PACKAGE_NAME': {
+      return {
+        ...state,
+        packageName: action.packageName
+      }
+    }
 
     case 'SET_PACKAGE_EDITOR_UPLOADS': {
       return {
@@ -47,6 +76,62 @@ const packageEditorReducer = (state: PackageEditorState = initialState, action: 
       return {
         ...state,
         uploads: []
+      }
+    }
+
+    case 'SET_PACKAGE_EDITOR_CHANNELS': {
+      return {
+        ...state,
+        channels: action.channels
+      }
+    }
+
+    case 'UPDATE_PACKAGE_EDITOR_CHANNEL': {
+      return {
+        ...state,
+        channels: state.channels.map(channel => {
+
+          if (channel.name === action.name) {
+            return {
+              ...channel,
+              ...action.change
+            }
+          }
+          return channel;
+        })
+      }
+    }
+
+    case 'NEW_PACKAGE_EDITOR_CHANNEL': {
+      return {
+        ...state,
+        channels: [...state.channels, action.newChannel]
+      }
+    }
+
+    case 'MAKE_PACKAGE_EDITOR_CHANNEL_DEFAULT': {
+      return {
+        ...state,
+        channels: state.channels.map(channel => ({
+          ...channel,
+          isDefault: channel.name === action.name
+        }))
+      }
+    }
+
+    case 'REMOVE_PACKAGE_EDITOR_CHANNEL': {
+      return {
+        ...state,
+        channels: state.channels.filter(channel => channel.name !== action.name)
+      }
+    }
+
+    case 'SET_PACKAGE_EDITOR_OPERATOR_VERSIONS': {
+      return {
+        ...state,
+        operatorVersions: {
+          ...action.operatorVersions
+        }
       }
     }
 

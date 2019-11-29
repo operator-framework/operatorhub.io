@@ -100,7 +100,8 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
       name: json.name,
       nested,
       objectName: json.name.replace('.yaml', ''),
-      objectType: '',
+      objectType: 'Unknown',
+      version: '',
       content: ''
     };
 

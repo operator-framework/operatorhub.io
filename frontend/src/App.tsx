@@ -114,8 +114,14 @@ const OperatorPackagePage = asyncComponent(() =>
   )
 );
 
-const OperatorPackageEditorPage = asyncComponent(() =>
-  import(/* webpackChunkName: "OperatorPackageEditorPage" */ './pages/packageEditor/CreatePackageEditorPage').then(
+const PackageEditorLandingPage = asyncComponent(() =>
+  import(/* webpackChunkName: "PackageEditorLandingPage" */ './pages/packageEditor/PackageEditorLandingPage').then(
+    module => module.default
+  )
+);
+
+const PackageChannelsEditorPage = asyncComponent(() =>
+  import(/* webpackChunkName: "PackageChannelsEditorPage" */ './pages/packageEditor/PackageChannelsEditor').then(
     module => module.default
   )
 );
@@ -175,7 +181,8 @@ class App extends React.Component {
             <Route path="/bundle/:packageName?/:channelName?/:operatorVersion?" component={OperatorBundlePage} />
 
 
-            <Route path="/packages" component={OperatorPackageEditorPage} />
+            <Route path="/packages/:packageName" component={PackageChannelsEditorPage} />
+            <Route path="/packages" component={PackageEditorLandingPage} />
             
 
             <Route path="/getting-started" component={GettingStarted} />

@@ -59,7 +59,8 @@ class PackageUploaderDropArea extends React.PureComponent<PackageUploaderDropAre
                     path: entry.fullPath,
                     name: file.name,
                     objectName: file.name.replace('.yaml', ''),
-                    objectType: '',
+                    objectType: 'Unknown',
+                    version: '',
                     nested,
                     content: reader.result as string
                 };
