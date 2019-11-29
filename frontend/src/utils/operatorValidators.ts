@@ -452,11 +452,17 @@ export const operatorPackageFieldValidators = {
   name: {
     required: true,
     regex: nameRegExp,
-    regexErrorMessage: nameRegExpMessage,
+    regexErrorMessage: nameRegExpMessage
   },
   channel: {
     required: true,
     regex: nameRegExp,
-    regexErrorMessage: nameRegExpMessage,
+    regexErrorMessage: nameRegExpMessage
   }
+};
+
+export const simpleNameValidator = {
+  required: true,
+  regex: nameRegExp,
+  regexErrorMessage: nameRegExpMessage
 };

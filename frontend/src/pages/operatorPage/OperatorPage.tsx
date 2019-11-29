@@ -4,7 +4,7 @@ import { Breadcrumb, Grid } from 'patternfly-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { match, RouteProps } from 'react-router';
+import { match } from 'react-router';
 
 import { noop } from '../../common/helpers';
 import CustomResourceDefinitionsView from '../../components/CustomResourceDefinitionsView';

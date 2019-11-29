@@ -1,14 +1,17 @@
 import store from './store';
-import { AUTOSAVE_FIELDS, LOCAL_STORAGE_KEY } from '../utils/constants';
+import { AUTOSAVED_FIELDS, LOCAL_STORAGE_KEY, AUTOSAVED_STATE } from '../utils/constants';
+import { StoreState } from '.';
 
 let lastStateSnapshot: Record<string, any> | null = null;
 
-const autoSaveFieldsChanged = state => {
+const autoSaveFieldsChanged = (state: StoreState) => {
   const snapshot = lastStateSnapshot || {}; 
 
-  const changed = AUTOSAVE_FIELDS.some(field => {
+
+
+  const changed = AUTOSAVED_FIELDS.some(field => {
     const snapshotValue = snapshot[field];
-    const stateFieldValue = state.editorState[field];
+    const stateFieldValue = state[AUTOSAVED_STATE][field];
 
     return snapshotValue !== stateFieldValue;
   });
@@ -16,26 +19,34 @@ const autoSaveFieldsChanged = state => {
   return changed;
 };
 
-const takeSnapshot = state =>
-  AUTOSAVE_FIELDS.reduce((aggregator, field) => {
-    aggregator[field] = state.editorState[field];
+const takeSnapshot = (state: StoreState) =>
+  AUTOSAVED_FIELDS.reduce((aggregator, field) => {
+    aggregator[field] = state[AUTOSAVED_STATE][field];
 
     return aggregator;
   }, {});
 
-const saveSnapshot = state => {
+const saveSnapshot = (state: StoreState) => {
   lastStateSnapshot = takeSnapshot(state);
 };
 
-const saveEditorData = state => {
+const saveEditorData = (state: StoreState) => {
   let success = true;
 
   const snapshot = takeSnapshot(state);
 
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(snapshot));
-  } catch (e) {
+
+  } catch (domException) {
+
     success = false;
+      if (domException.name === 'QuotaExceededError' ||
+          domException.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        
+            // @TODO: how to recover from out of storage
+
+      }
   }
 
   return success;

@@ -4,11 +4,12 @@ import { History } from 'history';
 import { bindActionCreators } from 'redux';
 import { Alert } from 'patternfly-react';
 
-import OperatorEditorSubPage from '../operatorBundlePage/subPage/OperatorEditorSubPage';
 import { advancedUploadAvailable, supportFileSystemEntry } from '../../common/helpers';
 import { CreatePackagePageButtonBar, CreatePackagePageHeader, CreateNewPackageSection } from '../../components/packageEditor/createPackage';
 import { resetEditorOperatorAction, showGithubPackageUploadAction, clearPackageUploadsAction, showClearConfirmationModalAction, hideConfirmModalAction } from '../../redux/actions';
-import OperatorPackageUploader from '../../components/uploader/package/PackageUploader';
+import OperatorPackageUploader, { OperatorPackageUploaderComponent } from '../../components/uploader/package/PackageUploader';
+import PackageEditorPageWrapper from './pageWrapper/PackageEditorPageWrapper';
+import { StoreState } from '../../redux';
 
 
 const OperatorPackagePageActions = {
@@ -19,29 +20,29 @@ const OperatorPackagePageActions = {
     hideConfirmationModal: hideConfirmModalAction
 }
 
-export type OperatorPackagePageProps = {
+export type PackageEditorLandingPageProps = {
     history: History
-} & typeof OperatorPackagePageActions;
+} & typeof OperatorPackagePageActions & ReturnType<typeof mapStateToProps>;
 
 
-interface OperatorPackageEditorPageState {
+interface PackageEditorLandingPageState {
     activeTab: number
     pageIsValid: boolean
     supportFileSystemEntry: boolean
 
 }
 
-enum OperatorPackageEditorPageTabs {
+enum PackageEditorLandingPageTabs {
     createPackage = 1,
     editPackage = 2
 }
 
 
-class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageProps, OperatorPackageEditorPageState>{
+class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingPageProps, PackageEditorLandingPageState>{
 
 
-    state: OperatorPackageEditorPageState = {
-        activeTab: OperatorPackageEditorPageTabs.editPackage,
+    state: PackageEditorLandingPageState = {
+        activeTab: PackageEditorLandingPageTabs.editPackage,
         pageIsValid: false,
         supportFileSystemEntry: false
     }
@@ -54,29 +55,34 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
 
     newPackageComponent: CreateNewPackageSection | null;
 
+    packageUploaderComponent: OperatorPackageUploaderComponent | null;
+
     componentDidMount() {
         // we need extra support for traversing directory structure in uploaded folder
         this.setState({ supportFileSystemEntry: advancedUploadAvailable() && supportFileSystemEntry() });
     }
 
     onPackageCreate = (e: React.MouseEvent) => {
-        const { history, resetEditorOperator } = this.props;
+        const { history, packageName, resetEditorOperator } = this.props;
         const { activeTab } = this.state;
         e.preventDefault();
 
         switch (activeTab) {
-            case OperatorPackageEditorPageTabs.createPackage: {
+            case PackageEditorLandingPageTabs.createPackage: {
 
                 if (this.newPackageComponent) {
                     const { packageName, defaultChannel } = this.newPackageComponent.state;
 
                     resetEditorOperator();
-                    history.push(`/bundle/${packageName}/${defaultChannel}`)
+                    history.push(`/bundle/${packageName}/${defaultChannel}`);
                 }
                 break;
             }
-            case OperatorPackageEditorPageTabs.editPackage: {
-                // TODO: Navigate to channel editor page
+            case PackageEditorLandingPageTabs.editPackage: {
+                if (this.packageUploaderComponent) {
+                    this.packageUploaderComponent.convertUploadsToChannelsAndVersions();
+                }
+                history.push(`/packages/${encodeURIComponent(packageName)}`);
                 break;
             }
         }
@@ -88,11 +94,11 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
         e.preventDefault();
 
         switch (activeTab) {
-            case OperatorPackageEditorPageTabs.createPackage: {
+            case PackageEditorLandingPageTabs.createPackage: {
                 this.newPackageComponent && this.newPackageComponent.clearForm();
                 break;
             }
-            case OperatorPackageEditorPageTabs.editPackage: {
+            case PackageEditorLandingPageTabs.editPackage: {
                 showClearConfirmationModal(() => {
                     clearPackageUploads();
                     hideConfirmationModal();
@@ -113,7 +119,7 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
     onCreateFromScratch = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        this.onNavSelect(OperatorPackageEditorPageTabs.createPackage);
+        this.onNavSelect(PackageEditorLandingPageTabs.createPackage);
     }
 
 
@@ -122,13 +128,9 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
         const { activeTab, pageIsValid, supportFileSystemEntry } = this.state;
 
         return (
-            <OperatorEditorSubPage
+            <PackageEditorPageWrapper
                 pageId="oh-operator-package-editor-page"
-                title="Create your Operator Package"
-                field=""
                 history={history}
-                description=""
-                pageErrors={false}
                 buttonBar={
                     <CreatePackagePageButtonBar
                         valid={pageIsValid}
@@ -144,10 +146,10 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
                         onNavSelect={this.onNavSelect}
                     />
                 }
-                validatePage={() => true}
+                breadcrumbs={[]}
             >
                 <div className="oh-operator-package-editor-page__tab-pane">
-                    {activeTab === OperatorPackageEditorPageTabs.createPackage &&
+                    {activeTab === PackageEditorLandingPageTabs.createPackage &&
                         <div className="oh-operator-package-editor-page__tab-content">
                             <CreateNewPackageSection
                                 ref={ref => this.newPackageComponent = ref}
@@ -155,7 +157,7 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
                             />
                         </div>
                     }
-                    {activeTab === OperatorPackageEditorPageTabs.editPackage &&
+                    {activeTab === PackageEditorLandingPageTabs.editPackage &&
                         <div className="oh-operator-package-editor-page__tab-content">
                             {
                                 !supportFileSystemEntry && (
@@ -170,13 +172,14 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
                             }
                             <div className={`oh-operator-editor-form__field-section ${!supportFileSystemEntry ? 'oh-folder-upload-disabled' : ''}`}>
                                 <OperatorPackageUploader
+                                    ref={(ref: OperatorPackageUploaderComponent) => this.packageUploaderComponent = ref}
                                     onUploadChangeCallback={this.onSectionChanged}
                                 />
                             </div>
                         </div>
                     }
                 </div>
-            </OperatorEditorSubPage>
+            </PackageEditorPageWrapper>
         );
     }
 }
@@ -185,5 +188,9 @@ const mapDispatchToProps = dispatch => ({
     ...bindActionCreators(OperatorPackagePageActions, dispatch)
 });
 
+const mapStateToProps = (state: StoreState) => ({
+    packageName: state.packageEditorState.packageName
+})
 
-export default connect(null, mapDispatchToProps)(OperatorPackageEditorPage);
+
+export default connect(mapStateToProps, mapDispatchToProps)(PackageEditorLandingPage);
