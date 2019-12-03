@@ -2,9 +2,31 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
-import { transformNameForPath } from '../../common';
+import { History } from 'history';
 
-class ListObjectEditor extends React.Component {
+import { transformNameForPath } from '../../common';
+import { Operator } from '../../utils/operatorTypes';
+
+export interface ListObjectEditorProps {
+  history: History
+  operator: Operator
+  field: string,
+  title: string,
+  objectType: string,
+  fieldTitle: string,
+  objectTitleField: string,
+  formErrors: any
+  sectionPath: string,
+  objectSubtitleField?: string,
+  pagePathField?: string,
+  onUpdate: (updatedObjects, operatorObject) => void
+}
+
+class ListObjectEditor extends React.PureComponent<ListObjectEditorProps> {
+
+  static propTypes;
+  static defaultProps;
+
   /**
    * @returns {*[]}
    */
@@ -15,19 +37,20 @@ class ListObjectEditor extends React.Component {
   };
 
   addOperatorObject = event => {
-    const { history, objectPage } = this.props;
+    const { history, sectionPath } = this.props;
 
     event.preventDefault();
-    history.push(`/bundle/${objectPage}/add`);
+    history.push(`${sectionPath}/add`);
   };
 
   editOperatorObject = (operatorObject, index) => {
-    const { history, objectPage, pagePathField } = this.props;
+    const { history, sectionPath, pagePathField = 'name' } = this.props;
     const transformedName = transformNameForPath(_.get(operatorObject, pagePathField, ''));
-    history.push(`/bundle/${objectPage}/edit/${index}/${transformedName}`);
+
+    history.push(`${sectionPath}/edit/${index}/${transformedName}`);
   };
 
-  removeOperatorObject = (event, operatorObject) => {
+  removeOperatorObject = (event: React.MouseEvent, operatorObject) => {
     const { onUpdate } = this.props;
 
     event.preventDefault();
@@ -37,7 +60,7 @@ class ListObjectEditor extends React.Component {
   };
 
   renderObject = (operatorObject, errors, index) => {
-    const { objectTitleField, objectSubtitleField } = this.props;
+    const { objectTitleField, objectSubtitleField = '' } = this.props;
     const title = _.get(operatorObject, objectTitleField) || ' ';
     const subtitle = _.get(operatorObject, objectSubtitleField) || ' ';
     const error = _.find(errors, { index });
@@ -99,7 +122,7 @@ class ListObjectEditor extends React.Component {
 }
 
 ListObjectEditor.propTypes = {
-  operator: PropTypes.object,
+  operator: PropTypes.object.isRequired,
   field: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   objectType: PropTypes.string.isRequired,
@@ -108,11 +131,9 @@ ListObjectEditor.propTypes = {
   objectSubtitleField: PropTypes.string,
   pagePathField: PropTypes.string,
   onUpdate: PropTypes.func.isRequired,
-  objectPage: PropTypes.string.isRequired,
+  sectionPath: PropTypes.string.isRequired,
   formErrors: PropTypes.object.isRequired,
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired
+  history: PropTypes.any.isRequired
 };
 
 ListObjectEditor.defaultProps = {

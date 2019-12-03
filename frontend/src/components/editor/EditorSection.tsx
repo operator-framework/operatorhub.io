@@ -1,15 +1,25 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import * as _ from 'lodash-es';
+import _ from 'lodash-es';
 import { Icon } from 'patternfly-react';
-import { EDITOR_STATUS } from '../../utils/constants';
 
-const EditorSection = ({ sectionStatus, title, description, sectionLocation, history }) => {
-  const status = _.get(sectionStatus, sectionLocation);
+import { EDITOR_STATUS } from '../../utils/constants';
+import { History } from 'history';
+import { StoreState } from '../../redux';
+
+export type EditorSectionProps = {
+  history: History,
+  title: React.ReactNode,
+  description: React.ReactNode,
+  sectionLocation: string
+} & ReturnType<typeof mapStateToProps>
+
+const EditorSection : React.FC<EditorSectionProps> = ({ sectionStatus, title, description, sectionLocation, history }) => {
+  const status: keyof typeof EDITOR_STATUS = _.get(sectionStatus, sectionLocation);
 
   const onEdit = () => {
-    history.push(`/bundle/${sectionLocation}`);
+    history.push(`${history.location.pathname}/${sectionLocation}`);
   };
 
   const renderSectionStatus = () => {
@@ -66,20 +76,18 @@ const EditorSection = ({ sectionStatus, title, description, sectionLocation, his
 };
 
 EditorSection.propTypes = {
-  sectionStatus: PropTypes.object,
-  title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
-  description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
+  title: PropTypes.node.isRequired,
+  description: PropTypes.node.isRequired,
   sectionLocation: PropTypes.string.isRequired,
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired
+  history: PropTypes.any.isRequired,
+  sectionStatus: PropTypes.any
 };
 
 EditorSection.defaultProps = {
-  sectionStatus: {}
+  sectionStatus: {} as any
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   sectionStatus: state.editorState.sectionStatus
 });
 

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
+import { History } from 'history';
 
 import { noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
@@ -15,10 +16,33 @@ import {
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
-import { getUpdatedFormErrors } from '../bundlePageUtils';
-import { EDITOR_STATUS, sectionsFields } from '../../../utils/constants';
+import { getUpdatedFormErrors, getVersionEditorRootPath } from '../bundlePageUtils';
+import { EDITOR_STATUS, sectionsFields, VersionEditorParamsMatch } from '../../../utils/constants';
+import { StoreState } from '../../../redux';
 
-class OperatorCRDsPage extends React.Component {
+
+const OperatorCRDsPageActions = {
+  storeEditorOperator: storeEditorOperatorAction,
+  storeEditorFormErrors: storeEditorFormErrorsAction,
+  setSectionStatus: setSectionStatusAction
+};
+
+export type OperatorCRDsPageProps = {
+  history: History,
+  match: VersionEditorParamsMatch,
+  crdsField: string,
+  crdsTitle: string,
+  crdsDescription: React.ReactNode,
+  objectPage: string,
+  objectType: string,
+  removeAlmExamples: boolean,
+} & ReturnType<typeof mapStateToProps> & typeof OperatorCRDsPageActions;
+
+class OperatorCRDsPage extends React.PureComponent<OperatorCRDsPageProps> {
+
+  static propTypes;
+  static defaultProps;
+
   componentDidMount() {
     const { operator, sectionStatus, objectPage } = this.props;
 
@@ -41,9 +65,9 @@ class OperatorCRDsPage extends React.Component {
     // do not automatically change status of done or empty status
     // that requires user action
     if (error) {
-      setSectionStatus(objectPage, EDITOR_STATUS.errors);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.errors);
     } else if (status === EDITOR_STATUS.errors) {
-      setSectionStatus(objectPage, EDITOR_STATUS.pending);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.pending);
     }
   };
 
@@ -77,7 +101,7 @@ class OperatorCRDsPage extends React.Component {
     const hasErrors = fields.some(field => _.get(errors, field));
 
     if (hasErrors) {
-      setSectionStatus(objectPage, EDITOR_STATUS.errors);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.errors);
       storeEditorFormErrors(errors);
 
       return false;
@@ -96,7 +120,8 @@ class OperatorCRDsPage extends React.Component {
       objectType,
       formErrors,
       history,
-      sectionStatus
+      sectionStatus,
+      match
     } = this.props;
 
     const description = (
@@ -109,6 +134,7 @@ class OperatorCRDsPage extends React.Component {
     const errors = _.get(formErrors, crdField);
     // do not allow setting page as Done when errored or pristine
     const pageHasErrors = sectionStatus[objectPage] === EDITOR_STATUS.empty || containsErrors(errors);
+    const sectionPath = `${getVersionEditorRootPath(match)}/${objectPage}`;
 
     return (
       <OperatorEditorSubPage
@@ -116,9 +142,10 @@ class OperatorCRDsPage extends React.Component {
         description={description}
         secondary
         history={history}
-        section={objectPage}
+        section={objectPage as any}
         validatePage={this.validatePage}
         pageErrors={pageHasErrors}
+        versionEditorRootPath={getVersionEditorRootPath(match)}
       >
         <ListObjectEditor
           operator={operator}
@@ -126,7 +153,7 @@ class OperatorCRDsPage extends React.Component {
           onUpdate={this.updateOperator}
           field={crdsField}
           fieldTitle="Display Name"
-          objectPage={objectPage}
+          sectionPath={sectionPath}
           formErrors={formErrors}
           history={history}
           objectTitleField="displayName"
@@ -152,9 +179,7 @@ OperatorCRDsPage.propTypes = {
   setSectionStatus: PropTypes.func,
   removeAlmExamples: PropTypes.bool,
   sectionStatus: PropTypes.object,
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired
+  history: PropTypes.any.isRequired
 };
 
 OperatorCRDsPage.defaultProps = {
@@ -167,18 +192,9 @@ OperatorCRDsPage.defaultProps = {
   sectionStatus: {}
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction,
-      setSectionStatus: setSectionStatusAction
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorCRDsPageActions, dispatch);
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
   formErrors: state.editorState.formErrors,
   sectionStatus: state.editorState.sectionStatus

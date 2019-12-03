@@ -6,7 +6,7 @@ import {
   LOCAL_STORAGE_KEY
 } from './constants';
 import * as operatorTypes from './operatorTypes';
-import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionsMap } from './packageEditorTypes';
+import { PacakgeEditorChannel, PackageEditorOperatorVersionsMap } from './packageEditorTypes';
 
 /**
  * Convert version format without dashes

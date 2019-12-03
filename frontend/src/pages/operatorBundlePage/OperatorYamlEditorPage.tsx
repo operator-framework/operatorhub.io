@@ -3,20 +3,43 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { History } from 'history';
 
 import { noop } from '../../common/helpers';
 import YamlViewer from '../../components/YamlViewer';
-import { parseYamlOperator, yamlFromOperator } from './bundlePageUtils';
+import { parseYamlOperator, yamlFromOperator, getVersionEditorRootPath } from './bundlePageUtils';
 import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { isDefaultOperator } from '../../utils/operatorUtils';
 import { resetEditorOperatorAction, storeEditorOperatorAction } from '../../redux/actions/editorActions';
-import { hideConfirmModalAction, showClearConfirmationModalAction } from '../../redux';
+import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState } from '../../redux';
+import { VersionEditorParamsMatch } from '../../utils/constants';
 
-class OperatorYamlEditorPage extends React.Component {
-  state = {
+const OperatorYamlEditorPageActions = {
+  storeEditorOperator: storeEditorOperatorAction,
+  resetEditorOperator: resetEditorOperatorAction,
+  showConfirmModal: showClearConfirmationModalAction,
+  hideConfirmModal: hideConfirmModalAction
+};
+
+export type OperatorYamlEditorPageProps = {
+  history: History,
+  match: VersionEditorParamsMatch
+} & ReturnType<typeof mapStateToProps> & typeof OperatorYamlEditorPageActions;
+
+interface OperatorYamlEditorPageState {
+  yaml: string
+  yamlError?: string
+  previewShown: boolean
+}
+
+class OperatorYamlEditorPage extends React.PureComponent<OperatorYamlEditorPageProps, OperatorYamlEditorPageState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: OperatorYamlEditorPageState = {
     yaml: '',
-    yamlError: null,
     previewShown: false
   };
 
@@ -25,9 +48,11 @@ class OperatorYamlEditorPage extends React.Component {
     this.updateYaml(operator);
   }
 
-  backToPackageYourOperator = e => {
+  backToPackageYourOperator = (e: React.MouseEvent) => {
+    const { history, match } = this.props;
+
     e.preventDefault();
-    this.props.history.push('/bundle');
+    history.push(getVersionEditorRootPath(match));
   };
 
   hidePreviewOperator = () => {
@@ -51,7 +76,7 @@ class OperatorYamlEditorPage extends React.Component {
 
   updateYaml = operator => {
     let yaml;
-    let yamlError = null;
+    let yamlError = undefined;
     try {
       yaml = yamlFromOperator(operator);
     } catch (e) {
@@ -96,7 +121,7 @@ class OperatorYamlEditorPage extends React.Component {
           <button className="oh-button oh-button-secondary" onClick={this.backToPackageYourOperator}>
             Back to Package your Operator
           </button>
-          <button className={previewClasses} disabled={yamlError} onClick={this.showPreviewOperator}>
+          <button className={previewClasses} disabled={!!yamlError} onClick={this.showPreviewOperator}>
             Preview
           </button>
         </div>
@@ -108,15 +133,17 @@ class OperatorYamlEditorPage extends React.Component {
   }
 
   render() {
-    const { history, operator } = this.props;
+    const { history, operator, match } = this.props;
     const { yaml, yamlError, previewShown } = this.state;
 
     return (
       <OperatorEditorSubPage
         title="YAML Editor"
+        versionEditorRootPath={getVersionEditorRootPath(match)}
         header={this.renderHeader()}
         buttonBar={this.renderButtonBar()}
         history={history}
+        validatePage={() => true}
       >
         <YamlViewer
           onBlur={updatedYaml => this.onYamlChange(updatedYaml)}
@@ -150,19 +177,10 @@ OperatorYamlEditorPage.defaultProps = {
   hideConfirmModal: noop
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      storeEditorOperator: storeEditorOperatorAction,
-      resetEditorOperator: resetEditorOperatorAction,
-      showConfirmModal: showClearConfirmationModalAction,
-      hideConfirmModal: hideConfirmModalAction
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorYamlEditorPageActions, dispatch);
 
-const mapStateToProps = state => ({
+
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator
 });
 

@@ -1,14 +1,23 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { History } from 'history';
+
 import OperatorPermissionsPage from './OperatorPermissionsPage';
-import { sectionsFields } from '../../../utils/constants';
+import { sectionsFields, VersionEditorParamsMatch } from '../../../utils/constants';
 
 const permissionFields = sectionsFields['cluster-permissions'];
 
-const OperatorClusterPermissionsPage = ({ operator, history }) => (
+export type OperatorClusterPermissionsPageProps = {
+  history: History,
+  match: VersionEditorParamsMatch,
+  operator?: any
+}
+
+const OperatorClusterPermissionsPage: React.FC<OperatorClusterPermissionsPageProps> = ({ operator, history, match }) => (
   <OperatorPermissionsPage
     operator={operator}
     history={history}
+    match={match}
     title="Cluster Permissions"
     field={permissionFields}
     section="cluster-permissions"
@@ -19,9 +28,7 @@ const OperatorClusterPermissionsPage = ({ operator, history }) => (
 
 OperatorClusterPermissionsPage.propTypes = {
   operator: PropTypes.object,
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired
+  history: PropTypes.any.isRequired
 };
 
 OperatorClusterPermissionsPage.defaultProps = {

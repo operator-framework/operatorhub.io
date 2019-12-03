@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
-import { safeDump, safeLoad } from 'js-yaml';
+import { safeDump, safeLoad, Type } from 'js-yaml';
+import { History } from 'history';
 
 import { noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
@@ -16,17 +17,36 @@ import {
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
-import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
+import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../../utils/constants';
+import { StoreState } from '../../../redux';
+import { getVersionEditorRootPath } from '../bundlePageUtils';
 
 const deploymentFields = sectionsFields.deployments;
 
-class OperatorDeploymentEditPage extends React.Component {
-  /**
-   * @type {Object} state
-   * @prop {string} state.deploymentYaml
-   * @prop {string|string[]} state.yamlError
-   */
-  state = {
+const OperatorDeploymentEditPageActions = {
+  storeEditorOperator: storeEditorOperatorAction,
+  storeEditorFormErrors: storeEditorFormErrorsAction,
+  setSectionStatus: status => setSectionStatusAction('deployments', status)
+};
+
+export type OperatorDeploymentEditPageProps = {
+  isNew: boolean,
+  history: History,
+  match: VersionEditorParamsMatch
+} & ReturnType<typeof mapStateToProps> & typeof OperatorDeploymentEditPageActions;
+
+interface OperatorDeploymentEditPageState {
+  deploymentYaml: string
+  yamlError?: string | React.ReactNode[]
+}
+
+class OperatorDeploymentEditPage extends React.PureComponent<OperatorDeploymentEditPageProps, OperatorDeploymentEditPageState> {
+
+
+  static propTypes;
+  static defaultProps;
+
+  state: OperatorDeploymentEditPageState = {
     deploymentYaml: '',
     yamlError: ''
   };
@@ -54,8 +74,7 @@ class OperatorDeploymentEditPage extends React.Component {
     }
 
     let deploymentYaml;
-    /** @type {string|string[]} */
-    let yamlError = '';
+    let yamlError: string | React.ReactNode[] | undefined = '';
     try {
       deploymentYaml = safeDump(deployment);
 
@@ -96,21 +115,20 @@ class OperatorDeploymentEditPage extends React.Component {
       .map(key => getValueError(deployment[key], deploymentValidator[key], operator))
       .filter(err => err !== null);
 
-    const errsText = [];
+    const errsText: React.ReactNode[] = [];
 
     errs.forEach((err, index) => {
       index > 0 && errsText.push(<br key={index} />);
       errsText.push(<span key={index}>{err}</span>);
     });
 
-    return errsText.length > 0 ? errsText : null;
+    return errsText.length > 0 ? errsText : undefined;
   };
 
   onYamlChange = yaml => {
     const { setSectionStatus } = this.props;
 
-    /** @type {string|string[]} */
-    let yamlError = '';
+    let yamlError: string | React.ReactNode[] | undefined  = '';
 
     try {
       const updatedDeployment = safeLoad(yaml);
@@ -139,7 +157,7 @@ class OperatorDeploymentEditPage extends React.Component {
   };
 
   render() {
-    const { history } = this.props;
+    const { history, match } = this.props;
     const { deploymentYaml, yamlError } = this.state;
     return (
       <OperatorEditorSubPage
@@ -149,6 +167,8 @@ class OperatorDeploymentEditPage extends React.Component {
         lastPage="deployments"
         lastPageTitle="Deployments"
         history={history}
+        versionEditorRootPath={getVersionEditorRootPath(match)}
+        validatePage={() => true}
       >
         <div className="oh-operator-editor-deployment">
           <YamlViewer
@@ -183,18 +203,9 @@ OperatorDeploymentEditPage.defaultProps = {
   setSectionStatus: noop
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction,
-      setSectionStatus: status => setSectionStatusAction('deployments', status)
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorDeploymentEditPageActions, dispatch);
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
   formErrors: state.editorState.formErrors
 });

@@ -6,7 +6,7 @@ import _ from 'lodash-es';
 
 import { noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
-import { getUpdatedFormErrors } from '../bundlePageUtils';
+import { getUpdatedFormErrors, getVersionEditorRootPath } from '../bundlePageUtils';
 import { operatorObjectDescriptions, operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
 import RulesEditor from '../../../components/editor/RulesEditor';
 import {
@@ -15,12 +15,35 @@ import {
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
 import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
-import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
+import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../../utils/constants';
+import { StoreState } from '../../../redux';
+import { History } from 'history';
 
 const permissionFields = sectionsFields.permissions;
 const descriptions = _.get(operatorFieldDescriptions, permissionFields);
 
-class OperatorPermissionsEditPage extends React.Component {
+const OperatorPermissionsEditPageActions = {
+  storeEditorOperator: storeEditorOperatorAction,
+  storeEditorFormErrors: storeEditorFormErrorsAction,
+  setSectionStatus: setSectionStatusAction
+}
+
+export type OperatorPermissionsEditPageProps = {
+  isNew: boolean,
+  history: History,
+  match: VersionEditorParamsMatch,
+  field?: string,
+  objectType?: string,
+  objectsTitle?: string,
+  objectPage?: string,
+  objectDescription?: React.ReactNode,
+} & ReturnType<typeof mapStateToProps> & typeof OperatorPermissionsEditPageActions;
+
+class OperatorPermissionsEditPage extends React.PureComponent<OperatorPermissionsEditPageProps> {
+
+  static propTypes;
+  static defaultProps;
+
   name;
 
   nameInput;
@@ -36,7 +59,7 @@ class OperatorPermissionsEditPage extends React.Component {
   }
 
   componentDidMount() {
-    const { objectType, operator, field, storeEditorOperator, isNew } = this.props;
+    const { objectType, operator, field = permissionFields, storeEditorOperator, isNew } = this.props;
 
     const permissions = _.get(operator, field) || [];
 
@@ -71,14 +94,14 @@ class OperatorPermissionsEditPage extends React.Component {
   }
 
   getErrors = () => {
-    const { field, formErrors } = this.props;
+    const { field = permissionFields, formErrors } = this.props;
 
     const errors = _.find(_.get(formErrors, field), { index: this.permissionIndex }) || { errors: {} };
     return errors.errors;
   };
 
   updatePermission = (permissionField, value) => {
-    const { operator, field, storeEditorOperator } = this.props;
+    const { operator, field = permissionFields, storeEditorOperator } = this.props;
 
     const permissions = _.get(operator, field) || [];
     // get permission or supply new value
@@ -102,16 +125,16 @@ class OperatorPermissionsEditPage extends React.Component {
   };
 
   validateField = updatedOperator => {
-    const { field, formErrors, storeEditorFormErrors, setSectionStatus, objectPage } = this.props;
+    const { field = permissionFields, formErrors, storeEditorFormErrors, setSectionStatus, objectPage } = this.props;
 
     const errors = getUpdatedFormErrors(updatedOperator, formErrors, field);
     storeEditorFormErrors(errors);
     const permissionErrors = _.get(errors, field);
 
     if (permissionErrors) {
-      setSectionStatus(objectPage, EDITOR_STATUS.errors);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.errors);
     } else {
-      setSectionStatus(objectPage, EDITOR_STATUS.pending);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.pending);
     }
   };
 
@@ -120,7 +143,16 @@ class OperatorPermissionsEditPage extends React.Component {
   };
 
   render() {
-    const { operator, field, objectType, objectPage, objectsTitle, objectDescription, history } = this.props;
+    const {
+      match,
+      operator,
+      field = permissionFields,
+      objectType,
+      objectPage,
+      objectsTitle,
+      objectDescription,
+      history
+    } = this.props;
     const errors = this.getErrors();
     const permissions = _.get(operator, field, []);
     const permission = permissions[this.permissionIndex];
@@ -134,6 +166,8 @@ class OperatorPermissionsEditPage extends React.Component {
         lastPage={objectPage}
         lastPageTitle={objectsTitle}
         history={history}
+        versionEditorRootPath={getVersionEditorRootPath(match)}
+        validatePage={() => true}
       >
         <h3>{objectsTitle}</h3>
         <p>{objectDescription}</p>
@@ -197,18 +231,9 @@ OperatorPermissionsEditPage.defaultProps = {
   storeEditorFormErrors: noop
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction,
-      setSectionStatus: setSectionStatusAction
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorPermissionsEditPageActions, dispatch);
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
   formErrors: state.editorState.formErrors
 });

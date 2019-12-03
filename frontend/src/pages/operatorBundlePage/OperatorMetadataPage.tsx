@@ -9,7 +9,7 @@ import { operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import CapabilityEditor from '../../components/editor/CapabilityEditor';
 import LabelsEditor from '../../components/editor/LabelsEditor';
 import ImageEditor from '../../components/editor/ImageEditor';
-import { getUpdatedFormErrors } from './bundlePageUtils';
+import { getUpdatedFormErrors, getVersionEditorRootPath } from './bundlePageUtils';
 import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import DescriptionEditor from '../../components/editor/DescriptionEditor';
 import {
@@ -20,16 +20,37 @@ import {
 import OperatorTextArea from '../../components/editor/forms/OperatorTextArea';
 import OperatorInput from '../../components/editor/forms/OperatorInput';
 import { containsErrors } from '../../utils/operatorValidation';
-import { EDITOR_STATUS, sectionsFields, maturityOptions, categoryOptions } from '../../utils/constants';
+import { EDITOR_STATUS, sectionsFields, maturityOptions, categoryOptions, VersionEditorParamsMatch } from '../../utils/constants';
 import OperatorSelect from '../../components/editor/forms/OperatorSelect';
+import { StoreState } from '../../redux';
+import { History } from 'history';
+import { OperatorMaintainer, OperatorLink } from '../../utils/operatorTypes';
 
-class OperatorMetadataPage extends React.Component {
-  /**
-   * @type {Object}
-   */
-  state = {
+const OperatorMetadataPageActions = {
+  storeEditorOperator: storeEditorOperatorAction,
+  storeEditorFormErrors: storeEditorFormErrorsAction,
+  setSectionStatus: status => setSectionStatusAction('metadata', status)
+}
+
+export type OperatorMetadataPageProps = {
+  history: History,
+  match: VersionEditorParamsMatch
+} & ReturnType<typeof mapStateToProps> & typeof OperatorMetadataPageActions;
+
+type OperatorMetadataPageState = {
+  workingOperator: any
+}
+
+class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, OperatorMetadataPageState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: OperatorMetadataPageState = {
     workingOperator: {}
   };
+
+  originalStatus: string;
 
   constructor(props) {
     super(props);
@@ -132,10 +153,10 @@ class OperatorMetadataPage extends React.Component {
     this.validateFields('spec.selector.matchLabels');
   };
 
-  updateOperatorExternalLinks = operatorLabels => {
-    const links = [];
+  updateOperatorExternalLinks = (operatorLabels: any[] = []) => {
+    const links: OperatorLink[] = [];
 
-    _.forEach(operatorLabels, operatorLabel => {
+    operatorLabels.forEach(operatorLabel => {
       if (!_.isEmpty(operatorLabel.name) && !_.isEmpty(operatorLabel.url)) {
         links.push(_.clone(operatorLabel));
       }
@@ -145,10 +166,10 @@ class OperatorMetadataPage extends React.Component {
     this.validateFields('spec.links');
   };
 
-  updateOperatorMaintainers = operatorLabels => {
-    const maintainers = [];
+  updateOperatorMaintainers = (operatorLabels: any[] = []) => {
+    const maintainers: OperatorMaintainer[] = [];
 
-    _.forEach(operatorLabels, operatorLabel => {
+    operatorLabels.forEach(operatorLabel => {
       if (!_.isEmpty(operatorLabel.name) && !_.isEmpty(operatorLabel.email)) {
         maintainers.push(_.clone(operatorLabel));
       }
@@ -207,7 +228,7 @@ class OperatorMetadataPage extends React.Component {
   }
 
   render() {
-    const { formErrors, history, sectionStatus } = this.props;
+    const { formErrors, history, sectionStatus, match } = this.props;
     const { workingOperator } = this.state;
 
     const metadataErrorFields = sectionsFields.metadata.filter(metadataField => _.get(formErrors, metadataField));
@@ -218,6 +239,7 @@ class OperatorMetadataPage extends React.Component {
       <OperatorEditorSubPage
         title="Operator Metadata"
         description={operatorObjectDescriptions.metadata.description}
+        versionEditorRootPath={getVersionEditorRootPath(match)}
         secondary
         history={history}
         section="metadata"
@@ -358,18 +380,9 @@ OperatorMetadataPage.defaultProps = {
   storeEditorOperator: noop
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction,
-      setSectionStatus: status => setSectionStatusAction('metadata', status)
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorMetadataPageActions, dispatch);
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
   formErrors: state.editorState.formErrors,
   sectionStatus: state.editorState.sectionStatus

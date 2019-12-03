@@ -1,3 +1,5 @@
+import { match } from "react-router";
+
 export const OPERATOR_DESCRIPTION_APPLICATION_HEADER = '## About the managed application';
 export const OPERATOR_DESCRIPTION_ABOUT_HEADER = '## About this Operator';
 export const OPERATOR_DESCRIPTION_PREREQUISITES_HEADER = '## Prerequisites for enabling this Operator';
@@ -56,6 +58,7 @@ export const EDITOR_STATUS: {
 
 export type EditorSectionNames = keyof typeof sectionsFields | 'package';
 
+export type VersionEditorParamsMatch = match<{packageName: string, channelName: string, operatorVersion: string}>;
 
 export interface ISectionFields{
   metadata: string[]
