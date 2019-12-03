@@ -7,23 +7,23 @@ export interface EditorBreadcrumbsProps {
     history: History
     title: React.ReactNode
     secondary?: boolean
-    lastPageSubPath?: string
-    lastPageTitle?: string
+    sectionSubPath?: string
+    sectionLabel?: string
     tertiary?: boolean
 }
 
 const EditorBreadcrumbs: React.FC<EditorBreadcrumbsProps> = ({
     history,
-    lastPageSubPath,
+    sectionSubPath,
     title,
-    lastPageTitle,
+    sectionLabel,
     secondary,
     tertiary   
 }) => {
 
     const onBack = e => {
         e.preventDefault();
-        history.push(`/bundle/${lastPageSubPath}`);
+        history.push(`/bundle/${sectionSubPath}`);
     };
 
     const onEditor = e => {
@@ -48,8 +48,8 @@ const EditorBreadcrumbs: React.FC<EditorBreadcrumbsProps> = ({
                 </Breadcrumb.Item>
             )}
             {tertiary && (
-                <Breadcrumb.Item onClick={onBack} href={`${window.location.origin}/bundle/${lastPageSubPath}`}>
-                    {lastPageTitle}
+                <Breadcrumb.Item onClick={onBack} href={`${window.location.origin}/bundle/${sectionSubPath}`}>
+                    {sectionLabel}
                 </Breadcrumb.Item>
             )}
             <Breadcrumb.Item active>{title}</Breadcrumb.Item>
@@ -58,9 +58,9 @@ const EditorBreadcrumbs: React.FC<EditorBreadcrumbsProps> = ({
 };
 
 EditorBreadcrumbs.defaultProps = {
-    lastPageSubPath: '',
+    sectionSubPath: '',
     secondary: false,
-    lastPageTitle: '',
+    sectionLabel: '',
     tertiary: false
 }
 

@@ -42,7 +42,7 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
 
 
     state: PackageEditorLandingPageState = {
-        activeTab: PackageEditorLandingPageTabs.editPackage,
+        activeTab: PackageEditorLandingPageTabs.createPackage,
         pageIsValid: false,
         supportFileSystemEntry: false
     }
@@ -71,10 +71,10 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
             case PackageEditorLandingPageTabs.createPackage: {
 
                 if (this.newPackageComponent) {
-                    const { packageName, defaultChannel } = this.newPackageComponent.state;
+                    const { packageName, operatorVersion,defaultChannel } = this.newPackageComponent.state;
 
                     resetEditorOperator();
-                    history.push(`/bundle/${packageName}/${defaultChannel}`);
+                    history.push(`/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(defaultChannel)}/${encodeURIComponent(operatorVersion)}`);
                 }
                 break;
             }

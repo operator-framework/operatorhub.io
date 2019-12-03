@@ -4,18 +4,20 @@ import { History } from 'history';
 export interface EditorButtonBarProps {
     history: History
     title: React.ReactNode
+    versionEditorRootPath: string
     secondary?: boolean
     lastPageSubPath?: string
     lastPageTitle?: string
     tertiary?: boolean
     pageHasErrors: boolean
-    onAllSet: (e: React.MouseEvent) => void
+    onAllSet: () => boolean
 }
 
 const EditorButtonBar: React.FC<EditorButtonBarProps> = ({
     history,
     lastPageSubPath,
     title,
+    versionEditorRootPath,
     lastPageTitle,
     secondary,
     tertiary,
@@ -23,14 +25,22 @@ const EditorButtonBar: React.FC<EditorButtonBarProps> = ({
     onAllSet
 }) => {
 
-    const onBack = e => {
+    const onBack = (e: React.MouseEvent) => {
         e.preventDefault();
-        history.push(`/bundle/${lastPageSubPath}`);
+        history.push(`${versionEditorRootPath}/${lastPageSubPath}`);
     };
 
-    const onEditor = e => {
+    const onEditor = (e: React.MouseEvent) => {
         e.preventDefault();
-        history.push(`/bundle`);
+        history.push(versionEditorRootPath);
+    };
+
+    const allSet = (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        const navigate = onAllSet();
+
+        navigate && secondary ? onEditor(e) : onBack(e);        
     };
 
     return (
@@ -40,7 +50,7 @@ const EditorButtonBar: React.FC<EditorButtonBarProps> = ({
                     <button className="oh-button oh-button-secondary" onClick={onEditor}>
                         Back to Package your Operator
                   </button>
-                    <button className="oh-button oh-button-primary" disabled={pageHasErrors} onClick={onAllSet}>
+                    <button className="oh-button oh-button-primary" disabled={pageHasErrors} onClick={allSet}>
                         {`All set with ${title}`}
                     </button>
                 </div>

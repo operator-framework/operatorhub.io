@@ -3,30 +3,50 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
+import { History } from 'history';
 
 import { transformPathedName, noop } from '../../../common/helpers';
 import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
-import { getUpdatedFormErrors } from '../bundlePageUtils';
+import { getUpdatedFormErrors, getVersionEditorRootPath } from '../bundlePageUtils';
 import {
   setSectionStatusAction,
   storeEditorFormErrorsAction,
   storeEditorOperatorAction
 } from '../../../redux/actions/editorActions';
 import { getDefaultRequiredCRD } from '../../../utils/operatorUtils';
-import { NEW_CRD_NAME, sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
+import { NEW_CRD_NAME, sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../../utils/constants';
 import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
 import OperatorTextAreaUncontrolled from '../../../components/editor/forms/OperatorTextAreaUncontrolled';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
+import { StoreState } from '../../../redux';
 
 const crdsField = sectionsFields['required-crds'];
 const crdDescriptions = _.get(operatorFieldDescriptions, crdsField);
 
-class OperatorRequiredCRDEditPage extends React.Component {
-  touchedFields = {};
-  crdIndex;
-  isNewCRD = false;
+const OperatorRequiredCRDEditPageActions = {
+  storeEditorOperator: storeEditorOperatorAction,
+  storeEditorFormErrors: storeEditorFormErrorsAction,
+  setSectionStatus: setSectionStatusAction
+};
 
-  originalName;
+
+export type  OperatorRequiredCRDEitPageProps = {
+  isNew: boolean,
+  history: History,
+  match: VersionEditorParamsMatch
+} & ReturnType<typeof mapStateToProps> & typeof OperatorRequiredCRDEditPageActions;
+
+
+class OperatorRequiredCRDEditPage extends React.PureComponent<OperatorRequiredCRDEitPageProps> {
+ 
+  static propTypes;
+  static defaultProps;
+
+  touchedFields = {};
+  crdIndex: number;
+  isNewCRD = false;
+  nameInput: any;
+  originalName: string;
 
   constructor(props) {
     super(props);
@@ -39,7 +59,7 @@ class OperatorRequiredCRDEditPage extends React.Component {
     const clonedOperator = _.cloneDeep(operator);
     const operatorCRDs = _.get(clonedOperator, crdsField, []);
 
-    this.name = transformPathedName(_.get(this.props.match, 'params.crd', ''));
+    //this.name = transformPathedName(_.get(this.props.match, 'params.crd', ''));
     let crd = operatorCRDs[this.crdIndex];
 
     if (isNew) {
@@ -118,10 +138,10 @@ class OperatorRequiredCRDEditPage extends React.Component {
   };
 
   updatePagePathOnNameChange = name => {
-    const { location, history, isNew } = this.props;
+    const { history, isNew } = this.props;
 
     if (!isNew) {
-      history.push(location.pathname.replace(this.originalName, name));
+      history.push(history.location.pathname.replace(this.originalName, name));
       this.originalName = name;
     }
   };
@@ -130,7 +150,7 @@ class OperatorRequiredCRDEditPage extends React.Component {
     this.nameInput = ref;
   };
 
-  renderCRDInput = (title, field, fieldType, inputRefCallback) => {
+  renderCRDInput = (title, field, fieldType, inputRefCallback?) => {
     const { operator, formErrors } = this.props;
     const crdErrors = (_.find(_.get(formErrors, crdsField), { index: this.crdIndex }) || [{ errors: {} }]).errors;
 
@@ -168,7 +188,7 @@ class OperatorRequiredCRDEditPage extends React.Component {
   };
 
   render() {
-    const { history } = this.props;
+    const { history, match } = this.props;
 
     return (
       <OperatorEditorSubPage
@@ -177,6 +197,8 @@ class OperatorRequiredCRDEditPage extends React.Component {
         lastPage="required-crds"
         lastPageTitle="Required CRDs"
         history={history}
+        versionEditorRootPath={getVersionEditorRootPath(match)}
+        validatePage={() => true}
       >
         <form className="oh-operator-editor-form">
           {this.renderCRDInput('Name', 'name', 'text', this.setNameInputRef)}
@@ -214,18 +236,10 @@ OperatorRequiredCRDEditPage.defaultProps = {
   setSectionStatus: noop
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction,
-      setSectionStatus: setSectionStatusAction
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorRequiredCRDEditPageActions, dispatch);
 
-const mapStateToProps = state => ({
+
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
   formErrors: state.editorState.formErrors
 });

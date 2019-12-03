@@ -8,15 +8,17 @@ import {
   OPERATOR_DESCRIPTION_ABOUT_HEADER,
   OPERATOR_DESCRIPTION_PREREQUISITES_HEADER,
   NEW_CRD_NAME,
-  sectionsFields
+  sectionsFields,
+  VersionEditorParamsMatch
 } from '../../utils/constants';
+import { Operator, OperatorCrdDescriptor, OperatorOwnedCrd } from '../../utils/operatorTypes';
+import { UploadMetadata, MissingCRD } from '../../components/uploader/operator/UploaderTypes';
 
-/**
- *
- * @param {string|string[]} field
- * @param {*} formErrors
- */
-export const renderFormError = (field, formErrors) => {
+export const getVersionEditorRootPath = (match: VersionEditorParamsMatch) =>
+  `/packages/${match.params.packageName}/${match.params.channelName}/${match.params.operatorVersion}`;
+
+
+export const renderFormError = (field: string | string[], formErrors) => {
   const error = _.get(formErrors, field);
   if (!error) {
     return null;
@@ -26,11 +28,8 @@ export const renderFormError = (field, formErrors) => {
 
 /**
  * Takes formErrors object and overrides it with validation result of fields
- * @param {Operator} operator
- * @param {*} formErrors
- * @param {string | string[]} fields
  */
-export const getUpdatedFormErrors = (operator, formErrors, fields) => {
+export const getUpdatedFormErrors = (operator: Operator, formErrors, fields: string | string[]) => {
   if (!formErrors) {
     throw new Error('FormErrors is undefined!');
   }
@@ -45,9 +44,9 @@ export const getUpdatedFormErrors = (operator, formErrors, fields) => {
   return updatedFormErrors;
 };
 
-export const operatorNameFromOperator = operator => {
-  const name = _.get(operator, 'metadata.name');
-  const version = _.get(operator, 'spec.version');
+export const operatorNameFromOperator = (operator: Operator) => {
+  const name: string = _.get(operator, 'metadata.name');
+  const version: string = _.get(operator, 'spec.version');
 
   const versionStart = _.startsWith(version, 'v') || _.startsWith(version, 'V') ? 1 : 0;
 
@@ -56,11 +55,10 @@ export const operatorNameFromOperator = operator => {
 
 /**
  * Split operator description into 3 subsections
- * @param {*} operator
  */
-const splitDescriptionIntoSections = operator => {
+const splitDescriptionIntoSections = (operator: Operator) => {
   /** @type {string} */
-  const description = _.get(operator, 'spec.description', '');
+  const description: string = _.get(operator, 'spec.description', '');
 
   let aboutApplication = description;
   let aboutOperator = '';
@@ -69,8 +67,8 @@ const splitDescriptionIntoSections = operator => {
   const aboutHeaderMatch = description.match(new RegExp(`^${OPERATOR_DESCRIPTION_ABOUT_HEADER}`, 'm'));
   const prerequisitesHeaderMatch = description.match(new RegExp(`^${OPERATOR_DESCRIPTION_PREREQUISITES_HEADER}`, 'm'));
 
-  const aboutHeaderIndex = aboutHeaderMatch !== null ? aboutHeaderMatch.index : -1;
-  const prerequisitesHeaderIndex = prerequisitesHeaderMatch !== null ? prerequisitesHeaderMatch.index : -1;
+  const aboutHeaderIndex = (aboutHeaderMatch !== null && aboutHeaderMatch.index) || -1;
+  const prerequisitesHeaderIndex = (prerequisitesHeaderMatch !== null && prerequisitesHeaderMatch.index) || -1;
 
   // if we can identify headers, split using them
   // at least one header must be available
@@ -118,7 +116,7 @@ const splitDescriptionIntoSections = operator => {
  * Parse and normalize yaml operator (not suitable for CRDs!)
  * @param {*} yaml operator yaml file
  */
-export const parseYamlOperator = yaml => {
+export const parseYamlOperator = (yaml: string) => {
   const operator = safeLoad(yaml);
 
   return normalizeYamlOperator(operator);
@@ -156,10 +154,8 @@ export const normalizeYamlOperator = operator => {
 
 /**
  * Removes ID prop from descriptor before export to yaml
- * @param {OperatorCrdDescriptor} descriptor
- * @returns {Omit<OperatorCrdDescriptor, 'id'>}
  */
-const removeIdFromDescriptor = descriptor => {
+const removeIdFromDescriptor = (descriptor: OperatorCrdDescriptor) => {
   const { id, ...rest } = descriptor;
   return { ...rest };
 };
@@ -168,23 +164,19 @@ let idIndex = 0;
 
 /**
  * Add ID prop to descriptor so UI can index it properly for reordering
- * @param {OperatorCrdDescriptor} descriptor
  */
-export const addIdToDescriptor = descriptor => ({
+export const addIdToDescriptor = (descriptor: Omit<OperatorCrdDescriptor, 'id'>) => ({
   id: (++idIndex + Date.now()).toString(),
   ...descriptor
 });
 
 /**
  * Modifies operator owned CRDs descriptor using provided method (add / remove ID)
- * @param {Operator} operator
- * @param {Function} descriptorMapperFn
  */
-const modifyOwnedCrdsDescriptors = (operator, descriptorMapperFn) => {
+const modifyOwnedCrdsDescriptors = (operator: Operator, descriptorMapperFn) => {
   // clear id from descriptors as they are used only internally
   const ownedCrds = _.get(operator, sectionsFields['owned-crds'], []).map(
-    /** @param {OperatorOwnedCrd} crd */
-    crd => ({
+    (crd: OperatorOwnedCrd) => ({
       ...crd,
       specDescriptors: (crd.specDescriptors || []).map(descriptor => descriptorMapperFn(descriptor)),
       statusDescriptors: (crd.statusDescriptors || []).map(descriptor => descriptorMapperFn(descriptor))
@@ -198,9 +190,8 @@ const modifyOwnedCrdsDescriptors = (operator, descriptorMapperFn) => {
 
 /**
  * Converts operator to YAML
- * @param {Operator} operator
  */
-export const yamlFromOperator = operator => {
+export const yamlFromOperator = (operator: Operator) => {
   const yamlizedOperator = _.cloneDeep(operator);
 
   _.set(yamlizedOperator, 'metadata.name', operatorNameFromOperator(operator));
@@ -213,18 +204,14 @@ export const yamlFromOperator = operator => {
 
 /**
  * Get valid CRDs from all uploaded files
- * @param {UploadMetadata[]} uploads
  */
-export const filterValidCrdUploads = uploads =>
+export const filterValidCrdUploads = (uploads: UploadMetadata[]) =>
   uploads.filter(upload => !upload.errored && upload.type === 'CustomResourceDefinition');
 
 /**
  * Identify CRDs which needs to be uploaded before we can create bundle
- * @param {UploadMetadata[]} uploads set of uploaded files with metadata
- * @param {*} operator
- * @returns {MissingCRD[]}
  */
-export const getMissingCrdUploads = (uploads, operator) => {
+export const getMissingCrdUploads = (uploads: UploadMetadata[], operator: Operator): MissingCRD[] => {
   const uploadedCrds = filterValidCrdUploads(uploads).map(upload => upload.name);
 
   const missingCrds = _.get(operator, sectionsFields['owned-crds']).filter(
