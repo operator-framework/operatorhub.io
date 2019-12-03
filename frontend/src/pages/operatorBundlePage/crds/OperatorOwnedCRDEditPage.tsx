@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash-es';
 import { safeDump, safeLoad } from 'js-yaml';
+import { History } from 'history';
 
 import { noop, transformPathedName } from '../../../common/helpers';
 import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
@@ -11,7 +12,7 @@ import ResourcesEditor from '../../../components/editor/ResourcesEditor';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
 import DescriptorsEditor from '../../../components/editor/descriptors/DescriptorsEditor';
 import YamlViewer from '../../../components/YamlViewer';
-import { getUpdatedFormErrors } from '../bundlePageUtils';
+import { getUpdatedFormErrors, getVersionEditorRootPath } from '../bundlePageUtils';
 import {
   getDefaultOnwedCRD,
   getDefaultAlmExample,
@@ -29,17 +30,42 @@ import {
   SPEC_CAPABILITIES,
   STATUS_CAPABILITIES,
   EDITOR_STATUS,
-  sectionsFields
+  sectionsFields,
+  VersionEditorParamsMatch
 } from '../../../utils/constants';
 
 import OperatorTextAreaUncontrolled from '../../../components/editor/forms/OperatorTextAreaUncontrolled';
 import OperatorInputUncontrolled from '../../../components/editor/forms/OperatorInputUncontrolled';
+import { StoreState } from '../../../redux';
 
 const crdsField = sectionsFields['owned-crds'];
 const crdDescriptions = _.get(operatorFieldDescriptions, crdsField);
 
-class OperatorOwnedCRDEditPage extends React.Component {
-  state = {
+const OperatorOwnedCRDEditPageActions = {
+  storeEditorOperator: storeEditorOperatorAction,
+  storeEditorFormErrors: storeEditorFormErrorsAction,
+  setSectionStatus: setSectionStatusAction
+};
+
+export type OperatorOwnedCRDEditPageProps = {
+  isNew: boolean,
+  history: History,
+  match: VersionEditorParamsMatch
+} & ReturnType<typeof mapStateToProps> & typeof OperatorOwnedCRDEditPageActions;
+
+interface OperatorOwnedCRDEditPageState{
+  crdTemplate: any,
+  crdTemplateYamlError: string
+  specDescriptorsExpandedByError: boolean
+  statusDescriptorsExpandedByError: boolean
+}
+
+class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditPageProps, OperatorOwnedCRDEditPageState> {
+
+  static propTypes;
+  static defaultProps;
+
+  state: OperatorOwnedCRDEditPageState = {
     crdTemplate: null,
     crdTemplateYamlError: '',
     specDescriptorsExpandedByError: false,
@@ -50,7 +76,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
   crdIndex;
   isNewCRD = false;
   nameInput;
-  originalName;
+  originalName: string;
 
   almExampleIndex;
 
@@ -71,7 +97,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     let specDescriptorsExpandedByError = false;
     let statusDescriptorsExpandedByError = false;
 
-    this.name = transformPathedName(_.get(this.props.match, 'params.crd', ''));
+    //this.name = transformPathedName(_.get(match, 'params.crd', ''));
 
     // find crd by name or take default empty one
     let crd = operatorCRDs[this.crdIndex];
@@ -101,7 +127,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     const crdTemplate = this.getAlmExample();
 
     // do not update status or validate pristine page
-    if (sectionStatus !== EDITOR_STATUS.empty) {
+    //if (sectionStatus !== EDITOR_STATUS.empty) {
       // get existing errors and revalidate CRDs fields
       const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
 
@@ -115,7 +141,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
 
       this.updateSectionStatus(errors);
       storeEditorFormErrors(errors);
-    }
+    //}
 
     this.setState({ crdTemplate, specDescriptorsExpandedByError, statusDescriptorsExpandedByError });
 
@@ -283,10 +309,10 @@ class OperatorOwnedCRDEditPage extends React.Component {
   };
 
   updatePagePathOnNameChange = name => {
-    const { location, history, isNew } = this.props;
+    const { history, isNew } = this.props;
 
     if (!isNew) {
-      history.push(location.pathname.replace(this.originalName, name));
+      history.push(history.location.pathname.replace(this.originalName, name));
       this.originalName = name;
     }
   };
@@ -304,7 +330,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
     this.nameInput = ref;
   };
 
-  renderCRDInput = (title, field, fieldType, inputRefCallback) => {
+  renderCRDInput = (title, field, fieldType, inputRefCallback?) => {
     const crd = this.getCrd();
     const crdErrors = this.getCrdErrors();
 
@@ -340,7 +366,7 @@ class OperatorOwnedCRDEditPage extends React.Component {
   };
 
   render() {
-    const { history } = this.props;
+    const { history, match } = this.props;
     const {
       crdTemplate,
       crdTemplateYamlError,
@@ -378,6 +404,8 @@ class OperatorOwnedCRDEditPage extends React.Component {
         lastPage="owned-crds"
         lastPageTitle="Owned CRDs"
         history={history}
+        versionEditorRootPath={getVersionEditorRootPath(match)}
+        validatePage={() => true}
       >
         <form className="oh-operator-editor-form">
           {this.renderCRDInput('Name', 'name', 'text', this.setNameInputRef)}
@@ -464,18 +492,9 @@ OperatorOwnedCRDEditPage.defaultProps = {
   setSectionStatus: noop
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction,
-      setSectionStatus: setSectionStatusAction
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorOwnedCRDEditPageActions, dispatch);
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
   formErrors: state.editorState.formErrors,
   sectionStatus: state.editorState.sectionStatus
