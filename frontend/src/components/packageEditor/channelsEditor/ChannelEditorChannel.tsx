@@ -9,6 +9,7 @@ import { PacakgeEditorChannel } from '../../../utils/packageEditorTypes';
 
 
 export type ChannelEditorChannelProps = {
+    packageName: string,
     channel: PacakgeEditorChannel,
     editChannelName: (channelName: string) => void
     addOperatorVersion: (channelName: string) => void
@@ -84,7 +85,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
     }
 
     render() {
-        const { channel } = this.props;
+        const { packageName, channel } = this.props;
         const { expanded, sorting } = this.state;
 
 
@@ -143,30 +144,34 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                         </Grid.Row>
                                         {channel.versions
                                             .sort(this.sortVersions(sorting))
-                                            .map(version => (
-                                                <Grid.Row key={version} className="oh-operator-editor-upload__uploads__row">
-                                                    <Grid.Col xs={3}>
-                                                        <h4>
-                                                            <a href="#" onClick={noop}>
-                                                                {version}
-                                                                {version === channel.currentVersion &&
-                                                                    <span className="oh-package-channels-editor__channel__header__default">(current)</span>
-                                                                }
-                                                            </a>
-                                                        </h4>
-                                                    </Grid.Col>
-                                                    <Grid.Col xs={6}></Grid.Col>
-                                                    <Grid.Col xs={2}>Invalid Entry</Grid.Col>
-                                                    <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
-                                                        <DropdownKebab id={`editVersion_${version}`} pullRight>
-                                                            <MenuItem>Duplicate Operator Version</MenuItem>
-                                                            <MenuItem>Edit Update Graph</MenuItem>
-                                                            <MenuItem>Edit Operator Version</MenuItem>
-                                                            <MenuItem>Delete Operator Version</MenuItem>
-                                                        </DropdownKebab>
-                                                    </Grid.Col>
-                                                </Grid.Row>
-                                            ))
+                                            .map(version => {
+                                                const versionEditorPath = `/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(channel.name)}/${encodeURIComponent(version)}`;
+
+                                                return (
+                                                    <Grid.Row key={version} className="oh-operator-editor-upload__uploads__row">
+                                                        <Grid.Col xs={3}>
+                                                            <h4>
+                                                                <a href={versionEditorPath} onClick={noop}>
+                                                                    {version}
+                                                                    {version === channel.currentVersion &&
+                                                                        <span className="oh-package-channels-editor__channel__header__default">(current)</span>
+                                                                    }
+                                                                </a>
+                                                            </h4>
+                                                        </Grid.Col>
+                                                        <Grid.Col xs={6}></Grid.Col>
+                                                        <Grid.Col xs={2}>Invalid Entry</Grid.Col>
+                                                        <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
+                                                            <DropdownKebab id={`editVersion_${version}`} pullRight>
+                                                                <MenuItem>Duplicate Operator Version</MenuItem>
+                                                                <MenuItem>Edit Update Graph</MenuItem>
+                                                                <MenuItem>Edit Operator Version</MenuItem>
+                                                                <MenuItem>Delete Operator Version</MenuItem>
+                                                            </DropdownKebab>
+                                                        </Grid.Col>
+                                                    </Grid.Row>
+                                                );
+                                            })
                                         }
                                     </Grid>
                                 </div>)

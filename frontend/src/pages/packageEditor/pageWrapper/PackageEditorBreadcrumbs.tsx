@@ -5,7 +5,7 @@ import { Breadcrumb } from 'patternfly-react';
 
 export interface BreadcrumbsItem {
     subpath: string,
-    label: string
+    label: string | React.ReactElement
 }
 
 const BaseItems: BreadcrumbsItem[] = [
@@ -15,7 +15,7 @@ const BaseItems: BreadcrumbsItem[] = [
     },
     {
         subpath: '/packages',
-        label: 'Packages'
+        label: <span>Packages<span className="oh-beta-label">BETA</span></span>
     }
 ]
 
@@ -47,20 +47,24 @@ const PackageEditorBreadcrumbs: React.FC<PackageEditorBreadcrumbsProps> = ({
     return (
         <Breadcrumb>
             {
-                pathItems.map((item, index, array) => (
-                    <Breadcrumb.Item
-                        key={item.subpath}
-                        onClick={e => {
-                            e.preventDefault();
-                            history.push(item.subpath);
-                        }}
-                        href={item.subpath}
-                        active={index === array.length - 1}
-                    >
-                        {item.label}
-                    </Breadcrumb.Item>
-                ))
-            }          
+                pathItems.map((item, index, array) => {
+                    const active = index === array.length - 1;
+
+                    return (
+                        <Breadcrumb.Item
+                            key={item.subpath}
+                            onClick={e => {
+                                e.preventDefault();
+                                !active && history.push(item.subpath);
+                            }}
+                            href={item.subpath}
+                            active={active}
+                        >
+                            {item.label}
+                        </Breadcrumb.Item>
+                    )
+                })
+            }
         </Breadcrumb>
     )
 };

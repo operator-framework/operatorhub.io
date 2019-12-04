@@ -15,7 +15,7 @@ import * as utils from './UploaderUtils';
 
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
-import { Operator, OperatorPackage, CustomResourceFile, OperatorOwnedCrd, CustomResourceTemplateFile } from '../../../utils/operatorTypes';
+import { Operator, CustomResourceFile, OperatorOwnedCrd, CustomResourceTemplateFile } from '../../../utils/operatorTypes';
 import { UploadMetadata, KubernetesRoleObject, KubernetsRoleBindingObject } from './UploaderTypes';
 import UploaderBase from '../UploaderBase';
 
@@ -23,12 +23,10 @@ const validFileTypesRegExp = new RegExp(`(${['.yaml'].join('|').replace(/\./g, '
 
 export interface OperatorVersionUploaderProps {
   operator: Operator,
-  operatorPackage: OperatorPackage,
   uploads: UploadMetadata[],
   showErrorModal: (error: string) => void
   setSectionStatus: typeof actions.setSectionStatusAction
   setAllSectionsStatus: typeof actions.setBatchSectionsStatusAction,
-  updateOperatorPackage: typeof actions.updateOperatorPackageAction,
   setUploads: typeof actions.setUploadsAction,
   storeEditorOperator: typeof actions.storeEditorOperatorAction
 }
@@ -62,8 +60,8 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
       this.processCrdFile(upload.data);
     } else if (upload.type === 'Deployment') {
       this.processDeployment(upload.data);
-    } else if (upload.type === 'Package') {
-      this.processPackageFile(upload.data);
+    // } else if (upload.type === 'Package') {
+    //   this.processPackageFile(upload.data);
     } else if (upload.type === 'ServiceAccount') {
       this.processPermissionObject(upload);
     } else if (utils.securityObjectTypes.includes(upload.type)) {
@@ -106,25 +104,25 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
   /**
    * Update package data from package file
    */
-  processPackageFile = parsedFile => {
-    const { operatorPackage, updateOperatorPackage, setSectionStatus } = this.props;
-    const channel = parsedFile.channels && parsedFile.channels[0] ? parsedFile.channels[0] : null;
+  // processPackageFile = parsedFile => {
+  //   const { operatorPackage, updateOperatorPackage, setSectionStatus } = this.props;
+  //   const channel = parsedFile.channels && parsedFile.channels[0] ? parsedFile.channels[0] : null;
 
-    const newPackage = {
-      name: parsedFile.packageName,
-      channel: channel ? channel.name : operatorPackage.channel
-    };
+  //   const newPackage = {
+  //     name: parsedFile.packageName,
+  //     channel: channel ? channel.name : operatorPackage.channel
+  //   };
 
-    updateOperatorPackage(newPackage);
+  //   updateOperatorPackage(newPackage);
 
-    const operatorPackageValid = validateOperatorPackage(newPackage);
+  //   const operatorPackageValid = validateOperatorPackage(newPackage);
 
-    if (!operatorPackageValid) {
-      setSectionStatus('package', EDITOR_STATUS.errors);
-    } else {
-      setSectionStatus('package', EDITOR_STATUS.pending);
-    }
-  };
+  //   if (!operatorPackageValid) {
+  //     setSectionStatus('package', EDITOR_STATUS.errors);
+  //   } else {
+  //     setSectionStatus('package', EDITOR_STATUS.pending);
+  //   }
+  // };
 
   /**
    * Parse CRD file and create Owned CRD and relevant alm example (cr template) for it
@@ -612,7 +610,6 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
 
 OperatorVersionUploader.propTypes = {
   operator: PropTypes.object,
-  operatorPackage: PropTypes.object,
   uploads: PropTypes.array,
   showErrorModal: PropTypes.func,
   setSectionStatus: PropTypes.func,
@@ -624,7 +621,6 @@ OperatorVersionUploader.propTypes = {
 
 OperatorVersionUploader.defaultProps = {
   operator: {},
-  operatorPackage: {},
   uploads: [],
   showErrorModal: noop,
   setSectionStatus: noop,
@@ -634,23 +630,20 @@ OperatorVersionUploader.defaultProps = {
   storeEditorOperator: noop
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      showErrorModal: actions.showUploaderErrorConfirmationModalAction,
-      setSectionStatus: actions.setSectionStatusAction,
-      setAllSectionsStatus: actions.setBatchSectionsStatusAction,
-      updateOperatorPackage: actions.updateOperatorPackageAction,
-      setUploads: actions.setUploadsAction,
-      storeEditorOperator: actions.storeEditorOperatorAction
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(
+  {
+    showErrorModal: actions.showUploaderErrorConfirmationModalAction,
+    setSectionStatus: actions.setSectionStatusAction,
+    setAllSectionsStatus: actions.setBatchSectionsStatusAction,
+    setUploads: actions.setUploadsAction,
+    storeEditorOperator: actions.storeEditorOperatorAction
+  },
+  dispatch
+);
+
 
 const mapStateToProps = state => ({
   operator: state.editorState.operator,
-  operatorPackage: state.editorState.operatorPackage,
   uploads: state.editorState.uploads
 });
 

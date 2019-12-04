@@ -214,7 +214,6 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
     buildOperatorVersionsMap = (uploads: PackageEntry[], operatorVersions: PackageFileEntry[]) => {
         return operatorVersions.reduce(
             (accumulator, operatorVersion) => {
-console.log(operatorVersion)
                 accumulator[operatorVersion.version] = {
                     name: operatorVersion.objectName,
                     csv: operatorVersion.content,
@@ -255,7 +254,6 @@ console.log(operatorVersion)
 
         // list replaced versions in channel
         channels.forEach(channel => {
-            console.log('aaaa')
             let csvEntry = operatorVersions.find(version => version.objectName === channel.currentVersionFullName);
 
             if(csvEntry){
