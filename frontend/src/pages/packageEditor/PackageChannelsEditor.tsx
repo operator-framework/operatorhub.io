@@ -147,6 +147,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                             .map(channel =>
                                 <ChannelEditorChannel
                                     key={channel.name}
+                                    packageName={packageName}
                                     channel={channel}
                                     editChannelName={this.editChannelName}
                                     addOperatorVersion={this.addOperatorVersion}

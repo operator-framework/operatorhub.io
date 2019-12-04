@@ -298,6 +298,15 @@ export function getDefaultOperator(): operatorTypes.Operator {
   return JSON.parse(defaultOperatorJSON);
 }
 
+export function getDefaultOperatorWithName(packageName: string, version: string){
+  const operator = getDefaultOperator();
+
+  operator.metadata.name = packageName;
+  operator.spec.version = version;
+
+  return operator;
+}
+
 export function getDefaultDescription() {
   return _.clone(defaultOperator.spec.description);
 }

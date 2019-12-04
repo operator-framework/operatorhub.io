@@ -19,7 +19,10 @@ const EditorSection : React.FC<EditorSectionProps> = ({ sectionStatus, title, de
   const status: keyof typeof EDITOR_STATUS = _.get(sectionStatus, sectionLocation);
 
   const onEdit = () => {
-    history.push(`${history.location.pathname}/${sectionLocation}`);
+    const pathname = history.location.pathname;
+    const sectionPath = pathname +  (pathname.endsWith('/') ? sectionLocation : `/${sectionLocation}`);
+
+    history.push(sectionPath);
   };
 
   const renderSectionStatus = () => {

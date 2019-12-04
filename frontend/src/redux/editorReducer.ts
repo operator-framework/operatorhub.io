@@ -7,7 +7,6 @@ import { UploadMetadata } from '../components/uploader';
 export interface EditorReducerState {
   operator: Operator
   operatorModified: boolean
-  operatorPackage: OperatorPackage
   uploads: UploadMetadata[],
   formErrors: any,
   sectionStatus: Record<keyof ISectionFields, keyof typeof EDITOR_STATUS>
@@ -17,11 +16,7 @@ const getInitialState = () => {
 
   const initialState = {
     operator: getDefaultOperator(),
-    operatorModified: false,
-    operatorPackage: {
-      name: '',
-      channel: ''
-    },
+    operatorModified: false,   
     uploads: [],
     formErrors: {},
     sectionStatus: {
@@ -70,13 +65,7 @@ const editorReducer = (state: EditorReducerState = getInitialState(), action) =>
         ...state,
         operator: action.operator,
         operatorModified: true
-      };
-
-    case reduxConstants.SET_EDITOR_PACKAGE:
-      return {
-        ...state,
-        operatorPackage: action.operatorPackage
-      };
+      };   
 
     case reduxConstants.SET_EDITOR_UPLOADS:
       return {
