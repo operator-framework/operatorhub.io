@@ -26,9 +26,9 @@ const OperatorEditorSubPageActions = {
 };
 
 export type OperatorEditorSubPageProps = {
-  title: React.ReactNode
   history: History
   versionEditorRootPath: string,
+  title?: React.ReactElement | string
   description?: React.ReactNode
   field?: string
   header?: React.ReactNode
@@ -140,7 +140,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     const {
       history,
       header,
-      title,
+      title = '',
       versionEditorRootPath,
       field,
       description = null,
@@ -163,9 +163,8 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
             sectionSubPath={lastPage}
             sectionLabel={lastPageTitle}
             history={history}
-            title={title}
-            secondary={secondary}
-            tertiary={tertiary}
+            currentLabel={title}
+            versionEditorRootPath={versionEditorRootPath}
           />
         }
         history={history}

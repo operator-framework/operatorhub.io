@@ -1,67 +1,57 @@
 import React from 'react';
 import { History } from 'history';
-import { Breadcrumb } from 'patternfly-react';
+
+import PackageEditorBreadcrumbs, { BreadcrumbsItem } from '../../packageEditor/pageWrapper/PackageEditorBreadcrumbs';
 
 
 export interface EditorBreadcrumbsProps {
     history: History
-    title: React.ReactNode
-    secondary?: boolean
+    currentLabel?: string | React.ReactElement
+    versionEditorRootPath: string
     sectionSubPath?: string
     sectionLabel?: string
-    tertiary?: boolean
 }
 
 const EditorBreadcrumbs: React.FC<EditorBreadcrumbsProps> = ({
     history,
     sectionSubPath,
-    title,
+    currentLabel,
     sectionLabel,
-    secondary,
-    tertiary   
-}) => {
+    versionEditorRootPath
+}) => { 
+    const items: BreadcrumbsItem[] = [];
 
-    const onBack = e => {
-        e.preventDefault();
-        history.push(`/bundle/${sectionSubPath}`);
-    };
+    // add middleware items which defines package / channel / version
+    // shared for entire version editor
+    // omit base pacakges path as they are already provided by Package editor
+    const baseItems = versionEditorRootPath.replace('/packages/', '').split('/');
 
-    const onEditor = e => {
-        e.preventDefault();
-        history.push(`/bundle`);
-    };
+    baseItems.forEach(item => {
+        items.push({
+            label: item,
+            subpath: item
+        })
+    });
 
-    const onHome = e => {
-        e.preventDefault();
-        history.push('/');
-      };
+    // add nested section path
+    sectionSubPath && sectionLabel && items.push({
+        subpath: sectionSubPath,
+        label: sectionLabel
+    });
+
+    // add active subsection name
+    currentLabel && items.push({
+        subpath: '',
+        label: currentLabel
+    });
 
     return (
-        <Breadcrumb>
-            <Breadcrumb.Item onClick={onHome} href={window.location.origin}>
-                Home
-                </Breadcrumb.Item>
-            {(secondary || tertiary) && (
-                <Breadcrumb.Item onClick={onEditor} href={`${window.location.origin}/bundle`}>
-                    Package your Operator
-                    <span className="oh-beta-label">BETA</span>
-                </Breadcrumb.Item>
-            )}
-            {tertiary && (
-                <Breadcrumb.Item onClick={onBack} href={`${window.location.origin}/bundle/${sectionSubPath}`}>
-                    {sectionLabel}
-                </Breadcrumb.Item>
-            )}
-            <Breadcrumb.Item active>{title}</Breadcrumb.Item>
-        </Breadcrumb>
-    )
+        <PackageEditorBreadcrumbs
+            history={history}
+            items={items}
+        />
+    );
 };
 
-EditorBreadcrumbs.defaultProps = {
-    sectionSubPath: '',
-    secondary: false,
-    sectionLabel: '',
-    tertiary: false
-}
 
 export default EditorBreadcrumbs;

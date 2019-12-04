@@ -6,18 +6,24 @@ import { Alert } from 'patternfly-react';
 
 import { advancedUploadAvailable, supportFileSystemEntry } from '../../common/helpers';
 import { CreatePackagePageButtonBar, CreatePackagePageHeader, CreateNewPackageSection } from '../../components/packageEditor/createPackage';
-import { resetEditorOperatorAction, showGithubPackageUploadAction, clearPackageUploadsAction, showClearConfirmationModalAction, hideConfirmModalAction } from '../../redux/actions';
+import * as actions from '../../redux/actions';
 import OperatorPackageUploader, { OperatorPackageUploaderComponent } from '../../components/uploader/package/PackageUploader';
 import PackageEditorPageWrapper from './pageWrapper/PackageEditorPageWrapper';
 import { StoreState } from '../../redux';
+import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
+import { version } from 'd3';
 
 
 const OperatorPackagePageActions = {
-    showGithubPackageUpload: showGithubPackageUploadAction,
-    resetEditorOperator: resetEditorOperatorAction,
-    clearPackageUploads: clearPackageUploadsAction,
-    showClearConfirmationModal: showClearConfirmationModalAction,
-    hideConfirmationModal: hideConfirmModalAction
+    showGithubPackageUpload: actions.showGithubPackageUploadAction,
+    resetEditorOperator: actions.resetEditorOperatorAction,
+    clearPackageUploads: actions.clearPackageUploadsAction,
+    showClearConfirmationModal: actions.showClearConfirmationModalAction,
+    hideConfirmationModal: actions.hideConfirmModalAction,
+    setPackageName: actions.setPackageNameAction,
+    setPackageChannels: actions.setPackageChannelsAction,
+    setPackageOperatorVersions: actions.setPackageOperatorVersionsAction,
+    storeEditorOperator: actions.storeEditorOperatorAction
 }
 
 export type PackageEditorLandingPageProps = {
@@ -63,7 +69,7 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
     }
 
     onPackageCreate = (e: React.MouseEvent) => {
-        const { history, packageName, resetEditorOperator } = this.props;
+        const { history, packageName, } = this.props;
         const { activeTab } = this.state;
         e.preventDefault();
 
@@ -71,9 +77,9 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
             case PackageEditorLandingPageTabs.createPackage: {
 
                 if (this.newPackageComponent) {
-                    const { packageName, operatorVersion,defaultChannel } = this.newPackageComponent.state;
+                    const { packageName, operatorVersion, defaultChannel } = this.newPackageComponent.state;
 
-                    resetEditorOperator();
+                    this.createPackage(packageName, operatorVersion, defaultChannel);
                     history.push(`/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(defaultChannel)}/${encodeURIComponent(operatorVersion)}`);
                 }
                 break;
@@ -86,6 +92,33 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
                 break;
             }
         }
+    }
+
+    createPackage = (packageName: string, operatorVersion: string, defaultChannelName: string) => {
+        const { resetEditorOperator, setPackageChannels, setPackageName, setPackageOperatorVersions, storeEditorOperator } = this.props;
+
+        const versionFullName = `${packageName}.v${operatorVersion}`;
+        const versionCsv = getDefaultOperatorWithName(packageName, operatorVersion);
+
+        setPackageName(packageName);
+        setPackageChannels([{
+            name: defaultChannelName,
+            isDefault: true,
+            currentVersion: operatorVersion,
+            currentVersionFullName: versionFullName,
+            versions: [operatorVersion]
+        }]);
+        setPackageOperatorVersions({
+            [version]: {
+                crdUploads: [],
+                csv: versionCsv,
+                name: versionFullName
+            }
+        });
+
+        // clear version editor state and set current operator
+        resetEditorOperator();
+        storeEditorOperator(versionCsv);
     }
 
     onPackageClear = (e: React.MouseEvent) => {

@@ -35,14 +35,6 @@ export const resetEditorOperatorAction = () => {
 };
 
 /**
- * Updates operator package
- */
-export const updateOperatorPackageAction = (operatorPackage: OperatorPackage) => ({
-  type: reduxConstants.SET_EDITOR_PACKAGE,
-  operatorPackage
-});
-
-/**
  * Update uploads list
  */
 export const setUploadsAction = (uploads: UploadMetadata[]) => ({

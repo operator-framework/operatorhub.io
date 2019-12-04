@@ -50,6 +50,8 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
   componentDidMount() {
     const { operator, setBatchSectionsStatus, sectionStatus } = this.props;
 
+     
+
     const updatedSectionsStatus = {} as any;
     // remove invalid defaults before validation so they do not cause false errors
     const cleanedOperator = removeEmptyOptionalValuesFromOperator(operator);
@@ -80,6 +82,17 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
       setBatchSectionsStatus(updatedSectionsStatus);
     }
   }
+
+  onBackToChannelEditor =  (e: React.MouseEvent) => {
+    const { history, match } = this.props;
+
+    const pathname = history.location.pathname;
+    // remove slash before channel name
+    const channelPath = pathname.substring(0, pathname.indexOf(match.params.channelName) -1);
+
+    e.preventDefault();
+    history.push(channelPath);
+  };
 
   onEditCSVYaml = (e: React.MouseEvent) => {
     const { history, match } = this.props;
@@ -186,34 +199,27 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
     return (
       <div className="oh-operator-editor-page__button-bar">
         <div>
-          <OperatorBundleDownloader />
+        <button className="oh-button oh-button-primary" onClick={this.onBackToChannelEditor}>
+            Back to Package Definition
+          </button>
           <button className="oh-button oh-button-secondary" onClick={this.onEditCSVYaml}>
             Edit CSV in YAML
           </button>
           <button className="oh-button oh-button-secondary" onClick={this.showPreviewOperator}>
             Preview
           </button>
-        </div>
-        <button className="oh-button oh-button-secondary" onClick={this.clearContents}>
-          Clear All and Start New Bundle
-        </button>
+        </div>       
       </div>
     );
   }
 
   render() {
-    const { operator, operatorPackage, history, match } = this.props;
+    const { operator, history, match } = this.props;
     const { previewShown } = this.state;
 
     return (
       <OperatorEditorSubPage
         pageId="oh-editor-landing-page"
-        title={
-          <React.Fragment>
-            Package your Operator
-            <span className="oh-beta-label">BETA</span>
-          </React.Fragment>
-        }
         versionEditorRootPath={getVersionEditorRootPath(match)}
         header={this.renderHeader()}
         buttonBar={this.renderButtonBar()}
@@ -241,7 +247,10 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
             show={previewShown}
             yamlOperator={operator}
             onClose={this.hidePreviewOperator}
-            operatorPackage={operatorPackage}
+            operatorPackage={{
+              name: match.params.packageName,
+              channel: match.params.channelName
+            }}
           />
         )}
       </OperatorEditorSubPage>
@@ -252,7 +261,6 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
 OperatorBundlePage.propTypes = {
   operator: PropTypes.object,
   sectionStatus: PropTypes.object,
-  operatorPackage: PropTypes.object,
   resetEditorOperator: PropTypes.func,
   showClearConfirmModal: PropTypes.func,
   hideConfirmModal: PropTypes.func,
@@ -265,7 +273,6 @@ OperatorBundlePage.propTypes = {
 OperatorBundlePage.defaultProps = {
   operator: {},
   sectionStatus: {},
-  operatorPackage: {},
   resetEditorOperator: noop,
   showClearConfirmModal: noop,
   hideConfirmModal: noop,
@@ -278,7 +285,6 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
-  operatorPackage: state.editorState.operatorPackage,
   sectionStatus: state.editorState.sectionStatus
 });
 

@@ -193,7 +193,8 @@ export const operatorFieldValidators = {
       regex: nameRegExp,
       regexErrorMessage: nameRegExpMessage,
       props: {
-        maxLength: 253
+        maxLength: 253,
+        disabled: 'disabled'
       }
     },
     annotations: {
@@ -228,7 +229,10 @@ export const operatorFieldValidators = {
     version: {
       required: true,
       regex: versionRegExp,
-      regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)'
+      regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)',
+      props: {
+        disabled: 'disabled'
+      }
     },
     replaces: {
       validator: nameValidator,
