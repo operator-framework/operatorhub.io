@@ -4,44 +4,51 @@ import { History } from 'history';
 import { bindActionCreators } from 'redux';
 import { Alert } from 'patternfly-react';
 
-import OperatorEditorSubPage from '../operatorBundlePage/subPage/OperatorEditorSubPage';
 import { advancedUploadAvailable, supportFileSystemEntry } from '../../common/helpers';
 import { CreatePackagePageButtonBar, CreatePackagePageHeader, CreateNewPackageSection } from '../../components/packageEditor/createPackage';
-import { resetEditorOperatorAction, showGithubPackageUploadAction, clearPackageUploadsAction, showClearConfirmationModalAction, hideConfirmModalAction } from '../../redux/actions';
-import OperatorPackageUploader from '../../components/uploader/package/PackageUploader';
+import * as actions from '../../redux/actions';
+import OperatorPackageUploader, { OperatorPackageUploaderComponent } from '../../components/uploader/package/PackageUploader';
+import PackageEditorPageWrapper from './pageWrapper/PackageEditorPageWrapper';
+import { StoreState } from '../../redux';
+import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
+import { version } from 'd3';
 
 
 const OperatorPackagePageActions = {
-    showGithubPackageUpload: showGithubPackageUploadAction,
-    resetEditorOperator: resetEditorOperatorAction,
-    clearPackageUploads: clearPackageUploadsAction,
-    showClearConfirmationModal: showClearConfirmationModalAction,
-    hideConfirmationModal: hideConfirmModalAction
+    showGithubPackageUpload: actions.showGithubPackageUploadAction,
+    resetEditorOperator: actions.resetEditorOperatorAction,
+    clearPackageUploads: actions.clearPackageUploadsAction,
+    showClearConfirmationModal: actions.showClearConfirmationModalAction,
+    hideConfirmationModal: actions.hideConfirmModalAction,
+    setPackageName: actions.setPackageNameAction,
+    setPackageChannels: actions.setPackageChannelsAction,
+    setPackageOperatorVersions: actions.setPackageOperatorVersionsAction,
+    storeEditorOperator: actions.storeEditorOperatorAction
 }
 
-export type OperatorPackagePageProps = {
+export type PackageEditorLandingPageProps = {
     history: History
-} & typeof OperatorPackagePageActions;
+} & typeof OperatorPackagePageActions & ReturnType<typeof mapStateToProps>;
 
 
-interface OperatorPackageEditorPageState {
+interface PackageEditorLandingPageState {
     activeTab: number
     pageIsValid: boolean
     supportFileSystemEntry: boolean
 
 }
 
-enum OperatorPackageEditorPageTabs {
+enum PackageEditorLandingPageTabs {
     createPackage = 1,
     editPackage = 2
 }
 
 
-class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageProps, OperatorPackageEditorPageState>{
+class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingPageProps, PackageEditorLandingPageState>{
 
 
-    state: OperatorPackageEditorPageState = {
-        activeTab: OperatorPackageEditorPageTabs.editPackage,
+    state: PackageEditorLandingPageState = {
+        activeTab: PackageEditorLandingPageTabs.createPackage,
         pageIsValid: false,
         supportFileSystemEntry: false
     }
@@ -54,32 +61,64 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
 
     newPackageComponent: CreateNewPackageSection | null;
 
+    packageUploaderComponent: OperatorPackageUploaderComponent | null;
+
     componentDidMount() {
         // we need extra support for traversing directory structure in uploaded folder
         this.setState({ supportFileSystemEntry: advancedUploadAvailable() && supportFileSystemEntry() });
     }
 
     onPackageCreate = (e: React.MouseEvent) => {
-        const { history, resetEditorOperator } = this.props;
+        const { history, packageName, } = this.props;
         const { activeTab } = this.state;
         e.preventDefault();
 
         switch (activeTab) {
-            case OperatorPackageEditorPageTabs.createPackage: {
+            case PackageEditorLandingPageTabs.createPackage: {
 
                 if (this.newPackageComponent) {
-                    const { packageName, defaultChannel } = this.newPackageComponent.state;
+                    const { packageName, operatorVersion, defaultChannel } = this.newPackageComponent.state;
 
-                    resetEditorOperator();
-                    history.push(`/bundle/${packageName}/${defaultChannel}`)
+                    this.createPackage(packageName, operatorVersion, defaultChannel);
+                    history.push(`/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(defaultChannel)}/${encodeURIComponent(operatorVersion)}`);
                 }
                 break;
             }
-            case OperatorPackageEditorPageTabs.editPackage: {
-                // TODO: Navigate to channel editor page
+            case PackageEditorLandingPageTabs.editPackage: {
+                if (this.packageUploaderComponent) {
+                    this.packageUploaderComponent.convertUploadsToChannelsAndVersions();
+                }
+                history.push(`/packages/${encodeURIComponent(packageName)}`);
                 break;
             }
         }
+    }
+
+    createPackage = (packageName: string, operatorVersion: string, defaultChannelName: string) => {
+        const { resetEditorOperator, setPackageChannels, setPackageName, setPackageOperatorVersions, storeEditorOperator } = this.props;
+
+        const versionFullName = `${packageName}.v${operatorVersion}`;
+        const versionCsv = getDefaultOperatorWithName(packageName, operatorVersion);
+
+        setPackageName(packageName);
+        setPackageChannels([{
+            name: defaultChannelName,
+            isDefault: true,
+            currentVersion: operatorVersion,
+            currentVersionFullName: versionFullName,
+            versions: [operatorVersion]
+        }]);
+        setPackageOperatorVersions({
+            [version]: {
+                crdUploads: [],
+                csv: versionCsv,
+                name: versionFullName
+            }
+        });
+
+        // clear version editor state and set current operator
+        resetEditorOperator();
+        storeEditorOperator(versionCsv);
     }
 
     onPackageClear = (e: React.MouseEvent) => {
@@ -88,11 +127,11 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
         e.preventDefault();
 
         switch (activeTab) {
-            case OperatorPackageEditorPageTabs.createPackage: {
+            case PackageEditorLandingPageTabs.createPackage: {
                 this.newPackageComponent && this.newPackageComponent.clearForm();
                 break;
             }
-            case OperatorPackageEditorPageTabs.editPackage: {
+            case PackageEditorLandingPageTabs.editPackage: {
                 showClearConfirmationModal(() => {
                     clearPackageUploads();
                     hideConfirmationModal();
@@ -113,7 +152,7 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
     onCreateFromScratch = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        this.onNavSelect(OperatorPackageEditorPageTabs.createPackage);
+        this.onNavSelect(PackageEditorLandingPageTabs.createPackage);
     }
 
 
@@ -122,13 +161,9 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
         const { activeTab, pageIsValid, supportFileSystemEntry } = this.state;
 
         return (
-            <OperatorEditorSubPage
+            <PackageEditorPageWrapper
                 pageId="oh-operator-package-editor-page"
-                title="Create your Operator Package"
-                field=""
                 history={history}
-                description=""
-                pageErrors={false}
                 buttonBar={
                     <CreatePackagePageButtonBar
                         valid={pageIsValid}
@@ -144,10 +179,10 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
                         onNavSelect={this.onNavSelect}
                     />
                 }
-                validatePage={() => true}
+                breadcrumbs={[]}
             >
                 <div className="oh-operator-package-editor-page__tab-pane">
-                    {activeTab === OperatorPackageEditorPageTabs.createPackage &&
+                    {activeTab === PackageEditorLandingPageTabs.createPackage &&
                         <div className="oh-operator-package-editor-page__tab-content">
                             <CreateNewPackageSection
                                 ref={ref => this.newPackageComponent = ref}
@@ -155,7 +190,7 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
                             />
                         </div>
                     }
-                    {activeTab === OperatorPackageEditorPageTabs.editPackage &&
+                    {activeTab === PackageEditorLandingPageTabs.editPackage &&
                         <div className="oh-operator-package-editor-page__tab-content">
                             {
                                 !supportFileSystemEntry && (
@@ -170,13 +205,14 @@ class OperatorPackageEditorPage extends React.PureComponent<OperatorPackagePageP
                             }
                             <div className={`oh-operator-editor-form__field-section ${!supportFileSystemEntry ? 'oh-folder-upload-disabled' : ''}`}>
                                 <OperatorPackageUploader
+                                    ref={(ref: OperatorPackageUploaderComponent) => this.packageUploaderComponent = ref}
                                     onUploadChangeCallback={this.onSectionChanged}
                                 />
                             </div>
                         </div>
                     }
                 </div>
-            </OperatorEditorSubPage>
+            </PackageEditorPageWrapper>
         );
     }
 }
@@ -185,5 +221,9 @@ const mapDispatchToProps = dispatch => ({
     ...bindActionCreators(OperatorPackagePageActions, dispatch)
 });
 
+const mapStateToProps = (state: StoreState) => ({
+    packageName: state.packageEditorState.packageName
+})
 
-export default connect(null, mapDispatchToProps)(OperatorPackageEditorPage);
+
+export default connect(mapStateToProps, mapDispatchToProps)(PackageEditorLandingPage);

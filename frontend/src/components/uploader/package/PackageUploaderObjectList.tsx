@@ -3,7 +3,6 @@ import { Grid, Icon } from 'patternfly-react';
 import UploaderStatusIcon, { IconStatus } from '../UploaderStatusIcon';
 import { PackageEntry } from '../../../utils/packageEditorTypes';
 import PackageUploaderFolderIcon, { PackageUploaderFolderIconStatus } from './PackageUploaderFolderIcon';
-import UploaderBase from '../UploaderBase';
 import PackageUploaderSortIcon from './PackageUploaderSortIcon';
 
 export interface PackageUploaderObjectListProps {

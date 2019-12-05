@@ -12,27 +12,36 @@ import { setSectionStatusAction, storeKeywordSearchAction, showConfirmationModal
 import { EDITOR_STATUS, EditorSectionNames } from '../../../utils/constants';
 import EditorButtonBar from './EditorButtonBar';
 import EditorBreadcrumbs from './EditorBreadCrumbs';
+import { StoreState } from '../../../redux';
 
-export interface OperatorEditorSubPageProps {
-  title: React.ReactNode
-  field: string
+const OperatorEditorSubPageActions = {
+  storeKeywordSearch: storeKeywordSearchAction,
+  setSectionStatus: setSectionStatusAction,
+  showPageErrorsMessage: () =>
+    showConfirmationModalAction({
+      title: 'Errors',
+      heading: 'There are errors or missing required fields on the page',
+      confirmButtonText: 'OK'
+    })
+};
+
+export type OperatorEditorSubPageProps = {
   history: History
+  versionEditorRootPath: string,
+  title?: React.ReactElement | string
+  description?: React.ReactNode
+  field?: string
   header?: React.ReactNode
   buttonBar?: React.ReactNode
-  description: React.ReactNode
   secondary?: boolean
   pageId?: string
   tertiary?: boolean
   lastPage?: string
   lastPageTitle?: string
   section?: EditorSectionNames
-  pageErrors: boolean
+  pageErrors?: boolean
   validatePage: () => boolean
-  sectionStatus: keyof typeof EDITOR_STATUS
-  storeKeywordSearch: typeof storeKeywordSearchAction
-  setSectionStatus: typeof setSectionStatusAction
-  showPageErrorsMessage: () => void
-}
+} & ReturnType<typeof mapStateToProps> & typeof OperatorEditorSubPageActions;
 
 interface OperatorEditorSubPageState {
   headerHeight: number
@@ -75,37 +84,24 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     window.removeEventListener('resize', this.onWindowResize);
   }
 
-  onEditor = e => {
-    e.preventDefault();
-    this.props.history.push('/bundle');
-  };
 
-  onBack = e => {
-    e.preventDefault();
-    this.props.history.push(`/bundle/${this.props.lastPage}`);
-  };
-
-  allSet = e => {
-    const { validatePage, setSectionStatus, section, secondary, showPageErrorsMessage } = this.props;
+  allSet = () => {
+    const { validatePage, setSectionStatus, section, showPageErrorsMessage } = this.props;
 
     // skip if no section exists - user has to implement own button bar with validation
     if (!section) {
-      return;
+      // let button bar know if it should auto navigate
+      return false;
     }
 
     if (validatePage() === false) {
       showPageErrorsMessage();
       setSectionStatus(section, EDITOR_STATUS.errors);
-      return;
+      return true;
     }
+
     setSectionStatus(section, EDITOR_STATUS.complete);
-
-    if (secondary) {
-      this.onEditor(e);
-      return;
-    }
-
-    this.onBack(e);
+    return true;
   };
 
   onScroll = (scrollTop: number, topperHeight: number, toolbarHeight: number) => {
@@ -144,9 +140,10 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     const {
       history,
       header,
-      title,
+      title = '',
+      versionEditorRootPath,
       field,
-      description,
+      description = null,
       children,
       pageId,
       buttonBar,
@@ -154,7 +151,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
       lastPage,
       lastPageTitle,
       tertiary,
-      pageErrors
+      pageErrors = false
     } = this.props;
     const { keywordSearch, headerHeight, titleHeight } = this.state;
 
@@ -163,12 +160,11 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
         className="oh-page-operator-editor"
         toolbarContent={
           <EditorBreadcrumbs
-            lastPageSubPath={lastPage}
-            lastPageTitle={lastPageTitle}
+            sectionSubPath={lastPage}
+            sectionLabel={lastPageTitle}
             history={history}
-            title={title}
-            secondary={secondary}
-            tertiary={tertiary}
+            currentLabel={title}
+            versionEditorRootPath={versionEditorRootPath}
           />
         }
         history={history}
@@ -185,7 +181,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
                 <React.Fragment>
                   <h1>{title}</h1>
                   {description}
-                  <p>{!description && _.get(operatorFieldDescriptions, field)}</p>
+                  <p>{!description && _.get(operatorFieldDescriptions, field || '')}</p>
                 </React.Fragment>
               )}
             </div>
@@ -195,6 +191,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
           </div>
           {buttonBar ||
             <EditorButtonBar
+              versionEditorRootPath={versionEditorRootPath}
               lastPageSubPath={lastPage}
               lastPageTitle={lastPageTitle}
               history={history}
@@ -257,19 +254,10 @@ OperatorEditorSubPage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators({
-    storeKeywordSearch: storeKeywordSearchAction,
-    setSectionStatus: setSectionStatusAction,
-    showPageErrorsMessage: () =>
-      showConfirmationModalAction({
-        title: 'Errors',
-        heading: 'There are errors or missing required fields on the page',
-        confirmButtonText: 'OK'
-      })
-  }, dispatch)
+  ...bindActionCreators(OperatorEditorSubPageActions, dispatch)
 });
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   sectionStatus: state.editorState.sectionStatus
 });
 

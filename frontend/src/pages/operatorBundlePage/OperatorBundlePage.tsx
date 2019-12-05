@@ -14,13 +14,35 @@ import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
 import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValidation';
-import { getUpdatedFormErrors } from './bundlePageUtils';
-import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
+import { getUpdatedFormErrors, getVersionEditorRootPath } from './bundlePageUtils';
+import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';
-import { hideConfirmModalAction, showClearConfirmationModalAction } from '../../redux';
+import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState } from '../../redux';
+import { History } from 'history';
 
-class OperatorBundlePage extends React.Component {
+const OperatorBundlePageActions = {
+  resetEditorOperator: resetEditorOperatorAction,
+  showClearConfirmModal: showClearConfirmationModalAction,
+  hideConfirmModal: hideConfirmModalAction,
+  setBatchSectionsStatus: setBatchSectionsStatusAction
+};
+
+export type OperatorBundlePageProps = {
+  history: History,
+  match: VersionEditorParamsMatch
+
+} & ReturnType<typeof mapStateToProps> & typeof OperatorBundlePageActions;
+
+interface OperatorBundlePageState {
+  previewShown: boolean
+}
+
+class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, OperatorBundlePageState> {
+
+  static propTypes;
+  static defaultProps;
+
   state = {
     previewShown: false
   };
@@ -28,7 +50,9 @@ class OperatorBundlePage extends React.Component {
   componentDidMount() {
     const { operator, setBatchSectionsStatus, sectionStatus } = this.props;
 
-    const updatedSectionsStatus = {};
+     
+
+    const updatedSectionsStatus = {} as any;
     // remove invalid defaults before validation so they do not cause false errors
     const cleanedOperator = removeEmptyOptionalValuesFromOperator(operator);
 
@@ -59,9 +83,22 @@ class OperatorBundlePage extends React.Component {
     }
   }
 
-  onEditCSVYaml = e => {
+  onBackToChannelEditor =  (e: React.MouseEvent) => {
+    const { history, match } = this.props;
+
+    const pathname = history.location.pathname;
+    // remove slash before channel name
+    const channelPath = pathname.substring(0, pathname.indexOf(match.params.channelName) -1);
+
     e.preventDefault();
-    this.props.history.push('/bundle/yaml');
+    history.push(channelPath);
+  };
+
+  onEditCSVYaml = (e: React.MouseEvent) => {
+    const { history, match } = this.props;
+
+    e.preventDefault();
+    history.push(`${getVersionEditorRootPath(match)}/yaml`);
   };
 
   hidePreviewOperator = () => {
@@ -156,57 +193,38 @@ class OperatorBundlePage extends React.Component {
     );
   }
 
-  renderPackageInfo() {
-    const { history } = this.props;
 
-    return (
-      <React.Fragment>
-        <h2>Package</h2>
-        <EditorSection
-          title="Package definition"
-          description="The package sections contains informations about unique package name and channel where is operator distributed."
-          history={history}
-          sectionLocation="package"
-        />
-      </React.Fragment>
-    );
-  }
 
   renderButtonBar() {
     return (
       <div className="oh-operator-editor-page__button-bar">
         <div>
-          <OperatorBundleDownloader />
+        <button className="oh-button oh-button-primary" onClick={this.onBackToChannelEditor}>
+            Back to Package Definition
+          </button>
           <button className="oh-button oh-button-secondary" onClick={this.onEditCSVYaml}>
             Edit CSV in YAML
           </button>
           <button className="oh-button oh-button-secondary" onClick={this.showPreviewOperator}>
             Preview
           </button>
-        </div>
-        <button className="oh-button oh-button-secondary" onClick={this.clearContents}>
-          Clear All and Start New Bundle
-        </button>
+        </div>       
       </div>
     );
   }
 
   render() {
-    const { operator, operatorPackage, history } = this.props;
+    const { operator, history, match } = this.props;
     const { previewShown } = this.state;
 
     return (
       <OperatorEditorSubPage
         pageId="oh-editor-landing-page"
-        title={
-          <React.Fragment>
-            Package your Operator
-            <span className="oh-beta-label">BETA</span>
-          </React.Fragment>
-        }
+        versionEditorRootPath={getVersionEditorRootPath(match)}
         header={this.renderHeader()}
         buttonBar={this.renderButtonBar()}
         history={history}
+        validatePage={() => true}
       >
         <OperatorVersionUploader />
         <div className="oh-operator-editor-page__spacer">
@@ -224,13 +242,15 @@ class OperatorBundlePage extends React.Component {
         />
         {this.renderCustomResourceDefinitions()}
         {this.renderOperatorInstallation()}
-        {this.renderPackageInfo()}
         {previewShown && (
           <PreviewOperatorModal
             show={previewShown}
             yamlOperator={operator}
             onClose={this.hidePreviewOperator}
-            operatorPackage={operatorPackage}
+            operatorPackage={{
+              name: match.params.packageName,
+              channel: match.params.channelName
+            }}
           />
         )}
       </OperatorEditorSubPage>
@@ -241,7 +261,6 @@ class OperatorBundlePage extends React.Component {
 OperatorBundlePage.propTypes = {
   operator: PropTypes.object,
   sectionStatus: PropTypes.object,
-  operatorPackage: PropTypes.object,
   resetEditorOperator: PropTypes.func,
   showClearConfirmModal: PropTypes.func,
   hideConfirmModal: PropTypes.func,
@@ -254,7 +273,6 @@ OperatorBundlePage.propTypes = {
 OperatorBundlePage.defaultProps = {
   operator: {},
   sectionStatus: {},
-  operatorPackage: {},
   resetEditorOperator: noop,
   showClearConfirmModal: noop,
   hideConfirmModal: noop,
@@ -262,20 +280,11 @@ OperatorBundlePage.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      resetEditorOperator: resetEditorOperatorAction,
-      showClearConfirmModal: showClearConfirmationModalAction,
-      hideConfirmModal: hideConfirmModalAction,
-      setBatchSectionsStatus: setBatchSectionsStatusAction
-    },
-    dispatch
-  )
+  ...bindActionCreators(OperatorBundlePageActions, dispatch)
 });
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
-  operatorPackage: state.editorState.operatorPackage,
   sectionStatus: state.editorState.sectionStatus
 });
 

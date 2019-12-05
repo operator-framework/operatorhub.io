@@ -35,14 +35,14 @@ export function getObjectNameAndType(content): TypeAndName | null {
         name
       };
     }
-
-    // package file is different with no kind and API
-  } else if (content.packageName && content.channels) {
-    return {
-      type: 'Package',
-      name: content.packageName
-    };
   }
+  // package file is different with no kind and API
+  // } else if (content.packageName && content.channels) {
+  //   return {
+  //     type: 'Package',
+  //     name: content.packageName
+  //   };
+  // }
 
   return null;
 }

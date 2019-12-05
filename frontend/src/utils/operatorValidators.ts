@@ -193,7 +193,8 @@ export const operatorFieldValidators = {
       regex: nameRegExp,
       regexErrorMessage: nameRegExpMessage,
       props: {
-        maxLength: 253
+        maxLength: 253,
+        disabled: 'disabled'
       }
     },
     annotations: {
@@ -228,7 +229,10 @@ export const operatorFieldValidators = {
     version: {
       required: true,
       regex: versionRegExp,
-      regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)'
+      regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)',
+      props: {
+        disabled: 'disabled'
+      }
     },
     replaces: {
       validator: nameValidator,
@@ -452,11 +456,17 @@ export const operatorPackageFieldValidators = {
   name: {
     required: true,
     regex: nameRegExp,
-    regexErrorMessage: nameRegExpMessage,
+    regexErrorMessage: nameRegExpMessage
   },
   channel: {
     required: true,
     regex: nameRegExp,
-    regexErrorMessage: nameRegExpMessage,
+    regexErrorMessage: nameRegExpMessage
   }
+};
+
+export const simpleNameValidator = {
+  required: true,
+  regex: nameRegExp,
+  regexErrorMessage: nameRegExpMessage
 };

@@ -9,19 +9,42 @@ import OperatorEditorSubPage from '../subPage/OperatorEditorSubPage';
 import ListObjectEditor from '../../../components/editor/ListObjectEditor';
 import { getFieldValueError, containsErrors } from '../../../utils/operatorValidation';
 import { operatorObjectDescriptions } from '../../../utils/operatorDescriptors';
-import { getUpdatedFormErrors } from '../bundlePageUtils';
+import { getUpdatedFormErrors, getVersionEditorRootPath } from '../bundlePageUtils';
 import {
   storeEditorFormErrorsAction,
   storeEditorOperatorAction,
   setSectionStatusAction
 } from '../../../redux/actions/editorActions';
-import { sectionsFields, EDITOR_STATUS } from '../../../utils/constants';
+import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../../utils/constants';
+import { StoreState } from '../../../redux';
+import { History } from 'history';
 
 const permissionFields = sectionsFields.permissions;
 
-class OperatorPermissionsPage extends React.Component {
+const OperatorPermissionsPageActions = {
+  storeEditorOperator: storeEditorOperatorAction,
+  storeEditorFormErrors: storeEditorFormErrorsAction,
+  setSectionStatus: setSectionStatusAction
+};
+
+export type OperatorPermissionsPageProps = {
+  history: History,
+  match: VersionEditorParamsMatch,
+  field?: string,
+  title?: string,
+  section?: string,
+  objectType?: string,
+  objectPage?: string,
+
+} & ReturnType<typeof mapStateToProps> & typeof OperatorPermissionsPageActions;
+
+class OperatorPermissionsPage extends React.PureComponent<OperatorPermissionsPageProps> {
+
+  static propTypes;
+  static defaultProps;
+
   componentDidMount() {
-    const { operator, sectionStatus, objectPage } = this.props;
+    const { operator, sectionStatus, objectPage = 'permissions' } = this.props;
 
     if (operator && sectionStatus[objectPage] !== EDITOR_STATUS.empty) {
       // validate
@@ -30,7 +53,7 @@ class OperatorPermissionsPage extends React.Component {
   }
 
   updateOperator = permissions => {
-    const { storeEditorOperator, operator, field } = this.props;
+    const { storeEditorOperator, operator, field = permissionFields } = this.props;
 
     const updatedOperator = _.cloneDeep(operator);
     _.set(updatedOperator, field, permissions);
@@ -39,7 +62,7 @@ class OperatorPermissionsPage extends React.Component {
   };
 
   validateField = operator => {
-    const { field, formErrors, storeEditorFormErrors, objectPage, sectionStatus, setSectionStatus } = this.props;
+    const { field = permissionFields, formErrors, storeEditorFormErrors, objectPage = 'permissions', sectionStatus, setSectionStatus } = this.props;
 
     const status = sectionStatus[objectPage];
     const error = getFieldValueError(operator, field);
@@ -50,21 +73,21 @@ class OperatorPermissionsPage extends React.Component {
     // do not automatically change status of done or empty status
     // that requires user action
     if (error) {
-      setSectionStatus(objectPage, EDITOR_STATUS.errors);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.errors);
     } else if (status === EDITOR_STATUS.errors) {
-      setSectionStatus(objectPage, EDITOR_STATUS.pending);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.pending);
     }
   };
 
   validatePage = () => {
-    const { operator, objectPage, formErrors, setSectionStatus, storeEditorFormErrors } = this.props;
+    const { operator, objectPage = 'permissions', formErrors, setSectionStatus, storeEditorFormErrors } = this.props;
 
     const fields = [sectionsFields[objectPage]];
     const errors = getUpdatedFormErrors(operator, formErrors, fields);
     const hasErrors = fields.some(field => _.get(errors, field));
 
     if (hasErrors) {
-      setSectionStatus(objectPage, EDITOR_STATUS.errors);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.errors);
       storeEditorFormErrors(errors);
 
       return false;
@@ -74,19 +97,32 @@ class OperatorPermissionsPage extends React.Component {
   };
 
   render() {
-    const { operator, field, title, section, objectPage, objectType, formErrors, history, sectionStatus } = this.props;
+    const {
+      operator,
+      field = permissionFields,
+      title = 'Permissions',
+      section,
+      objectPage = 'permissions',
+      objectType = 'Permission',
+      formErrors,
+      history,
+      sectionStatus,
+      match
+    } = this.props;
 
     const errors = _.get(formErrors, field);
     const pageHasErrors = sectionStatus[objectPage] === EDITOR_STATUS.empty || containsErrors(errors);
+    const sectionPath = `${getVersionEditorRootPath(match)}/${objectPage}`;
 
     return (
       <OperatorEditorSubPage
         title={title}
         field={field}
         description={_.get(operatorObjectDescriptions, [...field.split('.'), 'description'])}
+        versionEditorRootPath={getVersionEditorRootPath(match)}
         secondary
         history={history}
-        section={section}
+        section={section as any}
         validatePage={this.validatePage}
         pageErrors={pageHasErrors}
       >
@@ -97,7 +133,7 @@ class OperatorPermissionsPage extends React.Component {
           onUpdate={this.updateOperator}
           field={field}
           fieldTitle="Service Account Name"
-          objectPage={objectPage}
+          sectionPath={sectionPath}
           objectType={objectType}
           history={history}
           objectTitleField="serviceAccountName"
@@ -109,6 +145,7 @@ class OperatorPermissionsPage extends React.Component {
 }
 
 OperatorPermissionsPage.propTypes = {
+  history: PropTypes.any.isRequired,
   operator: PropTypes.object,
   field: PropTypes.string,
   title: PropTypes.string,
@@ -119,10 +156,7 @@ OperatorPermissionsPage.propTypes = {
   sectionStatus: PropTypes.object,
   storeEditorOperator: PropTypes.func,
   storeEditorFormErrors: PropTypes.func,
-  setSectionStatus: PropTypes.func,
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }).isRequired
+  setSectionStatus: PropTypes.func
 };
 
 OperatorPermissionsPage.defaultProps = {
@@ -139,18 +173,9 @@ OperatorPermissionsPage.defaultProps = {
   setSectionStatus: noop
 };
 
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      storeEditorOperator: storeEditorOperatorAction,
-      storeEditorFormErrors: storeEditorFormErrorsAction,
-      setSectionStatus: setSectionStatusAction
-    },
-    dispatch
-  )
-});
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorPermissionsPageActions, dispatch);
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
   formErrors: state.editorState.formErrors,
   sectionStatus: state.editorState.sectionStatus

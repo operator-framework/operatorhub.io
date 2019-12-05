@@ -1,5 +1,5 @@
 import { reduxConstants } from './constants';
-import { getAutoSavedOperatorData, getDefaultOperator } from '../utils/operatorUtils';
+import { getDefaultOperator } from '../utils/operatorUtils';
 import { Operator, OperatorPackage } from '../utils/operatorTypes';
 import { ISectionFields, EDITOR_STATUS } from '../utils/constants';
 import { UploadMetadata } from '../components/uploader';
@@ -7,22 +7,16 @@ import { UploadMetadata } from '../components/uploader';
 export interface EditorReducerState {
   operator: Operator
   operatorModified: boolean
-  operatorPackage: OperatorPackage
   uploads: UploadMetadata[],
   formErrors: any,
   sectionStatus: Record<keyof ISectionFields, keyof typeof EDITOR_STATUS>
 }
 
 const getInitialState = () => {
-  const autoSaved = getAutoSavedOperatorData();
 
   const initialState = {
     operator: getDefaultOperator(),
-    operatorModified: false,
-    operatorPackage: {
-      name: '',
-      channel: ''
-    },
+    operatorModified: false,   
     uploads: [],
     formErrors: {},
     sectionStatus: {
@@ -36,13 +30,6 @@ const getInitialState = () => {
       package: EDITOR_STATUS.empty
     }
   };
-
-  if (autoSaved) {
-    initialState.operator = autoSaved.operator || initialState.operator;
-    initialState.operatorPackage = autoSaved.operatorPackage || initialState.operatorPackage;
-    initialState.sectionStatus = autoSaved.sectionStatus || autoSaved.sectionStatus;
-    initialState.uploads = autoSaved.uploads || [];
-  }
 
   return initialState;
 };
@@ -78,13 +65,7 @@ const editorReducer = (state: EditorReducerState = getInitialState(), action) =>
         ...state,
         operator: action.operator,
         operatorModified: true
-      };
-
-    case reduxConstants.SET_EDITOR_PACKAGE:
-      return {
-        ...state,
-        operatorPackage: action.operatorPackage
-      };
+      };   
 
     case reduxConstants.SET_EDITOR_UPLOADS:
       return {

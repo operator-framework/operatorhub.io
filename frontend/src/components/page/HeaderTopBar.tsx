@@ -50,7 +50,7 @@ class HeaderTopBar extends React.PureComponent<HeaderTopBarProps, HeaderTopBarSt
   };
 
   onPackageYourOperator = () => {
-    this.props.history.push('/bundle');
+    this.props.history.push('/packages');
   };
 
   onSubmitYourOperator = () => {
@@ -132,17 +132,17 @@ class HeaderTopBar extends React.PureComponent<HeaderTopBarProps, HeaderTopBarSt
             id="header-contribute-dropdown"
             pullRight
           >
-            <MenuItem eventKey={0} onSelect={this.onGettingStarted}>
+            <MenuItem eventKey={0} onSelect={this.onGettingStarted} href="/getting-started">
               Create an Operator with the SDK
             </MenuItem>
-            <MenuItem eventKey={1} onSelect={this.onPackageYourOperator}>
+            <MenuItem eventKey={1} onSelect={this.onPackageYourOperator} href="/packages">
               Package your Operator
               <span className="oh-beta-label">BETA</span>
             </MenuItem>
-            <MenuItem eventKey={2} onSelect={this.onPreviewYourOperator}>
+            <MenuItem eventKey={2} onSelect={this.onPreviewYourOperator} href="/preview">
               Preview your Operator
             </MenuItem>
-            <MenuItem eventKey={3} onSelect={this.onSubmitYourOperator}>
+            <MenuItem eventKey={3} onSelect={this.onSubmitYourOperator} href="/contribute">
               Submit your Operator
             </MenuItem>
           </DropdownButton>
