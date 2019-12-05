@@ -191,6 +191,12 @@
           overflow: visible;
         }
       }
+    }  
+  }
+
+  &.oh-operator-package-editor-page__button-bar{
+    .oh-button-secondary{
+      float: right;
     }
   }
 
