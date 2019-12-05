@@ -97,8 +97,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run build:check",
-      "pre-push": "npm run build:check"
+      "pre-commit": "npm run build:check"
     }
   }
 }

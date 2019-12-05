@@ -7,8 +7,6 @@ let lastStateSnapshot: Record<string, any> | null = null;
 const autoSaveFieldsChanged = (state: StoreState) => {
   const snapshot = lastStateSnapshot || {}; 
 
-
-
   const changed = AUTOSAVED_FIELDS.some(field => {
     const snapshotValue = snapshot[field];
     const stateFieldValue = state[AUTOSAVED_STATE][field];
@@ -30,13 +28,11 @@ const saveSnapshot = (state: StoreState) => {
   lastStateSnapshot = takeSnapshot(state);
 };
 
-const saveEditorData = (state: StoreState) => {
+const saveEditorData = () => {
   let success = true;
 
-  const snapshot = takeSnapshot(state);
-
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(snapshot));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(lastStateSnapshot));
 
   } catch (domException) {
 
@@ -56,11 +52,9 @@ const autoSaveEditor = () => {
   const state = store.getState();
 
   // take snapshot if not existing
-  if (lastStateSnapshot === null) {
+  if (lastStateSnapshot === null || autoSaveFieldsChanged(state)) {
     saveSnapshot(state);
-  } else if (autoSaveFieldsChanged(state)) {
-    saveEditorData(state);
-    saveSnapshot(state);
+    saveEditorData();
   }
 };
 

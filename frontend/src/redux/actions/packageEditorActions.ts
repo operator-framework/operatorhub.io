@@ -1,6 +1,10 @@
-import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionsMap } from '../../utils/packageEditorTypes';
+import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionsMap, PackageEditorOperatorVersionMetadata } from '../../utils/packageEditorTypes';
 
 export type BoundActionCreator<T extends (...args: any) => any> = (...args: Parameters<T>) => void;
+
+export const resetPackageEditorAction = () => ({
+  type: 'RESET_PACKAGE_EDITOR' as 'RESET_PACKAGE_EDITOR'
+});
 
 export const setPackageNameAction = (packageName: string) => ({
   type: 'SET_PACKAGE_EDITOR_PACKAGE_NAME' as 'SET_PACKAGE_EDITOR_PACKAGE_NAME',
@@ -68,11 +72,16 @@ export const setPackageOperatorVersionsAction = (operatorVersions: PackageEditor
   operatorVersions
 });
 
+export const updatePackageOperatorVersionAction = (operatorVersion: PackageEditorOperatorVersionMetadata) => ({
+  type: 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION' as 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION',
+  operatorVersion
+});
 
-export type PackageEditorActions = ReturnType<typeof setPackageNameAction> |
+
+export type PackageEditorActions = ReturnType<typeof resetPackageEditorAction> | ReturnType<typeof setPackageNameAction> |
  ReturnType<typeof setPackageUploadsAction> | ReturnType<typeof removePackageUploadAction> |
   ReturnType<typeof clearPackageUploadsAction> | ReturnType<typeof showGithubPackageUploadAction> |
   ReturnType<typeof hideGithubPackageUploadAction> | ReturnType<typeof setPackageChannelsAction> | 
   ReturnType<typeof setPackageOperatorVersionsAction> | ReturnType<typeof updatePackageChannelAction> |
   ReturnType<typeof addNewPackageChannelAction> | ReturnType<typeof makePackageChannelDefaultAction> |
-  ReturnType<typeof removePackageChannelAction>;
+  ReturnType<typeof removePackageChannelAction> | ReturnType<typeof updatePackageOperatorVersionAction>;

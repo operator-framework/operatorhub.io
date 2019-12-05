@@ -4,21 +4,25 @@ import { History } from 'history';
 import { bindActionCreators } from 'redux';
 import { match } from 'react-router';
 import { Icon } from 'patternfly-react';
+import JSZip from 'jszip';
 
 
 import PackageEditorPageWrapper from './pageWrapper/PackageEditorPageWrapper';
-import { noop } from '../../common/helpers';
-import { StoreState, updatePackageChannelAction, addNewPackageChannelAction, makePackageChannelDefaultAction, removePackageChannelAction } from '../../redux';
+import { StoreState, updatePackageChannelAction, addNewPackageChannelAction, makePackageChannelDefaultAction, removePackageChannelAction, resetPackageEditorAction } from '../../redux';
 import { PacakgeEditorChannel } from '../../utils/packageEditorTypes';
 import ChannelEditorChannel from '../../components/packageEditor/channelsEditor/ChannelEditorChannel';
 import EditChannelNameModal from '../../components/packageEditor/channelsEditor/EditNameModal';
+import { safeDump } from 'js-yaml';
+import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValidation';
+import { yamlFromOperator } from '../operatorBundlePage/bundlePageUtils';
 
 
 const PackageChannelsEditorPageActions = {
     updatePackageChannel: updatePackageChannelAction,
     addPackageChannel: addNewPackageChannelAction,
     makePackageChannelDefault: makePackageChannelDefaultAction,
-    removePackageChannel: removePackageChannelAction
+    removePackageChannel: removePackageChannelAction,
+    resetEditor: resetPackageEditorAction
 }
 
 export type PackageChannelsEditorPageProps = {
@@ -38,7 +42,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
 
     state: PackageChannelsEditorPageState = {
-        downloadEnabled: false,
+        downloadEnabled: true,
         channelNameToEdit: null
     }
 
@@ -49,6 +53,11 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
     (e.g. alpha vs. stable).`;
 
 
+    generateAction: HTMLAnchorElement | null = null;
+
+    setGenerateAction = ref => {
+        this.generateAction = ref;
+    };
 
     sortChannelsByName = (sorting: 'asc' | 'desc') => (a: PacakgeEditorChannel, b: PacakgeEditorChannel) => {
         const result = a.name.localeCompare(b.name);
@@ -102,6 +111,82 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         removePackageChannel(channelName);
     }
 
+    restartAndClearAll = (e: React.MouseEvent) => {
+        const { history, resetEditor } = this.props;
+
+        e.preventDefault();
+
+        resetEditor();
+        history.push('/packages');
+    }
+
+    downloadPackageBundle = (e: React.MouseEvent) => {
+        e.preventDefault();
+        
+        const { packageName, channels, versions } = this.props;
+        const zip = new JSZip();
+
+        const defaultChannel = channels.find(channel => channel.isDefault) || channels[0];
+        const packageFileObject = {
+            packageName,
+            defaultChannel: defaultChannel.name,
+            channels: channels.map(channel => ({
+                name: channel.name,
+                currentCSV: channel.currentVersionFullName
+            }))
+        };
+        const pkgFolder = zip.folder(packageName);
+        pkgFolder.file(`${packageName}.package.yaml`, safeDump(packageFileObject));
+
+        Object.values(versions).forEach(operatorVersion => {
+            const versionFolder = pkgFolder.folder(operatorVersion.version);
+
+            // remove values which are part of default operator, but are invalid
+            const cleanedOperator = removeEmptyOptionalValuesFromOperator(operatorVersion.csv);
+
+            let operatorYaml = '';
+            try {
+                operatorYaml = yamlFromOperator(cleanedOperator);
+            } catch (e) {
+                console.error('Failed to serialize operator csv.', e);
+            }
+            versionFolder.file(`${operatorVersion.name}.clusterserviceversion.yaml`, operatorYaml);
+
+            // add CRDs
+            operatorVersion.crdUploads.forEach(crd => {
+                let crdYaml = '';
+                let crdName = '';
+
+                try {
+                    crdYaml = safeDump(crd.crd);
+                    crdName = crd.name;
+                } catch (e) {
+                    console.warn(`Can't convert crd to yaml for ${crdName} of version ${operatorVersion.version}`);
+                }
+
+                versionFolder.file(`${crdName}.crd.yaml`, crdYaml);
+            });
+        });
+
+
+        zip.generateAsync({ type: 'base64' }).then(
+            base64 => {
+                if (this.generateAction) {
+                    this.generateAction.href = `data:application/zip;base64,${base64}`;
+                    this.generateAction.download = `${packageName}.bundle.zip`;
+                    this.generateAction.click();
+                } else {
+                    console.error('Something went wrong with download. Please retry.');
+                }
+            },
+            err => {
+                console.error(err);
+            }
+        );
+    }
+
+
+
     render() {
         const { history, match, channels } = this.props;
         const { downloadEnabled, channelNameToEdit } = this.state;
@@ -113,13 +198,14 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                 pageId="oh-operator-package-editor-page"
                 history={history}
                 buttonBar={
-                    <div className="oh-operator-package-editor-page__button-bar">
-                        <button className="oh-button oh-button-primary" disabled={downloadEnabled} onClick={noop}>
+                    <div className="oh-operator-package-editor-page__button-bar oh-package-channels-editor">
+                        <button className="oh-button oh-button-primary" disabled={!downloadEnabled} onClick={this.downloadPackageBundle}>
                             Download Operator Package
-                            </button>
-                        <button className="oh-button oh-button-secondary" onClick={noop}>
+                        </button>
+                        <a className="oh-operator-editor-page__download-link" ref={this.setGenerateAction} />
+                        <button className="oh-button oh-button-secondary" onClick={this.restartAndClearAll}>
                             Clear All and Start New Package
-                            </button>
+                        </button>
                     </div>
                 }
                 header={
@@ -169,7 +255,9 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 }
 
 const mapStateToProps = (state: StoreState) => ({
-    channels: state.packageEditorState.channels
+    packageName: state.packageEditorState.packageName,
+    channels: state.packageEditorState.channels,
+    versions: state.packageEditorState.operatorVersions
 });
 
 const mapDispatchToProps = dispatch => ({

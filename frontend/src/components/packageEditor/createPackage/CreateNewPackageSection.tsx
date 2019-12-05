@@ -76,7 +76,7 @@ class CreateNewOperatorPackageSection extends React.PureComponent<CreateNewOpera
     validateChannelAndPackage = (value: string) => validateOperatorPackageField(value, 'name');
 
     // reused package name validation as we follow same rules here
-    validateVersion = (value: string) => getValueError(value, _.get(operatorFieldValidators, 'spec.version'), {} as any);
+    validateVersion = (value: string) => getValueError(value, _.get(operatorFieldValidators, 'spec.minKubeVersion'), {} as any);
 
     updateField = (field: string, value: string) => {
         // @ts-ignore

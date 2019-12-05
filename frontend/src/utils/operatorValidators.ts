@@ -193,8 +193,7 @@ export const operatorFieldValidators = {
       regex: nameRegExp,
       regexErrorMessage: nameRegExpMessage,
       props: {
-        maxLength: 253,
-        disabled: 'disabled'
+        maxLength: 253
       }
     },
     annotations: {

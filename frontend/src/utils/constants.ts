@@ -56,7 +56,7 @@ export const EDITOR_STATUS: {
   errors: 'errors'
 };
 
-export type EditorSectionNames = keyof typeof sectionsFields | 'package';
+export type EditorSectionNames = keyof typeof sectionsFields;
 
 export type VersionEditorParamsMatch = match<{packageName: string, channelName: string, operatorVersion: string}>;
 

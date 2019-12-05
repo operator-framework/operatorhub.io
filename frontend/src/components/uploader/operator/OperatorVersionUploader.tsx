@@ -8,7 +8,6 @@ import { safeLoadAll } from 'js-yaml';
 import { noop } from '../../../common/helpers';
 import { normalizeYamlOperator, getMissingCrdUploads, getUpdatedFormErrors } from '../../../pages/operatorBundlePage/bundlePageUtils';
 import * as operatorUtils from '../../../utils/operatorUtils';
-import { validateOperatorPackage } from '../../../utils/operatorValidation';
 import { EDITOR_STATUS, sectionsFields, EditorSectionNames } from '../../../utils/constants';
 import * as actions from '../../../redux/actions';
 import * as utils from './UploaderUtils';
@@ -21,15 +20,24 @@ import UploaderBase from '../UploaderBase';
 
 const validFileTypesRegExp = new RegExp(`(${['.yaml'].join('|').replace(/\./g, '\\.')})$`, 'i');
 
-export interface OperatorVersionUploaderProps {
+const OperatorVersionUploaderActions = {
+  showErrorModal: actions.showUploaderErrorConfirmationModalAction,
+  setSectionStatus: actions.setSectionStatusAction,
+  setAllSectionsStatus: actions.setBatchSectionsStatusAction,
+  setUploads: actions.setUploadsAction,
+  storeEditorOperator: actions.storeEditorOperatorAction,
+  showVersionMismatchWarning: () => actions.showConfirmationModalAction({
+    title: 'Uploaded CSV version mismatch',
+    heading: 'Uploaded CSV version mismatch desired version. It will be forced to match. To change it please use Package Definition.',
+    confirmButtonText: 'OK'
+  })
+};
+
+export type OperatorVersionUploaderProps = {
   operator: Operator,
-  uploads: UploadMetadata[],
-  showErrorModal: (error: string) => void
-  setSectionStatus: typeof actions.setSectionStatusAction
-  setAllSectionsStatus: typeof actions.setBatchSectionsStatusAction,
-  setUploads: typeof actions.setUploadsAction,
-  storeEditorOperator: typeof actions.storeEditorOperatorAction
-}
+  version: string,
+  uploads: UploadMetadata[]
+} & typeof OperatorVersionUploaderActions;
 
 
 class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploaderProps> {
@@ -60,8 +68,8 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
       this.processCrdFile(upload.data);
     } else if (upload.type === 'Deployment') {
       this.processDeployment(upload.data);
-    // } else if (upload.type === 'Package') {
-    //   this.processPackageFile(upload.data);
+      // } else if (upload.type === 'Package') {
+      //   this.processPackageFile(upload.data);
     } else if (upload.type === 'ServiceAccount') {
       this.processPermissionObject(upload);
     } else if (utils.securityObjectTypes.includes(upload.type)) {
@@ -354,10 +362,10 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
    * Pre-process CSV file and store it redux
    */
   processCsvFile = parsedFile => {
-    const { operator, storeEditorOperator } = this.props;
+    const { operator, storeEditorOperator, version, showVersionMismatchWarning } = this.props;
 
     const normalizedOperator = normalizeYamlOperator(parsedFile);
-    const clonedOperator = _.cloneDeep(operator);
+    const clonedOperator = _.cloneDeep(operator);    
 
     // only CSV.yaml is used to populate operator in editor. Other files have special roles
     const mergedOperator = _.mergeWith(clonedOperator, normalizedOperator, (objValue, srcValue, key) => {
@@ -383,6 +391,13 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
           return undefined;
       }
     });
+
+    if (mergedOperator.spec.version !== version) {
+      showVersionMismatchWarning();
+
+      // override version as it has to be defined in channel editor
+      mergedOperator.spec.version = version;
+    }
 
     this.compareSections(operator, mergedOperator, normalizedOperator);
     storeEditorOperator(mergedOperator);
@@ -630,17 +645,7 @@ OperatorVersionUploader.defaultProps = {
   storeEditorOperator: noop
 };
 
-const mapDispatchToProps = dispatch => bindActionCreators(
-  {
-    showErrorModal: actions.showUploaderErrorConfirmationModalAction,
-    setSectionStatus: actions.setSectionStatusAction,
-    setAllSectionsStatus: actions.setBatchSectionsStatusAction,
-    setUploads: actions.setUploadsAction,
-    storeEditorOperator: actions.storeEditorOperatorAction
-  },
-  dispatch
-);
-
+const mapDispatchToProps = dispatch => bindActionCreators(OperatorVersionUploaderActions, dispatch);
 
 const mapStateToProps = state => ({
   operator: state.editorState.operator,
