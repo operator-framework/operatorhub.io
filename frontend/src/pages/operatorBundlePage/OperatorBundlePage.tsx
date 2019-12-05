@@ -11,21 +11,21 @@ import OperatorVersionUploader from '../../components/uploader/operator/Operator
 import { operatorFieldDescriptions, operatorObjectDescriptions } from '../../utils/operatorDescriptors';
 import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
-import OperatorBundleDownloader from '../../components/editor/BundleDownloader';
 import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValidation';
-import { getUpdatedFormErrors, getVersionEditorRootPath } from './bundlePageUtils';
+import { getUpdatedFormErrors, getVersionEditorRootPath, operatorNameFromOperator } from './bundlePageUtils';
 import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';
-import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState } from '../../redux';
+import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState, updatePackageOperatorVersionAction, updatePackageChannelAction } from '../../redux';
 import { History } from 'history';
 
 const OperatorBundlePageActions = {
   resetEditorOperator: resetEditorOperatorAction,
   showClearConfirmModal: showClearConfirmationModalAction,
   hideConfirmModal: hideConfirmModalAction,
-  setBatchSectionsStatus: setBatchSectionsStatusAction
+  setBatchSectionsStatus: setBatchSectionsStatusAction,
+  updatePackageOperatorVersion: updatePackageOperatorVersionAction
 };
 
 export type OperatorBundlePageProps = {
@@ -50,7 +50,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
   componentDidMount() {
     const { operator, setBatchSectionsStatus, sectionStatus } = this.props;
 
-     
+
 
     const updatedSectionsStatus = {} as any;
     // remove invalid defaults before validation so they do not cause false errors
@@ -83,14 +83,26 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
     }
   }
 
-  onBackToChannelEditor =  (e: React.MouseEvent) => {
-    const { history, match } = this.props;
+  onBackToChannelEditor = (e: React.MouseEvent) => {
+    const { operator, history, match, uploads, updatePackageOperatorVersion } = this.props;
+    e.preventDefault();
 
     const pathname = history.location.pathname;
     // remove slash before channel name
-    const channelPath = pathname.substring(0, pathname.indexOf(match.params.channelName) -1);
+    const channelPath = pathname.substring(0, pathname.indexOf(match.params.channelName) - 1);
 
-    e.preventDefault();
+    const crdUploads = uploads
+      .filter(upload => !upload.errored && upload.type === 'CustomResourceDefinition')
+      .map(upload => ({ name: upload.name, crd: upload.data }))
+
+    // update operator version in package editor with updates done in version editor!
+    updatePackageOperatorVersion({
+        name: operatorNameFromOperator(operator),
+        version: match.params.operatorVersion,
+        csv: operator,
+        crdUploads        
+    });
+
     history.push(channelPath);
   };
 
@@ -199,7 +211,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
     return (
       <div className="oh-operator-editor-page__button-bar">
         <div>
-        <button className="oh-button oh-button-primary" onClick={this.onBackToChannelEditor}>
+          <button className="oh-button oh-button-primary" onClick={this.onBackToChannelEditor}>
             Back to Package Definition
           </button>
           <button className="oh-button oh-button-secondary" onClick={this.onEditCSVYaml}>
@@ -208,7 +220,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
           <button className="oh-button oh-button-secondary" onClick={this.showPreviewOperator}>
             Preview
           </button>
-        </div>       
+        </div>
       </div>
     );
   }
@@ -226,7 +238,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
         history={history}
         validatePage={() => true}
       >
-        <OperatorVersionUploader />
+        <OperatorVersionUploader version={match.params.operatorVersion} />
         <div className="oh-operator-editor-page__spacer">
           <h2>General Info</h2>
           <a href="#" className="oh-operator-editor-page__new-operator" onClick={this.clearContents}>
@@ -285,6 +297,7 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
+  uploads: state.editorState.uploads,
   sectionStatus: state.editorState.sectionStatus
 });
 

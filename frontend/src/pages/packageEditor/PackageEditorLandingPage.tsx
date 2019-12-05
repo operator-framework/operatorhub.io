@@ -11,7 +11,6 @@ import OperatorPackageUploader, { OperatorPackageUploaderComponent } from '../..
 import PackageEditorPageWrapper from './pageWrapper/PackageEditorPageWrapper';
 import { StoreState } from '../../redux';
 import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
-import { version } from 'd3';
 
 
 const OperatorPackagePageActions = {
@@ -109,10 +108,11 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
             versions: [operatorVersion]
         }]);
         setPackageOperatorVersions({
-            [version]: {
-                crdUploads: [],
+            [operatorVersion]: {
+                name: versionFullName,
+                version: operatorVersion,
                 csv: versionCsv,
-                name: versionFullName
+                crdUploads: []
             }
         });
 

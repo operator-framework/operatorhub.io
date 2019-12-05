@@ -35,6 +35,11 @@ const getInitialState = () => {
 const packageEditorReducer = (state: PackageEditorState = getInitialState(), action: PackageEditorActions): PackageEditorState => {
 
   switch (action.type) {
+    case 'RESET_PACKAGE_EDITOR': {
+      return {
+        ...getInitialState()
+      }
+    }
 
     case 'SET_PACKAGE_EDITOR_PACKAGE_NAME': {
       return {
@@ -131,6 +136,16 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
         ...state,
         operatorVersions: {
           ...action.operatorVersions
+        }
+      }      
+    }
+
+    case 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION': {
+      return {
+        ...state,
+        operatorVersions: {
+          ...state.operatorVersions,
+          [action.operatorVersion.version]: action.operatorVersion
         }
       }
     }

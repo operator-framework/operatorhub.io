@@ -4,14 +4,15 @@ import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
 
 import PackageUploaderDropArea from './PackageUploaderDropArea';
-import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PackageEditorOperatorVersionsMap, PackageEditorOperatorVersionMetadata, PacakgeEditorChannel } from '../../../utils/packageEditorTypes';
-import { StoreState, hideGithubPackageUploadAction } from '../../../redux';
+import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PackageEditorOperatorVersionsMap, PacakgeEditorChannel } from '../../../utils/packageEditorTypes';
+import { StoreState } from '../../../redux';
 import PackageUploaderObjectList from './PackageUploaderObjectList';
 
 import * as actions from '../../../redux/actions';
 import UploadPackageFromGithubModal from '../../modals/UploadPackageFromGithubModal';
 import { PackageEditorState } from '../../../redux/packageEditorReducer';
 import _ from 'lodash';
+import { normalizeYamlOperator } from '../../../pages/operatorBundlePage/bundlePageUtils';
 
 const operatorPackageUploaderActions = {
     setPackageName: actions.setPackageNameAction,
@@ -60,7 +61,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
         };
 
         try {
-            const content = metadata.parsedContent = safeLoad(data);
+            let content = metadata.parsedContent = safeLoad(data);
 
             // partial implementation (copied over...)
             // @see UploaderUtils -> getObjectNameAndType method for complete
@@ -76,6 +77,9 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
                     metadata.name = name;
                     metadata.type = type;
                     metadata.version = content.spec.version;
+
+                    // we have to apply small changes to operator data structure for the editor
+                    content = normalizeYamlOperator(content);
 
                 } else if (type === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
                     metadata.name = name;
@@ -216,6 +220,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
             (accumulator, operatorVersion) => {
                 accumulator[operatorVersion.version] = {
                     name: operatorVersion.objectName,
+                    version: operatorVersion.version,
                     csv: operatorVersion.content,
                     crdUploads: this.extractCrdUploadForVersion(uploads, operatorVersion.version)
                 };
