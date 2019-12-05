@@ -1,6 +1,5 @@
 import { reduxConstants } from '../constants';
-import { clearAutosavedOperatorData } from '../../utils/operatorUtils';
-import { Operator, OperatorPackage } from '../../utils/operatorTypes';
+import { Operator } from '../../utils/operatorTypes';
 import { UploadMetadata } from '../../components/uploader';
 import { EditorSectionNames, EDITOR_STATUS } from '../../utils/constants';
 
@@ -27,8 +26,6 @@ export const storeEditorOperatorAction = (operator: Operator) => ({
 });
 
 export const resetEditorOperatorAction = () => {
-  clearAutosavedOperatorData();
-
   return {
     type: reduxConstants.RESET_EDITOR_OPERATOR
   };

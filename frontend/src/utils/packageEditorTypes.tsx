@@ -27,6 +27,7 @@ export type PackageEntry = PackageDirectoryEntry | PackageFileEntry;
 
 export type PackageEditorOperatorVersionMetadata = {
     name: string,
+    version: string,
     csv: Operator,
     crdUploads: {
         name: string,
