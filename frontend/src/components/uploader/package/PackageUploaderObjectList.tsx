@@ -100,62 +100,63 @@ class PackageUploaderObjectList extends React.PureComponent<PackageUploaderObjec
             <Grid fluid className="oh-operator-editor-upload__uploads">
                 <Grid.Row className="oh-operator-editor-upload__uploads__row">
                     <Grid.Col xs={3}>
-                        <span>Name</span>
+                        <span className="oh-tiny">Name</span>
                         <span onClick={this.toggleSorting}>
                             <PackageUploaderSortIcon direction={sorting} />
                         </span>
                     </Grid.Col>
-                    <Grid.Col xs={3}>Object Name</Grid.Col>
-                    <Grid.Col xs={3}>Object Type</Grid.Col>
-                    <Grid.Col xs={2}>Status</Grid.Col>
+                    <Grid.Col xs={3}><span className="oh-tiny">Object Name</span></Grid.Col>
+                    <Grid.Col xs={3}><span className="oh-tiny">Object Type</span></Grid.Col>
+                    <Grid.Col xs={2}><span className="oh-tiny">Status</span></Grid.Col>
                     <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
                         <a href="#" onClick={removeAllUploads}>
                             <span>Remove All</span>
                         </a>
                     </Grid.Col>
-                </Grid.Row>
-                {uploads
-                    .sort(this.sortEntriesByName(sorting))
-                    .flatMap(this.showNestedFilesOnExpandedDirs(expanded, sorting))
-                    .map((upload: PackageEntry) => {
+                </Grid.Row >
+                {
+                    uploads
+                        .sort(this.sortEntriesByName(sorting))
+                        .flatMap(this.showNestedFilesOnExpandedDirs(expanded, sorting))
+                        .map((upload: PackageEntry) => {
 
-                        const isDir = upload.kind === "dir";
-                        const folderState = upload.opened ? PackageUploaderFolderIconStatus.OPENED : PackageUploaderFolderIconStatus.CLOSED;
+                            const isDir = upload.kind === "dir";
+                            const folderState = upload.opened ? PackageUploaderFolderIconStatus.OPENED : PackageUploaderFolderIconStatus.CLOSED;
 
-                        return (<Grid.Row className="oh-operator-editor-upload__uploads__row" key={upload.path}>
-                            <Grid.Col
-                                xs={3}
-                                className="oh-operator-editor-upload__uploads__row__name"
-                                title={upload.name}
-                            >
-                                {upload.nested && <span className="oh-operator-editor-upload__uploads__nested-space">&nbsp;</span>}
-                                {isDir && (
-                                    <span onClick={e => this.toggleFolderExpanded(e, upload.path)}>
-                                        <PackageUploaderFolderIcon status={folderState} />
-                                    </span>
-                                )}
-                                {upload.name}
-                            </Grid.Col>
-                            <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__file" title={upload.objectName}>
-                                {upload.objectName}
-                            </Grid.Col>
-                            <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__type" title={upload.objectType}>
-                                {upload.objectType}
-                            </Grid.Col>
-                            <Grid.Col xs={2}>
-                                <UploaderStatusIcon text="Supported Object" status={upload.errored ? IconStatus.ERROR : IconStatus.SUCCESS} />
-                            </Grid.Col>
-                            <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
-                                <a href="#" onClick={e => removeUpload(e, upload.path, upload.nested)}>
-                                    <Icon type="fa" name="trash" />
-                                    <span className="sr-only">Remove</span>
-                                </a>
-                            </Grid.Col>
-                        </Grid.Row>
-                        )
-                    })
+                            return (<Grid.Row className="oh-operator-editor-upload__uploads__row" key={upload.path}>
+                                <Grid.Col
+                                    xs={3}
+                                    className="oh-operator-editor-upload__uploads__row__name"
+                                    title={upload.name}
+                                >
+                                    {upload.nested && <span className="oh-operator-editor-upload__uploads__nested-space">&nbsp;</span>}
+                                    {isDir && (
+                                        <span onClick={e => this.toggleFolderExpanded(e, upload.path)}>
+                                            <PackageUploaderFolderIcon status={folderState} />
+                                        </span>
+                                    )}
+                                    {upload.name}
+                                </Grid.Col>
+                                <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__file" title={upload.objectName}>
+                                    {upload.objectName}
+                                </Grid.Col>
+                                <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__type" title={upload.objectType}>
+                                    {upload.objectType}
+                                </Grid.Col>
+                                <Grid.Col xs={2}>
+                                    <UploaderStatusIcon text="Supported Object" status={upload.errored ? IconStatus.ERROR : IconStatus.SUCCESS} />
+                                </Grid.Col>
+                                <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
+                                    <a href="#" onClick={e => removeUpload(e, upload.path, upload.nested)}>
+                                        <Icon type="fa" name="trash" />
+                                        <span className="sr-only">Remove</span>
+                                    </a>
+                                </Grid.Col>
+                            </Grid.Row>
+                            )
+                        })
                 }
-            </Grid>
+            </Grid >
         );
     }
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import OperatorInputWrapper from '../../editor/forms/OperatorInputWrapper';
 import { validateOperatorPackageField, getValueError } from '../../../utils/operatorValidation';
 import _ from 'lodash';
-import {  operatorFieldValidators } from '../../../utils/operatorValidators';
+import {  operatorFieldValidators, pureVersionValidator } from '../../../utils/operatorValidators';
 
 export interface CreateNewOperatorPackageSectionProps {
     onSectionValidatedCallback: (isValid: boolean) => void
@@ -76,7 +76,7 @@ class CreateNewOperatorPackageSection extends React.PureComponent<CreateNewOpera
     validateChannelAndPackage = (value: string) => validateOperatorPackageField(value, 'name');
 
     // reused package name validation as we follow same rules here
-    validateVersion = (value: string) => getValueError(value, _.get(operatorFieldValidators, 'spec.minKubeVersion'), {} as any);
+    validateVersion = (value: string) => getValueError(value, pureVersionValidator, {} as any);
 
     updateField = (field: string, value: string) => {
         // @ts-ignore
@@ -119,7 +119,7 @@ class CreateNewOperatorPackageSection extends React.PureComponent<CreateNewOpera
                             type="text"
                             onBlur={e => this.commitField('operatorVersion', e.target.value)}
                             onChange={e => this.updateField('operatorVersion', e.target.value)}
-                            placeholder="e.g. 0.0.1"
+                            placeholder="e.g. 0.0.1 or 1.0.0-rc2"
                             value={operatorVersion}
                         />
                     </OperatorInputWrapper>

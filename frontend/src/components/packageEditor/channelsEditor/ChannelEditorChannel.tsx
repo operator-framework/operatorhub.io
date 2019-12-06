@@ -2,7 +2,6 @@ import React from 'react';
 import { DropdownKebab, MenuItem, Grid, Icon } from 'patternfly-react';
 
 import ChannelEditorChannelIcon from './ChannelEditorChannelIcon';
-import { noop } from '../../../common/helpers';
 import PackageUploaderSortIcon from '../../uploader/package/PackageUploaderSortIcon';
 import { PacakgeEditorChannel } from '../../../utils/packageEditorTypes';
 
@@ -12,9 +11,14 @@ export type ChannelEditorChannelProps = {
     packageName: string,
     channel: PacakgeEditorChannel,
     editChannelName: (channelName: string) => void
-    addOperatorVersion: (channelName: string) => void
+    addOperatorVersion: () => void
     setChannelAsDefault: (channelName: string) => void
     removeChannel: (channelName: string) => void
+    goToVersionEditor: (versionPath: string) => void
+    duplicateVersion: (channel: PacakgeEditorChannel, version: string) => void
+    editVersion: (channel: PacakgeEditorChannel, version: string) => void
+    setVersionAsDefault: (channel: PacakgeEditorChannel, version: string) => void
+    deleteVersion: (channel: PacakgeEditorChannel, version: string) => void
 };
 
 
@@ -58,8 +62,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
     addOperatorVersion = (e: React.MouseEvent, channelName: string) => {
         const { addOperatorVersion } = this.props;
         e.preventDefault();
-
-        addOperatorVersion(channelName);
+        addOperatorVersion();
     }
 
 
@@ -84,6 +87,37 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         removeChannel(channel.name);
     }
 
+    goToVersionEditor = (e: React.MouseEvent, path: string) => {
+        const { goToVersionEditor } = this.props;
+        e.preventDefault();
+
+        goToVersionEditor(path);
+    }
+
+    duplicateVersion = (e: React.MouseEvent, version: string) => {
+        const { channel, duplicateVersion } = this.props;
+        e.preventDefault();
+        duplicateVersion(channel, version);
+    }
+
+    editVersion = (e: React.MouseEvent, version: string) => {
+        const { channel, editVersion } = this.props;
+        e.preventDefault();
+        editVersion(channel, version);
+    }
+
+    setVersionAsDefault = (e: React.MouseEvent, version: string) => {
+        const { channel, setVersionAsDefault } = this.props;
+        e.preventDefault();
+        setVersionAsDefault(channel, version);
+    }
+
+    deleteVersion = (e: React.MouseEvent, version: string) => {
+        const { channel, deleteVersion } = this.props;
+        e.preventDefault();
+        deleteVersion(channel, version);
+    }
+
     render() {
         const { packageName, channel } = this.props;
         const { expanded, sorting } = this.state;
@@ -105,7 +139,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                     </div>
                     <div className="oh-package-channels-editor__channel__header__current-csv">
                         <div className="oh-tiny">CURRENT CSV</div>
-                        <div className="oh-package-channels-editor__channel__header__current-csv__text">{channel.currentVersion}</div>
+                        <div className="oh-package-channels-editor__channel__header__current-csv__text">{channel.currentVersionFullName}</div>
                     </div>
                     <div className="oh-package-channels-editor__channel__header__validation">
                         Invalid Entries
@@ -133,12 +167,12 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                     <Grid fluid className="oh-operator-editor-upload__uploads">
                                         <Grid.Row className="oh-operator-editor-upload__uploads__row">
                                             <Grid.Col xs={3}>
-                                                <span>Version</span>
+                                                <span className="oh-tiny">Version</span>
                                                 <span onClick={this.toggleSorting}>
                                                     <PackageUploaderSortIcon direction={sorting} />
                                                 </span>
                                             </Grid.Col>
-                                            <Grid.Col xs={6}>Upgrade Path</Grid.Col>
+                                            <Grid.Col xs={6}><span className="oh-tiny">Upgrade Path</span></Grid.Col>
                                             <Grid.Col xs={2}></Grid.Col>
                                             <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col"></Grid.Col>
                                         </Grid.Row>
@@ -146,12 +180,13 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                             .sort(this.sortVersions(sorting))
                                             .map(version => {
                                                 const versionEditorPath = `/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(channel.name)}/${encodeURIComponent(version)}`;
+                                                const curryWithVersion = <T extends Function>(fn: T) => (e: React.MouseEvent) => fn(e, version);
 
                                                 return (
                                                     <Grid.Row key={version} className="oh-operator-editor-upload__uploads__row">
                                                         <Grid.Col xs={3}>
                                                             <h4>
-                                                                <a href={versionEditorPath} onClick={noop}>
+                                                                <a href={versionEditorPath} onClick={e => this.goToVersionEditor(e, versionEditorPath)}>
                                                                     {version}
                                                                     {version === channel.currentVersion &&
                                                                         <span className="oh-package-channels-editor__channel__header__default">(current)</span>
@@ -163,10 +198,11 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                                         <Grid.Col xs={2}>Invalid Entry</Grid.Col>
                                                         <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
                                                             <DropdownKebab id={`editVersion_${version}`} pullRight>
-                                                                <MenuItem>Duplicate Operator Version</MenuItem>
+                                                                <MenuItem onClick={curryWithVersion(this.duplicateVersion)}>Duplicate Operator Version</MenuItem>
                                                                 <MenuItem>Edit Update Graph</MenuItem>
-                                                                <MenuItem>Edit Operator Version</MenuItem>
-                                                                <MenuItem>Delete Operator Version</MenuItem>
+                                                                <MenuItem onClick={curryWithVersion(this.setVersionAsDefault)}>Set as Default Version</MenuItem>
+                                                                <MenuItem onClick={curryWithVersion(this.editVersion)}>Edit Operator Version</MenuItem>
+                                                                <MenuItem onClick={curryWithVersion(this.deleteVersion)}>Delete Operator Version</MenuItem>
                                                             </DropdownKebab>
                                                         </Grid.Col>
                                                     </Grid.Row>
