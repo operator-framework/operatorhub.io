@@ -77,6 +77,31 @@ export const updatePackageOperatorVersionAction = (operatorVersion: PackageEdito
   operatorVersion
 });
 
+export const changePackageOperatorVersionNameAction = (originalVersionName: string, channelName: string, updatedVersion: PackageEditorOperatorVersionMetadata) => ({
+  type: 'CHANGE_PACKAGE_EDITOR_OPERATOR_VERSION_NAME' as 'CHANGE_PACKAGE_EDITOR_OPERATOR_VERSION_NAME',
+  originalVersionName,
+  channelName,
+  updatedVersion
+});
+
+export const makePackageOperatorVersionDefaultAction = (operatorVersion: string, operatorVersionFullName: string, channelName: string) => ({
+  type: 'MAKE_PACKAGE_EDITOR_OPERATOR_VERSION_DEFAULT' as 'MAKE_PACKAGE_EDITOR_OPERATOR_VERSION_DEFAULT',
+  operatorVersion,
+  operatorVersionFullName,
+  channelName
+});
+
+export const addPackageOperatorVersionAction = (operatorVersion: PackageEditorOperatorVersionMetadata, channelName: string) => ({
+  type: 'ADD_PACKAGE_EDITOR_OPERATOR_VERSION' as 'ADD_PACKAGE_EDITOR_OPERATOR_VERSION',
+  operatorVersion,
+  channelName
+});
+
+export const removePackageOperatorVersionAction = (removedVersion: string, channelName: string) => ({
+  type: 'REMOVE_PACKAGE_EDITOR_OPERATOR_VERSION' as 'REMOVE_PACKAGE_EDITOR_OPERATOR_VERSION',
+  removedVersion,
+  channelName
+});
 
 export type PackageEditorActions = ReturnType<typeof resetPackageEditorAction> | ReturnType<typeof setPackageNameAction> |
  ReturnType<typeof setPackageUploadsAction> | ReturnType<typeof removePackageUploadAction> |
@@ -84,4 +109,6 @@ export type PackageEditorActions = ReturnType<typeof resetPackageEditorAction> |
   ReturnType<typeof hideGithubPackageUploadAction> | ReturnType<typeof setPackageChannelsAction> | 
   ReturnType<typeof setPackageOperatorVersionsAction> | ReturnType<typeof updatePackageChannelAction> |
   ReturnType<typeof addNewPackageChannelAction> | ReturnType<typeof makePackageChannelDefaultAction> |
-  ReturnType<typeof removePackageChannelAction> | ReturnType<typeof updatePackageOperatorVersionAction>;
+  ReturnType<typeof removePackageChannelAction> | ReturnType<typeof updatePackageOperatorVersionAction> | 
+  ReturnType<typeof changePackageOperatorVersionNameAction> | ReturnType<typeof makePackageOperatorVersionDefaultAction> |
+ ReturnType<typeof addPackageOperatorVersionAction> | ReturnType<typeof removePackageOperatorVersionAction>;

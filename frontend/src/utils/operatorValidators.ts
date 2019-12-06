@@ -8,6 +8,8 @@ const nameRegExpMessage =
 
 export const versionRegExp = /^([v|V])?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
+export const versionNoLeadingVRegExp = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
+
 const kubeVersionRegExp = /^([v|V])(0|[1-9])+(alpha|beta)?(0|[1-9])*/;
 const kubeVersionRegExpMessage =
   'Must start with a v, followed by a version number, and optionally a alpha or beta version';
@@ -469,3 +471,9 @@ export const simpleNameValidator = {
   regex: nameRegExp,
   regexErrorMessage: nameRegExpMessage
 };
+
+export const pureVersionValidator = {
+  required: true,
+  regex: versionNoLeadingVRegExp,
+  regexErrorMessage: 'The version portion must contain a valid semantic version string.'
+}

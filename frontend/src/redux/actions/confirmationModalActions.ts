@@ -13,6 +13,22 @@ export const showClearConfirmationModalAction = (onConfirm: () => void) => showC
     onConfirm
 });
 
+export const showRemoveChannelConfirmationModalAction = (onConfirm: () => void) => showConfirmationModalAction({
+    title: 'Remove Channel Content',
+    heading: 'Are you sure you want to remove channel and all the associated versions?',
+    confirmButtonText: 'Remove',
+    cancelButtonText: 'Cancel',
+    onConfirm
+});
+
+export const showRemoveVersionConfirmationModalAction = (onConfirm: () => void) => showConfirmationModalAction({
+    title: 'Remove Operator Version',
+    heading: 'Are you sure you want to remove operator version?',
+    confirmButtonText: 'Remove',
+    cancelButtonText: 'Cancel',
+    onConfirm
+});
+
 export const showConfirmationModalAction = (options: {
     title: string,
     heading: string | null,

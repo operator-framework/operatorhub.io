@@ -8,21 +8,33 @@ import JSZip from 'jszip';
 
 
 import PackageEditorPageWrapper from './pageWrapper/PackageEditorPageWrapper';
-import { StoreState, updatePackageChannelAction, addNewPackageChannelAction, makePackageChannelDefaultAction, removePackageChannelAction, resetPackageEditorAction } from '../../redux';
-import { PacakgeEditorChannel } from '../../utils/packageEditorTypes';
+import { StoreState } from '../../redux';
+import * as actions from '../../redux/actions';
+import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../utils/packageEditorTypes';
 import ChannelEditorChannel from '../../components/packageEditor/channelsEditor/ChannelEditorChannel';
-import EditChannelNameModal from '../../components/packageEditor/channelsEditor/EditNameModal';
+import EditChannelNameModal from '../../components/packageEditor/modals/EditChannelNameModal';
 import { safeDump } from 'js-yaml';
 import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValidation';
 import { yamlFromOperator } from '../operatorBundlePage/bundlePageUtils';
+import EditVersionNameModal from '../../components/packageEditor/modals/EditVersionNameModal';
+import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
+import { version } from 'd3';
 
 
 const PackageChannelsEditorPageActions = {
-    updatePackageChannel: updatePackageChannelAction,
-    addPackageChannel: addNewPackageChannelAction,
-    makePackageChannelDefault: makePackageChannelDefaultAction,
-    removePackageChannel: removePackageChannelAction,
-    resetEditor: resetPackageEditorAction
+    showRemoveChannelConfirmationModal: actions.showRemoveChannelConfirmationModalAction,
+    showRemoveVersionConfirmationModal: actions.showRemoveVersionConfirmationModalAction,
+    showClearConfirmationModal: actions.showClearConfirmationModalAction,
+    hideConfirmModal: actions.hideConfirmModalAction,
+    updatePackageChannel: actions.updatePackageChannelAction,
+    addPackageChannel: actions.addNewPackageChannelAction,
+    makePackageChannelDefault: actions.makePackageChannelDefaultAction,
+    removePackageChannel: actions.removePackageChannelAction,
+    resetEditor: actions.resetPackageEditorAction,
+    addOperatorVersion: actions.addPackageOperatorVersionAction,
+    makePackageOperatorVersionDefault: actions.makePackageOperatorVersionDefaultAction,
+    changePackageOperatorVersionName: actions.changePackageOperatorVersionNameAction,
+    removeOperatorVersion: actions.removePackageOperatorVersionAction
 }
 
 export type PackageChannelsEditorPageProps = {
@@ -33,7 +45,10 @@ export type PackageChannelsEditorPageProps = {
 
 interface PackageChannelsEditorPageState {
     downloadEnabled: boolean,
-    channelNameToEdit: string | null
+    channelNameToEdit: string | null,
+    operatorVersionNameToEdit: string | null,
+    operatorVersionToDuplicate: string | null,
+    channelToAddVersion: PacakgeEditorChannel | null
 }
 
 
@@ -43,7 +58,10 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
     state: PackageChannelsEditorPageState = {
         downloadEnabled: true,
-        channelNameToEdit: null
+        channelNameToEdit: null,
+        operatorVersionNameToEdit: null,
+        operatorVersionToDuplicate: null,
+        channelToAddVersion: null
     }
 
     title = 'Package Definition';
@@ -71,16 +89,104 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         this.setState({ channelNameToEdit: '' });
     }
 
-    editChannelName = (channelName: string) => {
-        this.setState({ channelNameToEdit: channelName });
+    editChannelName = (channelName: string) => this.setState({ channelNameToEdit: channelName });
+
+    addOperatorVersion = (channel: PacakgeEditorChannel) => this.setState({
+        operatorVersionNameToEdit: '',
+        channelToAddVersion: channel
+    });
+
+    duplicateOperatorVersion = (channel: PacakgeEditorChannel, originalVersion: string) => this.setState({
+        channelToAddVersion: channel,
+        operatorVersionToDuplicate: originalVersion
+    });
+
+    editOperatorVersionName = (channel: PacakgeEditorChannel, originalVersion: string) => this.setState({
+        channelToAddVersion: channel,
+        operatorVersionNameToEdit: originalVersion
+    });
+
+    setVersionAsDefault = (channel: PacakgeEditorChannel, versionName: string) => {
+        const { versions, makePackageOperatorVersionDefault } = this.props;
+        const targetVersion = versions[versionName];
+
+        if (targetVersion) {
+            makePackageOperatorVersionDefault(targetVersion.version, targetVersion.name, channel.name);
+        } else {
+            console.error(`Can't find version to update for version name ${versionName}`, versions);
+        }
+    };
+
+    onEditOperatorVersionNameConfirmed = (versionName: string, initialVersionName: string) => {
+        const { packageName, addOperatorVersion, changePackageOperatorVersionName, versions } = this.props;
+        const { channelToAddVersion } = this.state;
+
+        // add new version
+        if (initialVersionName === '') {
+
+            if (channelToAddVersion) {
+                addOperatorVersion(
+                    {
+                        name: `${packageName}.v${versionName}`,
+                        version: versionName,
+                        csv: getDefaultOperatorWithName(packageName, versionName),
+                        crdUploads: []
+                    },
+                    channelToAddVersion.name
+                );
+            } else {
+                console.error('No channel set to add version to it');
+            }
+            // edit name
+        } else {
+            const version = versions[initialVersionName];
+
+            // @TODO: update update path on name change!!!!
+
+            if (version && channelToAddVersion) {
+                changePackageOperatorVersionName(
+                    initialVersionName,
+                    channelToAddVersion.name,
+                    {
+                        ...version,
+                        version: versionName,
+                        name: `${packageName}.v${versionName}`
+                    });
+            } else {
+                console.error(`Can't find version to update for version name ${initialVersionName}`, versions);
+            }
+        }
+        this.closeVersionNameModal();
     }
 
-    addOperatorVersion = (channelName: string) => {
 
-    }
+    onDuplicateVersionConfirmed = (duplicateVersionName: string, originalVersionName: string) => {
+        const { packageName, versions, addOperatorVersion } = this.props;
+        const { channelToAddVersion } = this.state;
 
-    closeChannelNameModal = () => {
-        this.setState({ channelNameToEdit: null });
+        const originalVersionMetadata = versions[originalVersionName];
+
+        if (originalVersionMetadata) {
+
+            const duplicate: PackageEditorOperatorVersionMetadata = {
+                ...originalVersionMetadata,
+                name: `${packageName}.v${duplicateVersionName}`,
+                version: duplicateVersionName,
+                crdUploads: [
+                    ...originalVersionMetadata.crdUploads
+                ]
+            };
+
+            if (channelToAddVersion) {
+                addOperatorVersion(duplicate, channelToAddVersion.name);
+            } else {
+                console.error('No channel set to add version to it');
+            }
+
+        } else {
+            console.error(`Can't find version to duplicate by version name ${originalVersionName}`, versions);
+        }
+        this.closeDuplicateVersionModal();
     }
 
     /**
@@ -105,24 +211,40 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
     }
 
     removeChannel = (channelName: string) => {
-        const { removePackageChannel } = this.props;
+        const { removePackageChannel, showRemoveChannelConfirmationModal, hideConfirmModal } = this.props;
 
         // @TODO Validate that we have default channel when creating Bundle
-        removePackageChannel(channelName);
+        showRemoveChannelConfirmationModal(() => {
+            hideConfirmModal();
+            removePackageChannel(channelName)
+        });
+    }
+
+    removeOperatorVersion = (channel: PacakgeEditorChannel, versionName: string) => {
+        const { removeOperatorVersion, showRemoveVersionConfirmationModal, hideConfirmModal } = this.props;
+
+        // @TODO Validate that we have default channel when creating Bundle
+        showRemoveVersionConfirmationModal(() => {
+            hideConfirmModal();
+            removeOperatorVersion(versionName, channel.name)
+        });
     }
 
     restartAndClearAll = (e: React.MouseEvent) => {
-        const { history, resetEditor } = this.props;
-
+        const { history, resetEditor, showClearConfirmationModal, hideConfirmModal } = this.props;
         e.preventDefault();
 
-        resetEditor();
-        history.push('/packages');
+        showClearConfirmationModal(() => {
+            hideConfirmModal();
+            resetEditor();
+            history.push('/packages');
+        });
     }
+
 
     downloadPackageBundle = (e: React.MouseEvent) => {
         e.preventDefault();
-        
+
         const { packageName, channels, versions } = this.props;
         const zip = new JSZip();
 
@@ -185,11 +307,14 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         );
     }
 
+    closeChannelNameModal = () => this.setState({ channelNameToEdit: null });
+    closeVersionNameModal = () => this.setState({ operatorVersionNameToEdit: null, channelToAddVersion: null });
+    closeDuplicateVersionModal = () => this.setState({ operatorVersionToDuplicate: null, channelToAddVersion: null });
 
 
     render() {
-        const { history, match, channels } = this.props;
-        const { downloadEnabled, channelNameToEdit } = this.state;
+        const { history, match, channels, versions } = this.props;
+        const { downloadEnabled, channelNameToEdit, operatorVersionNameToEdit, operatorVersionToDuplicate } = this.state;
 
         const packageName = match.params.packageName;
 
@@ -236,9 +361,14 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                                     packageName={packageName}
                                     channel={channel}
                                     editChannelName={this.editChannelName}
-                                    addOperatorVersion={this.addOperatorVersion}
+                                    addOperatorVersion={() => this.addOperatorVersion(channel)}
                                     setChannelAsDefault={this.setChannelAsDefault}
                                     removeChannel={this.removeChannel}
+                                    goToVersionEditor={history.push}
+                                    editVersion={this.editOperatorVersionName}
+                                    setVersionAsDefault={this.setVersionAsDefault}
+                                    duplicateVersion={this.duplicateOperatorVersion}
+                                    deleteVersion={this.removeOperatorVersion}
                                 />
                             )
                     }
@@ -249,6 +379,22 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                         onConfirm={this.onEditChannelNameConfirmed}
                         onClose={this.closeChannelNameModal}
                     />}
+                {operatorVersionNameToEdit &&
+                    <EditVersionNameModal
+                        name={operatorVersionNameToEdit}
+                        allVersions={Object.keys(versions)}
+                        onConfirm={this.onEditOperatorVersionNameConfirmed}
+                        onClose={this.closeVersionNameModal}
+                    />
+                }
+                {operatorVersionToDuplicate &&
+                    <EditVersionNameModal
+                        name={operatorVersionToDuplicate}
+                        allVersions={Object.keys(versions)}
+                        onConfirm={this.onDuplicateVersionConfirmed}
+                        onClose={this.closeDuplicateVersionModal}
+                    />
+                }
             </PackageEditorPageWrapper>
         );
     }
