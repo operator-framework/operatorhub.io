@@ -1,17 +1,24 @@
 import React from 'react';
 import { Modal } from 'patternfly-react';
 import { simpleNameValidator } from '../../../utils/operatorValidators';
-import { getValueError } from '../../../utils/operatorValidation';
 import OperatorInputWrapper from '../../editor/forms/OperatorInputWrapper';
 
 
-export interface EditChannelNameModalProps {
+export interface EditNameInChannelModalProps {
     name: string,
+    headline: string,
+
+    nameFieldTitle: string,
+    nameFieldDescription: string,
+    nameFieldPlaceholder: string,
+
+    nameValidator: (name: string) => any
+
     onConfirm: (name: string, initialName: string) => void
     onClose: () => void
 }
 
-interface EditChannelNameModalState {
+interface EditNameInChannelModalState {
     name: string,
     validFields: {
         name: boolean
@@ -21,10 +28,10 @@ interface EditChannelNameModalState {
     }
 }
 
-class EditChannelNameModal extends React.PureComponent<EditChannelNameModalProps, EditChannelNameModalState> {
+class EditNameInChannelModal extends React.PureComponent<EditNameInChannelModalProps, EditNameInChannelModalState> {
 
 
-    state: EditChannelNameModalState = {
+    state: EditNameInChannelModalState = {
         name: '',
         validFields: {
             name: false
@@ -40,18 +47,9 @@ class EditChannelNameModal extends React.PureComponent<EditChannelNameModalProps
         if (name !== this.state.name) {
 
             // we use original name to track creation of new channel and map which channel was edited
-            this.setState(
-                { name },
-                () => this.validateField('name', name)
-            );
+            this.setState({ name });
         }
     }
-
-
-    descriptions = {
-        name: 'Channels allow you to specify different upgrade paths for different users. Name has to be unique per package.'
-    }
-
 
     validators = {
         name: simpleNameValidator
@@ -65,9 +63,10 @@ class EditChannelNameModal extends React.PureComponent<EditChannelNameModalProps
     }
 
     validateField = (name: string, value: string) => {
+        const { nameValidator } = this.props
         const { formErrors, validFields } = this.state;
 
-        const error = getValueError(value, this.validators[name], {} as any);
+        const error = nameValidator(value);
 
         this.setState({
             formErrors: {
@@ -78,7 +77,9 @@ class EditChannelNameModal extends React.PureComponent<EditChannelNameModalProps
                 ...validFields,
                 [name]: typeof error !== 'string'
             }
-        })
+        });
+
+        return error;
     }
 
     commitField = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,11 +94,15 @@ class EditChannelNameModal extends React.PureComponent<EditChannelNameModalProps
 
         e.preventDefault();
 
-        onConfirm(name, initialName);
+        const validationResult = this.validateField('name', name);
+
+        if(validationResult === null){
+            onConfirm(name, initialName);
+        }
     }
 
     render() {
-        const { name: initialName, onClose } = this.props;
+        const { headline, nameFieldTitle, nameFieldDescription, nameFieldPlaceholder, onClose } = this.props;
         const { formErrors, name, validFields } = this.state;
 
         const allValid = Object.values(validFields).every(field => field);
@@ -106,13 +111,13 @@ class EditChannelNameModal extends React.PureComponent<EditChannelNameModalProps
             <Modal show onHide={onClose} bsSize="lg" className="oh-yaml-upload-modal right-side-modal-pf oh-operator-editor-page">
                 <Modal.Header>
                     <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title>{initialName ? 'Edit Package Channel Name' : 'Add Package Channel'}</Modal.Title>
+                    <Modal.Title>{headline}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <form className="oh-operator-editor-form">
                         <OperatorInputWrapper
-                            title="Channel Name"
-                            descriptions={this.descriptions}
+                            title={nameFieldTitle}
+                            descriptions={{ name: nameFieldDescription }}
                             field="name"
                             formErrors={formErrors}
                             key="name"
@@ -123,7 +128,7 @@ class EditChannelNameModal extends React.PureComponent<EditChannelNameModalProps
                                 type="text"
                                 onChange={this.updateField}
                                 onBlur={this.commitField}
-                                placeholder="e.g. latest"
+                                placeholder={nameFieldPlaceholder}
                                 value={name}
                             />
                         </OperatorInputWrapper>
@@ -142,6 +147,4 @@ class EditChannelNameModal extends React.PureComponent<EditChannelNameModalProps
     }
 }
 
-
-
-export default EditChannelNameModal;
+export default EditNameInChannelModal;

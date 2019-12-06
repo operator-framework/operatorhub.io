@@ -137,7 +137,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
         operatorVersions: {
           ...action.operatorVersions
         }
-      }      
+      }
     }
 
     case 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION': {
@@ -147,6 +147,94 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
           ...state.operatorVersions,
           [action.operatorVersion.version]: action.operatorVersion
         }
+      }
+    }
+
+    case 'CHANGE_PACKAGE_EDITOR_OPERATOR_VERSION_NAME': {
+      const updatedVersions: PackageEditorOperatorVersionsMap = {};
+
+      // remove renamed version and add new one
+      Object.values(state.operatorVersions)
+        .filter(operatorVersion => operatorVersion.version !== action.originalVersionName)
+        .forEach(operatorVersion => updatedVersions[operatorVersion.version] = operatorVersion);
+
+      updatedVersions[action.updatedVersion.version] = action.updatedVersion; 
+
+      return {
+        ...state,
+        channels: state.channels.map(channel => {
+          if (channel.name === action.channelName) {
+            return {
+              ...channel,
+              versions: channel.versions.map(version => version === action.originalVersionName ? action.updatedVersion.version : version)
+            };
+          } else {
+            return channel;
+          }
+        }),
+        operatorVersions: updatedVersions
+      }
+    }
+
+    case 'MAKE_PACKAGE_EDITOR_OPERATOR_VERSION_DEFAULT': {
+      return {
+        ...state,
+        channels: state.channels.map(channel => {
+
+          if(channel.name === action.channelName){
+            return {
+              ...channel,
+              currentVersion: action.operatorVersion,
+              currentVersionFullName: action.operatorVersionFullName
+            }
+
+          } else {
+            return channel;
+          }         
+        })
+      }
+    }
+
+    case 'ADD_PACKAGE_EDITOR_OPERATOR_VERSION': {
+      return {
+        ...state,
+        channels: state.channels.map(channel => ({
+          ...channel,
+          versions: [...channel.versions].concat(
+            action.channelName === channel.name ? [action.operatorVersion.version] : []
+          )
+        })),
+        operatorVersions: {
+          ...state.operatorVersions,
+          [action.operatorVersion.version]: action.operatorVersion
+        }
+      }
+    }
+
+    case 'REMOVE_PACKAGE_EDITOR_OPERATOR_VERSION': {
+      const updatedVersions: PackageEditorOperatorVersionsMap = {};
+
+      Object.values(state.operatorVersions)
+        .filter(operatorVersion => operatorVersion.version !== action.removedVersion)
+        .forEach(operatorVersion => updatedVersions[operatorVersion.version] = operatorVersion);
+
+      return {
+        ...state,
+        channels: [
+          ...state.channels.map(channel => {
+
+            if (channel.name === action.channelName) {
+              return {
+                ...channel,
+                versions: channel.versions.filter(version => version !== action.removedVersion)
+              }
+
+            } else {
+              return channel
+            }
+          })
+        ],
+        operatorVersions: updatedVersions
       }
     }
 
