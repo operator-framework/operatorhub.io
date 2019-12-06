@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash-es';
-import {History} from 'history';
+import { History } from 'history';
 import { Tooltip } from 'react-lightweight-tooltip';
 import copy from 'copy-to-clipboard';
 import { Icon, Modal } from 'patternfly-react';
@@ -37,9 +37,9 @@ export interface InstallModalProps {
   history: History
 }
 
-interface InstallModalState{
+interface InstallModalState {
   installCommand: string
-   copied: boolean
+  copied: boolean
 }
 
 /**
@@ -128,18 +128,20 @@ class InstallModal extends React.PureComponent<InstallModalProps, InstallModalSt
                   </p>
                   <div className="oh-install-modal__install-command-container">
                     <div className="oh-code">{`$ ${installOlmCommand}`}</div>
-                    // @ts-ignore
-                    <Tooltip content={tooltipContent} styles={tooltipOverrides}>
-                      <a
-                        href="#"
-                        onClick={e => this.copyToClipboard(e, installOlmCommand)}
-                        className="oh-install-modal__install-command-copy"
-                        onMouseEnter={this.onCopyEnter}
-                      >
-                        <Icon type="fa" name="clipboard" />
-                        <span className="sr-only">Copy to Clipboard</span>
-                      </a>
-                    </Tooltip>
+                    {
+                      // @ts-ignore
+                      <Tooltip content={tooltipContent} styles={tooltipOverrides}>
+                        <a
+                          href="#"
+                          onClick={e => this.copyToClipboard(e, installOlmCommand)}
+                          className="oh-install-modal__install-command-copy"
+                          onMouseEnter={this.onCopyEnter}
+                        >
+                          <Icon type="fa" name="clipboard" />
+                          <span className="sr-only">Copy to Clipboard</span>
+                        </a>
+                      </Tooltip>
+                    }
                   </div>
                 </li>
                 <li>
@@ -154,18 +156,21 @@ class InstallModal extends React.PureComponent<InstallModalProps, InstallModalSt
                   </p>
                   <div className="oh-install-modal__install-command-container">
                     <div className="oh-code">{`$ ${installCommand}`}</div>
-                    // @ts-ignore
-                    <Tooltip content={tooltipContent} styles={tooltipOverrides}>
-                      <a
-                        href="#"
-                        onClick={e => this.copyToClipboard(e, installCommand)}
-                        className="oh-install-modal__install-command-copy"
-                        onMouseEnter={this.onCopyEnter}
-                      >
-                        <Icon type="fa" name="clipboard" />
-                        <span className="sr-only">Copy to Clipboard</span>
-                      </a>
-                    </Tooltip>
+                    {
+                      // @ts-ignore
+                      <Tooltip content={tooltipContent} styles={tooltipOverrides}>
+
+                        <a
+                          href="#"
+                          onClick={e => this.copyToClipboard(e, installCommand)}
+                          className="oh-install-modal__install-command-copy"
+                          onMouseEnter={this.onCopyEnter}
+                        >
+                          <Icon type="fa" name="clipboard" />
+                          <span className="sr-only">Copy to Clipboard</span>
+                        </a>
+                      </Tooltip>
+                    }
                   </div>
                   <p>
                     This Operator will be installed in the &quot;
@@ -179,18 +184,20 @@ class InstallModal extends React.PureComponent<InstallModalProps, InstallModalSt
                   <p>After install, watch your operator come up using next command.</p>
                   <div className="oh-install-modal__install-command-container">
                     <div className="oh-code">{`$ ${verifyOperatorCommandFull}`}</div>
-                    // @ts-ignore
-                    <Tooltip content={tooltipContent} styles={tooltipOverrides}>
-                      <a
-                        href="#"
-                        onClick={e => this.copyToClipboard(e, verifyOperatorCommandFull)}
-                        className="oh-install-modal__install-command-copy"
-                        onMouseEnter={this.onCopyEnter}
-                      >
-                        <Icon type="fa" name="clipboard" />
-                        <span className="sr-only">Copy to Clipboard</span>
-                      </a>
-                    </Tooltip>
+                    {
+                      //@ts-ignore
+                      <Tooltip content={tooltipContent} styles={tooltipOverrides}>
+                        <a
+                          href="#"
+                          onClick={e => this.copyToClipboard(e, verifyOperatorCommandFull)}
+                          className="oh-install-modal__install-command-copy"
+                          onMouseEnter={this.onCopyEnter}
+                        >
+                          <Icon type="fa" name="clipboard" />
+                          <span className="sr-only">Copy to Clipboard</span>
+                        </a>
+                      </Tooltip>
+                    }
                   </div>
                   <p>
                     To use it, checkout the custom resource definitions (CRDs) introduced by this operator to start
