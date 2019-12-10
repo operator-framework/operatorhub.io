@@ -18,7 +18,7 @@ import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValid
 import { yamlFromOperator } from '../operatorBundlePage/bundlePageUtils';
 import EditVersionNameModal from '../../components/packageEditor/modals/EditVersionNameModal';
 import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
-import { version } from 'd3';
+import { convertVersionCrdsToVersionUploads, validateOperator } from '../../utils/packageEditorUtils';
 
 
 const PackageChannelsEditorPageActions = {
@@ -31,10 +31,13 @@ const PackageChannelsEditorPageActions = {
     makePackageChannelDefault: actions.makePackageChannelDefaultAction,
     removePackageChannel: actions.removePackageChannelAction,
     resetEditor: actions.resetPackageEditorAction,
+    updatePackageEditorVersionsValidation: actions.updatePackageOperatorVersionsValidityAction,
     addOperatorVersion: actions.addPackageOperatorVersionAction,
     makePackageOperatorVersionDefault: actions.makePackageOperatorVersionDefaultAction,
     changePackageOperatorVersionName: actions.changePackageOperatorVersionNameAction,
-    removeOperatorVersion: actions.removePackageOperatorVersionAction
+    removeOperatorVersion: actions.removePackageOperatorVersionAction,
+    storeEditorOperator: actions.storeEditorOperatorAction,
+    setVersionEditorCrdUploads: actions.setUploadsAction
 }
 
 export type PackageChannelsEditorPageProps = {
@@ -73,6 +76,30 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
     generateAction: HTMLAnchorElement | null = null;
 
+    componentDidMount() {
+        const { versions, updatePackageEditorVersionsValidation } = this.props;
+
+        let start = Date.now();
+        let time = 0;
+        let i = 0;
+
+        const validatedVersion = versions.map(version => {
+            // @TODO check CRDs presence
+            const valid = validateOperator(version.csv);
+            i++;
+            time = Date.now() - start - time;
+            console.log(version.name, i, time, valid)
+
+            return {
+                ...version,
+                valid
+            }
+        });
+        console.log('Total validation time', Date.now() - start);
+
+        updatePackageEditorVersionsValidation(validatedVersion);
+    }
+
     setGenerateAction = ref => {
         this.generateAction = ref;
     };
@@ -108,7 +135,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
     setVersionAsDefault = (channel: PacakgeEditorChannel, versionName: string) => {
         const { versions, makePackageOperatorVersionDefault } = this.props;
-        const targetVersion = versions[versionName];
+        const targetVersion = versions.find(version => version.version === versionName);
 
         if (targetVersion) {
             makePackageOperatorVersionDefault(targetVersion.version, targetVersion.name, channel.name);
@@ -130,7 +157,8 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                         name: `${packageName}.v${versionName}`,
                         version: versionName,
                         csv: getDefaultOperatorWithName(packageName, versionName),
-                        crdUploads: []
+                        crdUploads: [],
+                        valid: true
                     },
                     channelToAddVersion.name
                 );
@@ -139,7 +167,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
             }
             // edit name
         } else {
-            const version = versions[initialVersionName];
+            const version = versions.find(version => version.version === initialVersionName);
 
             // @TODO: update update path on name change!!!!
 
@@ -164,7 +192,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         const { packageName, versions, addOperatorVersion } = this.props;
         const { channelToAddVersion } = this.state;
 
-        const originalVersionMetadata = versions[originalVersionName];
+        const originalVersionMetadata = versions.find(version => version.version === originalVersionName);
 
         if (originalVersionMetadata) {
 
@@ -230,6 +258,23 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         });
     }
 
+    goToVersionEditor = (path: string, versionName: string) => {
+        const { history, versions, storeEditorOperator, setVersionEditorCrdUploads } = this.props;
+
+        const versionMetadata = versions.find(version => version.version === versionName);
+
+        // push selected version data to standalone version editor reducer
+        if (versionMetadata) {
+            storeEditorOperator(versionMetadata.csv);
+            setVersionEditorCrdUploads(convertVersionCrdsToVersionUploads(versionMetadata.crdUploads));
+
+        } else {
+            console.error(`Can't find metadata for version ${versionName}`);
+        }
+
+        history.push(path);
+    }
+
     restartAndClearAll = (e: React.MouseEvent) => {
         const { history, resetEditor, showClearConfirmationModal, hideConfirmModal } = this.props;
         e.preventDefault();
@@ -260,7 +305,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         const pkgFolder = zip.folder(packageName);
         pkgFolder.file(`${packageName}.package.yaml`, safeDump(packageFileObject));
 
-        Object.values(versions).forEach(operatorVersion => {
+        versions.forEach(operatorVersion => {
             const versionFolder = pkgFolder.folder(operatorVersion.version);
 
             // remove values which are part of default operator, but are invalid
@@ -317,6 +362,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         const { downloadEnabled, channelNameToEdit, operatorVersionNameToEdit, operatorVersionToDuplicate } = this.state;
 
         const packageName = match.params.packageName;
+        const versionsNames = versions.map(versionMetadata => versionMetadata.version);
 
         return (
             <PackageEditorPageWrapper
@@ -360,11 +406,12 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                                     key={channel.name}
                                     packageName={packageName}
                                     channel={channel}
+                                    versions={versions}
                                     editChannelName={this.editChannelName}
-                                    addOperatorVersion={() => this.addOperatorVersion(channel)}
+                                    addOperatorVersion={this.addOperatorVersion}
                                     setChannelAsDefault={this.setChannelAsDefault}
                                     removeChannel={this.removeChannel}
-                                    goToVersionEditor={history.push}
+                                    goToVersionEditor={this.goToVersionEditor}
                                     editVersion={this.editOperatorVersionName}
                                     setVersionAsDefault={this.setVersionAsDefault}
                                     duplicateVersion={this.duplicateOperatorVersion}
@@ -379,18 +426,18 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                         onConfirm={this.onEditChannelNameConfirmed}
                         onClose={this.closeChannelNameModal}
                     />}
-                {operatorVersionNameToEdit &&
+                {operatorVersionNameToEdit !== null &&
                     <EditVersionNameModal
                         name={operatorVersionNameToEdit}
-                        allVersions={Object.keys(versions)}
+                        allVersions={versionsNames}
                         onConfirm={this.onEditOperatorVersionNameConfirmed}
                         onClose={this.closeVersionNameModal}
                     />
                 }
-                {operatorVersionToDuplicate &&
+                {operatorVersionToDuplicate !== null &&
                     <EditVersionNameModal
                         name={operatorVersionToDuplicate}
-                        allVersions={Object.keys(versions)}
+                        allVersions={versionsNames}
                         onConfirm={this.onDuplicateVersionConfirmed}
                         onClose={this.closeDuplicateVersionModal}
                     />

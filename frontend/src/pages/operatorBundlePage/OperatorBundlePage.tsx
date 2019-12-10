@@ -17,7 +17,7 @@ import { getUpdatedFormErrors, getVersionEditorRootPath, operatorNameFromOperato
 import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';
-import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState, updatePackageOperatorVersionAction, updatePackageChannelAction } from '../../redux';
+import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState, updatePackageOperatorVersionAction, } from '../../redux';
 import { History } from 'history';
 
 const OperatorBundlePageActions = {
@@ -100,7 +100,8 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
         name: operatorNameFromOperator(operator),
         version: match.params.operatorVersion,
         csv: operator,
-        crdUploads        
+        crdUploads,
+        valid: true       
     });
 
     history.push(channelPath);

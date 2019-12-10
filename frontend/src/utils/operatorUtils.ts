@@ -6,7 +6,7 @@ import {
   LOCAL_STORAGE_KEY
 } from './constants';
 import * as operatorTypes from './operatorTypes';
-import { PacakgeEditorChannel, PackageEditorOperatorVersionsMap } from './packageEditorTypes';
+import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from './packageEditorTypes';
 
 /**
  * Convert version format without dashes
@@ -386,7 +386,7 @@ export const convertExampleYamlToObj = examples => {
 export interface AutoSavedData {
   packageName: string,
   channels: PacakgeEditorChannel[],
-  operatorVersions: PackageEditorOperatorVersionsMap,
+  operatorVersions: PackageEditorOperatorVersionMetadata[],
 }
 
 /**

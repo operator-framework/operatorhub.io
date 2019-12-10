@@ -1,4 +1,4 @@
-import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionsMap, PackageEditorOperatorVersionMetadata } from '../../utils/packageEditorTypes';
+import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../utils/packageEditorTypes';
 
 export type BoundActionCreator<T extends (...args: any) => any> = (...args: Parameters<T>) => void;
 
@@ -67,7 +67,7 @@ export const removePackageChannelAction = (name: string) => ({
   name,
 });
 
-export const setPackageOperatorVersionsAction = (operatorVersions: PackageEditorOperatorVersionsMap) => ({
+export const setPackageOperatorVersionsAction = (operatorVersions: PackageEditorOperatorVersionMetadata[]) => ({
   type: 'SET_PACKAGE_EDITOR_OPERATOR_VERSIONS' as 'SET_PACKAGE_EDITOR_OPERATOR_VERSIONS',
   operatorVersions
 });
@@ -75,6 +75,11 @@ export const setPackageOperatorVersionsAction = (operatorVersions: PackageEditor
 export const updatePackageOperatorVersionAction = (operatorVersion: PackageEditorOperatorVersionMetadata) => ({
   type: 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION' as 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION',
   operatorVersion
+});
+
+export const updatePackageOperatorVersionsValidityAction = (operatorVersions: PackageEditorOperatorVersionMetadata[]) => ({
+  type: 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSIONS_VALIDITY' as 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSIONS_VALIDITY',
+  operatorVersions
 });
 
 export const changePackageOperatorVersionNameAction = (originalVersionName: string, channelName: string, updatedVersion: PackageEditorOperatorVersionMetadata) => ({
@@ -110,5 +115,6 @@ export type PackageEditorActions = ReturnType<typeof resetPackageEditorAction> |
   ReturnType<typeof setPackageOperatorVersionsAction> | ReturnType<typeof updatePackageChannelAction> |
   ReturnType<typeof addNewPackageChannelAction> | ReturnType<typeof makePackageChannelDefaultAction> |
   ReturnType<typeof removePackageChannelAction> | ReturnType<typeof updatePackageOperatorVersionAction> | 
+  ReturnType<typeof updatePackageOperatorVersionsValidityAction> |
   ReturnType<typeof changePackageOperatorVersionNameAction> | ReturnType<typeof makePackageOperatorVersionDefaultAction> |
  ReturnType<typeof addPackageOperatorVersionAction> | ReturnType<typeof removePackageOperatorVersionAction>;

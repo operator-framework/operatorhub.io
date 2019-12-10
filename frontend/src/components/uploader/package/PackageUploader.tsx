@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
 
 import PackageUploaderDropArea from './PackageUploaderDropArea';
-import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PackageEditorOperatorVersionsMap, PacakgeEditorChannel } from '../../../utils/packageEditorTypes';
+import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PacakgeEditorChannel } from '../../../utils/packageEditorTypes';
 import { StoreState } from '../../../redux';
 import PackageUploaderObjectList from './PackageUploaderObjectList';
 
@@ -77,9 +77,8 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
                     metadata.name = name;
                     metadata.type = type;
                     metadata.version = content.spec.version;
-
                     // we have to apply small changes to operator data structure for the editor
-                    content = normalizeYamlOperator(content);
+                    metadata.parsedContent = normalizeYamlOperator(content);
 
                 } else if (type === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
                     metadata.name = name;
@@ -215,21 +214,15 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
             };
         });
 
-    buildOperatorVersionsMap = (uploads: PackageEntry[], operatorVersions: PackageFileEntry[]) => {
-        return operatorVersions.reduce(
-            (accumulator, operatorVersion) => {
-                accumulator[operatorVersion.version] = {
-                    name: operatorVersion.objectName,
-                    version: operatorVersion.version,
-                    csv: operatorVersion.content,
-                    crdUploads: this.extractCrdUploadForVersion(uploads, operatorVersion.version)
-                };
+    buildOperatorVersionsMap = (uploads: PackageEntry[], operatorVersions: PackageFileEntry[]) =>
+        operatorVersions.map(operatorVersion => ({
+            name: operatorVersion.objectName,
+            version: operatorVersion.version,
+            csv: operatorVersion.content,
+            crdUploads: this.extractCrdUploadForVersion(uploads, operatorVersion.version),
+            valid: true
+        }));
 
-                return accumulator;
-            },
-            {} as PackageEditorOperatorVersionsMap
-        );
-    };
 
 
     convertUploadsToChannelsAndVersions = () => {
@@ -261,11 +254,11 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
         channels.forEach(channel => {
             let csvEntry = operatorVersions.find(version => version.objectName === channel.currentVersionFullName);
 
-            if(csvEntry){
+            if (csvEntry) {
                 channel.currentVersion = csvEntry.version;
             }
 
-            while (csvEntry) {                
+            while (csvEntry) {
                 channel.versions.push(csvEntry.version);
 
                 const replacedVersion = _.get(csvEntry, 'content.spec.replaces');

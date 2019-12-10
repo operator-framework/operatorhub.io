@@ -3,25 +3,26 @@ import { DropdownKebab, MenuItem, Grid, Icon } from 'patternfly-react';
 
 import ChannelEditorChannelIcon from './ChannelEditorChannelIcon';
 import PackageUploaderSortIcon from '../../uploader/package/PackageUploaderSortIcon';
-import { PacakgeEditorChannel } from '../../../utils/packageEditorTypes';
+import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
 
 
 
 export type ChannelEditorChannelProps = {
     packageName: string,
     channel: PacakgeEditorChannel,
+    versions: PackageEditorOperatorVersionMetadata[],
     editChannelName: (channelName: string) => void
-    addOperatorVersion: () => void
+    addOperatorVersion: (channel: PacakgeEditorChannel) => void
     setChannelAsDefault: (channelName: string) => void
     removeChannel: (channelName: string) => void
-    goToVersionEditor: (versionPath: string) => void
+    goToVersionEditor: (versionPath: string, versionName: string) => void
     duplicateVersion: (channel: PacakgeEditorChannel, version: string) => void
     editVersion: (channel: PacakgeEditorChannel, version: string) => void
     setVersionAsDefault: (channel: PacakgeEditorChannel, version: string) => void
     deleteVersion: (channel: PacakgeEditorChannel, version: string) => void
 };
 
-
+ 
 interface ChannelEditorChannelState {
     expanded: boolean,
     sorting: 'asc' | 'desc'
@@ -59,10 +60,10 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         return sorting === 'asc' ? result : result * -1;
     }
 
-    addOperatorVersion = (e: React.MouseEvent, channelName: string) => {
-        const { addOperatorVersion } = this.props;
+    addOperatorVersion = (e: React.MouseEvent) => {
+        const { channel,addOperatorVersion } = this.props;
         e.preventDefault();
-        addOperatorVersion();
+        addOperatorVersion(channel);
     }
 
 
@@ -87,11 +88,11 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         removeChannel(channel.name);
     }
 
-    goToVersionEditor = (e: React.MouseEvent, path: string) => {
+    goToVersionEditor = (e: React.MouseEvent, path: string, version: string) => {
         const { goToVersionEditor } = this.props;
         e.preventDefault();
 
-        goToVersionEditor(path);
+        goToVersionEditor(path, version);
     }
 
     duplicateVersion = (e: React.MouseEvent, version: string) => {
@@ -157,7 +158,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                         <div className="oh-package-channels-editor__channel__content">
                             <div className="oh-package-channels-editor__channel__content__title">
                                 <h3>Operator Versions</h3>
-                                <a className="oh-package-channels-editor__add-link" href="#" onClick={e => this.addOperatorVersion(e, channel.name)}>
+                                <a className="oh-package-channels-editor__add-link" href="#" onClick={this.addOperatorVersion}>
                                     <Icon type="fa" name="plus-circle" />
                                     <span>Add Operator Version</span>
                                 </a>
@@ -186,7 +187,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                                     <Grid.Row key={version} className="oh-operator-editor-upload__uploads__row">
                                                         <Grid.Col xs={3}>
                                                             <h4>
-                                                                <a href={versionEditorPath} onClick={e => this.goToVersionEditor(e, versionEditorPath)}>
+                                                                <a href={versionEditorPath} onClick={e => this.goToVersionEditor(e, versionEditorPath, version)}>
                                                                     {version}
                                                                     {version === channel.currentVersion &&
                                                                         <span className="oh-package-channels-editor__channel__header__default">(current)</span>
