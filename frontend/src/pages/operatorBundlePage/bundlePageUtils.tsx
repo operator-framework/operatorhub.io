@@ -128,11 +128,19 @@ export const parseYamlOperator = (yaml: string) => {
  */
 export const normalizeYamlOperator = operator => {
   const normalizedOperator = _.cloneDeep(operator);
-  const name = _.get(normalizedOperator, 'metadata.name');
+  const name: string = _.get(normalizedOperator, 'metadata.name');
   const description = _.get(normalizedOperator, 'spec.description');
 
   if (name) {
-    const versionStart = name.indexOf('.v');
+    let versionStart = name.indexOf('.v');
+
+    // recover from case that no "".v" is present just version number!  
+    const match = name.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
+
+    if(match && typeof match.index === 'number'){
+      versionStart = match.index;
+    }
+
     // do not remove last character if there is no version e.g. CRD!
     const normalizedName = versionStart > -1 ? name.slice(0, versionStart) : name;
     _.set(normalizedOperator, 'metadata.name', normalizedName);

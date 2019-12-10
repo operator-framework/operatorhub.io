@@ -25,17 +25,19 @@ export interface PackageDirectoryEntry {
 }
 export type PackageEntry = PackageDirectoryEntry | PackageFileEntry;
 
+export type PackageEditorOperatorVersionCrdMetadata = {
+    name: string,
+    crd: any
+};
+
 export type PackageEditorOperatorVersionMetadata = {
     name: string,
     version: string,
     csv: Operator,
-    crdUploads: {
-        name: string,
-        crd: any
-    }[]
+    valid: boolean,
+    crdUploads: PackageEditorOperatorVersionCrdMetadata[]
 };
 
-export type PackageEditorOperatorVersionsMap = Record<string, PackageEditorOperatorVersionMetadata>;
 
 export type PacakgeEditorChannel = {
     name: string,

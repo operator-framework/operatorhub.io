@@ -132,17 +132,17 @@ class HeaderTopBar extends React.PureComponent<HeaderTopBarProps, HeaderTopBarSt
             id="header-contribute-dropdown"
             pullRight
           >
-            <MenuItem eventKey={0} onSelect={this.onGettingStarted} href="/getting-started">
+            <MenuItem eventKey={0} onSelect={this.onGettingStarted}>
               Create an Operator with the SDK
             </MenuItem>
-            <MenuItem eventKey={1} onSelect={this.onPackageYourOperator} href="/packages">
+            <MenuItem eventKey={1} onSelect={this.onPackageYourOperator}>
               Package your Operator
               <span className="oh-beta-label">BETA</span>
             </MenuItem>
-            <MenuItem eventKey={2} onSelect={this.onPreviewYourOperator} href="/preview">
+            <MenuItem eventKey={2} onSelect={this.onPreviewYourOperator}>
               Preview your Operator
             </MenuItem>
-            <MenuItem eventKey={3} onSelect={this.onSubmitYourOperator} href="/contribute">
+            <MenuItem eventKey={3} onSelect={this.onSubmitYourOperator}>
               Submit your Operator
             </MenuItem>
           </DropdownButton>
