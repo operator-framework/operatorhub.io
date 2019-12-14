@@ -441,7 +441,7 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
   compareSections = (operator: Operator, merged: Operator, uploaded: Operator) => {
     const { setAllSectionsStatus } = this.props;
 
-    const updatedSectionsStatus: Record<EditorSectionNames, keyof typeof EDITOR_STATUS> = {} as any;
+    const updatedSectionsStatus: Partial<Record<EditorSectionNames, EDITOR_STATUS>> = {};
 
     Object.keys(sectionsFields).forEach(sectionName => {
       const fields = sectionsFields[sectionName];
@@ -461,7 +461,7 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
         if (_.castArray(fields).some(field => _.get(sectionErrors, field))) {
           updatedSectionsStatus[sectionName] = EDITOR_STATUS.errors;
         } else {
-          updatedSectionsStatus[sectionName] = EDITOR_STATUS.pending;
+          updatedSectionsStatus[sectionName] = EDITOR_STATUS.all_good;
         }
       }
     });
@@ -489,7 +489,7 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
       setSectionStatus(sectionName, EDITOR_STATUS.errors);
     } else {
       // mark section as review needed
-      setSectionStatus(sectionName, EDITOR_STATUS.pending);
+      setSectionStatus(sectionName, EDITOR_STATUS.all_good);
     }
   };
 
