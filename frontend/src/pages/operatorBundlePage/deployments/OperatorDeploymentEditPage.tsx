@@ -140,7 +140,7 @@ class OperatorDeploymentEditPage extends React.PureComponent<OperatorDeploymentE
     }
     this.setState({ yamlError });
 
-    setSectionStatus(EDITOR_STATUS.pending);
+    setSectionStatus(EDITOR_STATUS.modified);
   };
 
   getDefaultOnClear = () => {

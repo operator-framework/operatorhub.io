@@ -139,7 +139,7 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
         _.get(errors, `${crdsField}[${this.crdIndex}].errors.statusDescriptors`, null)
       );
 
-      this.updateSectionStatus(errors);
+      this.updateSectionStatus(errors, true);
       storeEditorFormErrors(errors);
     //}
 
@@ -190,15 +190,18 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
    * Update CRD section state
    * @param {*} formErrors
    */
-  updateSectionStatus = formErrors => {
-    const { setSectionStatus } = this.props;
+  updateSectionStatus = (formErrors, modified?) => {
+    const { sectionStatus, setSectionStatus } = this.props;
 
+    const status = sectionStatus['owned-crds'];
     const crdErrors = _.find(_.get(formErrors, crdsField), { index: this.crdIndex });
 
     if (crdErrors) {
       setSectionStatus('owned-crds', EDITOR_STATUS.errors);
-    } else {
-      setSectionStatus('owned-crds', EDITOR_STATUS.pending);
+    } else if(modified){
+      setSectionStatus('owned-crds', EDITOR_STATUS.modified);
+    } else if(status !== EDITOR_STATUS.modified){
+      setSectionStatus('owned-crds', EDITOR_STATUS.all_good);
     }
   };
 

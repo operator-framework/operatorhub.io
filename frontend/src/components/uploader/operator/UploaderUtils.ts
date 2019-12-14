@@ -97,11 +97,12 @@ export function operatorFieldWasUpdated(fieldName: string, operator: Operator, u
   // or uploaded operator was same as default values
   return (
     !_.isEqual(_.get(operator, fieldName), _.get(mergedOperator, fieldName)) ||
-    // do not consider updated if value is empty - no real change was doen
+    // do not consider updated if value is empty - no real change was done
     (!_.isEmpty(_.get(defaultOperator, fieldName)) &&
       _.isEqual(_.get(defaultOperator, fieldName), _.get(uploadedOperator, fieldName)))
   );
 }
+
 
 
 export const createtUpload = (fileName: string): UploadMetadata => ({

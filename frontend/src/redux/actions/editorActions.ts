@@ -6,7 +6,7 @@ import { EditorSectionNames, EDITOR_STATUS } from '../../utils/constants';
 /**
  * Update status of single section
  */
-export const setSectionStatusAction = (section: EditorSectionNames, status: keyof typeof EDITOR_STATUS) => ({
+export const setSectionStatusAction = (section: EditorSectionNames, status: EDITOR_STATUS) => ({
   type: reduxConstants.SET_EDITOR_SECTION_STATUS,
   section,
   status
@@ -15,7 +15,7 @@ export const setSectionStatusAction = (section: EditorSectionNames, status: keyo
 /**
  * Update status of multiple sections at once
  */
-export const setBatchSectionsStatusAction = (status: Record<EditorSectionNames, keyof typeof EDITOR_STATUS>) => ({
+export const setBatchSectionsStatusAction = (status: Partial<Record<EditorSectionNames, EDITOR_STATUS>>) => ({
   type: reduxConstants.SET_EDITOR_ALL_SECTIONS_STATUS,
   status
 });

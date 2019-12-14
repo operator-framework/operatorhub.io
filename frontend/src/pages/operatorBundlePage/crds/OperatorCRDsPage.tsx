@@ -51,7 +51,7 @@ class OperatorCRDsPage extends React.PureComponent<OperatorCRDsPageProps> {
       this.validateField(operator);
     }
   }
-  validateField = operator => {
+  validateField = (operator, modified?) => {
     const { formErrors, storeEditorFormErrors, setSectionStatus, sectionStatus, objectPage, crdsField } = this.props;
 
     const error = getFieldValueError(operator, crdsField);
@@ -66,8 +66,10 @@ class OperatorCRDsPage extends React.PureComponent<OperatorCRDsPageProps> {
     // that requires user action
     if (error) {
       setSectionStatus(objectPage as any, EDITOR_STATUS.errors);
+    } else if (modified){
+      setSectionStatus(objectPage as any, EDITOR_STATUS.modified);
     } else if (status === EDITOR_STATUS.errors) {
-      setSectionStatus(objectPage as any, EDITOR_STATUS.pending);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.all_good);
     }
   };
 
@@ -81,7 +83,7 @@ class OperatorCRDsPage extends React.PureComponent<OperatorCRDsPageProps> {
     removeAlmExamples && this.onRemove(updatedOperator, removedCrd);
 
     storeEditorOperator(updatedOperator);
-    this.validateField(updatedOperator);
+    this.validateField(updatedOperator, true);
   };
 
   onRemove = (operatorToUpdate, crd) => {
