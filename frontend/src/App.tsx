@@ -175,6 +175,7 @@ class App extends React.Component {
             <Route path="/packages/:packageName/:channelName/:operatorVersion/install-modes" component={OperatorInstallModesPage} />
             <Route path="/packages/:packageName/:channelName/:operatorVersion/yaml" component={OperatorYamlEditorPage} />
 
+            <Route path="/packages/:packageName/:channelName/:operatorVersion/new" render={props => <OperatorBundlePage {...props} isNew />} />
             <Route path="/packages/:packageName/:channelName/:operatorVersion" component={OperatorBundlePage} />
 
             <Route path="/packages/:packageName" component={PackageChannelsEditorPage} />

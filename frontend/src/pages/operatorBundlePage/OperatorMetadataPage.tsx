@@ -83,10 +83,11 @@ class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, Op
     this.forceUpdate();
   };
 
-  validateFields = fields => {
-    const { storeEditorOperator, formErrors, storeEditorFormErrors, setSectionStatus } = this.props;
+  validateFields = (fields, modified = true) => {
+    const { sectionStatus, storeEditorOperator, formErrors, storeEditorFormErrors, setSectionStatus } = this.props;
     const { workingOperator } = this.state;
 
+    const status = sectionStatus.metadata;
     const errors = getUpdatedFormErrors(workingOperator, formErrors, fields);
     storeEditorFormErrors(errors);
     const metadataErrors = _.some(sectionsFields.metadata, metadataField => _.get(errors, metadataField));
@@ -96,9 +97,13 @@ class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, Op
 
     if (metadataErrors) {
       setSectionStatus(EDITOR_STATUS.errors);
-    } else {
-      setSectionStatus(EDITOR_STATUS.pending);
+    } else if(modified){
+      setSectionStatus(EDITOR_STATUS.modified);
+    } else if(status !== EDITOR_STATUS.modified){
+      setSectionStatus(EDITOR_STATUS.all_good);
     }
+
+   
   };
 
   validatePage = () => {
@@ -191,7 +196,7 @@ class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, Op
           formErrors={formErrors}
           value={_.get(workingOperator, field, '')}
           updateOperator={this.updateOperator}
-          commitField={this.validateFields}
+          commitField={fields => this.validateFields(fields)}
         />
       );
     }
@@ -203,7 +208,7 @@ class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, Op
         value={_.get(workingOperator, field, '')}
         inputType={fieldType}
         updateOperator={this.updateOperator}
-        commitField={this.validateFields}
+        commitField={fields => this.validateFields(fields)}
       />
     );
   };

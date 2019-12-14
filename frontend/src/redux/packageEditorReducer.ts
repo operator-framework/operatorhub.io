@@ -125,7 +125,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
     }
 
     case 'REMOVE_PACKAGE_EDITOR_CHANNEL': {
-      // versions belonging to other channels to keep
+      // versions used by other channels to keep
        const versionsToKeep = state.channels
         .filter(channel => channel.name !== action.name)
         .flatMap(channel => channel.versions);      
@@ -147,10 +147,16 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
     }
 
     case 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION': {
+      const updatedVersion = action.operatorVersion;      
+
       return {
         ...state,
+        channels:state.channels.map(channel => ({
+          ...channel,
+          currentVersionFullName: channel.currentVersion === updatedVersion.version ? updatedVersion.name : channel.currentVersionFullName
+        })),
         operatorVersions: state.operatorVersions.map(
-          operatorVersion => operatorVersion.version === action.operatorVersion.version ? action.operatorVersion : operatorVersion)        
+          operatorVersion => operatorVersion.version === updatedVersion.version ? updatedVersion : operatorVersion)        
       }
     }
 
@@ -174,6 +180,8 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
           if (channel.name === action.channelName) {
             return {
               ...channel,
+              currentVersion: channel.currentVersion === action.originalVersionName ? action.updatedVersion.version : channel.currentVersion,
+              currentVersionFullName: channel.currentVersion === action.originalVersionName ? action.updatedVersion.name : channel.currentVersion,
               versions: channel.versions.map(
                 version => version === action.originalVersionName ? action.updatedVersion.version : version
               )
@@ -233,6 +241,8 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
         if (channel.name === action.channelName) {
           return {
             ...channel,
+            currentVersion: channel.currentVersion === action.removedVersion ? '' :  channel.currentVersion,
+            currentVersionFullName: channel.currentVersion === action.removedVersion ? '' :  channel.currentVersionFullName,
             versions: channel.versions.filter(version => version !== action.removedVersion)
           }
 

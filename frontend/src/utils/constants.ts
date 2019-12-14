@@ -44,16 +44,11 @@ export const STATUS_CAPABILITIES = [
   'urn:alm:descriptor:io.kubernetes:'
 ];
 
-export const EDITOR_STATUS: {
-  empty: 'empty',
-  pending: 'pending',
-  complete: 'complete',
-  errors: 'errors'
-} = {
-  empty: 'empty',
-  pending: 'pending',
-  complete: 'complete',
-  errors: 'errors'
+export enum EDITOR_STATUS {
+  empty = 'Empty',
+  modified = 'Modified',
+  all_good = 'All Good',
+  errors= 'Invalid Entries'
 };
 
 export type EditorSectionNames = keyof typeof sectionsFields;

@@ -92,19 +92,23 @@ class OperatorRequiredCRDEditPage extends React.PureComponent<OperatorRequiredCR
     const { formErrors } = this.props;
 
     if (!_.isEqual(formErrors, prevProps.formErrors)) {
-      this.updateCrdErrors(formErrors);
+      this.updateCrdErrors(formErrors, true);
     }
   }
 
-  updateCrdErrors = formErrors => {
-    const { setSectionStatus } = this.props;
+  updateCrdErrors = (formErrors, modified?) => {
+    const { sectionStatus, setSectionStatus } = this.props;
+
+    const status = sectionStatus['required-crds'];
 
     const crdErrors = _.find(_.get(formErrors, crdsField), { index: this.crdIndex });
 
     if (crdErrors) {
       setSectionStatus('required-crds', EDITOR_STATUS.errors);
-    } else {
-      setSectionStatus('required-crds', EDITOR_STATUS.pending);
+    } else if(modified){
+      setSectionStatus('required-crds', EDITOR_STATUS.modified);
+    } else if(status !== EDITOR_STATUS.modified){
+      setSectionStatus('required-crds', EDITOR_STATUS.all_good);
     }
   };
 
@@ -241,6 +245,7 @@ const mapDispatchToProps = dispatch => bindActionCreators(OperatorRequiredCRDEdi
 
 const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
+  sectionStatus: state.editorState.sectionStatus,
   formErrors: state.editorState.formErrors
 });
 

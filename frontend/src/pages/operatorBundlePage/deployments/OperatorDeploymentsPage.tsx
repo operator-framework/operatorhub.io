@@ -49,7 +49,7 @@ export type OperatorDeploymentsPageProps = {
       }
     }
 
-  validateField = operator => {
+  validateField = (operator, modified?) => {
       const { formErrors, storeEditorFormErrors, setSectionStatus, sectionStatus } = this.props;
       const updatedFormErrors = _.cloneDeep(formErrors);
       const status = sectionStatus.deployments;
@@ -62,10 +62,12 @@ export type OperatorDeploymentsPageProps = {
       // do not automatically change status of done or empty status
       // that requires user action
       if (error) {
-        setSectionStatus(EDITOR_STATUS.errors);
-      } else if (status === EDITOR_STATUS.errors) {
-        setSectionStatus(EDITOR_STATUS.pending);
-      }
+      setSectionStatus(EDITOR_STATUS.errors);
+    } else if (modified){
+      setSectionStatus(EDITOR_STATUS.modified);
+    } else if (status === EDITOR_STATUS.errors) {
+      setSectionStatus(EDITOR_STATUS.all_good);
+    }
     };
 
     updateOperator = deployments => {
@@ -75,7 +77,7 @@ export type OperatorDeploymentsPageProps = {
       _.set(updatedOperator, deploymentFields, deployments);
 
       storeEditorOperator(updatedOperator);
-      this.validateField(updatedOperator);
+      this.validateField(updatedOperator, true);
     };
 
     validatePage = () => {

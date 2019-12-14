@@ -79,7 +79,7 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
                     const { packageName, operatorVersion, defaultChannel } = this.newPackageComponent.state;
 
                     this.createPackage(packageName, operatorVersion, defaultChannel);
-                    history.push(`/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(defaultChannel)}/${encodeURIComponent(operatorVersion)}`);
+                    history.push(`/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(defaultChannel)}/${encodeURIComponent(operatorVersion)}/new`);
                 }
                 break;
             }
