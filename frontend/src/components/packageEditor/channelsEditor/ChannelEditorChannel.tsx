@@ -4,6 +4,7 @@ import { DropdownKebab, MenuItem, Grid, Icon } from 'patternfly-react';
 import ChannelEditorChannelIcon from './ChannelEditorChannelIcon';
 import PackageUploaderSortIcon from '../../uploader/package/PackageUploaderSortIcon';
 import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
+import UploaderStatusIcon, { IconStatus } from '../../uploader/UploaderStatusIcon';
 
 
 
@@ -22,7 +23,7 @@ export type ChannelEditorChannelProps = {
     deleteVersion: (channel: PacakgeEditorChannel, version: string) => void
 };
 
- 
+
 interface ChannelEditorChannelState {
     expanded: boolean,
     sorting: 'asc' | 'desc'
@@ -61,7 +62,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
     }
 
     addOperatorVersion = (e: React.MouseEvent) => {
-        const { channel,addOperatorVersion } = this.props;
+        const { channel, addOperatorVersion } = this.props;
         e.preventDefault();
         addOperatorVersion(channel);
     }
@@ -120,9 +121,13 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
     }
 
     render() {
-        const { packageName, channel } = this.props;
+        const { packageName, channel, versions } = this.props;
         const { expanded, sorting } = this.state;
 
+        const versionsInChannelAreValid = channel.versions.every(version => {
+            const versionMetadata = versions.find(versionMeta => versionMeta.version === version);
+            return versionMetadata ? versionMetadata.valid : true;
+        });
 
         return (
             <div key={channel.name} className="oh-package-channels-editor__channel">
@@ -143,8 +148,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                         <div className="oh-package-channels-editor__channel__header__current-csv__text">{channel.currentVersionFullName}</div>
                     </div>
                     <div className="oh-package-channels-editor__channel__header__validation">
-                        Invalid Entries
-                                    </div>
+                        {!versionsInChannelAreValid && <UploaderStatusIcon text="Invalid Entry" status={IconStatus.ERROR} />}
+                    </div>
                     <div className="oh-package-channels-editor__channel__header__menu">
                         <DropdownKebab id={`"editChannel_${channel.name}`} pullRight>
                             <MenuItem onClick={this.editChannelName}>Edit Channel Name</MenuItem>
@@ -180,6 +185,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                         {channel.versions
                                             .sort(this.sortVersions(sorting))
                                             .map(version => {
+                                                const versionMetadata = versions.find(versionMeta => versionMeta.version === version);
+                                                const isValid = versionMetadata && versionMetadata.valid;
                                                 const versionEditorPath = `/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(channel.name)}/${encodeURIComponent(version)}`;
                                                 const curryWithVersion = <T extends Function>(fn: T) => (e: React.MouseEvent) => fn(e, version);
 
@@ -196,7 +203,9 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                                             </h4>
                                                         </Grid.Col>
                                                         <Grid.Col xs={6}></Grid.Col>
-                                                        <Grid.Col xs={2}>Invalid Entry</Grid.Col>
+                                                        <Grid.Col xs={2}>
+                                                            {!isValid && <UploaderStatusIcon text="Invalid Entry" status={IconStatus.ERROR} />}
+                                                        </Grid.Col>
                                                         <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
                                                             <DropdownKebab id={`editVersion_${version}`} pullRight>
                                                                 <MenuItem onClick={curryWithVersion(this.duplicateVersion)}>Duplicate Operator Version</MenuItem>

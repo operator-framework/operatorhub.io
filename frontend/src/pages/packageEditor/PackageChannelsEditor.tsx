@@ -18,8 +18,7 @@ import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValid
 import { yamlFromOperator } from '../operatorBundlePage/bundlePageUtils';
 import EditVersionNameModal from '../../components/packageEditor/modals/EditVersionNameModal';
 import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
-import { convertVersionCrdsToVersionUploads, validateOperator } from '../../utils/packageEditorUtils';
-
+import { convertVersionCrdsToVersionUploads, validateOperatorVersions } from '../../utils/packageEditorUtils';
 
 const PackageChannelsEditorPageActions = {
     showRemoveChannelConfirmationModal: actions.showRemoveChannelConfirmationModalAction,
@@ -77,27 +76,9 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
     generateAction: HTMLAnchorElement | null = null;
 
     componentDidMount() {
-        const { versions, updatePackageEditorVersionsValidation } = this.props;
+        const { versions, updatePackageEditorVersionsValidation } = this.props;       
 
-        let start = Date.now();
-        let time = 0;
-        let i = 0;
-
-        const validatedVersion = versions.map(version => {
-            // @TODO check CRDs presence
-            const valid = validateOperator(version.csv);
-            i++;
-            time = Date.now() - start - time;
-            console.log(version.name, i, time, valid)
-
-            return {
-                ...version,
-                valid
-            }
-        });
-        console.log('Total validation time', Date.now() - start);
-
-        updatePackageEditorVersionsValidation(validatedVersion);
+        updatePackageEditorVersionsValidation(validateOperatorVersions(versions));
     }
 
     setGenerateAction = ref => {
