@@ -17,8 +17,9 @@ import { getUpdatedFormErrors, getVersionEditorRootPath, operatorNameFromOperato
 import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';
-import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState, updatePackageOperatorVersionAction, updatePackageChannelAction } from '../../redux';
+import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState, updatePackageOperatorVersionAction, } from '../../redux';
 import { History } from 'history';
+import { getDefaultOperator } from '../../utils/operatorUtils';
 
 const OperatorBundlePageActions = {
   resetEditorOperator: resetEditorOperatorAction,
@@ -29,6 +30,7 @@ const OperatorBundlePageActions = {
 };
 
 export type OperatorBundlePageProps = {
+  isNew: boolean,
   history: History,
   match: VersionEditorParamsMatch
 
@@ -48,24 +50,33 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
   };
 
   componentDidMount() {
-    const { operator, setBatchSectionsStatus, sectionStatus } = this.props;
-
-
+    const { operator, setBatchSectionsStatus, sectionStatus, isNew } = this.props;
 
     const updatedSectionsStatus = {} as any;
     // remove invalid defaults before validation so they do not cause false errors
     const cleanedOperator = removeEmptyOptionalValuesFromOperator(operator);
+    const defaultOperator = getDefaultOperator();
+    const fieldWasUpdated = fieldName =>  !_.isEqual(_.get(cleanedOperator, fieldName), _.get(defaultOperator, fieldName));
 
+    if(isNew){
+      // do not validate fresh operator
+      return;
+    }
+    
     // iterate over sections to update its state so user see where errors happened
     Object.keys(sectionsFields).forEach(sectionName => {
       const status = sectionStatus[sectionName];
-
-      // skip validation for sections which are not started yet
-      if (status === EDITOR_STATUS.empty) {
-        return;
-      }
-
       const fields = sectionsFields[sectionName];
+
+      let updated = false;
+
+      // check if operator fields are same as before upload
+      if (typeof fields === 'string') {
+        updated = fieldWasUpdated(fields);
+      } else {
+        updated = fields.some(path => fieldWasUpdated(path));
+      }      
+
       const sectionErrors = getUpdatedFormErrors(cleanedOperator, {}, fields);
 
       // check if some section field has error
@@ -73,8 +84,12 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
 
       if (sectionHasErrors) {
         updatedSectionsStatus[sectionName] = EDITOR_STATUS.errors;
+        // update empty section status if its error was fixed by cross validation (fixing other section)
       } else if (status === EDITOR_STATUS.errors) {
-        updatedSectionsStatus[sectionName] = EDITOR_STATUS.pending;
+        updatedSectionsStatus[sectionName] = EDITOR_STATUS.all_good;
+      // keep modified status and don't show all good for empty sections
+      } else if(status !== EDITOR_STATUS.modified && !updated){
+        updatedSectionsStatus[sectionName] = EDITOR_STATUS.all_good;
       }
     });
 
@@ -100,7 +115,8 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
         name: operatorNameFromOperator(operator),
         version: match.params.operatorVersion,
         csv: operator,
-        crdUploads        
+        crdUploads,
+        valid: true       
     });
 
     history.push(channelPath);

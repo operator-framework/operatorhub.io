@@ -119,22 +119,25 @@ class OperatorPermissionsEditPage extends React.PureComponent<OperatorPermission
     ];
     _.set(updatedOperator, field, updatedPermissions);
 
-    this.validateField(updatedOperator);
+    this.validateField(updatedOperator, true);
 
     storeEditorOperator(updatedOperator);
   };
 
-  validateField = updatedOperator => {
-    const { field = permissionFields, formErrors, storeEditorFormErrors, setSectionStatus, objectPage } = this.props;
+  validateField = (updatedOperator, modified?) => {
+    const { sectionStatus, field = permissionFields, formErrors, storeEditorFormErrors, setSectionStatus, objectPage = 'permissions' } = this.props;
 
+    const status = sectionStatus[objectPage];
     const errors = getUpdatedFormErrors(updatedOperator, formErrors, field);
     storeEditorFormErrors(errors);
     const permissionErrors = _.get(errors, field);
 
     if (permissionErrors) {
       setSectionStatus(objectPage as any, EDITOR_STATUS.errors);
-    } else {
-      setSectionStatus(objectPage as any, EDITOR_STATUS.pending);
+    } else if (modified) {
+      setSectionStatus(objectPage as any, EDITOR_STATUS.modified);
+    } else if (status === EDITOR_STATUS.errors) {
+      setSectionStatus(objectPage as any, EDITOR_STATUS.all_good);
     }
   };
 
@@ -235,6 +238,7 @@ const mapDispatchToProps = dispatch => bindActionCreators(OperatorPermissionsEdi
 
 const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
+  sectionStatus: state.editorState.sectionStatus,
   formErrors: state.editorState.formErrors
 });
 

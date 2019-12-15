@@ -58,10 +58,10 @@ class OperatorPermissionsPage extends React.PureComponent<OperatorPermissionsPag
     const updatedOperator = _.cloneDeep(operator);
     _.set(updatedOperator, field, permissions);
     storeEditorOperator(updatedOperator);
-    this.validateField(updatedOperator);
+    this.validateField(updatedOperator, true);
   };
 
-  validateField = operator => {
+  validateField = (operator, modified?) => {
     const { field = permissionFields, formErrors, storeEditorFormErrors, objectPage = 'permissions', sectionStatus, setSectionStatus } = this.props;
 
     const status = sectionStatus[objectPage];
@@ -74,8 +74,10 @@ class OperatorPermissionsPage extends React.PureComponent<OperatorPermissionsPag
     // that requires user action
     if (error) {
       setSectionStatus(objectPage as any, EDITOR_STATUS.errors);
+    } else if (modified) {
+      setSectionStatus(objectPage as any, EDITOR_STATUS.modified);
     } else if (status === EDITOR_STATUS.errors) {
-      setSectionStatus(objectPage as any, EDITOR_STATUS.pending);
+      setSectionStatus(objectPage as any, EDITOR_STATUS.all_good);
     }
   };
 

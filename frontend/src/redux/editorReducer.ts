@@ -9,7 +9,7 @@ export interface EditorReducerState {
   operatorModified: boolean
   uploads: UploadMetadata[],
   formErrors: any,
-  sectionStatus: Record<keyof ISectionFields, keyof typeof EDITOR_STATUS>
+  sectionStatus: Record<keyof ISectionFields, EDITOR_STATUS>
 }
 
 const getInitialState = () => {

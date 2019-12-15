@@ -29,6 +29,12 @@ export const showRemoveVersionConfirmationModalAction = (onConfirm: () => void) 
     onConfirm
 });
 
+export const showMissingDefaultChannelConfirmationModalAction = () => showConfirmationModalAction({
+    title: 'Missing Default Channel',
+    heading: 'Please set one of the channels as default.',
+    confirmButtonText: 'OK'
+});
+
 export const showConfirmationModalAction = (options: {
     title: string,
     heading: string | null,

@@ -1,4 +1,4 @@
-import { PackageEntry, PackageEditorOperatorVersionsMap, PacakgeEditorChannel } from '../utils/packageEditorTypes';
+import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../utils/packageEditorTypes';
 import { PackageEditorActions } from './actions';
 import { getAutoSavedOperatorData } from '../utils/operatorUtils';
 
@@ -7,7 +7,7 @@ export interface PackageEditorState {
   packageName: string,
   uploads: PackageEntry[],
   channels: PacakgeEditorChannel[],
-  operatorVersions: PackageEditorOperatorVersionsMap,
+  operatorVersions: PackageEditorOperatorVersionMetadata[],
   githubUploadShown: boolean
 }
 
@@ -19,14 +19,14 @@ const getInitialState = () => {
     packageName: '',
     uploads: [],
     channels: [],
-    operatorVersions: {},
+    operatorVersions: [],
     githubUploadShown: false
   };
 
   if (autoSaved) {
     initialState.packageName = autoSaved.packageName || '';
     initialState.channels = autoSaved.channels || [];
-    initialState.operatorVersions = autoSaved.operatorVersions || {};
+    initialState.operatorVersions = autoSaved.operatorVersions || [];
   }
 
   return initialState;
@@ -125,40 +125,54 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
     }
 
     case 'REMOVE_PACKAGE_EDITOR_CHANNEL': {
+      // versions used by other channels to keep
+       const versionsToKeep = state.channels
+        .filter(channel => channel.name !== action.name)
+        .flatMap(channel => channel.versions);      
+
       return {
         ...state,
-        channels: state.channels.filter(channel => channel.name !== action.name)
+        channels: state.channels.filter(channel => channel.name !== action.name),
+        operatorVersions: state.operatorVersions.filter(version => versionsToKeep.includes(version.version))
       }
     }
 
     case 'SET_PACKAGE_EDITOR_OPERATOR_VERSIONS': {
       return {
         ...state,
-        operatorVersions: {
+        operatorVersions: [
           ...action.operatorVersions
-        }
+        ]        
       }
     }
 
     case 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION': {
+      const updatedVersion = action.operatorVersion;      
+
       return {
         ...state,
-        operatorVersions: {
-          ...state.operatorVersions,
-          [action.operatorVersion.version]: action.operatorVersion
-        }
+        channels:state.channels.map(channel => ({
+          ...channel,
+          currentVersionFullName: channel.currentVersion === updatedVersion.version ? updatedVersion.name : channel.currentVersionFullName
+        })),
+        operatorVersions: state.operatorVersions.map(
+          operatorVersion => operatorVersion.version === updatedVersion.version ? updatedVersion : operatorVersion)        
+      }
+    }
+
+    case 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSIONS_VALIDITY': {
+
+      return {
+        ...state,
+        operatorVersions: state.operatorVersions.map(version => {
+          const updatedIndex = action.operatorVersions.findIndex(updatedVersion => updatedVersion.name === version.name);
+
+          return updatedIndex >= -1 ? action.operatorVersions[updatedIndex] : version;
+        })
       }
     }
 
     case 'CHANGE_PACKAGE_EDITOR_OPERATOR_VERSION_NAME': {
-      const updatedVersions: PackageEditorOperatorVersionsMap = {};
-
-      // remove renamed version and add new one
-      Object.values(state.operatorVersions)
-        .filter(operatorVersion => operatorVersion.version !== action.originalVersionName)
-        .forEach(operatorVersion => updatedVersions[operatorVersion.version] = operatorVersion);
-
-      updatedVersions[action.updatedVersion.version] = action.updatedVersion; 
 
       return {
         ...state,
@@ -166,13 +180,19 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
           if (channel.name === action.channelName) {
             return {
               ...channel,
-              versions: channel.versions.map(version => version === action.originalVersionName ? action.updatedVersion.version : version)
+              currentVersion: channel.currentVersion === action.originalVersionName ? action.updatedVersion.version : channel.currentVersion,
+              currentVersionFullName: channel.currentVersion === action.originalVersionName ? action.updatedVersion.name : channel.currentVersionFullName,
+              versions: channel.versions.map(
+                version => version === action.originalVersionName ? action.updatedVersion.version : version
+              )
             };
           } else {
             return channel;
           }
         }),
-        operatorVersions: updatedVersions
+        operatorVersions: state.operatorVersions.map(
+          operatorVersion => operatorVersion.name === action.originalVersionName ? action.updatedVersion : operatorVersion
+        )
       }
     }
 
@@ -181,7 +201,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
         ...state,
         channels: state.channels.map(channel => {
 
-          if(channel.name === action.channelName){
+          if (channel.name === action.channelName) {
             return {
               ...channel,
               currentVersion: action.operatorVersion,
@@ -190,7 +210,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
 
           } else {
             return channel;
-          }         
+          }
         })
       }
     }
@@ -204,56 +224,53 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
             action.channelName === channel.name ? [action.operatorVersion.version] : []
           )
         })),
-        operatorVersions: {
+        operatorVersions: [
           ...state.operatorVersions,
-          [action.operatorVersion.version]: action.operatorVersion
-        }
-      }
+          action.operatorVersion
+        ]      
     }
+  }
 
     case 'REMOVE_PACKAGE_EDITOR_OPERATOR_VERSION': {
-      const updatedVersions: PackageEditorOperatorVersionsMap = {};
 
-      Object.values(state.operatorVersions)
-        .filter(operatorVersion => operatorVersion.version !== action.removedVersion)
-        .forEach(operatorVersion => updatedVersions[operatorVersion.version] = operatorVersion);
+  return {
+    ...state,
+    channels: [
+      ...state.channels.map(channel => {
 
-      return {
-        ...state,
-        channels: [
-          ...state.channels.map(channel => {
+        if (channel.name === action.channelName) {
+          return {
+            ...channel,
+            currentVersion: channel.currentVersion === action.removedVersion ? '' :  channel.currentVersion,
+            currentVersionFullName: channel.currentVersion === action.removedVersion ? '' :  channel.currentVersionFullName,
+            versions: channel.versions.filter(version => version !== action.removedVersion)
+          }
 
-            if (channel.name === action.channelName) {
-              return {
-                ...channel,
-                versions: channel.versions.filter(version => version !== action.removedVersion)
-              }
-
-            } else {
-              return channel
-            }
-          })
-        ],
-        operatorVersions: updatedVersions
-      }
-    }
+        } else {
+          return channel
+        }
+      })
+    ],
+    operatorVersions: state.operatorVersions.filter(operatorVersion => operatorVersion.version !== action.removedVersion)
+  }
+}
 
     case 'SHOW_PACKAGE_EDITOR_GITHUB_UPLOAD': {
-      return {
-        ...state,
-        githubUploadShown: true
-      }
-    }
+  return {
+    ...state,
+    githubUploadShown: true
+  }
+}
 
     case 'HIDE_PACKAGE_EDITOR_GITHUB_UPLOAD': {
-      return {
-        ...state,
-        githubUploadShown: false
-      }
-    }
+  return {
+    ...state,
+    githubUploadShown: false
+  }
+}
 
     default:
-      return state;
+return state;
   }
 };
 

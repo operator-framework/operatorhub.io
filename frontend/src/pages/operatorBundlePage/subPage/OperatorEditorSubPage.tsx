@@ -100,7 +100,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
       return true;
     }
 
-    setSectionStatus(section, EDITOR_STATUS.complete);
+    setSectionStatus(section, EDITOR_STATUS.all_good);
     return true;
   };
 

@@ -16,10 +16,11 @@ export type EditorSectionProps = {
 } & ReturnType<typeof mapStateToProps>
 
 const EditorSection : React.FC<EditorSectionProps> = ({ sectionStatus, title, description, sectionLocation, history }) => {
-  const status: keyof typeof EDITOR_STATUS = _.get(sectionStatus, sectionLocation);
+  const status: EDITOR_STATUS = _.get(sectionStatus, sectionLocation);
 
   const onEdit = () => {
-    const pathname = history.location.pathname;
+    // remove suffix marking new operator!
+    const pathname = history.location.pathname.replace('/new', '');
     const sectionPath = pathname +  (pathname.endsWith('/') ? sectionLocation : `/${sectionLocation}`);
 
     history.push(sectionPath);
@@ -34,19 +35,19 @@ const EditorSection : React.FC<EditorSectionProps> = ({ sectionStatus, title, de
         </React.Fragment>
       );
     }
-    if (status === EDITOR_STATUS.complete) {
+    if (status === EDITOR_STATUS.all_good) {
       return (
         <React.Fragment>
           <Icon type="fa" name="check-circle" />
-          Completed
+          All Good
         </React.Fragment>
       );
     }
-    if (status === EDITOR_STATUS.pending) {
+    if (status === EDITOR_STATUS.modified) {
       return (
         <React.Fragment>
           <Icon type="fa" name="warning" />
-          Pending Review
+          Modified
         </React.Fragment>
       );
     }
