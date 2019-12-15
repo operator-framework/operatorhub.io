@@ -5,6 +5,7 @@ import ChannelEditorChannelIcon from './ChannelEditorChannelIcon';
 import PackageUploaderSortIcon from '../../uploader/package/PackageUploaderSortIcon';
 import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
 import UploaderStatusIcon, { IconStatus } from '../../uploader/UploaderStatusIcon';
+import { validateChannel } from '../../../utils/packageEditorUtils';
 
 
 
@@ -25,7 +26,7 @@ export type ChannelEditorChannelProps = {
 
 
 interface ChannelEditorChannelState {
-    expanded: boolean,
+    expanded: boolean, 
     sorting: 'asc' | 'desc'
 }
 
@@ -124,10 +125,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         const { packageName, channel, versions } = this.props;
         const { expanded, sorting } = this.state;
 
-        const versionsInChannelAreValid = channel.versions.every(version => {
-            const versionMetadata = versions.find(versionMeta => versionMeta.version === version);
-            return versionMetadata ? versionMetadata.valid : true;
-        });
+        const versionsInChannelAreValid = validateChannel(channel, versions);
+        const hasDefaultVersion = channel.currentVersionFullName !== '';
 
         return (
             <div key={channel.name} className="oh-package-channels-editor__channel">
@@ -148,7 +147,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                         <div className="oh-package-channels-editor__channel__header__current-csv__text">{channel.currentVersionFullName}</div>
                     </div>
                     <div className="oh-package-channels-editor__channel__header__validation">
-                        {!versionsInChannelAreValid && <UploaderStatusIcon text="Invalid Entry" status={IconStatus.ERROR} />}
+                        {!versionsInChannelAreValid && <UploaderStatusIcon text="Invalid Entry" status={IconStatus.ERROR} />} 
+                        {!hasDefaultVersion && <UploaderStatusIcon text="No default version" status={IconStatus.ERROR} />}                 
                     </div>
                     <div className="oh-package-channels-editor__channel__header__menu">
                         <DropdownKebab id={`"editChannel_${channel.name}`} pullRight>

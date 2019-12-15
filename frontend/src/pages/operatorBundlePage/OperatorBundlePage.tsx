@@ -75,12 +75,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
         updated = fieldWasUpdated(fields);
       } else {
         updated = fields.some(path => fieldWasUpdated(path));
-      }
-
-      // skip validation for sections which are not started yet
-      if (!updated) {
-        return;
-      }
+      }      
 
       const sectionErrors = getUpdatedFormErrors(cleanedOperator, {}, fields);
 
@@ -89,7 +84,11 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
 
       if (sectionHasErrors) {
         updatedSectionsStatus[sectionName] = EDITOR_STATUS.errors;
+        // update empty section status if its error was fixed by cross validation (fixing other section)
       } else if (status === EDITOR_STATUS.errors) {
+        updatedSectionsStatus[sectionName] = EDITOR_STATUS.all_good;
+      // keep modified status and don't show all good for empty sections
+      } else if(status !== EDITOR_STATUS.modified && !updated){
         updatedSectionsStatus[sectionName] = EDITOR_STATUS.all_good;
       }
     });

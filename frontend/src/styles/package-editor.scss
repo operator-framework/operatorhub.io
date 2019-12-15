@@ -160,7 +160,11 @@
         flex: 4 2 0;
       }
       &__validation {
-        flex: 0 2 120px;
+        flex: 0 2 180px;
+
+        .oh-operator-editor-upload__uploads__status{
+          display: block;
+        }
       }
       &__menu {
         flex: 0 0 30px;
