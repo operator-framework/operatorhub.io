@@ -181,7 +181,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
             return {
               ...channel,
               currentVersion: channel.currentVersion === action.originalVersionName ? action.updatedVersion.version : channel.currentVersion,
-              currentVersionFullName: channel.currentVersion === action.originalVersionName ? action.updatedVersion.name : channel.currentVersion,
+              currentVersionFullName: channel.currentVersion === action.originalVersionName ? action.updatedVersion.name : channel.currentVersionFullName,
               versions: channel.versions.map(
                 version => version === action.originalVersionName ? action.updatedVersion.version : version
               )

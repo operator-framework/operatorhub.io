@@ -18,12 +18,13 @@ import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValid
 import { yamlFromOperator } from '../operatorBundlePage/bundlePageUtils';
 import EditVersionNameModal from '../../components/packageEditor/modals/EditVersionNameModal';
 import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
-import { convertVersionCrdsToVersionUploads, validateOperatorVersions } from '../../utils/packageEditorUtils';
+import { convertVersionCrdsToVersionUploads, validateOperatorVersions, validateChannel } from '../../utils/packageEditorUtils';
 
 const PackageChannelsEditorPageActions = {
     showRemoveChannelConfirmationModal: actions.showRemoveChannelConfirmationModalAction,
     showRemoveVersionConfirmationModal: actions.showRemoveVersionConfirmationModalAction,
     showClearConfirmationModal: actions.showClearConfirmationModalAction,
+    showMissingDefaultChannelConfirmationModal: actions.showMissingDefaultChannelConfirmationModalAction,
     hideConfirmModal: actions.hideConfirmModalAction,
     updatePackageChannel: actions.updatePackageChannelAction,
     addPackageChannel: actions.addNewPackageChannelAction,
@@ -46,7 +47,6 @@ export type PackageChannelsEditorPageProps = {
 
 
 interface PackageChannelsEditorPageState {
-    downloadEnabled: boolean,
     channelNameToEdit: string | null,
     operatorVersionNameToEdit: string | null,
     operatorVersionToDuplicate: string | null,
@@ -59,7 +59,6 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
 
     state: PackageChannelsEditorPageState = {
-        downloadEnabled: true,
         channelNameToEdit: null,
         operatorVersionNameToEdit: null,
         operatorVersionToDuplicate: null,
@@ -271,7 +270,14 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
     downloadPackageBundle = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        const { packageName, channels, versions } = this.props;
+        const { packageName, channels, versions, showMissingDefaultChannelConfirmationModal } = this.props;
+        const haveDefaultChannel = channels.some(channel => channel.isDefault) || channels.length === 1;
+        
+        if(!haveDefaultChannel){
+            showMissingDefaultChannelConfirmationModal();
+            return;
+        }
+
         const zip = new JSZip();
 
         const defaultChannel = channels.find(channel => channel.isDefault) || channels[0];
@@ -337,13 +343,22 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
     closeVersionNameModal = () => this.setState({ operatorVersionNameToEdit: null, channelToAddVersion: null });
     closeDuplicateVersionModal = () => this.setState({ operatorVersionToDuplicate: null, channelToAddVersion: null });
 
+    allowDownload = (channels: PacakgeEditorChannel[], versions: PackageEditorOperatorVersionMetadata[]) => {
+        const allChannelsValid = channels.every(channel => validateChannel(channel, versions));
+        const allChannelsHaveDefaultVersion = channels.every(channel => channel.currentVersionFullName !== '');        
+
+        return allChannelsValid && allChannelsHaveDefaultVersion;
+    }
+
 
     render() {
         const { history, match, channels, versions } = this.props;
-        const { downloadEnabled, channelNameToEdit, operatorVersionNameToEdit, operatorVersionToDuplicate } = this.state;
+        const { channelNameToEdit, operatorVersionNameToEdit, operatorVersionToDuplicate } = this.state;
 
         const packageName = match.params.packageName;
         const versionsNames = versions.map(versionMetadata => versionMetadata.version);
+        const downloadEnabled = this.allowDownload(channels, versions);
+
 
         return (
             <PackageEditorPageWrapper
