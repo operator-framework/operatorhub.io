@@ -8,15 +8,17 @@ import { bindActionCreators } from 'redux';
 import { noop, debounce } from '../../../common/helpers';
 import Page from '../../../components/page/Page';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
-import { setSectionStatusAction, storeKeywordSearchAction, showConfirmationModalAction } from '../../../redux/actions';
+import { setSectionStatusAction, storeKeywordSearchAction, showConfirmationModalAction, updatePackageOperatorVersionAction } from '../../../redux/actions';
 import { EDITOR_STATUS, EditorSectionNames } from '../../../utils/constants';
 import EditorButtonBar from './EditorButtonBar';
 import EditorBreadcrumbs from './EditorBreadCrumbs';
 import { StoreState } from '../../../redux';
+import { updateChannelEditorOnExit } from '../bundlePageUtils';
 
 const OperatorEditorSubPageActions = {
   storeKeywordSearch: storeKeywordSearchAction,
   setSectionStatus: setSectionStatusAction,
+  updatePackageOperatorVersion: updatePackageOperatorVersionAction,
   showPageErrorsMessage: () =>
     showConfirmationModalAction({
       title: 'Errors',
@@ -136,6 +138,13 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     this.titleAreaRef = ref;
   };
 
+  onBackToChannelEditor = () => {
+    const { operator, uploads,versionEditorRootPath ,updatePackageOperatorVersion } = this.props;
+    const version = versionEditorRootPath.split('/').pop() as string;
+
+    updateChannelEditorOnExit(operator, uploads, version, updatePackageOperatorVersion);
+  };
+
   render() {
     const {
       history,
@@ -155,7 +164,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     } = this.props;
     const { keywordSearch, headerHeight, titleHeight } = this.state;
 
-    return (
+    return ( 
       <Page
         className="oh-page-operator-editor"
         toolbarContent={
@@ -165,6 +174,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
             history={history}
             currentLabel={title}
             versionEditorRootPath={versionEditorRootPath}
+            onEditorExit={this.onBackToChannelEditor}
           />
         }
         history={history}
@@ -258,7 +268,9 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = (state: StoreState) => ({
-  sectionStatus: state.editorState.sectionStatus
+  sectionStatus: state.editorState.sectionStatus,
+  operator: state.editorState.operator,
+  uploads: state.editorState.uploads
 });
 
 export default connect(

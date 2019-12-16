@@ -24,9 +24,9 @@ const getInitialState = () => {
   };
 
   if (autoSaved) {
-    initialState.packageName = autoSaved.packageName || '';
-    initialState.channels = autoSaved.channels || [];
-    initialState.operatorVersions = autoSaved.operatorVersions || [];
+    initialState.packageName = autoSaved.packageEditorState.packageName || initialState.packageName;
+    initialState.channels = autoSaved.packageEditorState.channels || initialState.channels;
+    initialState.operatorVersions = autoSaved.packageEditorState.operatorVersions || initialState.operatorVersions;
   }
 
   return initialState;

@@ -5,7 +5,8 @@ import { Breadcrumb } from 'patternfly-react';
 
 export interface BreadcrumbsItem {
     subpath: string,
-    label: string | React.ReactElement
+    label: string | React.ReactElement,
+    onClick?: () => void
 }
 
 const BaseItems: BreadcrumbsItem[] = [
@@ -37,8 +38,8 @@ const PackageEditorBreadcrumbs: React.FC<PackageEditorBreadcrumbsProps> = ({
         currentPath += '/' + item.subpath;
 
         aggregator.push({
-            subpath: currentPath,
-            label: item.label
+            ...item,
+            subpath: currentPath           
         });
 
         return aggregator;
@@ -55,6 +56,8 @@ const PackageEditorBreadcrumbs: React.FC<PackageEditorBreadcrumbsProps> = ({
                             key={item.subpath}
                             onClick={e => {
                                 e.preventDefault();
+
+                                item.onClick && item.onClick();                                
                                 !active && history.push(item.subpath);
                             }}
                             href={item.subpath}

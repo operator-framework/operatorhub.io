@@ -7,17 +7,19 @@ import PackageEditorBreadcrumbs, { BreadcrumbsItem } from '../../packageEditor/p
 export interface EditorBreadcrumbsProps {
     history: History
     currentLabel?: string | React.ReactElement
-    versionEditorRootPath: string
+    versionEditorRootPath: string,
     sectionSubPath?: string
     sectionLabel?: string
+    onEditorExit: () => void,
 }
 
 const EditorBreadcrumbs: React.FC<EditorBreadcrumbsProps> = ({
-    history,
+    history, 
     sectionSubPath,
     currentLabel,
     sectionLabel,
-    versionEditorRootPath
+    versionEditorRootPath,
+    onEditorExit
 }) => { 
     const items: BreadcrumbsItem[] = [];
 
@@ -26,10 +28,12 @@ const EditorBreadcrumbs: React.FC<EditorBreadcrumbsProps> = ({
     // omit base pacakges path as they are already provided by Package editor
     const baseItems = versionEditorRootPath.replace('/packages/', '').split('/');
 
-    baseItems.forEach(item => {
+    baseItems.forEach((item, index) => {
+
         items.push({
             label: item,
-            subpath: item
+            subpath: item,
+            onClick: index < 2 ? onEditorExit : undefined
         })
     });
 

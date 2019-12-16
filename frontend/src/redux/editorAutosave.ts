@@ -1,28 +1,39 @@
 import store from './store';
-import { AUTOSAVED_FIELDS, LOCAL_STORAGE_KEY, AUTOSAVED_STATE } from '../utils/constants';
+import { LOCAL_STORAGE_KEY, AUTOSAVED_STATE } from '../utils/constants';
 import { StoreState } from '.';
 
 let lastStateSnapshot: Record<string, any> | null = null;
 
+
 const autoSaveFieldsChanged = (state: StoreState) => {
   const snapshot = lastStateSnapshot || {}; 
 
-  const changed = AUTOSAVED_FIELDS.some(field => {
-    const snapshotValue = snapshot[field];
-    const stateFieldValue = state[AUTOSAVED_STATE][field];
+  const changed = AUTOSAVED_STATE.some(definition => {
+    const partialState = state[definition.stateKey];
 
-    return snapshotValue !== stateFieldValue;
+    return definition.fields.some(field => {
+      const snapshotValue = snapshot[field];
+      const stateFieldValue = partialState[field];
+  
+      return snapshotValue !== stateFieldValue;
+    });
   });
-
   return changed;
 };
 
 const takeSnapshot = (state: StoreState) =>
-  AUTOSAVED_FIELDS.reduce((aggregator, field) => {
-    aggregator[field] = state[AUTOSAVED_STATE][field];
+  AUTOSAVED_STATE.reduce((accumulator, definition) => {
+    const partialState = state[definition.stateKey];
 
-    return aggregator;
+    accumulator[definition.stateKey] = definition.fields.reduce((aggregator, field) => {
+      aggregator[field] = partialState[field];
+  
+      return aggregator;
+    }, {});
+    return accumulator;
   }, {});
+
+ 
 
 const saveSnapshot = (state: StoreState) => {
   lastStateSnapshot = takeSnapshot(state);

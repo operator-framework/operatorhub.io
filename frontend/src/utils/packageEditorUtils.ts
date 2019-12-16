@@ -9,7 +9,7 @@ import { removeEmptyOptionalValuesFromOperator } from "./operatorValidation";
 import { PackageEditorOperatorVersionCrdMetadata, PackageEditorOperatorVersionMetadata, PacakgeEditorChannel } from "./packageEditorTypes";
 
 
-export const  validateChannel = (channel: PacakgeEditorChannel, versions: PackageEditorOperatorVersionMetadata[]) => channel.versions.every(version => {
+export const validateChannel = (channel: PacakgeEditorChannel, versions: PackageEditorOperatorVersionMetadata[]) => channel.versions.every(version => {
     const versionMetadata = versions.find(versionMeta => versionMeta.version === version);
     return versionMetadata ? versionMetadata.valid : true;
 });
@@ -29,15 +29,28 @@ export const convertVersionCrdsToVersionUploads = (versionCrdUploads: PackageEdi
     }
 );
 
+export const convertVersionCsvToVersionUpload = (version: PackageEditorOperatorVersionMetadata) => {
+    const versionEditorUpload: UploadMetadata = {
+        ...createtUpload(`${version.name}.csv.yaml`),
+        name: version.name,
+        data: version.csv,
+        status: 'Supported Object',
+        type: 'ClusterServiceVersion'
+    };
+
+    return versionEditorUpload;
+};
+
+
 export const validateOperatorVersions = (versions: PackageEditorOperatorVersionMetadata[]) => {
-   
+
     const validatedVersions = versions.map(version => {
         // remove default values from validation as they won't be exported so no point showing errors for them
         const cleanedCsv = removeEmptyOptionalValuesFromOperator(version.csv);
         const csvValid = validateOperator(cleanedCsv);
         const missingCrds = hasMissingCrds(cleanedCsv, version.crdUploads);
-       
-        const valid = csvValid && !missingCrds;     
+
+        const valid = csvValid && !missingCrds;
 
         return {
             ...version,

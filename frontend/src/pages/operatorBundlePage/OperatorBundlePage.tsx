@@ -13,13 +13,15 @@ import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValidation';
-import { getUpdatedFormErrors, getVersionEditorRootPath, operatorNameFromOperator } from './bundlePageUtils';
+import { getUpdatedFormErrors, getVersionEditorRootPath, operatorNameFromOperator, updateChannelEditorOnExit } from './bundlePageUtils';
 import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';
 import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState, updatePackageOperatorVersionAction, } from '../../redux';
 import { History } from 'history';
 import { getDefaultOperator } from '../../utils/operatorUtils';
+import { UploadMetadata } from '../../components/uploader';
+import { Operator } from '../../utils/operatorTypes';
 
 const OperatorBundlePageActions = {
   resetEditorOperator: resetEditorOperatorAction,
@@ -88,8 +90,8 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
       } else if (status === EDITOR_STATUS.errors) {
         updatedSectionsStatus[sectionName] = EDITOR_STATUS.all_good;
       // keep modified status and don't show all good for empty sections
-      } else if(status !== EDITOR_STATUS.modified && !updated){
-        updatedSectionsStatus[sectionName] = EDITOR_STATUS.all_good;
+      } else if(status !== EDITOR_STATUS.modified){        
+        updatedSectionsStatus[sectionName] = updated ? EDITOR_STATUS.all_good : EDITOR_STATUS.empty;
       }
     });
 
@@ -97,6 +99,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
       setBatchSectionsStatus(updatedSectionsStatus);
     }
   }
+ 
 
   onBackToChannelEditor = (e: React.MouseEvent) => {
     const { operator, history, match, uploads, updatePackageOperatorVersion } = this.props;
@@ -105,20 +108,9 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
     const pathname = history.location.pathname;
     // remove slash before channel name
     const channelPath = pathname.substring(0, pathname.indexOf(match.params.channelName) - 1);
+    const version = match.params.operatorVersion;
 
-    const crdUploads = uploads
-      .filter(upload => !upload.errored && upload.type === 'CustomResourceDefinition')
-      .map(upload => ({ name: upload.name, crd: upload.data }))
-
-    // update operator version in package editor with updates done in version editor!
-    updatePackageOperatorVersion({
-        name: operatorNameFromOperator(operator),
-        version: match.params.operatorVersion,
-        csv: operator,
-        crdUploads,
-        valid: true       
-    });
-
+    updateChannelEditorOnExit(operator, uploads, version, updatePackageOperatorVersion);
     history.push(channelPath);
   };
 
