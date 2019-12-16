@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { version } from 'react';
 import { connect } from 'react-redux';
 import { History } from 'history';
 import { bindActionCreators } from 'redux';
@@ -18,7 +18,7 @@ import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValid
 import { yamlFromOperator } from '../operatorBundlePage/bundlePageUtils';
 import EditVersionNameModal from '../../components/packageEditor/modals/EditVersionNameModal';
 import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
-import { convertVersionCrdsToVersionUploads, validateOperatorVersions, validateChannel } from '../../utils/packageEditorUtils';
+import { convertVersionCrdsToVersionUploads, validateOperatorVersions, validateChannel, convertVersionCsvToVersionUpload } from '../../utils/packageEditorUtils';
 
 const PackageChannelsEditorPageActions = {
     showRemoveChannelConfirmationModal: actions.showRemoveChannelConfirmationModalAction,
@@ -242,11 +242,15 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         const { history, versions, storeEditorOperator, setVersionEditorCrdUploads } = this.props;
 
         const versionMetadata = versions.find(version => version.version === versionName);
-
+        
         // push selected version data to standalone version editor reducer
         if (versionMetadata) {
+            const csvUpload = convertVersionCsvToVersionUpload(versionMetadata);
+
             storeEditorOperator(versionMetadata.csv);
-            setVersionEditorCrdUploads(convertVersionCrdsToVersionUploads(versionMetadata.crdUploads));
+            setVersionEditorCrdUploads(
+                convertVersionCrdsToVersionUploads(versionMetadata.crdUploads).concat(csvUpload)
+            );
 
         } else {
             console.error(`Can't find metadata for version ${versionName}`);

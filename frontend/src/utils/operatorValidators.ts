@@ -163,7 +163,14 @@ const nameValidator = (name: string) => {
     return 'This field is required.';
   }
 
-  const versionStart = name.indexOf('.v');
+  let versionStart = name.indexOf('.v');
+
+    // recover from case that no "".v" is present just version number!  
+    const match = name.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
+
+    if(match && typeof match.index === 'number'){
+      versionStart = match.index;
+    }
   if (versionStart < 0) {
     return 'The name must end in a valid semantic version, e.g. v0.0.1';
   }

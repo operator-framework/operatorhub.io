@@ -190,6 +190,18 @@ export const removeEmptyOptionalValuesFromOperator = (operator: Operator) => {
     const ownedCRDs = _.get(clonedOperator, sectionsFields['owned-crds'], []).filter(crd => !isOwnedCrdDefault(crd));
     _.set(clonedOperator, sectionsFields['owned-crds'], ownedCRDs);
 
+    const requiredCRDs = _.get(clonedOperator, sectionsFields['required-crds'], []);
+    _.set(clonedOperator,  sectionsFields['required-crds'], requiredCRDs);
+
+    const deployments = _.get(clonedOperator, sectionsFields.deployments, []);
+    _.set(clonedOperator,  sectionsFields.deployments, deployments);
+
+ const permissions = _.get(clonedOperator, sectionsFields.permissions, []);
+    _.set(clonedOperator,  sectionsFields.permissions, permissions);
+
+    const clusterPermissions = _.get(clonedOperator, sectionsFields["cluster-permissions"], []);
+    _.set(clonedOperator,  sectionsFields["cluster-permissions"], clusterPermissions);
+
     return clonedOperator;
 };
 
