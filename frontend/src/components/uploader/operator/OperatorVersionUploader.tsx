@@ -26,9 +26,10 @@ const OperatorVersionUploaderActions = {
   setAllSectionsStatus: actions.setBatchSectionsStatusAction,
   setUploads: actions.setUploadsAction,
   storeEditorOperator: actions.storeEditorOperatorAction,
-  showVersionMismatchWarning: () => actions.showConfirmationModalAction({
-    title: 'Uploaded CSV version mismatch',
-    heading: 'Uploaded CSV version mismatch desired version. It will be forced to match. To change it please use Package Definition.',
+  showVersionMismatchWarning: (uploadVersion: string, currentVersion: string) => actions.showConfirmationModalAction({
+    title: 'Uploaded CSV Version Mismatch',
+    heading: `The uploaded CSV version ("${uploadVersion}") is not matched with the Operator Version previously specified. 
+    The CSV version will be set as "${currentVersion}". You can change version on the Package Definition View.`,
     confirmButtonText: 'OK'
   })
 };
@@ -108,29 +109,6 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
 
     return uploads;
   };
-
-  /**
-   * Update package data from package file
-   */
-  // processPackageFile = parsedFile => {
-  //   const { operatorPackage, updateOperatorPackage, setSectionStatus } = this.props;
-  //   const channel = parsedFile.channels && parsedFile.channels[0] ? parsedFile.channels[0] : null;
-
-  //   const newPackage = {
-  //     name: parsedFile.packageName,
-  //     channel: channel ? channel.name : operatorPackage.channel
-  //   };
-
-  //   updateOperatorPackage(newPackage);
-
-  //   const operatorPackageValid = validateOperatorPackage(newPackage);
-
-  //   if (!operatorPackageValid) {
-  //     setSectionStatus('package', EDITOR_STATUS.errors);
-  //   } else {
-  //     setSectionStatus('package', EDITOR_STATUS.pending);
-  //   }
-  // };
 
   /**
    * Parse CRD file and create Owned CRD and relevant alm example (cr template) for it
@@ -393,7 +371,7 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
     });
 
     if (mergedOperator.spec.version !== version) {
-      showVersionMismatchWarning();
+      showVersionMismatchWarning(mergedOperator.spec.version,version);
 
       // override version as it has to be defined in channel editor
       mergedOperator.spec.version = version;

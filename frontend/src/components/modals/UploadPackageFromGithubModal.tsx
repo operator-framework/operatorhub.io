@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal } from 'patternfly-react';
+import { Modal, Alert } from 'patternfly-react';
 
 import { PackageEntry, PackageFileEntry, PackageDirectoryEntry } from '../../utils/packageEditorTypes';
 import OperatorInputWrapper from '../editor/forms/OperatorInputWrapper';
@@ -16,13 +16,14 @@ export interface UploadPackageFromGithubModalProps {
 }
 
 interface UploadPackageFromGithubModalState {
-  repo: string,
-  path: string,
-  branch: string,
+  repo: string
+  path: string
+  branch: string
   validFields: Record<FieldNames, boolean>
-  formErrors: Record<FieldNames, string | null>,
+  formErrors: Record<FieldNames, string | null>
   loading: boolean
-  totalItems: number,
+  noResults: boolean
+  totalItems: number
   loadedItems: number
 }
 
@@ -44,6 +45,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
       branch: null
     },
     loading: false,
+    noResults: false,
     totalItems: 0,
     loadedItems: 0
   };
@@ -179,7 +181,6 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
 
         return Promise.all(readPromises);
       }
-
       return [];
     });
 
@@ -195,8 +196,15 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
 
     this.listContent(url, path)
       .then(entries => {
-        onClose();
-        onUpload(entries);
+
+        if (entries.length > 0) {
+          onClose();
+          onUpload(entries);
+
+        } else {
+          // let user know that path was likely wrong
+          this.setState({ noResults: true, loading: false });
+        }
       })
       .catch(e => {
         const errorText = typeof e === 'string' ? e : e.message || 'Unexpected error happened.';
@@ -204,9 +212,13 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
       });
   }
 
+  closeNoResultsWarning = () => {
+    this.setState({ noResults: false });
+  }
+
   render() {
     const { onClose } = this.props;
-    const { repo, path, branch, formErrors, validFields, loading, loadedItems, totalItems } = this.state;
+    const { repo, path, branch, formErrors, validFields, loading, noResults, loadedItems, totalItems } = this.state;
 
     const allValid = Object.values(validFields).every(field => field);
 
@@ -222,7 +234,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
             <Loader
               text={<span>{`Loading package content. Fetched ${loadedItems} of ${totalItems} files.`}</span>}
             />
-          }
+          }          
           {!loading &&
             <form className="oh-operator-editor-form">
               <OperatorInputWrapper
@@ -236,6 +248,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
                   className="form-control"
                   name="repo"
                   type="text"
+                  onFocus={this.closeNoResultsWarning}
                   onChange={this.updateField}
                   onBlur={this.commitField}
                   placeholder="e.g. operator-framework/operatorhub.io"
@@ -253,6 +266,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
                   className="form-control"
                   name="path"
                   type="text"
+                  onFocus={this.closeNoResultsWarning}
                   onChange={this.updateField}
                   onBlur={this.commitField}
                   placeholder="e.g. upstream-community-operators/etcd"
@@ -270,6 +284,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
                   className="form-control"
                   name="branch"
                   type="text"
+                  onFocus={this.closeNoResultsWarning}
                   onChange={this.updateField}
                   onBlur={this.commitField}
                   placeholder="e.g. master"
@@ -277,6 +292,13 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
                 />
               </OperatorInputWrapper>
             </form>
+          }
+          {
+            noResults && (
+              <Alert bsStyle="warning" onDismiss={this.closeNoResultsWarning}>
+                <p>No operator data found at specified repository and operator path. Please revalidate data.</p>              
+              </Alert>
+            )
           }
         </Modal.Body>
         <Modal.Footer>
