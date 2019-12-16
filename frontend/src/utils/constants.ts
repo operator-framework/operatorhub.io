@@ -4,8 +4,18 @@ export const OPERATOR_DESCRIPTION_APPLICATION_HEADER = '## About the managed app
 export const OPERATOR_DESCRIPTION_ABOUT_HEADER = '## About this Operator';
 export const OPERATOR_DESCRIPTION_PREREQUISITES_HEADER = '## Prerequisites for enabling this Operator';
 export const LOCAL_STORAGE_KEY = 'oh-package-editor';
-export const AUTOSAVED_STATE = 'packageEditorState';
-export const AUTOSAVED_FIELDS = [ 'packageName', 'channels', 'operatorVersions'];
+export const AUTOSAVED_STATE: {stateKey: string, fields: string[]}[]  = [
+  {
+    stateKey: 'editorState',
+    fields: ['uploads', 'operator']
+  },
+  {
+    stateKey: 'packageEditorState',
+    fields: ['packageName', 'channels', 'operatorVersions']
+  }
+];  
+
+
 export const NEW_CRD_NAME = 'add-crd';
 
 export const SPEC_CAPABILITIES = [

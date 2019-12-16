@@ -13,6 +13,7 @@ import {
 } from '../../utils/constants';
 import { Operator, OperatorCrdDescriptor, OperatorOwnedCrd } from '../../utils/operatorTypes';
 import { UploadMetadata, MissingCRD } from '../../components/uploader/operator/UploaderTypes';
+import { updatePackageOperatorVersionAction } from '../../redux/actions/packageEditorActions';
 
 export const getVersionEditorRootPath = (match: VersionEditorParamsMatch) =>
   `/packages/${match.params.packageName}/${match.params.channelName}/${match.params.operatorVersion}`;
@@ -137,7 +138,7 @@ export const normalizeYamlOperator = operator => {
     // recover from case that no "".v" is present just version number!  
     const match = name.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
 
-    if(match && typeof match.index === 'number'){
+    if (match && typeof match.index === 'number') {
       versionStart = match.index;
     }
 
@@ -228,3 +229,23 @@ export const getMissingCrdUploads = (uploads: UploadMetadata[], operator: Operat
 
   return missingCrds;
 };
+
+export const updateChannelEditorOnExit = (
+  operator: Operator,
+  uploads: UploadMetadata[],
+  version: string,
+  updatePackageOperatorVersion: typeof updatePackageOperatorVersionAction
+) => {
+  const crdUploads = uploads
+    .filter(upload => !upload.errored && upload.type === 'CustomResourceDefinition')
+    .map(upload => ({ name: upload.name, crd: upload.data }))
+
+  // update operator version in package editor with updates done in version editor!
+  updatePackageOperatorVersion({
+    name: operatorNameFromOperator(operator),
+    version: version,
+    csv: operator,
+    crdUploads,
+    valid: true
+  });
+}

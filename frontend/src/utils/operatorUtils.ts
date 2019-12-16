@@ -7,6 +7,7 @@ import {
 } from './constants';
 import * as operatorTypes from './operatorTypes';
 import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from './packageEditorTypes';
+import { UploadMetadata } from '../components/uploader';
 
 /**
  * Convert version format without dashes
@@ -384,23 +385,33 @@ export const convertExampleYamlToObj = examples => {
 };
 
 export interface AutoSavedData {
-  packageName: string,
-  channels: PacakgeEditorChannel[],
-  operatorVersions: PackageEditorOperatorVersionMetadata[],
+  editorState: {
+    uploads: UploadMetadata[], 
+    operator: operatorTypes.Operator
+  },
+  packageEditorState: {
+    packageName: string,
+    channels: PacakgeEditorChannel[],
+    operatorVersions: PackageEditorOperatorVersionMetadata[]
+  }
 }
+
+// cache data to reduce reads from multiple requests
+let savedData: AutoSavedData | null = null;
 
 /**
  * Load autosaved operator and editor metadata or use default if none is saved
  * or browser disabled local storage (e.g. some private modes)
  */
 export const getAutoSavedOperatorData = () => {
-  let savedData: AutoSavedData | null = null;
 
-  try {
-    // cast response to string if it is null - clear local data
-    savedData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) + '');
-  } catch (e) {
-    console.warn("Localstorage is disabled. Autosave won't work.");
+  if(savedData === null){
+    try {
+      // cast response to string if it is null - clear local data
+      savedData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) + '');
+    } catch (e) {
+      console.warn("Localstorage is disabled. Autosave won't work.");
+    }
   }
 
   return savedData;
