@@ -12,7 +12,7 @@ export interface EditorReducerState {
   sectionStatus: Record<keyof ISectionFields, EDITOR_STATUS>
 }
 
-const getInitialState = () => {
+const getInitialState = (loadPeristedState = true) => {
   const autoSaved = getAutoSavedOperatorData();
 
   const initialState: EditorReducerState = {
@@ -31,7 +31,7 @@ const getInitialState = () => {
     }
   };
 
-  if (autoSaved) {
+  if (loadPeristedState && autoSaved) {
     initialState.operator = autoSaved.editorState.operator || initialState.operator;
     initialState.uploads = autoSaved.editorState.uploads || initialState.uploads;
   }
@@ -61,7 +61,7 @@ const editorReducer = (state: EditorReducerState = getInitialState(), action) =>
 
     case reduxConstants.RESET_EDITOR_OPERATOR:
       return {
-        ...getInitialState()
+        ...getInitialState(false)
       };
 
     case reduxConstants.SET_EDITOR_OPERATOR:
