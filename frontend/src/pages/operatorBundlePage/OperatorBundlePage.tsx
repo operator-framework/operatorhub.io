@@ -13,7 +13,7 @@ import OperatorEditorSubPage from './subPage/OperatorEditorSubPage';
 import PreviewOperatorModal from '../../components/modals/PreviewOperatorModal';
 import { resetEditorOperatorAction, setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValidation';
-import { getUpdatedFormErrors, getVersionEditorRootPath, operatorNameFromOperator, updateChannelEditorOnExit } from './bundlePageUtils';
+import { getUpdatedFormErrors, getVersionEditorRootPath, updateChannelEditorOnExit } from './bundlePageUtils';
 import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';

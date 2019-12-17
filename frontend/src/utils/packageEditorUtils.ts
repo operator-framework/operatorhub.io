@@ -89,3 +89,13 @@ export const validateOperator = (operator: Operator) => {
     return operatorIsValid;
 }
 
+export const buildVersionNameFromOperator = (operatorVersion: Operator, namePatternWithV: boolean) => {
+    const name: string = _.get(operatorVersion, 'metadata.name');
+    const version: string = _.get(operatorVersion, 'spec.version'); 
+
+    return buildVersionName(name, version, namePatternWithV);
+}
+
+export const buildVersionName = (name: string, version: string, namePatternWithV: boolean) => {
+    return namePatternWithV ?  `${name}.v${version}` : `${name}.${version}`;
+}

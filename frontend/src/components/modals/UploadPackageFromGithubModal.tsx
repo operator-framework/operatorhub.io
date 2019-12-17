@@ -91,8 +91,29 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
         ...validFields,
         [name]: typeof error !== 'string'
       }
-    })
+    });
+
+    return error;
   }
+
+  
+  onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+
+    if ((event.which === 13 || event.keyCode === 13)) {
+        event.preventDefault();
+        const { name, value } = event.target as HTMLInputElement;
+
+        const validationResult = this.commitField(event as any);
+
+        if (validationResult === null) {
+          const {validFields} = this.state;
+
+          const allValid = Object.values(validFields).every(field => field);
+
+          allValid && this.upload();
+        }
+    }
+};
 
   fetchFileContent = (json: any, nested: boolean, pathBase: string) => {
 
@@ -251,6 +272,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
                   onFocus={this.closeNoResultsWarning}
                   onChange={this.updateField}
                   onBlur={this.commitField}
+                  onKeyDown={this.onKeyDown}
                   placeholder="e.g. operator-framework/operatorhub.io"
                   value={repo}
                 />
@@ -269,6 +291,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
                   onFocus={this.closeNoResultsWarning}
                   onChange={this.updateField}
                   onBlur={this.commitField}
+                  onKeyDown={this.onKeyDown}
                   placeholder="e.g. upstream-community-operators/etcd"
                   value={path}
                 />
@@ -287,6 +310,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
                   onFocus={this.closeNoResultsWarning}
                   onChange={this.updateField}
                   onBlur={this.commitField}
+                  onKeyDown={this.onKeyDown}
                   placeholder="e.g. master"
                   value={branch}
                 />

@@ -94,11 +94,12 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
     }
 
     createPackage = (packageName: string, operatorVersion: string, defaultChannelName: string) => {
-        const { resetEditorOperator, setPackageChannels, setPackageName, setPackageOperatorVersions, storeEditorOperator } = this.props;
+        const { resetEditorOperator, setPackageChannels, setPackageName, setPackageOperatorVersions, storeEditorOperator, clearPackageUploads } = this.props;
 
         const versionFullName = `${packageName}.v${operatorVersion}`;
         const versionCsv = getDefaultOperatorWithName(packageName, operatorVersion);
 
+        clearPackageUploads();
         setPackageName(packageName);
         setPackageChannels([{
             name: defaultChannelName,
@@ -112,6 +113,7 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
             version: operatorVersion,
             csv: versionCsv,
             valid: true,
+            namePatternWithV: true,
             crdUploads: []
         }]);
 

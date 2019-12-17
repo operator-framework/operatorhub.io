@@ -11,6 +11,7 @@ export interface PackageFileEntry {
     opened?: boolean;
     errored?: boolean;
     version: string;
+    namePatternWithV?: boolean;
 }
 export interface PackageDirectoryEntry {
     kind: 'dir';
@@ -35,7 +36,8 @@ export type PackageEditorOperatorVersionMetadata = {
     version: string,
     csv: Operator,
     valid: boolean,
-    crdUploads: PackageEditorOperatorVersionCrdMetadata[]
+    crdUploads: PackageEditorOperatorVersionCrdMetadata[],
+    namePatternWithV: boolean
 };
 
 

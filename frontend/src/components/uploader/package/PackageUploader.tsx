@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
 
 import PackageUploaderDropArea from './PackageUploaderDropArea';
-import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PacakgeEditorChannel } from '../../../utils/packageEditorTypes';
+import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
 import { StoreState } from '../../../redux';
 import PackageUploaderObjectList from './PackageUploaderObjectList';
 
@@ -32,6 +32,13 @@ type OperatorPackageUploaderDerivedProps = PackageEditorState;
 
 type OperatorPackageUploaderActions = typeof operatorPackageUploaderActions;
 
+type ObjectMetadata = {
+    name: string,
+    type: 'Package' | 'ClusterServiceVersion' | 'CustomResourceDefinition' | 'Unknown',
+    parsedContent: any,
+    version: string,
+    namePatternWithV?: boolean
+}
 
 export interface OperatorPackageUploaderProps extends OperatorPackageUploaderDerivedProps, OperatorPackageUploaderActions {
     onUploadChangeCallback: (isValid: boolean) => void
@@ -53,7 +60,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
      */
     deriveObjectMetadata = (data: string) => {
 
-        let metadata = {
+        let metadata: ObjectMetadata = {
             type: 'Unknown',
             name: '',
             version: '',
@@ -79,6 +86,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
                     metadata.version = content.spec.version;
                     // we have to apply small changes to operator data structure for the editor
                     metadata.parsedContent = normalizeYamlOperator(content);
+                    metadata.namePatternWithV = name.toLowerCase().indexOf('.v') > 0;
 
                 } else if (type === 'CustomResourceDefinition' && apiName === 'apiextensions.k8s.io') {
                     metadata.name = name;
@@ -94,12 +102,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
             console.warn('Failed to identify some kind of Operator package object!', data);
         }
 
-        return metadata as {
-            name: string,
-            type: 'Package' | 'ClusterServiceVersion' | 'CustomResourceDefinition' | 'Unknown',
-            parsedContent: any,
-            version: string
-        }
+        return metadata; 
     }
 
     addFileMetadata = (entry: PackageFileEntry) => {
@@ -113,6 +116,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
             entry.objectType = metadata.type;
             entry.content = metadata.parsedContent;
             entry.version = metadata.version;
+            entry.namePatternWithV = metadata.namePatternWithV;
         }
 
         return entry;
@@ -214,12 +218,13 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
             };
         });
 
-    buildOperatorVersionsMap = (uploads: PackageEntry[], operatorVersions: PackageFileEntry[]) =>
+    buildOperatorVersionsList = (uploads: PackageEntry[], operatorVersions: PackageFileEntry[]) =>
         operatorVersions.map(operatorVersion => ({
             name: operatorVersion.objectName,
             version: operatorVersion.version,
             csv: operatorVersion.content,
             crdUploads: this.extractCrdUploadForVersion(uploads, operatorVersion.version),
+            namePatternWithV: !!operatorVersion.namePatternWithV,
             valid: true
         }));
 
@@ -268,9 +273,9 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
 
         setPackageChannels(channels);
 
-        const operatorVersionsMap = this.buildOperatorVersionsMap(uploads, operatorVersions);
+        const operatorVersionsList: PackageEditorOperatorVersionMetadata[] = this.buildOperatorVersionsList(uploads, operatorVersions);
 
-        setPackageOperatorVersions(operatorVersionsMap);
+        setPackageOperatorVersions(operatorVersionsList);
     }
 
     render() {

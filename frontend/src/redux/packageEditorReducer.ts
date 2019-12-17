@@ -191,7 +191,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
           }
         }),
         operatorVersions: state.operatorVersions.map(
-          operatorVersion => operatorVersion.name === action.originalVersionName ? action.updatedVersion : operatorVersion
+          operatorVersion => operatorVersion.version === action.originalVersionName ? action.updatedVersion : operatorVersion
         )
       }
     }
