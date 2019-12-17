@@ -3,7 +3,7 @@ import React from 'react';
 import OperatorInputWrapper from '../../editor/forms/OperatorInputWrapper';
 import { validateOperatorPackageField, getValueError } from '../../../utils/operatorValidation';
 import _ from 'lodash';
-import {  operatorFieldValidators, pureVersionValidator } from '../../../utils/operatorValidators';
+import {  pureVersionValidator } from '../../../utils/operatorValidators';
 
 export interface CreateNewOperatorPackageSectionProps {
     onSectionValidatedCallback: (isValid: boolean) => void
@@ -82,6 +82,8 @@ class CreateNewOperatorPackageSection extends React.PureComponent<CreateNewOpera
         // @ts-ignore
         this.setState({ [field]: value });
     };
+
+
 
     render() {
         const { defaultChannel, packageName, operatorVersion, formErrors } = this.state;
