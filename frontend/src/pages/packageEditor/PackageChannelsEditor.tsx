@@ -182,11 +182,14 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         const originalVersionMetadata = versions.find(version => version.version === originalVersionName);
 
         if (originalVersionMetadata) {
+            const updatedCsv = _.cloneDeep(originalVersionMetadata.csv);
+                _.set(updatedCsv, 'spec.version', duplicateVersionName);
 
             const duplicate: PackageEditorOperatorVersionMetadata = {
                 ...originalVersionMetadata,
                 name: originalVersionMetadata.name.replace(originalVersionName, duplicateVersionName),
                 version: duplicateVersionName,
+                csv: updatedCsv,
                 crdUploads: [
                     ...originalVersionMetadata.crdUploads
                 ]
