@@ -1,11 +1,11 @@
-import React, { version } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { History } from 'history';
 import { bindActionCreators } from 'redux';
 import { match } from 'react-router';
 import { Icon } from 'patternfly-react';
 import JSZip from 'jszip';
-
+import _ from 'lodash-es';
 
 import PackageEditorPageWrapper from './pageWrapper/PackageEditorPageWrapper';
 import { StoreState } from '../../redux';
@@ -138,6 +138,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                         version: versionName,
                         csv: getDefaultOperatorWithName(packageName, versionName),
                         crdUploads: [],
+                        namePatternWithV: true,
                         valid: true
                     },
                     channelToAddVersion.name
@@ -147,18 +148,24 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
             }
             // edit name
         } else {
-            const version = versions.find(version => version.version === initialVersionName);
+            const versionMetadata = versions.find(version => version.version === initialVersionName);
 
-            // @TODO: update update path on name change!!!!
+            // @TODO: update update path on name change!!!!             
 
-            if (version && channelToAddVersion) {
+            if (versionMetadata && channelToAddVersion) {
+                // update CSV with new version
+                const updatedCsv = _.cloneDeep(versionMetadata.csv);
+                _.set(updatedCsv, 'spec.version', versionName);
+
                 changePackageOperatorVersionName(
                     initialVersionName,
                     channelToAddVersion.name,
                     {
-                        ...version,
+                        ...versionMetadata,
                         version: versionName,
-                        name: `${packageName}.v${versionName}`
+                        csv: updatedCsv,
+                        // replace version to keep "name" base unchanged!
+                        name: versionMetadata.name.replace(initialVersionName, versionName)
                     });
             } else {
                 console.error(`Can't find version to update for version name ${initialVersionName}`, versions);
@@ -169,7 +176,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
 
     onDuplicateVersionConfirmed = (duplicateVersionName: string, originalVersionName: string) => {
-        const { packageName, versions, addOperatorVersion } = this.props;
+        const { versions, addOperatorVersion } = this.props;
         const { channelToAddVersion } = this.state;
 
         const originalVersionMetadata = versions.find(version => version.version === originalVersionName);
@@ -178,7 +185,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
             const duplicate: PackageEditorOperatorVersionMetadata = {
                 ...originalVersionMetadata,
-                name: `${packageName}.v${duplicateVersionName}`,
+                name: originalVersionMetadata.name.replace(originalVersionName, duplicateVersionName),
                 version: duplicateVersionName,
                 crdUploads: [
                     ...originalVersionMetadata.crdUploads
@@ -253,7 +260,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
             );
 
         } else {
-            console.error(`Can't find metadata for version ${versionName}`);
+            console.error(`Can't find metadata for version ${versionName}`, versions);
         }
 
         history.push(path);

@@ -88,6 +88,21 @@ class EditNameInChannelModal extends React.PureComponent<EditNameInChannelModalP
         this.validateField(name, value);
     }
 
+    onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const { name: initialName, onConfirm } = this.props;
+
+        if ((event.which === 13 || event.keyCode === 13)) {
+            event.preventDefault();
+            const { name, value } = event.target as HTMLInputElement;
+
+            const validationResult = this.validateField(name, value);
+
+            if (validationResult === null) {
+                onConfirm(value, initialName);
+            }
+        }
+    };
+
     onConfirm = (e: React.MouseEvent) => {
         const { name: initialName, onConfirm } = this.props;
         const { name } = this.state;
@@ -96,7 +111,7 @@ class EditNameInChannelModal extends React.PureComponent<EditNameInChannelModalP
 
         const validationResult = this.validateField('name', name);
 
-        if(validationResult === null){
+        if (validationResult === null) {
             onConfirm(name, initialName);
         }
     }
@@ -114,7 +129,7 @@ class EditNameInChannelModal extends React.PureComponent<EditNameInChannelModalP
                     <Modal.Title>{headline}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form className="oh-operator-editor-form">
+                    <form className="oh-operator-editor-form" onSubmit={e => e.preventDefault()}>
                         <OperatorInputWrapper
                             title={nameFieldTitle}
                             descriptions={{ name: nameFieldDescription }}
@@ -128,6 +143,7 @@ class EditNameInChannelModal extends React.PureComponent<EditNameInChannelModalP
                                 type="text"
                                 onChange={this.updateField}
                                 onBlur={this.commitField}
+                                onKeyDown={this.onKeyDown}
                                 placeholder={nameFieldPlaceholder}
                                 value={name}
                             />
