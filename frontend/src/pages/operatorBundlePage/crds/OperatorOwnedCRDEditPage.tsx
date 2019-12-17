@@ -53,7 +53,7 @@ export type OperatorOwnedCRDEditPageProps = {
   match: VersionEditorParamsMatch
 } & ReturnType<typeof mapStateToProps> & typeof OperatorOwnedCRDEditPageActions;
 
-interface OperatorOwnedCRDEditPageState{
+interface OperatorOwnedCRDEditPageState {
   crdTemplate: any,
   crdTemplateYamlError: string
   specDescriptorsExpandedByError: boolean
@@ -121,27 +121,21 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
       storeEditorOperator(updatedOperator);
     }
 
-    this.crdIndex = operatorCRDs.indexOf(crd);
     this.almExampleIndex = _.findIndex(crdTemplates, { kind: _.get(crd, 'kind', '') });
 
     const crdTemplate = this.getAlmExample();
 
-    // do not update status or validate pristine page
-    //if (sectionStatus !== EDITOR_STATUS.empty) {
-      // get existing errors and revalidate CRDs fields
-      const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
 
-      // expand descriptor editors if errors are detected
-      specDescriptorsExpandedByError = containsErrors(
-        _.get(errors, `${crdsField}[${this.crdIndex}].errors.specDescriptors`, null)
-      );
-      statusDescriptorsExpandedByError = containsErrors(
-        _.get(errors, `${crdsField}[${this.crdIndex}].errors.statusDescriptors`, null)
-      );
-
-      this.updateSectionStatus(errors, true);
-      storeEditorFormErrors(errors);
-    //}
+    // get existing errors and revalidate CRDs fields
+    const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
+    const crdErrors = (_.get(errors, crdsField) || []).find(error => error.index === this.crdIndex) || null;
+    
+    // expand descriptor editors if errors are detected
+    specDescriptorsExpandedByError = containsErrors(_.get(crdErrors, 'errors.specDescriptors', null));
+    statusDescriptorsExpandedByError = containsErrors(_.get(crdErrors, 'errors.statusDescriptors', null));
+    
+    this.updateSectionStatus(errors, true);
+    storeEditorFormErrors(errors);    
 
     this.setState({ crdTemplate, specDescriptorsExpandedByError, statusDescriptorsExpandedByError });
 
@@ -198,9 +192,9 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
 
     if (crdErrors) {
       setSectionStatus('owned-crds', EDITOR_STATUS.errors);
-    } else if(modified){
+    } else if (modified) {
       setSectionStatus('owned-crds', EDITOR_STATUS.modified);
-    } else if(status !== EDITOR_STATUS.modified){
+    } else if (status !== EDITOR_STATUS.modified) {
       setSectionStatus('owned-crds', EDITOR_STATUS.all_good);
     }
   };
