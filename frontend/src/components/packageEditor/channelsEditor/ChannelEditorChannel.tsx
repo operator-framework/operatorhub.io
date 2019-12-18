@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { version } from 'react';
 import { DropdownKebab, MenuItem, Grid, Icon } from 'patternfly-react';
 
 import ChannelEditorChannelIcon from './ChannelEditorChannelIcon';
 import PackageUploaderSortIcon from '../../uploader/package/PackageUploaderSortIcon';
 import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
 import UploaderStatusIcon, { IconStatus } from '../../uploader/UploaderStatusIcon';
-import { validateChannel } from '../../../utils/packageEditorUtils';
+import { validateChannel, getVersionFromName } from '../../../utils/packageEditorUtils';
 
 
 
@@ -26,7 +26,7 @@ export type ChannelEditorChannelProps = {
 
 
 interface ChannelEditorChannelState {
-    expanded: boolean, 
+    expanded: boolean,
     sorting: 'asc' | 'desc'
 }
 
@@ -38,6 +38,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         expanded: false,
         sorting: 'desc'
     }
+
+    updatePathDrawnIndex: number = 0;
 
     toggleExpand = (e: React.MouseEvent) => {
         const { expanded } = this.state;
@@ -121,22 +123,67 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         deleteVersion(channel, version);
     }
 
+    drawUpdatePath = (versionMetadata: PackageEditorOperatorVersionMetadata, versions: string[]) => {
+        const rowHeight = 56;
+        const graphWidth = 30;
+        const diameter = 8;
+
+        const csv = versionMetadata.csv;
+        const replaces = csv.spec && csv.spec.replaces || '';
+        const replacedVersion = getVersionFromName(replaces);
+
+        console.log(replacedVersion)
+        if (replacedVersion) {
+            const versionIndex = versions.indexOf(versionMetadata.version);
+            const replacedIndex = versions.indexOf(replacedVersion);
+
+            console.log(versions, versionIndex, replacedIndex)
+            const distance = versionIndex > -1 && replacedIndex >= -1 ? replacedIndex - versionIndex : 0;
+
+            if (distance) {
+                const width = distance * rowHeight;
+                const widthPx = width + 'px';
+                const leftPx = (graphWidth * this.updatePathDrawnIndex) + 'px';
+
+                this.updatePathDrawnIndex++;
+
+                return (
+                    <div className="oh-package-channels-editor__update-graph__wrapper"
+                        style={{ width: widthPx, left: leftPx }}>
+                        <div className="oh-package-channels-editor__update-graph__start">&nbsp;</div>
+                        <div
+                            className="oh-package-channels-editor__update-graph__line"
+                            style={{ width: widthPx }}
+                        >&nbsp;</div>
+                        <div
+                            className="oh-package-channels-editor__update-graph__end"
+                            style={{ left: (width - diameter) + 'px' }}
+                        >&nbsp;</div>
+                    </div>
+                )
+            }
+        }
+        return null;
+    }
+
     render() {
         const { packageName, channel, versions } = this.props;
         const { expanded, sorting } = this.state;
 
         const versionsInChannelAreValid = validateChannel(channel, versions);
         const hasDefaultVersion = channel.currentVersionFullName !== '';
+        const sortedChannelVersions = channel.versions.sort(this.sortVersions(sorting));
+
+        this.updatePathDrawnIndex = 0;
 
         return (
             <div key={channel.name} className="oh-package-channels-editor__channel">
                 <div className="oh-package-channels-editor__channel__header">
                     <div className="oh-package-channels-editor__channel__header__title">
                         <h3>
-                            <span onClick={this.toggleExpand}>
-                                <ChannelEditorChannelIcon expanded={expanded} />
+                            <span className="oh-package-channels-editor__channel__header__name" onClick={this.toggleExpand}>
+                                <ChannelEditorChannelIcon expanded={expanded} />{channel.name}
                             </span>
-                            {channel.name}
                             {channel.isDefault &&
                                 <span className="oh-package-channels-editor__channel__header__default">(default)</span>
                             }
@@ -147,8 +194,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                         <div className="oh-package-channels-editor__channel__header__current-csv__text">{channel.currentVersionFullName}</div>
                     </div>
                     <div className="oh-package-channels-editor__channel__header__validation">
-                        {!versionsInChannelAreValid && <UploaderStatusIcon text="Invalid Entry" status={IconStatus.ERROR} />} 
-                        {!hasDefaultVersion && <UploaderStatusIcon text="No default version" status={IconStatus.ERROR} />}                 
+                        {!versionsInChannelAreValid && <UploaderStatusIcon text="Invalid Entry" status={IconStatus.ERROR} />}
+                        {!hasDefaultVersion && <UploaderStatusIcon text="No default version" status={IconStatus.ERROR} />}
                     </div>
                     <div className="oh-package-channels-editor__channel__header__menu">
                         <DropdownKebab id={`"editChannel_${channel.name}`} pullRight>
@@ -173,18 +220,19 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                     <Grid fluid className="oh-operator-editor-upload__uploads">
                                         <Grid.Row className="oh-operator-editor-upload__uploads__row">
                                             <Grid.Col xs={3}>
-                                                <span className="oh-tiny">Version</span>
                                                 <span onClick={this.toggleSorting}>
-                                                    <PackageUploaderSortIcon direction={sorting} />
+                                                    <span className="oh-tiny">Version</span>
+                                                    <span>
+                                                        <PackageUploaderSortIcon direction={sorting} />
+                                                    </span>
                                                 </span>
                                             </Grid.Col>
                                             <Grid.Col xs={6}><span className="oh-tiny">Upgrade Path</span></Grid.Col>
                                             <Grid.Col xs={2}></Grid.Col>
                                             <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col"></Grid.Col>
                                         </Grid.Row>
-                                        {channel.versions
-                                            .sort(this.sortVersions(sorting))
-                                            .map(version => {
+                                        {
+                                            sortedChannelVersions.map(version => {
                                                 const versionMetadata = versions.find(versionMeta => versionMeta.version === version);
                                                 const isValid = versionMetadata && versionMetadata.valid;
                                                 const versionEditorPath = `/packages/${encodeURIComponent(packageName)}/${encodeURIComponent(channel.name)}/${encodeURIComponent(version)}`;
@@ -195,14 +243,18 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                                         <Grid.Col xs={3}>
                                                             <h4>
                                                                 <a href={versionEditorPath} onClick={e => this.goToVersionEditor(e, versionEditorPath, version)}>
-                                                                    {version}
+                                                                    <span className="oh-package-channels-editor__channel__header__name">{version}</span>
                                                                     {version === channel.currentVersion &&
                                                                         <span className="oh-package-channels-editor__channel__header__default">(current)</span>
                                                                     }
                                                                 </a>
                                                             </h4>
                                                         </Grid.Col>
-                                                        <Grid.Col xs={6}></Grid.Col>
+                                                        <Grid.Col xs={6} className="oh-package-channels-editor__update-graph">
+                                                            {
+                                                                versionMetadata && this.drawUpdatePath(versionMetadata, sortedChannelVersions)
+                                                            }
+                                                        </Grid.Col>
                                                         <Grid.Col xs={2}>
                                                             {!isValid && <UploaderStatusIcon text="Invalid Entry" status={IconStatus.ERROR} />}
                                                         </Grid.Col>
