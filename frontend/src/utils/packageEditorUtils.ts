@@ -7,6 +7,7 @@ import { sectionsFields, NEW_CRD_NAME } from "./constants";
 import { Operator } from "./operatorTypes";
 import { removeEmptyOptionalValuesFromOperator } from "./operatorValidation";
 import { PackageEditorOperatorVersionCrdMetadata, PackageEditorOperatorVersionMetadata, PacakgeEditorChannel } from "./packageEditorTypes";
+import { version } from "react";
 
 
 export const validateChannel = (channel: PacakgeEditorChannel, versions: PackageEditorOperatorVersionMetadata[]) => channel.versions.every(version => {
@@ -98,4 +99,21 @@ export const buildVersionNameFromOperator = (operatorVersion: Operator, namePatt
 
 export const buildVersionName = (name: string, version: string, namePatternWithV: boolean) => {
     return namePatternWithV ?  `${name}.v${version}` : `${name}.${version}`;
+}
+
+export const getVersionFromName = (fullName: string) => {
+    let versionStart = fullName.indexOf('.v') + 2;
+
+    // recover from case that no "".v" is present just version number!  
+    const match = fullName.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
+
+    if (match && typeof match.index === 'number') {
+      versionStart = match.index + 1
+    }
+
+    if(versionStart > -1){
+        return fullName.slice(versionStart);
+    } else {
+        return null;
+    }
 }

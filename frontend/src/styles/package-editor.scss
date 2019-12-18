@@ -22,7 +22,7 @@
   }
 
   #oh-operator-package-editor-tabs {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid $oh-color-rule;
     margin-top: 40px;
 
     > li > a {
@@ -60,11 +60,13 @@
   .oh-operator-editor-upload {
     &__uploads {
       &__row {
+        height: 56px;
+
         &:first-of-type {
           text-transform: uppercase;
           color: $oh-color-text-metadata;
 
-          > div:first-of-type span{
+          > div:first-of-type span {
             color: $oh-color-primary;
           }
         }
@@ -147,6 +149,12 @@
         cursor: pointer;
       }
 
+      &__name,
+      &__default{
+        float: left;
+        cursor: pointer;
+      }
+
       &__default {
         margin-left: 10px;
         font-size: 16px;
@@ -162,7 +170,7 @@
       &__validation {
         flex: 0 2 180px;
 
-        .oh-operator-editor-upload__uploads__status{
+        .oh-operator-editor-upload__uploads__status {
           display: block;
         }
       }
@@ -194,16 +202,61 @@
           overflow: visible;
         }
       }
-    }  
+    }
   }
 
-  &.oh-operator-package-editor-page__button-bar{
-    .oh-button-secondary{
+  &.oh-operator-package-editor-page__button-bar {
+    .oh-button-secondary {
       float: right;
     }
   }
 
   .dropdown-menu.dropdown-menu-right {
     border: 1px solid #bbb;
+  }
+
+  &__update-graph {
+    position: relative;
+    overflow: visible !important;
+    height: 100%;
+
+    &__wrapper {
+      position: relative;
+      float: left;
+      width: 56px;
+      height: 30px;
+      transform: rotate(90deg);
+      transform-origin: left;
+      color: $oh-color-primary;
+    }
+    &__start,
+    &__end {
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      border-radius: 50%;
+      z-index: 5;
+      background-color: white;
+      border: 2px solid currentColor;
+    }
+
+    &__start {
+      left: -8px;
+    }
+
+    &__end {
+      left: 48px;
+    }
+
+    &__line {
+      left: 0;
+      top: 15px;
+      width: 56px;
+      height: 2px;
+      position: absolute;
+      z-index: 1;
+      background-color: currentColor;
+    }
   }
 }
