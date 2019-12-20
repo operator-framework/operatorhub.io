@@ -2,6 +2,7 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { safeLoad } from 'js-yaml';
+import satisfies from 'semver/functions/satisfies';
 
 import PackageUploaderDropArea from './PackageUploaderDropArea';
 import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
@@ -13,6 +14,7 @@ import UploadPackageFromGithubModal from '../../modals/UploadPackageFromGithubMo
 import { PackageEditorState } from '../../../redux/packageEditorReducer';
 import _ from 'lodash';
 import { normalizeYamlOperator } from '../../../pages/operatorBundlePage/bundlePageUtils';
+import { getVersionFromName } from '../../../utils/packageEditorUtils';
 
 const operatorPackageUploaderActions = {
     setPackageName: actions.setPackageNameAction,
@@ -102,7 +104,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
             console.warn('Failed to identify some kind of Operator package object!', data);
         }
 
-        return metadata; 
+        return metadata;
     }
 
     addFileMetadata = (entry: PackageFileEntry) => {
@@ -254,6 +256,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
 
         // get all operator version uploads so we can search them
         const operatorVersions = this.getOperatorCsvsFromUploads(uploads);
+        const versionsList = operatorVersions.map(versionMeta => versionMeta.version);
 
         // list replaced versions in channel
         channels.forEach(channel => {
@@ -264,11 +267,43 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
             }
 
             while (csvEntry) {
-                channel.versions.push(csvEntry.version);
+                // add version to list if it was not already added by previous csv (skips)
+                if (channel.versions.includes(csvEntry.version) === false) {
+                    channel.versions.push(csvEntry.version);
+                }
+                const csv = csvEntry.content;
+                const replacedVersion = _.get(csv, 'spec.replaces');
+                const skippedVersions: string[] = _.get(csv, 'spec.skips', []);
+                const skipRange: string | undefined = _.get(csv, 'spec["olm.skipRange"]');
 
-                const replacedVersion = _.get(csvEntry, 'content.spec.replaces');
+                // deduplicate versions!
+                const versionsAddedBySkips = new Set<string>();
+
+                if (skipRange) {
+                    const skippedByRange: string[] = [];
+
+                    versionsList.forEach(version => {
+                        if (satisfies(version, skipRange)) {
+                            skippedByRange.push(version);
+                            versionsAddedBySkips.add(version);
+                        }
+                    });
+                }
+
+                // add skipped versions to the list
+                // do not track their update path
+                // we asume that all skips are listed or they get ignored and are dropped from the list here
+                if (skippedVersions.length > 0) {
+
+                    skippedVersions
+                        .map(skipped => getVersionFromName(skipped))
+                        .forEach(version => version !== null && versionsAddedBySkips.add(version));
+                }
+
+                channel.versions.push(...versionsAddedBySkips.values());
                 csvEntry = operatorVersions.find(operatorVersion => operatorVersion.objectName === replacedVersion);
             }
+            channel.versions
         });
 
         setPackageChannels(channels);

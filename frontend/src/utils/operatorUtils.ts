@@ -176,6 +176,7 @@ const defaultOperator: operatorTypes.Operator = {
     maturity: '',
     version: '',
     replaces: '',
+    skips: [],
     minKubeVersion: '',
     keywords: [],
     maintainers: [{ name: '', email: '' }],
