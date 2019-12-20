@@ -139,10 +139,12 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
   };
 
   onBackToChannelEditor = () => {
-    const { operator, uploads,versionEditorRootPath ,updatePackageOperatorVersion } = this.props;
+    const { operator, uploads,versionEditorRootPath ,updatePackageOperatorVersion, versions } = this.props;
     const version = versionEditorRootPath.split('/').pop() as string;
+    const versionMetadata = versions.find(versionMeta => versionMeta.version === version);
 
-    updateChannelEditorOnExit(operator, uploads, version, updatePackageOperatorVersion);
+
+    updateChannelEditorOnExit(operator, uploads, version, updatePackageOperatorVersion, versionMetadata && versionMetadata.namePatternWithV);
   };
 
   render() {
@@ -270,7 +272,8 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = (state: StoreState) => ({
   sectionStatus: state.editorState.sectionStatus,
   operator: state.editorState.operator,
-  uploads: state.editorState.uploads
+  uploads: state.editorState.uploads,
+  versions: state.packageEditorState.operatorVersions
 });
 
 export default connect(

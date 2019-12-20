@@ -15,6 +15,7 @@ import EditorSelect from '../EditorSelect';
   options: string[]
   updateOperator: (field: string, values: string[]) => void
   commitField: (field: string) => void
+  descriptions?: any,
   isMulti?: boolean
   customSelect?: boolean
   emptyLabel?: string
@@ -31,11 +32,12 @@ const OperatorSelect: React.FC<OperatorSelectProps> = ({
   values,
   options,
   isMulti,
-  updateOperator,
+  updateOperator, 
   commitField,
+  descriptions,
   ...otherProps
 }) => (
-  <OperatorInputWrapper title={title} field={field} formErrors={formErrors}>
+  <OperatorInputWrapper title={title} field={field} formErrors={formErrors} descriptions={descriptions}>
     <EditorSelect
       id={_.camelCase(field)}
       values={values}
