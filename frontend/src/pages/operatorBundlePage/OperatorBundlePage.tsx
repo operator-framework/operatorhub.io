@@ -102,15 +102,17 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
  
 
   onBackToChannelEditor = (e: React.MouseEvent) => {
-    const { operator, history, match, uploads, updatePackageOperatorVersion } = this.props;
+    const { operator, history, match, uploads, versions, updatePackageOperatorVersion } = this.props;
     e.preventDefault();
 
     const pathname = history.location.pathname;
     // remove slash before channel name
     const channelPath = pathname.substring(0, pathname.indexOf(match.params.channelName) - 1);
     const version = match.params.operatorVersion;
+    const versionMetadata = versions.find(versionMeta => versionMeta.version === version);
 
-    updateChannelEditorOnExit(operator, uploads, version, updatePackageOperatorVersion);
+
+    updateChannelEditorOnExit(operator, uploads, version, updatePackageOperatorVersion, versionMetadata && versionMetadata.namePatternWithV);
     history.push(channelPath);
   };
 
@@ -306,7 +308,8 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = (state: StoreState) => ({
   operator: state.editorState.operator,
   uploads: state.editorState.uploads,
-  sectionStatus: state.editorState.sectionStatus
+  sectionStatus: state.editorState.sectionStatus,
+  versions: state.packageEditorState.operatorVersions
 });
 
 export default connect(

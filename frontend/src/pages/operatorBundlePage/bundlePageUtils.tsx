@@ -235,13 +235,12 @@ export const updateChannelEditorOnExit = (
   operator: Operator,
   uploads: UploadMetadata[],
   version: string,
-  updatePackageOperatorVersion: typeof updatePackageOperatorVersionAction
+  updatePackageOperatorVersion: typeof updatePackageOperatorVersionAction,
+  namePatternWithV = true
 ) => {
   const crdUploads = uploads
     .filter(upload => !upload.errored && upload.type === 'CustomResourceDefinition')
     .map(upload => ({ name: upload.name, crd: upload.data }))
-
-    const namePatternWithV = _.get(operator, 'metadata.name', '').toLowerCase().indexOf('.v') > 0;
 
   // update operator version in package editor with updates done in version editor!
   updatePackageOperatorVersion({

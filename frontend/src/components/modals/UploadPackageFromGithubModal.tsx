@@ -96,24 +96,24 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
     return error;
   }
 
-  
+
   onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
 
     if ((event.which === 13 || event.keyCode === 13)) {
-        event.preventDefault();
-        const { name, value } = event.target as HTMLInputElement;
+      event.preventDefault();
+      const { name, value } = event.target as HTMLInputElement;
 
-        const validationResult = this.commitField(event as any);
+      const validationResult = this.commitField(event as any);
 
-        if (validationResult === null) {
-          const {validFields} = this.state;
+      if (validationResult === null) {
+        const { validFields } = this.state;
 
-          const allValid = Object.values(validFields).every(field => field);
+        const allValid = Object.values(validFields).every(field => field);
 
-          allValid && this.upload();
-        }
+        allValid && this.upload();
+      }
     }
-};
+  };
 
   fetchFileContent = (json: any, nested: boolean, pathBase: string) => {
 
@@ -255,7 +255,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
             <Loader
               text={<span>{`Loading package content. Fetched ${loadedItems} of ${totalItems} files.`}</span>}
             />
-          }          
+          }
           {!loading &&
             <form className="oh-operator-editor-form">
               <OperatorInputWrapper
@@ -320,7 +320,10 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
           {
             noResults && (
               <Alert bsStyle="warning" onDismiss={this.closeNoResultsWarning}>
-                <p>No operator data found at specified repository and operator path. Please revalidate data.</p>              
+                <p>
+                  No operator data found at specified repository and operator path.
+                  Please verify the spelling and the access permissions of the repository and path.
+                </p>
               </Alert>
             )
           }

@@ -124,6 +124,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
     }
 
     drawUpdatePath = (versionMetadata: PackageEditorOperatorVersionMetadata, versions: string[]) => {
+        const {sorting} = this.state;
+
         const rowHeight = 56;
         const graphWidth = 30;
         const diameter = 8;
@@ -132,15 +134,13 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         const replaces = csv.spec && csv.spec.replaces || '';
         const replacedVersion = getVersionFromName(replaces);
 
-        console.log(replacedVersion)
         if (replacedVersion) {
             const versionIndex = versions.indexOf(versionMetadata.version);
-            const replacedIndex = versions.indexOf(replacedVersion);
-
-            console.log(versions, versionIndex, replacedIndex)
-            const distance = versionIndex > -1 && replacedIndex >= -1 ? replacedIndex - versionIndex : 0;
+            const replacedIndex = versions.indexOf(replacedVersion);            
+            const distance = versionIndex > -1 && replacedIndex > -1 ? Math.abs(replacedIndex - versionIndex) : 0;
 
             if (distance) {
+                const rotatation = sorting === 'desc' ? 'rotate(90deg)' : 'rotate(-90deg)';
                 const width = distance * rowHeight;
                 const widthPx = width + 'px';
                 const leftPx = (graphWidth * this.updatePathDrawnIndex) + 'px';
@@ -149,7 +149,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
 
                 return (
                     <div className="oh-package-channels-editor__update-graph__wrapper"
-                        style={{ width: widthPx, left: leftPx }}>
+                        style={{ width: widthPx, left: leftPx, transform: rotatation }}>
                         <div className="oh-package-channels-editor__update-graph__start">&nbsp;</div>
                         <div
                             className="oh-package-channels-editor__update-graph__line"
