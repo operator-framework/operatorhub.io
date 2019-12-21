@@ -1,11 +1,13 @@
-import React, { version } from 'react';
+import React from 'react';
 import { DropdownKebab, MenuItem, Grid, Icon } from 'patternfly-react';
+import satisfies from 'semver/functions/satisfies';
 
 import ChannelEditorChannelIcon from './ChannelEditorChannelIcon';
 import PackageUploaderSortIcon from '../../uploader/package/PackageUploaderSortIcon';
-import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
+import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata, PackageEditorUpdatePath } from '../../../utils/packageEditorTypes';
 import UploaderStatusIcon, { IconStatus } from '../../uploader/UploaderStatusIcon';
 import { validateChannel, getVersionFromName } from '../../../utils/packageEditorUtils';
+import UpdatePath from './VersionUpdatePath';
 
 
 
@@ -123,47 +125,140 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         deleteVersion(channel, version);
     }
 
-    drawUpdatePath = (versionMetadata: PackageEditorOperatorVersionMetadata, versions: string[]) => {
-        const {sorting} = this.state;
+    calculateVersionsDistance = (versions: string[], targetVersion: string, sourceVersion: string) => {
+        const targetIndex = versions.indexOf(targetVersion);
+        const sourceIndex = versions.indexOf(sourceVersion);
 
-        const rowHeight = 56;
-        const graphWidth = 30;
-        const diameter = 8;
+        let distance = 0;
 
-        const csv = versionMetadata.csv;
-        const replaces = csv.spec && csv.spec.replaces || '';
-        const replacedVersion = getVersionFromName(replaces);
-
-        if (replacedVersion) {
-            const versionIndex = versions.indexOf(versionMetadata.version);
-            const replacedIndex = versions.indexOf(replacedVersion);            
-            const distance = versionIndex > -1 && replacedIndex > -1 ? Math.abs(replacedIndex - versionIndex) : 0;
-
-            if (distance) {
-                const rotatation = sorting === 'desc' ? 'rotate(90deg)' : 'rotate(-90deg)';
-                const width = distance * rowHeight;
-                const widthPx = width + 'px';
-                const leftPx = (graphWidth * this.updatePathDrawnIndex) + 'px';
-
-                this.updatePathDrawnIndex++;
-
-                return (
-                    <div className="oh-package-channels-editor__update-graph__wrapper"
-                        style={{ width: widthPx, left: leftPx, transform: rotatation }}>
-                        <div className="oh-package-channels-editor__update-graph__start">&nbsp;</div>
-                        <div
-                            className="oh-package-channels-editor__update-graph__line"
-                            style={{ width: widthPx }}
-                        >&nbsp;</div>
-                        <div
-                            className="oh-package-channels-editor__update-graph__end"
-                            style={{ left: (width - diameter) + 'px' }}
-                        >&nbsp;</div>
-                    </div>
-                )
-            }
+        if (targetIndex > -1 && sourceIndex > -1) {
+            distance = Math.abs(sourceIndex - targetIndex);
         }
-        return null;
+
+        return distance;
+    }
+
+    buildUpdateGraph = (versionMetadatas: PackageEditorOperatorVersionMetadata[], versions: string[]) => {
+
+        const versionsToSkip: string[] = [];
+        let updateGraph: PackageEditorUpdatePath[] = [];
+
+        versions.forEach(version => {
+
+            // skip skipped version - do not draw update path to it as it gets ignored
+            if (versionsToSkip.includes(version)) {
+                return;
+            }
+
+            const versionMetadata = versionMetadatas.find(meta => meta.version === version);
+
+            if (versionMetadata) {
+                const { csv } = versionMetadata;
+                const { spec } = csv;
+
+                const skips = spec && spec.skips || [];
+
+                if (skips.length > 0) {
+                    skips.forEach(skip => {
+                        const skippedVersion = getVersionFromName(skip);
+
+                        if (skippedVersion) {
+                            versionsToSkip.push(skippedVersion);
+
+                            // updateGraph.push({
+                            //     id: `${version}-${skippedVersion}`,
+                            //     target: version,
+                            //     source: skippedVersion,
+                            //     distance: this.calculateVersionsDistance(versions, version, skippedVersion),
+                            //     index: 0
+                            // });
+                        }
+                    })
+                }
+
+                const skipRange = spec && spec['olm.skipRange'] || '';
+
+                if (skipRange) {
+                    const skippedByRange: string[] = [];
+                    let skipPath: PackageEditorUpdatePath | null = null;
+
+                    versions.forEach(skip => {
+                        if (satisfies(skip, skipRange)) {
+
+                            skippedByRange.push(skip);
+                            skipPath = {
+                                id: `${version}-${skip}`,
+                                target: version,
+                                source: skip,
+                                distance: this.calculateVersionsDistance(versions, version, skip),
+                                index: 0
+                            };
+                        }
+                    });
+                   // console.log(skippedByRange);
+
+                    skipPath && updateGraph.push(skipPath);
+
+                    if(skippedByRange.length > 0){
+                        const skippedWithoutLast = skippedByRange.slice(0, skippedByRange.length - 1);
+                        // do not skip last version as we need it to continue building update path
+                        // intermediate version will be skipped by range so are unimportant
+                        versionsToSkip.push(...skippedWithoutLast);
+
+                       // console.log(skippedWithoutLast)
+                    }
+                }
+
+                const replaces = spec && csv.spec.replaces || '';
+                const replacedVersion = getVersionFromName(replaces);
+
+                if (replacedVersion) {
+                    updateGraph.push({
+                        id: `${version}-${replacedVersion}`,
+                        target: version,
+                        source: replacedVersion,
+                        distance: this.calculateVersionsDistance(versions, version, replacedVersion),
+                        index: 0
+                    });
+                }
+            }
+        });
+        const graphIds = new Set<string>();
+
+        updateGraph = updateGraph
+            .filter(path => path.distance)    
+            // deduplicate paths - same path might be created by skip/replaces/skipRange
+            .filter(path => {
+                if(graphIds.has(path.id)){
+                    return false;
+
+                } else {
+                    graphIds.add(path.id);
+                    return true;
+                }
+            })      
+            .map((path, index) => ({
+                ...path,
+                index
+            }))
+
+        console.log(updateGraph);
+        return updateGraph;
+    }
+
+    drawUpdatePaths = (updateGraph: PackageEditorUpdatePath[], version: string) => {
+        const { sorting } = this.state;
+
+        const versionRelavantPaths = updateGraph.filter(path => path.target === version);
+
+        return versionRelavantPaths.map(path => (
+            <UpdatePath
+                key={`${path.target}-${path.source}`}
+                index={path.index}
+                distance={path.distance}
+                sortingDirection={sorting}
+            />
+        ));
     }
 
     render() {
@@ -172,9 +267,9 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
 
         const versionsInChannelAreValid = validateChannel(channel, versions);
         const hasDefaultVersion = channel.currentVersionFullName !== '';
-        const sortedChannelVersions = channel.versions.sort(this.sortVersions(sorting));
+        const sortedChannelVersions = channel.versions.slice(0).sort(this.sortVersions(sorting));
 
-        this.updatePathDrawnIndex = 0;
+        const updateGraph = expanded ? this.buildUpdateGraph(versions, sortedChannelVersions) : [];
 
         return (
             <div key={channel.name} className="oh-package-channels-editor__channel">
@@ -215,7 +310,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                     <span>Add Operator Version</span>
                                 </a>
                             </div>
-                            {channel.versions.length > 0 && (
+                            {sortedChannelVersions.length > 0 && (
                                 <div className="oh-package-channels-editor__channel__content__versions">
                                     <Grid fluid className="oh-operator-editor-upload__uploads">
                                         <Grid.Row className="oh-operator-editor-upload__uploads__row">
@@ -252,7 +347,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                                         </Grid.Col>
                                                         <Grid.Col xs={6} className="oh-package-channels-editor__update-graph">
                                                             {
-                                                                versionMetadata && this.drawUpdatePath(versionMetadata, sortedChannelVersions)
+                                                                this.drawUpdatePaths(updateGraph, version)
                                                             }
                                                         </Grid.Col>
                                                         <Grid.Col xs={2}>
