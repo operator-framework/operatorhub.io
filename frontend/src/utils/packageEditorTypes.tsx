@@ -48,3 +48,11 @@ export type PacakgeEditorChannel = {
     currentVersion: string,
     currentVersionFullName: string
 }
+
+export type PackageEditorUpdatePath = {
+    id: string
+    index: number
+    target: string
+    source: string
+    distance: number
+}
