@@ -278,14 +278,16 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
 
                 // deduplicate versions!
                 const versionsAddedBySkips = new Set<string>();
+                let oldestSkippedVersion: string = '';
 
                 if (skipRange) {
-                    const skippedByRange: string[] = [];
+                    //const skippedByRange: string[] = [];
 
                     versionsList.forEach(version => {
                         if (satisfies(version, skipRange)) {
-                            skippedByRange.push(version);
+                            //skippedByRange.push(version);
                             versionsAddedBySkips.add(version);
+                            oldestSkippedVersion = version;
                         }
                     });
                 }
@@ -301,7 +303,16 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
                 }
 
                 channel.versions.push(...versionsAddedBySkips.values());
-                csvEntry = operatorVersions.find(operatorVersion => operatorVersion.objectName === replacedVersion);
+
+                if (replacedVersion) {
+                    csvEntry = operatorVersions.find(operatorVersion => operatorVersion.objectName === replacedVersion);
+
+                } else if (oldestSkippedVersion) {
+                    // ensure, that loop continue if no replaces exists by picking the older version
+                    csvEntry = operatorVersions.find(operatorVersion => operatorVersion.version === oldestSkippedVersion);
+                } else {
+                    csvEntry = undefined;
+                }
             }
             channel.versions
         });

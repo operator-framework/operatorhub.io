@@ -221,8 +221,7 @@
     height: 100%;
 
     &__wrapper {
-      position: relative;
-      float: left;
+      position: absolute;
       width: 56px;
       height: 30px;
       transform: rotate(90deg);
