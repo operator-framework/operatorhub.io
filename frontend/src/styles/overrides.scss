@@ -52,6 +52,7 @@ p {
 .dropdown-menu {
   border-radius: 4px;
   border: 1px solid #eaeaea;
+  z-index: 1075;
 }
 
 .open > .btn-default.dropdown-toggle {

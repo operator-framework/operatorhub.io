@@ -34,6 +34,7 @@
     "bootstrap-sass": "^3.4.1",
     "brace": "^0.11.1",
     "classnames": "^2.2.5",
+    "compare-versions": "^3.5.1",
     "connected-react-router": "^6.6.1",
     "copy-to-clipboard": "^3.2.0",
     "copy-webpack-plugin": "^5.1.0",

@@ -1,39 +1,97 @@
 import React from 'react';
 import { Modal } from 'patternfly-react';
+import validRange from 'semver/ranges/valid';
 
-import { noop } from '../../../common/helpers';
+
 import OperatorSelect from '../../editor/forms/OperatorSelect';
+import { getVersionFromName } from '../../../utils/packageEditorUtils';
+import { ExternalLink } from '../../ExternalLink';
+import OperatorInputWrapper from '../../editor/forms/OperatorInputWrapper';
 
+ 
+type FieldNames = 'replaces' | 'skips' | 'skipRange';
 
-type FieldNames = 'replaces';
-
-export interface UploadPackageFromGithubModalProps {
-
+export interface EditUpgradeGraphModalProps {
+  currentVersion: string
+  versions: string[]
+  replaces?: string
+  skips?: string[]
+  skipRange?: string
+  onConfirm: (replaced: string, skips: string[], skipRange: string) => void
   onClose: () => void
 }
 
-interface UploadPackageFromGithubModalState {
+interface EditUpgradeGraphModalState {
   replaces: string,
+  skips: string[],
+  skipRange: string,
+  possibleReplaces: string[]
+  possibleSkips: string[]
   validFields: Record<FieldNames, boolean>
-  formErrors: Record<FieldNames, string | null>  
+  formErrors: Record<FieldNames, string | null>
 }
 
-class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFromGithubModalProps, UploadPackageFromGithubModalState> {
+class EditUpgradeGraphModal extends React.PureComponent<EditUpgradeGraphModalProps, EditUpgradeGraphModalState> {
 
 
-  state: UploadPackageFromGithubModalState = {
+  state: EditUpgradeGraphModalState = {
     replaces: '',
-   
-    validFields: {  
-        replaces: true
+    skips: [],
+    skipRange: '',
+    possibleReplaces: [],
+    possibleSkips: [],
+    validFields: {
+      replaces: true,
+      skips: true,
+      skipRange: true
     },
     formErrors: {
-        replaces: null
-    }    
+      replaces: null,
+      skips: null,
+      skipRange: null
+    }
   };
 
-  descriptions: Record<FieldNames, string> = {
-    replaces: 'Select the name of the CSV from a previous Operator Version that will be replaced by this Operator Version'
+  componentDidMount() {
+    const { replaces, skips, skipRange, currentVersion, versions } = this.props;
+
+    // get versions out of full names so we can order and compare them
+    const derivedReplaces = replaces && getVersionFromName(replaces) || '';
+    const derivedSkips = skips && skips.map(skip => getVersionFromName(skip)).filter(skip => skip !== null) as string[] || [];
+
+    const currentVersionIndex = versions.indexOf(currentVersion);
+    const possibleReplaces = versions.slice(currentVersionIndex + 1);
+
+    const replacesIndex = derivedReplaces ? possibleReplaces.indexOf(derivedReplaces) : possibleReplaces.length;
+    const possibleSkips = possibleReplaces.slice(0, Math.max(replacesIndex, 0));
+
+    this.setState({
+      replaces: derivedReplaces,
+      skips: derivedSkips,
+      skipRange: skipRange || '',
+      possibleReplaces,
+      possibleSkips
+    })
+  }
+
+
+  descriptions: Record<FieldNames, React.ReactNode> = {
+    replaces: 'Select the version of the CSV from a previous Operator Version that will be replaced by this Operator Version',
+    skips: (
+      <>
+        Select the version of the CSV that will be skipped in the traverse of the Update Graph.
+        The "skips" version has to be greater than the "replaces" version in&nbsp;
+        <ExternalLink href="https://github.com/blang/semver#ranges" indicator>Semantic Versioning (semver library)</ExternalLink>.
+      </>
+    ),
+    skipRange: (
+      <>
+        Specify the previous range of Operator Version that will be replaced by this Operator version.
+        Use the version range format supported by the&nbsp;
+        <ExternalLink href="https://github.com/blang/semver#ranges" indicator>semver library in Semantic Versioning</ExternalLink>.
+      </>
+    )
+
   }
 
   updateField = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,30 +101,48 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
     this.setState({ [name]: value });
   }
 
-  updateSelectField = (name: string, value: string[]) => {
-      console.log(name, value);
+  updateReplacesField = (name: string, values: string[]) => {
+    this.setState({ replaces: values[0] });
+  }
 
-      // @ts-ignore
-    this.setState({ [name]: value });
+  updateSkipsField = (name: string, values: string[]) => {
+    // @ts-ignore
+    this.setState({ skips: values });
   }
 
   validators = {
-    replaces: (value: string) => {
-      return null;
-    }    
+    // empty validator as there is nothing to check here
+    replaces: (value: string) => null,
+    skips: (value: string) => null,
+    skipRange: (value: string) => {
+      return validRange(value) ? null : 'Please use the valid semantic versioning range format.'
+    }
   }
 
 
   commitField = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-   
+
     this.validateField(name, value);
   }
 
-  commitSelectField = (name: string) => {
-      const value = this.state[name];
+  commitReplacesField = (name: string) => {
+    const { replaces, possibleReplaces } = this.state;
 
-      this.validateField(name, value)
+    const replacesIndex = replaces ? possibleReplaces.indexOf(replaces) : possibleReplaces.length;
+
+    // reduce possible skips based on changed replaces version
+    this.setState({
+      possibleSkips: possibleReplaces.slice(0, replacesIndex)
+    });
+
+    this.validateField(name, replaces)
+  }
+
+  commitSelectField = (name: string) => {
+    const value = this.state[name];
+
+    this.validateField(name, value)
   }
 
   validateField = (name: string, value: string) => {
@@ -88,31 +164,17 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
     return error;
   }
 
-  
-//   onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  onConfirm = (e: React.MouseEvent) => {
+    const { onConfirm } = this.props;
+    const { replaces, skips, skipRange } = this.state;
 
-//     if ((event.which === 13 || event.keyCode === 13)) {
-//         event.preventDefault();
-//         const { name, value } = event.target as HTMLInputElement;
-
-//         const validationResult = this.commitField(event as any);
-
-//         if (validationResult === null) {
-//           const {validFields} = this.state;
-
-//           const allValid = Object.values(validFields).every(field => field);
-
-//           allValid && this.upload();
-//         }
-//     }
-// };
-
- 
-
+    e.preventDefault();
+    onConfirm(replaces, skips, skipRange);
+  }
 
   render() {
     const { onClose } = this.props;
-    const { replaces, formErrors, validFields } = this.state;
+    const { replaces, skips, skipRange, formErrors, validFields, possibleReplaces, possibleSkips } = this.state;
 
     const allValid = Object.values(validFields).every(field => field);
 
@@ -123,7 +185,7 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
           <Modal.Title>Edit Update Graph</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-               
+
           {
             <form className="oh-operator-editor-form">
               <OperatorSelect
@@ -132,58 +194,52 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
                 field="replaces"
                 formErrors={formErrors}
                 key="replaces"
-                values={[]}
-                options={[]}
-                isMulti
-                updateOperator={this.updateSelectField}
-                commitField={this.commitSelectField}
-              />               
-              {/* <OperatorInputWrapper
-                title="Operator package path"
+                values={replaces ? [replaces] : []}
+                options={possibleReplaces}
+                isMulti={false}
+                updateOperator={this.updateReplacesField}
+                commitField={this.commitReplacesField}
+                placeholder="Select Operator Version"
+              />
+              <OperatorSelect
+                title="Skips (optional)"
                 descriptions={this.descriptions}
-                field="path"
+                field="skips"
                 formErrors={formErrors}
-                key="path"
+                key="skips"
+                values={skips}
+                options={possibleSkips}
+                isMulti
+                updateOperator={this.updateSkipsField}
+                commitField={this.commitSelectField}
+                placeholder="Select Operator Version"
+              />
+              <OperatorInputWrapper
+                title="Skip Range (optional)"
+                descriptions={this.descriptions}
+                field="skipRange"
+                formErrors={formErrors}
+                key="skipRange"
               >
                 <input
                   className="form-control"
-                  name="path"
+                  name="skipRange"
                   type="text"
-                  onFocus={this.closeNoResultsWarning}
                   onChange={this.updateField}
                   onBlur={this.commitField}
-                  onKeyDown={this.onKeyDown}
-                  placeholder="e.g. upstream-community-operators/etcd"
-                  value={path}
+                  placeholder="e.g. >=4.1.0 <4.2.0"
+                  value={skipRange}
                 />
               </OperatorInputWrapper>
-              <OperatorInputWrapper
-                title="Branch"
-                descriptions={this.descriptions}
-                field="branch"
-                formErrors={formErrors}
-                key="branch"
-              >
-                <input
-                  className="form-control"
-                  name="branch"
-                  type="text"
-                  onFocus={this.closeNoResultsWarning}
-                  onChange={this.updateField}
-                  onBlur={this.commitField}
-                  onKeyDown={this.onKeyDown}
-                  placeholder="e.g. master"
-                  value={branch}
-                />
-              </OperatorInputWrapper> */}
+
             </form>
-          }          
+          }
         </Modal.Body>
         <Modal.Footer>
           <button className="oh-button oh-button-secondary" onClick={onClose}>
             Cancel
           </button>
-          <button className="oh-button oh-button-primary" onClick={noop} disabled={true}>
+          <button className="oh-button oh-button-primary" onClick={this.onConfirm} disabled={!allValid}>
             Save
           </button>
         </Modal.Footer>
@@ -194,4 +250,4 @@ class UploadPackageFromGithubModal extends React.PureComponent<UploadPackageFrom
 
 
 
-export default UploadPackageFromGithubModal;
+export default EditUpgradeGraphModal;

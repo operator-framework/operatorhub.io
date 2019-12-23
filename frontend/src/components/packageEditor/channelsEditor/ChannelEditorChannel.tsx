@@ -1,6 +1,7 @@
 import React from 'react';
 import { DropdownKebab, MenuItem, Grid, Icon } from 'patternfly-react';
 import satisfies from 'semver/functions/satisfies';
+import compareVersions from 'compare-versions';
 
 import ChannelEditorChannelIcon from './ChannelEditorChannelIcon';
 import PackageUploaderSortIcon from '../../uploader/package/PackageUploaderSortIcon';
@@ -23,6 +24,7 @@ export type ChannelEditorChannelProps = {
     duplicateVersion: (channel: PacakgeEditorChannel, version: string) => void
     editVersion: (channel: PacakgeEditorChannel, version: string) => void
     setVersionAsDefault: (channel: PacakgeEditorChannel, version: string) => void
+    editUpdateGraph: (channel: PacakgeEditorChannel, version: string) => void
     deleteVersion: (channel: PacakgeEditorChannel, version: string) => void
 };
 
@@ -60,8 +62,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         });
     }
 
-    sortVersions = (sorting: 'asc' | 'desc') => (a: string, b: string) => {
-        const result = a.localeCompare(b);
+    sortVersions = (sorting: 'asc' | 'desc') => (a: string, b: string) => {        
+        const result = compareVersions(a, b);
 
         return sorting === 'asc' ? result : result * -1;
     }
@@ -125,6 +127,12 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         deleteVersion(channel, version);
     }
 
+    editUpdateGraph = (e: React.MouseEvent, version: string) => {
+        const { channel, editUpdateGraph } = this.props;
+        e.preventDefault();
+        editUpdateGraph(channel, version);
+    }
+
     calculateVersionsDistance = (versions: string[], targetVersion: string, sourceVersion: string) => {
         const targetIndex = versions.indexOf(targetVersion);
         const sourceIndex = versions.indexOf(sourceVersion);
@@ -163,15 +171,18 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                         const skippedVersion = getVersionFromName(skip);
 
                         if (skippedVersion) {
+                            // exclude skipped version from analyzis as it should never be target version just source one
                             versionsToSkip.push(skippedVersion);
 
-                            // updateGraph.push({
-                            //     id: `${version}-${skippedVersion}`,
-                            //     target: version,
-                            //     source: skippedVersion,
-                            //     distance: this.calculateVersionsDistance(versions, version, skippedVersion),
-                            //     index: 0
-                            // });
+                            // visualize update path for every skipped version
+                            // disable if we want only main skip update path
+                            updateGraph.push({
+                                id: `${version}-${skippedVersion}`,
+                                target: version,
+                                source: skippedVersion,
+                                distance: this.calculateVersionsDistance(versions, version, skippedVersion),
+                                index: 0
+                            });
                         }
                     })
                 }
@@ -193,9 +204,11 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                 distance: this.calculateVersionsDistance(versions, version, skip),
                                 index: 0
                             };
+                            // visualize every update path inside skip range
+                            // disable if this is not desired
+                            updateGraph.push({...skipPath})
                         }
                     });
-                   // console.log(skippedByRange);
 
                     skipPath && updateGraph.push(skipPath);
 
@@ -204,8 +217,6 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                         // do not skip last version as we need it to continue building update path
                         // intermediate version will be skipped by range so are unimportant
                         versionsToSkip.push(...skippedWithoutLast);
-
-                       // console.log(skippedWithoutLast)
                     }
                 }
 
@@ -242,7 +253,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                 index
             }))
 
-        console.log(updateGraph);
+      //  console.log(updateGraph);
         return updateGraph;
     }
 
@@ -356,7 +367,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                                         <Grid.Col xs={1} className="oh-operator-editor-upload__uploads__actions-col">
                                                             <DropdownKebab id={`editVersion_${version}`} pullRight>
                                                                 <MenuItem onClick={curryWithVersion(this.duplicateVersion)}>Duplicate Operator Version</MenuItem>
-                                                                <MenuItem>Edit Update Graph</MenuItem>
+                                                                <MenuItem onClick={curryWithVersion(this.editUpdateGraph)}>Edit Update Graph</MenuItem>
                                                                 <MenuItem onClick={curryWithVersion(this.setVersionAsDefault)}>Set as Default Version</MenuItem>
                                                                 <MenuItem onClick={curryWithVersion(this.editVersion)}>Edit Operator Version</MenuItem>
                                                                 <MenuItem onClick={curryWithVersion(this.deleteVersion)}>Delete Operator Version</MenuItem>

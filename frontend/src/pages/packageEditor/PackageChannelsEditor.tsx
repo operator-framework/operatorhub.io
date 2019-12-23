@@ -6,6 +6,7 @@ import { match } from 'react-router';
 import { Icon } from 'patternfly-react';
 import JSZip from 'jszip';
 import _ from 'lodash-es';
+import compareVersions from 'compare-versions';
 
 import PackageEditorPageWrapper from './pageWrapper/PackageEditorPageWrapper';
 import { StoreState } from '../../redux';
@@ -19,6 +20,7 @@ import { yamlFromOperator } from '../operatorBundlePage/bundlePageUtils';
 import EditVersionNameModal from '../../components/packageEditor/modals/EditVersionNameModal';
 import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
 import { convertVersionCrdsToVersionUploads, validateOperatorVersions, validateChannel, convertVersionCsvToVersionUpload } from '../../utils/packageEditorUtils';
+import EditUpgradeGraphModal from '../../components/packageEditor/modals/EditUpdateGraphModal';
 
 const PackageChannelsEditorPageActions = {
     showRemoveChannelConfirmationModal: actions.showRemoveChannelConfirmationModalAction,
@@ -35,6 +37,7 @@ const PackageChannelsEditorPageActions = {
     addOperatorVersion: actions.addPackageOperatorVersionAction,
     makePackageOperatorVersionDefault: actions.makePackageOperatorVersionDefaultAction,
     changePackageOperatorVersionName: actions.changePackageOperatorVersionNameAction,
+    updatePackageOperatorVersionUpgradePath: actions.updatePackageOperatorVersionUpgradePathAction,
     removeOperatorVersion: actions.removePackageOperatorVersionAction,
     storeEditorOperator: actions.storeEditorOperatorAction,
     setVersionEditorCrdUploads: actions.setUploadsAction
@@ -51,6 +54,7 @@ interface PackageChannelsEditorPageState {
     operatorVersionNameToEdit: string | null,
     operatorVersionToDuplicate: string | null,
     channelToAddVersion: PacakgeEditorChannel | null
+    versionToEditUpdateGraph: PackageEditorOperatorVersionMetadata | null
 }
 
 
@@ -62,7 +66,8 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         channelNameToEdit: null,
         operatorVersionNameToEdit: null,
         operatorVersionToDuplicate: null,
-        channelToAddVersion: null
+        channelToAddVersion: null,
+        versionToEditUpdateGraph: null
     }
 
     title = 'Package Definition';
@@ -75,7 +80,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
     generateAction: HTMLAnchorElement | null = null;
 
     componentDidMount() {
-        const { versions, updatePackageEditorVersionsValidation } = this.props;       
+        const { versions, updatePackageEditorVersionsValidation } = this.props;
 
         updatePackageEditorVersionsValidation(validateOperatorVersions(versions));
     }
@@ -123,6 +128,21 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
             console.error(`Can't find version to update for version name ${versionName}`, versions);
         }
     };
+
+    editUpdateGraph = (channel: PacakgeEditorChannel, versionName: string) => {
+        const { versions } = this.props;
+        const targetVersion = versions.find(version => version.version === versionName);
+
+        if (targetVersion) {
+            this.setState({
+                channelToAddVersion: channel,
+                versionToEditUpdateGraph: targetVersion
+            })
+        } else {
+            console.error(`Can't find version to update for version name ${versionName}`, versions);
+        }
+    }
+
 
     onEditOperatorVersionNameConfirmed = (versionName: string, initialVersionName: string) => {
         const { packageName, addOperatorVersion, changePackageOperatorVersionName, versions } = this.props;
@@ -183,7 +203,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
         if (originalVersionMetadata) {
             const updatedCsv = _.cloneDeep(originalVersionMetadata.csv);
-                _.set(updatedCsv, 'spec.version', duplicateVersionName);
+            _.set(updatedCsv, 'spec.version', duplicateVersionName);
 
             const duplicate: PackageEditorOperatorVersionMetadata = {
                 ...originalVersionMetadata,
@@ -222,6 +242,49 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         this.closeChannelNameModal();
     }
 
+    onEditUpdateGraphConfirmed = (replaced: string, skips: string[], skipRange: string) => {
+        const { versions, updatePackageOperatorVersionUpgradePath } = this.props;
+        const { channelToAddVersion, versionToEditUpdateGraph } = this.state;
+
+        if (versionToEditUpdateGraph && channelToAddVersion) {
+            const csv = _.cloneDeep(versionToEditUpdateGraph.csv);
+            const replacedVersion = versions.find(meta => meta.version === replaced);
+            
+            // update or remove replaces value
+            _.set(csv, 'spec.replaces', replacedVersion && replacedVersion.name);
+          
+
+            const skippedVersionNames = skips
+                .map(skip => {
+                    const meta = versions.find(meta => meta.version === skip);
+                    return meta && meta.name;
+                })
+                .filter(name => name) as string[];
+
+            // replace list of skip versions
+            _.set(csv, 'spec.skips', skippedVersionNames);
+
+            // remove skip range if empty string is received
+            _.set(csv, 'spec["olm.skipRange"]', skipRange ? skipRange : undefined);
+
+            const updateVersionMeta: PackageEditorOperatorVersionMetadata = {
+                ...versionToEditUpdateGraph,
+                csv
+            };
+
+            updatePackageOperatorVersionUpgradePath(
+                updateVersionMeta,
+                channelToAddVersion.name,
+                skips,
+                replaced && replaced,              
+                skipRange && skipRange // change empty string to undefined
+            )
+        } else {
+            console.warn('Can\'t find relevant version metadata or channel in state. Something went wrong', versionToEditUpdateGraph, channelToAddVersion);
+        }
+        this.closeUpdateGraphModal();
+    }
+
     setChannelAsDefault = (channelName: string) => {
         const { makePackageChannelDefault } = this.props;
 
@@ -252,7 +315,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         const { history, versions, storeEditorOperator, setVersionEditorCrdUploads } = this.props;
 
         const versionMetadata = versions.find(version => version.version === versionName);
-        
+
         // push selected version data to standalone version editor reducer
         if (versionMetadata) {
             const csvUpload = convertVersionCsvToVersionUpload(versionMetadata);
@@ -286,8 +349,8 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
         const { packageName, channels, versions, showMissingDefaultChannelConfirmationModal } = this.props;
         const haveDefaultChannel = channels.some(channel => channel.isDefault) || channels.length === 1;
-        
-        if(!haveDefaultChannel){
+
+        if (!haveDefaultChannel) {
             showMissingDefaultChannelConfirmationModal();
             return;
         }
@@ -356,10 +419,11 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
     closeChannelNameModal = () => this.setState({ channelNameToEdit: null });
     closeVersionNameModal = () => this.setState({ operatorVersionNameToEdit: null, channelToAddVersion: null });
     closeDuplicateVersionModal = () => this.setState({ operatorVersionToDuplicate: null, channelToAddVersion: null });
+    closeUpdateGraphModal = () => this.setState({ versionToEditUpdateGraph: null });
 
     allowDownload = (channels: PacakgeEditorChannel[], versions: PackageEditorOperatorVersionMetadata[]) => {
         const allChannelsValid = channels.every(channel => validateChannel(channel, versions));
-        const allChannelsHaveDefaultVersion = channels.every(channel => channel.currentVersionFullName !== '');        
+        const allChannelsHaveDefaultVersion = channels.every(channel => channel.currentVersionFullName !== '');
 
         return allChannelsValid && allChannelsHaveDefaultVersion;
     }
@@ -367,10 +431,11 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
     render() {
         const { history, match, channels, versions } = this.props;
-        const { channelNameToEdit, operatorVersionNameToEdit, operatorVersionToDuplicate } = this.state;
+        const { channelNameToEdit, operatorVersionNameToEdit, operatorVersionToDuplicate, versionToEditUpdateGraph } = this.state;
 
         const packageName = match.params.packageName;
-        const versionsNames = versions.map(versionMetadata => versionMetadata.version);
+        const versionsNames = versions.map(versionMetadata => versionMetadata.version).sort(compareVersions).reverse();
+
         const downloadEnabled = this.allowDownload(channels, versions);
 
 
@@ -425,6 +490,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                                     editVersion={this.editOperatorVersionName}
                                     setVersionAsDefault={this.setVersionAsDefault}
                                     duplicateVersion={this.duplicateOperatorVersion}
+                                    editUpdateGraph={this.editUpdateGraph}
                                     deleteVersion={this.removeOperatorVersion}
                                 />
                             )
@@ -450,6 +516,18 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                         allVersions={versionsNames}
                         onConfirm={this.onDuplicateVersionConfirmed}
                         onClose={this.closeDuplicateVersionModal}
+                    />
+                }
+                {
+                    versionToEditUpdateGraph !== null &&
+                    <EditUpgradeGraphModal
+                        currentVersion={versionToEditUpdateGraph.version}
+                        versions={versionsNames}
+                        replaces={_.get(versionToEditUpdateGraph.csv, 'spec.replaces')}
+                        skips={_.get(versionToEditUpdateGraph.csv, 'spec.skips', [])}
+                        skipRange={_.get(versionToEditUpdateGraph.csv, 'spec["olm.skipRange"]')}
+                        onConfirm={this.onEditUpdateGraphConfirmed}
+                        onClose={this.closeUpdateGraphModal}
                     />
                 }
             </PackageEditorPageWrapper>

@@ -15,6 +15,7 @@ import EditorSelect from '../EditorSelect';
   options: string[]
   updateOperator: (field: string, values: string[]) => void
   commitField: (field: string) => void
+  placeholder?: string
   descriptions?: any,
   isMulti?: boolean
   customSelect?: boolean
@@ -34,6 +35,7 @@ const OperatorSelect: React.FC<OperatorSelectProps> = ({
   isMulti,
   updateOperator, 
   commitField,
+  placeholder,
   descriptions,
   ...otherProps
 }) => (
@@ -44,7 +46,7 @@ const OperatorSelect: React.FC<OperatorSelectProps> = ({
       isMulti={isMulti}
       options={options}
       {...otherProps}
-      placeholder={_.get(operatorFieldPlaceholders, field)}
+      placeholder={placeholder ? placeholder : _.get(operatorFieldPlaceholders, field)}
       onChange={selection => updateOperator(field, selection)}
       onBlur={() => commitField(field)}
     />
