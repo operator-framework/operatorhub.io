@@ -1,6 +1,9 @@
+import satisfies from 'semver/functions/satisfies';
+
 import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../utils/packageEditorTypes';
 import { PackageEditorActions } from './actions';
 import { getAutoSavedOperatorData } from '../utils/operatorUtils';
+import { version } from 'react';
 
 
 export interface PackageEditorState {
@@ -125,15 +128,10 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
     }
 
     case 'REMOVE_PACKAGE_EDITOR_CHANNEL': {
-      // versions used by other channels to keep
-       const versionsToKeep = state.channels
-        .filter(channel => channel.name !== action.name)
-        .flatMap(channel => channel.versions);      
 
       return {
         ...state,
-        channels: state.channels.filter(channel => channel.name !== action.name),
-        operatorVersions: state.operatorVersions.filter(version => versionsToKeep.includes(version.version))
+        channels: state.channels.filter(channel => channel.name !== action.name)
       }
     }
 
@@ -142,21 +140,79 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
         ...state,
         operatorVersions: [
           ...action.operatorVersions
-        ]        
+        ]
       }
     }
 
     case 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION': {
-      const updatedVersion = action.operatorVersion;      
+      const updatedVersion = action.operatorVersion;
 
       return {
         ...state,
-        channels:state.channels.map(channel => ({
+        channels: state.channels.map(channel => ({
           ...channel,
           currentVersionFullName: channel.currentVersion === updatedVersion.version ? updatedVersion.name : channel.currentVersionFullName
         })),
         operatorVersions: state.operatorVersions.map(
-          operatorVersion => operatorVersion.version === updatedVersion.version ? updatedVersion : operatorVersion)        
+          operatorVersion => operatorVersion.version === updatedVersion.version ? updatedVersion : operatorVersion)
+      }
+    }
+
+    case 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION_UPGRADE_PATH': {
+      const relevantChannel = state.channels.find(channel => channel.name === action.channelName);
+
+      let replacedVersionToAddIntoChannel: string[] = [];
+      let skippedVersionsToAddIntoChannel: string[] = [];   
+      let skippedByRangeToAddIntoChannel: string[] = [];   
+      
+      if(relevantChannel){
+
+        if(action.replaces && !relevantChannel.versions.includes(action.replaces)){
+          replacedVersionToAddIntoChannel = [action.replaces];
+        }
+
+        if(action.skips){
+          action.skips.forEach(skip => {
+            !relevantChannel.versions.includes(skip) && skippedVersionsToAddIntoChannel.push(skip);
+          });
+        }
+       
+        if(action.skipRange){
+          state.operatorVersions.forEach(versionMeta => {
+            const {version} = versionMeta;
+
+            if(satisfies(version, action.skipRange) && !relevantChannel.versions.includes(version)){
+              skippedByRangeToAddIntoChannel.push(version);
+            }
+          })
+        }
+      }
+
+      return {
+        ...state,
+        // add possibly added versions into channel
+        channels: state.channels.map(channel => {
+
+          if(channel === relevantChannel){
+            return {
+              ...relevantChannel,
+              versions: relevantChannel.versions.concat(replacedVersionToAddIntoChannel, skippedVersionsToAddIntoChannel, skippedByRangeToAddIntoChannel)
+            };
+
+          } else {
+            return channel;
+          }
+        }),
+        // update version meta - csv in particular
+        operatorVersions: state.operatorVersions.map(version => {
+
+          if(version.version === action.operatorVersion.version){
+            return {...action.operatorVersion};
+
+          } else {
+            return version;
+          }
+        })
       }
     }
 
@@ -227,50 +283,50 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
         operatorVersions: [
           ...state.operatorVersions,
           action.operatorVersion
-        ]      
+        ]
+      }
     }
-  }
 
     case 'REMOVE_PACKAGE_EDITOR_OPERATOR_VERSION': {
 
-  return {
-    ...state,
-    channels: [
-      ...state.channels.map(channel => {
+      return {
+        ...state,
+        channels: [
+          ...state.channels.map(channel => {
 
-        if (channel.name === action.channelName) {
-          return {
-            ...channel,
-            currentVersion: channel.currentVersion === action.removedVersion ? '' :  channel.currentVersion,
-            currentVersionFullName: channel.currentVersion === action.removedVersion ? '' :  channel.currentVersionFullName,
-            versions: channel.versions.filter(version => version !== action.removedVersion)
-          }
+            if (channel.name === action.channelName) {
+              return {
+                ...channel,
+                currentVersion: channel.currentVersion === action.removedVersion ? '' : channel.currentVersion,
+                currentVersionFullName: channel.currentVersion === action.removedVersion ? '' : channel.currentVersionFullName,
+                versions: channel.versions.filter(version => version !== action.removedVersion)
+              }
 
-        } else {
-          return channel
-        }
-      })
-    ],
-    operatorVersions: state.operatorVersions.filter(operatorVersion => operatorVersion.version !== action.removedVersion)
-  }
-}
+            } else {
+              return channel
+            }
+          })
+        ],
+        operatorVersions: state.operatorVersions.filter(operatorVersion => operatorVersion.version !== action.removedVersion)
+      }
+    }
 
     case 'SHOW_PACKAGE_EDITOR_GITHUB_UPLOAD': {
-  return {
-    ...state,
-    githubUploadShown: true
-  }
-}
+      return {
+        ...state,
+        githubUploadShown: true
+      }
+    }
 
     case 'HIDE_PACKAGE_EDITOR_GITHUB_UPLOAD': {
-  return {
-    ...state,
-    githubUploadShown: false
-  }
-}
+      return {
+        ...state,
+        githubUploadShown: false
+      }
+    }
 
     default:
-return state;
+      return state;
   }
 };
 
