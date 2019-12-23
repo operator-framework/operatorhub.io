@@ -44,7 +44,7 @@ export const updatePackageChannelAction = (name: string, change: Partial<Pacakge
   type: 'UPDATE_PACKAGE_EDITOR_CHANNEL' as 'UPDATE_PACKAGE_EDITOR_CHANNEL',
   name,
   change
-}); 
+});
 
 export const addNewPackageChannelAction = (name: string) => ({
   type: 'NEW_PACKAGE_EDITOR_CHANNEL' as 'NEW_PACKAGE_EDITOR_CHANNEL',
@@ -54,7 +54,7 @@ export const addNewPackageChannelAction = (name: string) => ({
     currentVersionFullName: '',
     isDefault: false,
     versions: []
-}
+  }
 });
 
 export const makePackageChannelDefaultAction = (name: string) => ({
@@ -77,6 +77,21 @@ export const updatePackageOperatorVersionAction = (operatorVersion: PackageEdito
   operatorVersion
 });
 
+
+export const updatePackageOperatorVersionUpgradePathAction = (
+    operatorVersion: PackageEditorOperatorVersionMetadata,
+    channelName: string,
+    skips: string[],
+    replaces?: string,
+    skipRange?: string
+  ) => ({
+    type: 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION_UPGRADE_PATH' as 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION_UPGRADE_PATH',
+    operatorVersion,
+    channelName,
+    skips,
+    replaces,
+    skipRange
+  })
 export const updatePackageOperatorVersionsValidityAction = (operatorVersions: PackageEditorOperatorVersionMetadata[]) => ({
   type: 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSIONS_VALIDITY' as 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSIONS_VALIDITY',
   operatorVersions
@@ -109,12 +124,12 @@ export const removePackageOperatorVersionAction = (removedVersion: string, chann
 });
 
 export type PackageEditorActions = ReturnType<typeof resetPackageEditorAction> | ReturnType<typeof setPackageNameAction> |
- ReturnType<typeof setPackageUploadsAction> | ReturnType<typeof removePackageUploadAction> |
+  ReturnType<typeof setPackageUploadsAction> | ReturnType<typeof removePackageUploadAction> |
   ReturnType<typeof clearPackageUploadsAction> | ReturnType<typeof showGithubPackageUploadAction> |
-  ReturnType<typeof hideGithubPackageUploadAction> | ReturnType<typeof setPackageChannelsAction> | 
+  ReturnType<typeof hideGithubPackageUploadAction> | ReturnType<typeof setPackageChannelsAction> |
   ReturnType<typeof setPackageOperatorVersionsAction> | ReturnType<typeof updatePackageChannelAction> |
   ReturnType<typeof addNewPackageChannelAction> | ReturnType<typeof makePackageChannelDefaultAction> |
-  ReturnType<typeof removePackageChannelAction> | ReturnType<typeof updatePackageOperatorVersionAction> | 
-  ReturnType<typeof updatePackageOperatorVersionsValidityAction> |
+  ReturnType<typeof removePackageChannelAction> | ReturnType<typeof updatePackageOperatorVersionAction> |
+  ReturnType<typeof updatePackageOperatorVersionsValidityAction> | ReturnType<typeof updatePackageOperatorVersionUpgradePathAction> |
   ReturnType<typeof changePackageOperatorVersionNameAction> | ReturnType<typeof makePackageOperatorVersionDefaultAction> |
- ReturnType<typeof addPackageOperatorVersionAction> | ReturnType<typeof removePackageOperatorVersionAction>;
+  ReturnType<typeof addPackageOperatorVersionAction> | ReturnType<typeof removePackageOperatorVersionAction>;
