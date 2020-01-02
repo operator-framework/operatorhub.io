@@ -25,11 +25,16 @@
     border-top: 1px solid $oh-color-rule;
     margin-top: 40px;
 
+    &.oh-operator-package-editor-inner-tabs {
+      margin: 0;
+    }
+
     > li > a {
       padding: 20px;
 
       &:before {
         width: 100%;
+        left: 0;
       }
     }
   }
@@ -84,7 +89,7 @@
           }
         }
 
-        &__name{
+        &__name {
           cursor: pointer;
         }
 
@@ -174,7 +179,7 @@
       }
 
       &__name,
-      &__default{
+      &__default {
         float: left;
         cursor: pointer;
       }
@@ -285,6 +290,6 @@
   }
 }
 
-.oh-operator-editor-page .oh-operator-editor-form input{
+.oh-operator-editor-page .oh-operator-editor-form input {
   box-sizing: border-box !important;
 }
