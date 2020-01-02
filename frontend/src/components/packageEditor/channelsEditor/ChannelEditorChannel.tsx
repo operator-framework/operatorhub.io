@@ -285,9 +285,9 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         return (
             <div key={channel.name} className="oh-package-channels-editor__channel">
                 <div className="oh-package-channels-editor__channel__header">
-                    <div className="oh-package-channels-editor__channel__header__title">
+                    <div className="oh-package-channels-editor__channel__header__title" onClick={this.toggleExpand}>
                         <h3>
-                            <span className="oh-package-channels-editor__channel__header__name" onClick={this.toggleExpand}>
+                            <span className="oh-package-channels-editor__channel__header__name">
                                 <ChannelEditorChannelIcon expanded={expanded} />{channel.name}
                             </span>
                             {channel.isDefault &&
@@ -368,8 +368,8 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                                                             <DropdownKebab id={`editVersion_${version}`} pullRight>
                                                                 <MenuItem onClick={curryWithVersion(this.duplicateVersion)}>Duplicate Operator Version</MenuItem>
                                                                 <MenuItem onClick={curryWithVersion(this.editUpdateGraph)}>Edit Update Graph</MenuItem>
-                                                                <MenuItem onClick={curryWithVersion(this.setVersionAsDefault)}>Set as Default Version</MenuItem>
-                                                                <MenuItem onClick={curryWithVersion(this.editVersion)}>Edit Operator Version</MenuItem>
+                                                                <MenuItem onClick={curryWithVersion(this.setVersionAsDefault)}>Set as Default Version (current CSV)</MenuItem>
+                                                                <MenuItem onClick={curryWithVersion(this.editVersion)}>Edit Operator Version Number</MenuItem>
                                                                 <MenuItem onClick={curryWithVersion(this.deleteVersion)}>Delete Operator Version</MenuItem>
                                                             </DropdownKebab>
                                                         </Grid.Col>

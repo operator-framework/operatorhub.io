@@ -4,7 +4,6 @@ import { History } from 'history';
 import { bindActionCreators } from 'redux';
 import { match } from 'react-router';
 import { Icon } from 'patternfly-react';
-import JSZip from 'jszip';
 import _ from 'lodash-es';
 import compareVersions from 'compare-versions';
 
@@ -14,12 +13,10 @@ import * as actions from '../../redux/actions';
 import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../utils/packageEditorTypes';
 import ChannelEditorChannel from '../../components/packageEditor/channelsEditor/ChannelEditorChannel';
 import EditChannelNameModal from '../../components/packageEditor/modals/EditChannelNameModal';
-import { safeDump } from 'js-yaml';
-import { removeEmptyOptionalValuesFromOperator } from '../../utils/operatorValidation';
-import { yamlFromOperator } from '../operatorBundlePage/bundlePageUtils';
+
 import EditVersionNameModal from '../../components/packageEditor/modals/EditVersionNameModal';
 import { getDefaultOperatorWithName } from '../../utils/operatorUtils';
-import { convertVersionCrdsToVersionUploads, validateOperatorVersions, validateChannel, convertVersionCsvToVersionUpload } from '../../utils/packageEditorUtils';
+import { convertVersionCrdsToVersionUploads, validateOperatorVersions, validateChannel, convertVersionCsvToVersionUpload, createPackageBundle } from '../../utils/packageEditorUtils';
 import EditUpgradeGraphModal from '../../components/packageEditor/modals/EditUpdateGraphModal';
 
 const PackageChannelsEditorPageActions = {
@@ -249,10 +246,10 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         if (versionToEditUpdateGraph && channelToAddVersion) {
             const csv = _.cloneDeep(versionToEditUpdateGraph.csv);
             const replacedVersion = versions.find(meta => meta.version === replaced);
-            
+
             // update or remove replaces value
             _.set(csv, 'spec.replaces', replacedVersion && replacedVersion.name);
-          
+
 
             const skippedVersionNames = skips
                 .map(skip => {
@@ -276,7 +273,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                 updateVersionMeta,
                 channelToAddVersion.name,
                 skips,
-                replaced && replaced,              
+                replaced && replaced,
                 skipRange && skipRange // change empty string to undefined
             )
         } else {
@@ -345,75 +342,9 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
 
     downloadPackageBundle = (e: React.MouseEvent) => {
-        e.preventDefault();
-
         const { packageName, channels, versions, showMissingDefaultChannelConfirmationModal } = this.props;
-        const haveDefaultChannel = channels.some(channel => channel.isDefault) || channels.length === 1;
 
-        if (!haveDefaultChannel) {
-            showMissingDefaultChannelConfirmationModal();
-            return;
-        }
-
-        const zip = new JSZip();
-
-        const defaultChannel = channels.find(channel => channel.isDefault) || channels[0];
-        const packageFileObject = {
-            packageName,
-            defaultChannel: defaultChannel.name,
-            channels: channels.map(channel => ({
-                name: channel.name,
-                currentCSV: channel.currentVersionFullName
-            }))
-        };
-        const pkgFolder = zip.folder(packageName);
-        pkgFolder.file(`${packageName}.package.yaml`, safeDump(packageFileObject));
-
-        versions.forEach(operatorVersion => {
-            const versionFolder = pkgFolder.folder(operatorVersion.version);
-
-            // remove values which are part of default operator, but are invalid
-            const cleanedOperator = removeEmptyOptionalValuesFromOperator(operatorVersion.csv);
-
-            let operatorYaml = '';
-            try {
-                operatorYaml = yamlFromOperator(cleanedOperator);
-            } catch (e) {
-                console.error('Failed to serialize operator csv.', e);
-            }
-            versionFolder.file(`${operatorVersion.name}.clusterserviceversion.yaml`, operatorYaml);
-
-            // add CRDs
-            operatorVersion.crdUploads.forEach(crd => {
-                let crdYaml = '';
-                let crdName = '';
-
-                try {
-                    crdYaml = safeDump(crd.crd);
-                    crdName = crd.name;
-                } catch (e) {
-                    console.warn(`Can't convert crd to yaml for ${crdName} of version ${operatorVersion.version}`);
-                }
-
-                versionFolder.file(`${crdName}.crd.yaml`, crdYaml);
-            });
-        });
-
-
-        zip.generateAsync({ type: 'base64' }).then(
-            base64 => {
-                if (this.generateAction) {
-                    this.generateAction.href = `data:application/zip;base64,${base64}`;
-                    this.generateAction.download = `${packageName}.bundle.zip`;
-                    this.generateAction.click();
-                } else {
-                    console.error('Something went wrong with download. Please retry.');
-                }
-            },
-            err => {
-                console.error(err);
-            }
-        );
+        createPackageBundle(packageName, channels, versions, showMissingDefaultChannelConfirmationModal, this.generateAction);
     }
 
     closeChannelNameModal = () => this.setState({ channelNameToEdit: null });
@@ -443,6 +374,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
             <PackageEditorPageWrapper
                 pageId="oh-operator-package-editor-page"
                 history={history}
+                className="oh-operator-package-channels-editor-page"
                 buttonBar={
                     <div className="oh-operator-package-editor-page__button-bar oh-package-channels-editor">
                         <button className="oh-button oh-button-primary" disabled={!downloadEnabled} onClick={this.downloadPackageBundle}>
