@@ -128,13 +128,10 @@ class PackageUploaderObjectList extends React.PureComponent<PackageUploaderObjec
                                     xs={3}
                                     className="oh-operator-editor-upload__uploads__row__name"
                                     title={upload.name}
+                                    onClick={e => isDir && this.toggleFolderExpanded(e, upload.path)}
                                 >
                                     {upload.nested && <span className="oh-operator-editor-upload__uploads__nested-space">&nbsp;</span>}
-                                    {isDir && (
-                                        <span onClick={e => this.toggleFolderExpanded(e, upload.path)}>
-                                            <PackageUploaderFolderIcon status={folderState} />
-                                        </span>
-                                    )}
+                                    {isDir && <span><PackageUploaderFolderIcon status={folderState} /></span>}
                                     {upload.name}
                                 </Grid.Col>
                                 <Grid.Col xs={3} className="oh-operator-editor-upload__uploads__row__file" title={upload.objectName}>
