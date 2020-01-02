@@ -10,7 +10,7 @@ import { debounce } from '../../../common/helpers';
 import PackageEditorBreadcrumbs, { BreadcrumbsItem } from './PackageEditorBreadcrumbs';
 
 const PackageEditorPageWrapperActions = {
-    storeKeywordSearch: storeKeywordSearchAction
+  storeKeywordSearch: storeKeywordSearchAction
 }
 
 export type PackageEditorPageWrapperProps = {
@@ -19,6 +19,7 @@ export type PackageEditorPageWrapperProps = {
   buttonBar: React.ReactNode
   breadcrumbs: BreadcrumbsItem[]
   pageId?: string,
+  className?: string,
 } & typeof PackageEditorPageWrapperActions;
 
 interface PackageEditorPageWrapperState {
@@ -29,7 +30,7 @@ interface PackageEditorPageWrapperState {
 
 class PackageEditorPageWrapper extends React.PureComponent<PackageEditorPageWrapperProps, PackageEditorPageWrapperState> {
 
-    state: PackageEditorPageWrapperState = {
+  state: PackageEditorPageWrapperState = {
     headerHeight: 0,
     titleHeight: 0,
     keywordSearch: ''
@@ -42,7 +43,7 @@ class PackageEditorPageWrapper extends React.PureComponent<PackageEditorPageWrap
   componentDidMount() {
     this.updateTitleHeight();
     this.onWindowResize = debounce(this.updateTitleHeight, 100);
-    window.addEventListener('resize', this.onWindowResize);  
+    window.addEventListener('resize', this.onWindowResize);
   }
 
   componentWillUnmount() {
@@ -90,8 +91,8 @@ class PackageEditorPageWrapper extends React.PureComponent<PackageEditorPageWrap
       children,
       pageId,
       buttonBar,
-        breadcrumbs: breadcrumbsItems
-    
+      breadcrumbs,
+      className
     } = this.props;
     const { keywordSearch, headerHeight, titleHeight } = this.state;
 
@@ -99,10 +100,10 @@ class PackageEditorPageWrapper extends React.PureComponent<PackageEditorPageWrap
       <Page
         className="oh-page-operator-editor"
         toolbarContent={
-         <PackageEditorBreadcrumbs
+          <PackageEditorBreadcrumbs
             history={history}
-            items={breadcrumbsItems}
-         />
+            items={breadcrumbs}
+          />
         }
         history={history}
         searchValue={keywordSearch}
@@ -111,7 +112,7 @@ class PackageEditorPageWrapper extends React.PureComponent<PackageEditorPageWrap
         searchCallback={this.searchCallback}
         scrollCallback={this.onScroll}
       >
-        <div className="oh-operator-editor-page" id={pageId}>
+        <div className={"oh-operator-editor-page" + ` ${className || ''}`} id={pageId}>
           <div className="oh-operator-editor-page__title-area" ref={this.setTitleAreaRef} style={{ top: headerHeight }}>
             <div className="oh-operator-editor-page__title-area__inner">
               {header}
