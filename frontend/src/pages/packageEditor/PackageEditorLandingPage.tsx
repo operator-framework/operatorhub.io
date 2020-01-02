@@ -180,38 +180,40 @@ class PackageEditorLandingPage extends React.PureComponent<PackageEditorLandingP
                         onNavSelect={this.onNavSelect}
                     />
                 }
+
                 breadcrumbs={[]}
             >
-                <div className="oh-operator-package-editor-page__tab-pane">
-                    {activeTab === PackageEditorLandingPageTabs.createPackage &&
-                        <div className="oh-operator-package-editor-page__tab-content">
+                <div className="oh-operator-package-editor-page__tab-pane">                   
+                    <div className="oh-operator-package-editor-page__tab-content">                   
+                        {activeTab === PackageEditorLandingPageTabs.createPackage &&
                             <CreateNewPackageSection
                                 ref={ref => this.newPackageComponent = ref}
                                 onSectionValidatedCallback={this.onSectionChanged}
                             />
-                        </div>
-                    }
-                    {activeTab === PackageEditorLandingPageTabs.editPackage &&
-                        <div className="oh-operator-package-editor-page__tab-content">
-                            {
-                                !supportFileSystemEntry && (
-                                    <Alert type="warning">
-                                        <p>The Folder Uploader is not compatible with the browser you are using. Use Google Chrome, Mozila Firefox or Microsoft Edge
-                                            instead for uploading your entire package folder. Your can upload package folder from &nbsp;
+                        }
+                        {activeTab === PackageEditorLandingPageTabs.editPackage && (
+                            <>
+                                {
+                                    !supportFileSystemEntry && (
+                                        <Alert type="warning">
+                                            <p>The Folder Uploader is not compatible with the browser you are using. Use Google Chrome, Mozila Firefox or Microsoft Edge
+                                                instead for uploading your entire package folder. Your can upload package folder from &nbsp;
                                             <a href="#" className="oh-drag-drop-box__upload-file-box__link" onClick={showGithubPackageUpload}>Github community operators repository.</a>
-                                            Alternatively, you can <a href="#" onClick={this.onCreateFromScratch}>create your Operator Package from Scratch.</a>
-                                        </p>
-                                    </Alert>
-                                )
-                            }
-                            <div className={`oh-operator-editor-form__field-section ${!supportFileSystemEntry ? 'oh-folder-upload-disabled' : ''}`}>
-                                <OperatorPackageUploader
-                                    ref={(ref: OperatorPackageUploaderComponent) => this.packageUploaderComponent = ref}
-                                    onUploadChangeCallback={this.onSectionChanged}
-                                />
-                            </div>
-                        </div>
-                    }
+                                                Alternatively, you can <a href="#" onClick={this.onCreateFromScratch}>create your Operator Package from Scratch.</a>
+                                            </p>
+                                        </Alert>
+                                    )
+                                }
+                                <div className={`oh-operator-editor-form__field-section ${!supportFileSystemEntry ? 'oh-folder-upload-disabled' : ''}`}>
+                                    <OperatorPackageUploader
+                                        ref={(ref: OperatorPackageUploaderComponent) => this.packageUploaderComponent = ref}
+                                        onUploadChangeCallback={this.onSectionChanged}
+                                    />
+                                </div>
+                            </>
+                        )
+                        }
+                    </div>
                 </div>
             </PackageEditorPageWrapper>
         );
