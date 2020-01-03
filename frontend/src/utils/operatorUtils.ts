@@ -393,7 +393,8 @@ export interface AutoSavedData {
   packageEditorState: {
     packageName: string,
     channels: PacakgeEditorChannel[],
-    operatorVersions: PackageEditorOperatorVersionMetadata[]
+    operatorVersions: PackageEditorOperatorVersionMetadata[],
+    versionsWithoutChannel: string[]
   }
 }
 

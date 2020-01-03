@@ -16,6 +16,7 @@ export type ChannelEditorChannelProps = {
     packageName: string,
     channel: PacakgeEditorChannel,
     versions: PackageEditorOperatorVersionMetadata[],
+    versionsWithoutChannel: string[],
     editChannelName: (channelName: string) => void
     addOperatorVersion: (channel: PacakgeEditorChannel) => void
     setChannelAsDefault: (channelName: string) => void
@@ -146,9 +147,9 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         return distance;
     }
 
-    buildUpdateGraph = (versionMetadatas: PackageEditorOperatorVersionMetadata[], versions: string[]) => {
+    buildUpdateGraph = (versionMetadatas: PackageEditorOperatorVersionMetadata[], versions: string[], versionsWithoutChannel: string[]) => {
 
-        const versionsToSkip: string[] = [];
+        const versionsToSkip: string[] = versionsWithoutChannel.slice(0);
         let updateGraph: PackageEditorUpdatePath[] = [];
 
         versions.forEach(version => {
@@ -273,14 +274,17 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
     }
 
     render() {
-        const { packageName, channel, versions } = this.props;
+        const { packageName, channel, versions, versionsWithoutChannel } = this.props;
         const { expanded, sorting } = this.state;
 
         const versionsInChannelAreValid = validateChannel(channel, versions);
         const hasDefaultVersion = channel.currentVersionFullName !== '';
-        const sortedChannelVersions = channel.versions.slice(0).sort(this.sortVersions(sorting));
+        // added extraneous versions without channel so user does see them in editor!
+        const versionsWithExtraneous = new Set(channel.versions.concat(versionsWithoutChannel));
+        // remove duplicities and sort 
+        const sortedChannelVersions = [...versionsWithExtraneous].sort(this.sortVersions(sorting));
 
-        const updateGraph = expanded ? this.buildUpdateGraph(versions, sortedChannelVersions) : [];
+        const updateGraph = expanded ? this.buildUpdateGraph(versions, sortedChannelVersions, versionsWithoutChannel) : [];
 
         return (
             <div key={channel.name} className="oh-package-channels-editor__channel">
