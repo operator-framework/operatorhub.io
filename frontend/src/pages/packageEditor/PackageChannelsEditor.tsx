@@ -361,7 +361,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 
 
     render() {
-        const { history, match, channels, versions } = this.props;
+        const { history, match, channels, versions, versionsWithoutChannel } = this.props;
         const { channelNameToEdit, operatorVersionNameToEdit, operatorVersionToDuplicate, versionToEditUpdateGraph } = this.state;
 
         const packageName = match.params.packageName;
@@ -414,6 +414,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                                     packageName={packageName}
                                     channel={channel}
                                     versions={versions}
+                                    versionsWithoutChannel={versionsWithoutChannel}
                                     editChannelName={this.editChannelName}
                                     addOperatorVersion={this.addOperatorVersion}
                                     setChannelAsDefault={this.setChannelAsDefault}
@@ -470,7 +471,8 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
 const mapStateToProps = (state: StoreState) => ({
     packageName: state.packageEditorState.packageName,
     channels: state.packageEditorState.channels,
-    versions: state.packageEditorState.operatorVersions
+    versions: state.packageEditorState.operatorVersions,
+    versionsWithoutChannel: state.packageEditorState.versionsWithoutChannel
 });
 
 const mapDispatchToProps = dispatch => ({

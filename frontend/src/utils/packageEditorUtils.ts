@@ -1,5 +1,6 @@
 import _ from "lodash";
 import JSZip from 'jszip';
+import satisfies from 'semver/functions/satisfies';
 
 import { UploadMetadata } from "../components/uploader";
 import { createtUpload } from "../components/uploader/operator/UploaderUtils";
@@ -7,7 +8,7 @@ import { getUpdatedFormErrors, yamlFromOperator } from "../pages/operatorBundleP
 import { sectionsFields, NEW_CRD_NAME } from "./constants";
 import { Operator } from "./operatorTypes";
 import { removeEmptyOptionalValuesFromOperator } from "./operatorValidation";
-import { PackageEditorOperatorVersionCrdMetadata, PackageEditorOperatorVersionMetadata, PacakgeEditorChannel } from "./packageEditorTypes";
+import { PackageEditorOperatorVersionCrdMetadata, PackageEditorOperatorVersionMetadata, PacakgeEditorChannel, PackageFileEntry } from "./packageEditorTypes";
 import { safeDump } from 'js-yaml';
 
 export const validateChannel = (channel: PacakgeEditorChannel, versions: PackageEditorOperatorVersionMetadata[]) => channel.versions.every(version => {
@@ -191,4 +192,62 @@ export const createPackageBundle = (
         }
     );
 
+}
+
+// @TODO this method could be reused in uploader to build versions list!
+export function getChannelVersions(operatorVersions: PackageEditorOperatorVersionMetadata[], currentVersionFullName: string) {
+    // list replaced versions in channel
+    const channelVersions: string[] = [];
+
+    let csvEntry = operatorVersions.find(version => version.name === currentVersionFullName);
+
+    while (csvEntry) {
+        // add version to list if it was not already added by previous csv (skips)
+        if (channelVersions.includes(csvEntry.version) === false) {
+            channelVersions.push(csvEntry.version);
+        }
+
+        const csv = csvEntry.csv;
+        const replacedVersion = _.get(csv, 'spec.replaces');
+        const skippedVersions: string[] = _.get(csv, 'spec.skips', []);
+        const skipRange: string | undefined = _.get(csv, 'spec["olm.skipRange"]');
+        // deduplicate versions!
+        const versionsAddedBySkips = new Set<string>();
+        let oldestSkippedVersion: string = '';
+
+        if (skipRange) {
+            //const skippedByRange: string[] = [];
+            operatorVersions.forEach(versionMeta => {
+                const version = versionMeta.version;
+
+                if (satisfies(version, skipRange)) {
+                    //skippedByRange.push(version);
+                    versionsAddedBySkips.add(version);
+                    oldestSkippedVersion = version;
+                }
+            });
+        }
+        // add skipped versions to the list
+        // do not track their update path
+        // we asume that all skips are listed or they get ignored and are dropped from the list here
+        if (skippedVersions.length > 0) {
+            skippedVersions
+                .map(skipped => getVersionFromName(skipped))
+                .forEach(version => version !== null && versionsAddedBySkips.add(version));
+        }
+        channelVersions.push(...versionsAddedBySkips.values());
+
+        if (replacedVersion) {
+            csvEntry = operatorVersions.find(operatorVersion => operatorVersion.name === replacedVersion);
+
+        } else if (oldestSkippedVersion) {
+            // ensure, that loop continue if no replaces exists by picking the older version
+            csvEntry = operatorVersions.find(operatorVersion => operatorVersion.version === oldestSkippedVersion);
+
+        } else {
+            csvEntry = undefined;
+        }
+    }
+    
+    return channelVersions;
 }

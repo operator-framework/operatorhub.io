@@ -11,7 +11,7 @@ export const AUTOSAVED_STATE: {stateKey: string, fields: string[]}[]  = [
   },
   {
     stateKey: 'packageEditorState',
-    fields: ['packageName', 'channels', 'operatorVersions']
+    fields: ['packageName', 'channels', 'operatorVersions', 'versionsWithoutChannel']
   }
 ];  
 
