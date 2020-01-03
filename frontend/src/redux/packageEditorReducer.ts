@@ -3,13 +3,14 @@ import satisfies from 'semver/functions/satisfies';
 import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../utils/packageEditorTypes';
 import { PackageEditorActions } from './actions';
 import { getAutoSavedOperatorData } from '../utils/operatorUtils';
-import { version } from 'react';
+import { getChannelVersions } from '../utils/packageEditorUtils';
 
 
 export interface PackageEditorState {
   packageName: string,
   uploads: PackageEntry[],
   channels: PacakgeEditorChannel[],
+  versionsWithoutChannel: string[],
   operatorVersions: PackageEditorOperatorVersionMetadata[],
   githubUploadShown: boolean
 }
@@ -22,6 +23,7 @@ const getInitialState = () => {
     packageName: '',
     uploads: [],
     channels: [],
+    versionsWithoutChannel: [],
     operatorVersions: [],
     githubUploadShown: false
   };
@@ -30,6 +32,7 @@ const getInitialState = () => {
     initialState.packageName = autoSaved.packageEditorState.packageName || initialState.packageName;
     initialState.channels = autoSaved.packageEditorState.channels || initialState.channels;
     initialState.operatorVersions = autoSaved.packageEditorState.operatorVersions || initialState.operatorVersions;
+    initialState.versionsWithoutChannel = autoSaved.packageEditorState.versionsWithoutChannel || initialState.versionsWithoutChannel
   }
 
   return initialState;
@@ -88,25 +91,37 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
     }
 
     case 'SET_PACKAGE_EDITOR_CHANNELS': {
+      const versionsInChannels = new Set(action.channels.flatMap(channel => channel.versions));
+
       return {
         ...state,
-        channels: action.channels
+        channels: action.channels,
+        versionsWithoutChannel: state.operatorVersions
+          .filter(versionMeta => !versionsInChannels.has(versionMeta.version))
+          .map(versionMeta => versionMeta.version)
       }
     }
 
     case 'UPDATE_PACKAGE_EDITOR_CHANNEL': {
+      const channels = state.channels.map(channel => {
+
+        if (channel.name === action.name) {
+          return {
+            ...channel,
+            ...action.change
+          }
+        }
+        return channel;
+      });
+      const versionsInChannels = new Set(channels.flatMap(channel => channel.versions));
+
+
       return {
         ...state,
-        channels: state.channels.map(channel => {
-
-          if (channel.name === action.name) {
-            return {
-              ...channel,
-              ...action.change
-            }
-          }
-          return channel;
-        })
+        channels,
+        versionsWithoutChannel: state.operatorVersions
+          .filter(versionMeta => !versionsInChannels.has(versionMeta.version))
+          .map(versionMeta => versionMeta.version)
       }
     }
 
@@ -129,15 +144,32 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
 
     case 'REMOVE_PACKAGE_EDITOR_CHANNEL': {
 
+      const channels = state.channels.filter(channel => channel.name !== action.name);
+      const versionFromOtherChannels = new Set(channels.flatMap(channel => channel.versions));
+
+      // versions used by this channel only to remove with it
+      const versionsToRemove = new Set(
+        state.channels
+          .flatMap(channel => channel.name === action.name ? channel.versions : [])
+          .filter(version => !versionFromOtherChannels.has(version))
+      );
+
       return {
         ...state,
-        channels: state.channels.filter(channel => channel.name !== action.name)
+        channels,
+        operatorVersions: state.operatorVersions.filter(version => !versionsToRemove.has(version.version))
       }
+
     }
 
     case 'SET_PACKAGE_EDITOR_OPERATOR_VERSIONS': {
+      const versionsInChannels = new Set(state.channels.flatMap(channel => channel.versions));
+
       return {
         ...state,
+        versionsWithoutChannel: action.operatorVersions
+          .filter(versionMeta => !versionsInChannels.has(versionMeta.version))
+          .map(versionMeta => versionMeta.version),
         operatorVersions: [
           ...action.operatorVersions
         ]
@@ -160,59 +192,42 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
 
     case 'UPDATE_PACKAGE_EDITOR_OPERATOR_VERSION_UPGRADE_PATH': {
       const relevantChannel = state.channels.find(channel => channel.name === action.channelName);
+      const operatorVersions = state.operatorVersions.map(version => {
 
-      let replacedVersionToAddIntoChannel: string[] = [];
-      let skippedVersionsToAddIntoChannel: string[] = [];   
-      let skippedByRangeToAddIntoChannel: string[] = [];   
-      
-      if(relevantChannel){
-
-        if(action.replaces && !relevantChannel.versions.includes(action.replaces)){
-          replacedVersionToAddIntoChannel = [action.replaces];
+        if (version.version === action.operatorVersion.version) {
+          return { ...action.operatorVersion };
         }
+        return version;
+      });
 
-        if(action.skips){
-          action.skips.forEach(skip => {
-            !relevantChannel.versions.includes(skip) && skippedVersionsToAddIntoChannel.push(skip);
-          });
-        }
-       
-        if(action.skipRange){
-          state.operatorVersions.forEach(versionMeta => {
-            const {version} = versionMeta;
+      const channels = state.channels.map(channel => {
 
-            if(satisfies(version, action.skipRange) && !relevantChannel.versions.includes(version)){
-              skippedByRangeToAddIntoChannel.push(version);
-            }
-          })
+        if (channel === relevantChannel) {
+          return {
+            ...relevantChannel,
+            versions: getChannelVersions(operatorVersions, channel.currentVersionFullName)
+          };
+
+        } else {
+          return {
+            ...channel,
+            versions: getChannelVersions(operatorVersions, channel.currentVersionFullName)
+          }
         }
-      }
+      });
+      const versionsInChannels = new Set(channels.flatMap(channel => channel.versions));
+
 
       return {
         ...state,
         // add possibly added versions into channel
-        channels: state.channels.map(channel => {
-
-          if(channel === relevantChannel){
-            return {
-              ...relevantChannel,
-              versions: relevantChannel.versions.concat(replacedVersionToAddIntoChannel, skippedVersionsToAddIntoChannel, skippedByRangeToAddIntoChannel)
-            };
-
-          } else {
-            return channel;
-          }
-        }),
+        channels,
+        // update versions without channel based on changed to channel versions
+        versionsWithoutChannel: operatorVersions
+          .filter(versionMeta => !versionsInChannels.has(versionMeta.version))
+          .map(versionMeta => versionMeta.version),
         // update version meta - csv in particular
-        operatorVersions: state.operatorVersions.map(version => {
-
-          if(version.version === action.operatorVersion.version){
-            return {...action.operatorVersion};
-
-          } else {
-            return version;
-          }
-        })
+        operatorVersions,
       }
     }
 
@@ -246,6 +261,9 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
             return channel;
           }
         }),
+        versionsWithoutChannel: state.versionsWithoutChannel.map(
+          version => version === action.originalVersionName ? action.updatedVersion.version : version
+        ),
         operatorVersions: state.operatorVersions.map(
           operatorVersion => operatorVersion.version === action.originalVersionName ? action.updatedVersion : operatorVersion
         )
@@ -253,21 +271,30 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
     }
 
     case 'MAKE_PACKAGE_EDITOR_OPERATOR_VERSION_DEFAULT': {
+      const channels = state.channels.map(channel => {
+        if (channel.name === action.channelName) {
+          return {
+            ...channel,
+            currentVersion: action.operatorVersion,
+            currentVersionFullName: action.operatorVersionFullName,
+            versions: getChannelVersions(state.operatorVersions, action.operatorVersionFullName)
+          }
+        }
+
+        return {
+          ...channel,
+          versions: getChannelVersions(state.operatorVersions, channel.currentVersionFullName)
+        }
+      });
+      const versionsInChannels = new Set(channels.flatMap(channel => channel.versions));
+
+
       return {
         ...state,
-        channels: state.channels.map(channel => {
-
-          if (channel.name === action.channelName) {
-            return {
-              ...channel,
-              currentVersion: action.operatorVersion,
-              currentVersionFullName: action.operatorVersionFullName
-            }
-
-          } else {
-            return channel;
-          }
-        })
+        channels,
+        versionsWithoutChannel: state.operatorVersions
+          .filter(versionMeta => !versionsInChannels.has(versionMeta.version))
+          .map(versionMeta => versionMeta.version),
       }
     }
 
@@ -280,6 +307,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
             action.channelName === channel.name ? [action.operatorVersion.version] : []
           )
         })),
+        versionsWithoutChannel: [...state.versionsWithoutChannel, action.operatorVersion.version],
         operatorVersions: [
           ...state.operatorVersions,
           action.operatorVersion
@@ -307,6 +335,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
             }
           })
         ],
+        versionsWithoutChannel: state.versionsWithoutChannel.filter(version => version !== action.removedVersion),
         operatorVersions: state.operatorVersions.filter(operatorVersion => operatorVersion.version !== action.removedVersion)
       }
     }
