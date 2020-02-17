@@ -17,7 +17,7 @@ const olmRepo = 'https://github.com/operator-framework/operator-lifecycle-manage
 const VERIFY_OPERATOR_CMD = 'kubectl get csv -n ';
 
 const getInstallOlmCommand = version =>
-  `curl -sL ${olmRepo}/releases/download/${version}/install.sh | bash -s 0.13.0`;
+  `curl -sL ${olmRepo}/releases/download/${version}/install.sh | bash -s ${version}`;
 
 const tooltipOverrides = Object.freeze({
   wrapper: {
