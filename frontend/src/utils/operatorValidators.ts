@@ -2,7 +2,7 @@
 import _ from 'lodash-es';
 import { OperatorLink, Operator, OperatorMaintainer, OperatorProvider } from './operatorTypes';
 
-const nameRegExp = /^[a-z][a-z-]*[a-z]$/;
+const nameRegExp = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
 const nameRegExpMessage =
   'This field must begin and end with a lower case character with only dashes or lower case characters between.';
 
