@@ -1,13 +1,13 @@
-import { reduxConstants } from './constants';
+import { ConfirmationModalActions } from './actions';
 
 export interface ConfirmationModalReducerState {
   show: boolean;
   title: string;
-  heading: React.ReactNode;
-  icon: React.ReactNode;
+  heading: string | null;
+  iconName: string | undefined;
   body: React.ReactNode;
   confirmButtonText: string;
-  cancelButtonText: React.ReactNode;
+  cancelButtonText: string | null;
   restoreFocus?: boolean
   onConfirm?: () => void
   onCancel?: () => void
@@ -17,22 +17,22 @@ const initialState: ConfirmationModalReducerState = {
   show: false,
   title: 'Confirm',
   heading: null,
-  icon: null,
+  iconName: undefined,
   body: null,
   confirmButtonText: 'Confirm',
   cancelButtonText: null
 };
 
-const confirmationModalReducer = (state: ConfirmationModalReducerState = initialState, action): ConfirmationModalReducerState => {  
+const confirmationModalReducer = (state: ConfirmationModalReducerState = initialState, action: ConfirmationModalActions): ConfirmationModalReducerState => {  
   switch (action.type) {
 
-    case reduxConstants.CONFIRMATION_MODAL_SHOW:
+    case 'CONFIRMATION_MODAL_SHOW':
       return {
         ...state,
         show: true,
         title: action.title,
         heading: action.heading,
-        icon: action.icon,
+        iconName: action.iconName,
         body: action.body,
         confirmButtonText: action.confirmButtonText || 'Confirm',
         cancelButtonText: action.cancelButtonText || null,
@@ -41,7 +41,7 @@ const confirmationModalReducer = (state: ConfirmationModalReducerState = initial
         restoreFocus: action.restoreFocus
       };
 
-    case reduxConstants.CONFIRMATION_MODAL_HIDE:
+    case 'CONFIRMATION_MODAL_HIDE':
       return {
         ...state,
         show: false

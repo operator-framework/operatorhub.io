@@ -1,27 +1,23 @@
 import { reduxConstants } from './constants';
-import { getAutoSavedOperatorData, getDefaultOperator } from '../utils/operatorUtils';
+import { getDefaultOperator, getAutoSavedOperatorData } from '../utils/operatorUtils';
 import { Operator, OperatorPackage } from '../utils/operatorTypes';
 import { ISectionFields, EDITOR_STATUS } from '../utils/constants';
+import { UploadMetadata } from '../components/uploader';
 
 export interface EditorReducerState {
   operator: Operator
   operatorModified: boolean
-  operatorPackage: OperatorPackage
   uploads: UploadMetadata[],
   formErrors: any,
-  sectionStatus: Record<keyof ISectionFields, keyof EDITOR_STATUS>
+  sectionStatus: Record<keyof ISectionFields, EDITOR_STATUS>
 }
 
-const getInitialState = () => {
+const getInitialState = (loadPeristedState = true) => {
   const autoSaved = getAutoSavedOperatorData();
 
-  const initialState = {
+  const initialState: EditorReducerState = {
     operator: getDefaultOperator(),
-    operatorModified: false,
-    operatorPackage: {
-      name: '',
-      channel: ''
-    },
+    operatorModified: false,   
     uploads: [],
     formErrors: {},
     sectionStatus: {
@@ -31,16 +27,13 @@ const getInitialState = () => {
       deployments: EDITOR_STATUS.empty,
       permissions: EDITOR_STATUS.empty,
       'cluster-permissions': EDITOR_STATUS.empty,
-      'install-modes': EDITOR_STATUS.empty,
-      package: EDITOR_STATUS.empty
+      'install-modes': EDITOR_STATUS.empty
     }
   };
 
-  if (autoSaved) {
-    initialState.operator = autoSaved.operator || initialState.operator;
-    initialState.operatorPackage = autoSaved.operatorPackage || initialState.operatorPackage;
-    initialState.sectionStatus = autoSaved.sectionStatus || autoSaved.sectionStatus;
-    initialState.uploads = autoSaved.uploads || [];
+  if (loadPeristedState && autoSaved) {
+    initialState.operator = autoSaved.editorState.operator || initialState.operator;
+    initialState.uploads = autoSaved.editorState.uploads || initialState.uploads;
   }
 
   return initialState;
@@ -68,7 +61,7 @@ const editorReducer = (state: EditorReducerState = getInitialState(), action) =>
 
     case reduxConstants.RESET_EDITOR_OPERATOR:
       return {
-        ...getInitialState()
+        ...getInitialState(false)
       };
 
     case reduxConstants.SET_EDITOR_OPERATOR:
@@ -77,13 +70,7 @@ const editorReducer = (state: EditorReducerState = getInitialState(), action) =>
         ...state,
         operator: action.operator,
         operatorModified: true
-      };
-
-    case reduxConstants.SET_EDITOR_PACKAGE:
-      return {
-        ...state,
-        operatorPackage: action.operatorPackage
-      };
+      };   
 
     case reduxConstants.SET_EDITOR_UPLOADS:
       return {

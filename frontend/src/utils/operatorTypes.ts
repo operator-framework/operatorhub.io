@@ -141,6 +141,8 @@ export type OperatorSpec = {
     maturity: string
     version: string
     replaces: string
+    skips: string[]
+    'olm.skipRange'?: string
     minKubeVersion: string
     keywords: string[]
     maintainers: OperatorMaintainer[]

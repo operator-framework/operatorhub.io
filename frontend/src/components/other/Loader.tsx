@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { EmptyState } from 'patternfly-react';
 
 export interface LoaderProps{
-  text: string
+  text: React.ReactNode
   style?: Record<string, any>
 }
 
@@ -20,7 +20,7 @@ const Loader: React.FC<LoaderProps> = ({ text, style }) => (
 );
 
 Loader.propTypes = {
-  text: PropTypes.string.isRequired,
+  text: PropTypes.node.isRequired,
   style: PropTypes.object
 };
 
