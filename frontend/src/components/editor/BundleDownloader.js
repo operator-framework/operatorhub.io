@@ -1,11 +1,11 @@
 /* eslint-disable no-undef */
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash-es';
+import * as _ from 'lodash-es';
 import JSZip from 'jszip';
 import { connect } from 'react-redux';
 import { safeDump } from 'js-yaml';
-import { bindActionCreators } from 'redux';
+import { Icon } from 'patternfly-react';
 
 import { noop } from '../../common/helpers';
 import {
@@ -16,9 +16,9 @@ import {
   getUpdatedFormErrors
 } from '../../pages/operatorBundlePage/bundlePageUtils';
 import { removeEmptyOptionalValuesFromOperator, validateOperatorPackage } from '../../utils/operatorValidation';
+import { reduxConstants } from '../../redux/constants';
 import { setBatchSectionsStatusAction } from '../../redux/actions/editorActions';
 import { sectionsFields, EDITOR_STATUS } from '../../utils/constants';
-import { hideConfirmModalAction, showConfirmationModalAction } from '../../redux';
 
 class OperatorBundleDownloader extends React.PureComponent {
   generateAction = null;
@@ -227,29 +227,31 @@ OperatorBundleDownloader.defaultProps = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(
-    {
-      setBatchSectionsStatus: setBatchSectionsStatusAction,
-      hideConfirmModal: hideConfirmModalAction,
-      showBundleConfirm: onConfirm =>
-        showConfirmationModalAction({
-          title: 'Download Bundle',
-          heading: 'Are you sure you want to download operator bundle while some editor sections are not review yet?',
-          confirmButtonText: 'Download',
-          cancelButtonText: 'Cancel',
-          onConfirm,
-          restoreFocus: false
-        }),
-      showErrorModal: () =>
-        showConfirmationModalAction({
-          title: 'Operator validation error',
-          iconName: 'error-circle-o',
-          heading: 'Operator contains errors. Please fix them before bundle is created.',
-          confirmButtonText: 'OK'
-        })
-    },
-    dispatch
-  )
+  setBatchSectionsStatus: status => dispatch(setBatchSectionsStatusAction(status)),
+  showBundleConfirm: onConfirm =>
+    dispatch({
+      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+      title: 'Download Bundle',
+      heading: (
+        <span>Are you sure you want to download operator bundle while some editor sections are not review yet?</span>
+      ),
+      confirmButtonText: 'Download',
+      cancelButtonText: 'Cancel',
+      onConfirm,
+      restoreFocus: false
+    }),
+  hideConfirmModal: () =>
+    dispatch({
+      type: reduxConstants.CONFIRMATION_MODAL_HIDE
+    }),
+  showErrorModal: () =>
+    dispatch({
+      type: reduxConstants.CONFIRMATION_MODAL_SHOW,
+      title: 'Operator validation error',
+      icon: <Icon type="pf" name="error-circle-o" />,
+      heading: 'Operator contains errors. Please fix them before bundle is created.',
+      confirmButtonText: 'OK'
+    })
 });
 
 const mapStateToProps = state => ({

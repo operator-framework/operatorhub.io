@@ -166,7 +166,7 @@ const Contribute: React.FC<ContributePageProps> = ({ history, ...props }) => {
           <h3>Operator Bundle Editor</h3>
           <p>
             You can now create your Operator bundle from Operatorhub.io using the&nbsp;
-            <InternalLink route="/packages" history={history}>
+            <InternalLink route="/bundle" history={history}>
               bundle editor
             </InternalLink>
             . Starting by uploading your Kubernetes YAML manifests, the forms on the page will be populated with all

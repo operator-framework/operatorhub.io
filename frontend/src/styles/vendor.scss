@@ -31,9 +31,8 @@ $icon-font-path: '~patternfly/dist/fonts/';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/labels';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/badges';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/alerts';
-@import '~bootstrap-sass/assets/stylesheets/bootstrap/list-group';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/media';
-@import '~bootstrap-sass/assets/stylesheets/bootstrap/navs';
+@import '~bootstrap-sass/assets/stylesheets/bootstrap/list-group';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/panels';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/responsive-embed';
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/wells';
@@ -83,6 +82,7 @@ $icon-font-path: '~patternfly/dist/fonts/';
 @import '~patternfly/dist/sass/patternfly/sidebar';
 @import '~patternfly/dist/sass/patternfly/spinner';
 @import '~patternfly/dist/sass/patternfly/toolbar';
+
 
 @import '~patternfly-react/dist/sass/card';
 @import '~patternfly-react/dist/sass/expand-collapse';

@@ -114,7 +114,8 @@
 .oh-drag-drop-box {
   background-color: $oh-color-background;
   outline: 2px dashed #dededf;
-  outline-offset: -10px;  
+  outline-offset: -10px;
+  padding: 40px 30px;
 
   &.drag-over {
     outline-offset: -20px;
@@ -126,7 +127,6 @@
     position: relative;
     text-align: center;
     width: 100%;
-    padding: 40px 30px;
 
     &__link {
       cursor: pointer;

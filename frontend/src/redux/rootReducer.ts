@@ -1,13 +1,11 @@
 import { combineReducers } from 'redux';
-import { connectRouter } from 'connected-react-router';
 
 import { operatorsReducer } from './operatorsReducer';
 import { viewReducer } from './viewReducer';
 import { editorReducer } from './editorReducer';
 import { previewReducer } from './previewReducer';
 import { confirmationModalReducer } from './confirmationModalReducer';
-import { packageEditorReducer } from './packageEditorReducer';
-
+import { connectRouter } from 'connected-react-router';
 
 export const createRootReducer = history => combineReducers({
     router: connectRouter(history),
@@ -15,6 +13,5 @@ export const createRootReducer = history => combineReducers({
     viewState: viewReducer,
     editorState: editorReducer,
     previewState: previewReducer,
-    confirmationModal: confirmationModalReducer,
-    packageEditorState: packageEditorReducer
+    confirmationModal: confirmationModalReducer
   });

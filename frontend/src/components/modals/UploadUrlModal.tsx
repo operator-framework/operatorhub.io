@@ -7,6 +7,7 @@ import { urlRegExp } from '../../utils/operatorValidators';
 
 export interface UploadUrlModalProps {
   onUpload: (response: any, url: string) => any
+  show?: boolean,
   onClose?: () => void,
 }
 
@@ -26,6 +27,17 @@ class UploadUrlModal extends React.PureComponent<UploadUrlModalProps, UploadUrlM
     validURL: false,
     uploadError: null
   };
+
+  componentDidUpdate(prevProps: UploadUrlModalProps) {
+    if (this.props.show && !prevProps.show) {
+      // reset upload states
+      this.setState({
+        url: '',
+        validURL: false,
+        uploadError: null
+      });
+    }
+  }
 
   uploadFile = () => {
     const { url } = this.state;
@@ -93,11 +105,11 @@ class UploadUrlModal extends React.PureComponent<UploadUrlModalProps, UploadUrlM
   };
 
   render() {
-    const { onClose } = this.props;
+    const { show, onClose } = this.props;
     const { validURL, uploadError } = this.state;
 
     return (
-      <Modal show={true} onHide={onClose} bsSize="lg" className="oh-yaml-upload-modal right-side-modal-pf">
+      <Modal show={show} onHide={onClose} bsSize="lg" className="oh-yaml-upload-modal right-side-modal-pf">
         <Modal.Header>
           <Modal.CloseButton onClick={onClose} />
           <Modal.Title>Upload YAML File</Modal.Title>

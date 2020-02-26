@@ -22,12 +22,12 @@ const store = createStore(
 
 store.subscribe(autoSaveEditor);
 
-// window.onbeforeunload = e => {
-//   const state = store.getState();
-//   if (state.editorState.operatorModified) {
-//     e.preventDefault();
-//     e.returnValue = '';
-//   }
-// };
+window.onbeforeunload = e => {
+  const state = store.getState();
+  if (state.editorState.operatorModified) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+};
 
 export { store as default, history };

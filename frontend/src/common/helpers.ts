@@ -50,10 +50,6 @@ export const advancedUploadAvailable = () => {
   return _advancedUploadAvailable;
 };
 
-export const supportFileSystemEntry = () => {
-  return typeof DataTransferItem.prototype.webkitGetAsEntry === 'function';
-}
-
 export const transformNameForPath = (name: string) => name.replace(/\./g, '_=_');
 
 export const transformPathedName = (name: string) => name.replace(/_=_/g, '.');
