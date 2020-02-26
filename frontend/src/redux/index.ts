@@ -4,7 +4,6 @@ import { EditorReducerState } from './editorReducer';
 import { PreviewReducerState } from './previewReducer';
 import { ConfirmationModalReducerState } from './confirmationModalReducer';
 import { RouterState } from 'connected-react-router';
-import { PackageEditorState } from './packageEditorReducer';
 
 export * from './constants';
 export * from './actions';
@@ -16,7 +15,6 @@ export interface StoreState {
     editorState: EditorReducerState
     previewState: PreviewReducerState
     confirmationModal: ConfirmationModalReducerState
-    packageEditorState: PackageEditorState
   }
 
 export type IDispatch = (payload: {

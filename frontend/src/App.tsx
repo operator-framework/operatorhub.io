@@ -108,15 +108,8 @@ const OperatorClusterPermissionsEditPage = asyncComponent(() =>
     /* webpackChunkName: "OperatorClusterPermissionsEditPage" */ './pages/operatorBundlePage/permissions/OperatorClusterPermissionsEditPage'
   ).then(module => module.default)
 );
-
-const PackageEditorLandingPage = asyncComponent(() =>
-  import(/* webpackChunkName: "PackageEditorLandingPage" */ './pages/packageEditor/PackageEditorLandingPage').then(
-    module => module.default
-  )
-);
-
-const PackageChannelsEditorPage = asyncComponent(() =>
-  import(/* webpackChunkName: "PackageChannelsEditorPage" */ './pages/packageEditor/PackageChannelsEditor').then(
+const OperatorPackagePage = asyncComponent(() =>
+  import(/* webpackChunkName: "OperatorPackagePage" */ './pages/operatorBundlePage/OperatorPackagePage').then(
     module => module.default
   )
 );
@@ -142,46 +135,38 @@ class App extends React.Component {
             <Route path="/operator/:channel/:operatorId" component={OperatorPage} />
             <Route path="/operator/:packageName" component={OperatorPage} />
             <Route path="/preview" component={OperatorPreviewPage} />
-
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/metadata" component={OperatorMetadataPage} />            
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/owned-crds/add" render={props => <OperatorOwnedCRDEditPage {...props} isNew />} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/owned-crds/edit/:index/:crd?" component={OperatorOwnedCRDEditPage} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/owned-crds" component={OperatorOwnedCRDsPage} />
+            <Route path="/bundle/metadata" component={OperatorMetadataPage} />
+            <Route path="/bundle/owned-crds/add" render={props => <OperatorOwnedCRDEditPage {...props} isNew />} />
+            <Route path="/bundle/owned-crds/edit/:index/:crd?" component={OperatorOwnedCRDEditPage} />
+            <Route path="/bundle/owned-crds" component={OperatorOwnedCRDsPage} />
             <Route
-              path="/packages/:packageName/:channelName/:operatorVersion/required-crds/add"
+              path="/bundle/required-crds/add"
               render={props => <OperatorRequiredCRDEditPage {...props} isNew />}
             />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/required-crds/edit/:index/:crd?" component={OperatorRequiredCRDEditPage} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/required-crds" component={OperatorRequiredCRDsPage} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/deployments/add" render={props => <OperatorDeploymentEditPage {...props} isNew />} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/deployments/edit/:index/:deployment?" component={OperatorDeploymentEditPage} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/deployments" component={OperatorDeploymentsPage} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/permissions/add" render={props => <OperatorPermissionsEditPage {...props} isNew />} />
+            <Route path="/bundle/required-crds/edit/:index/:crd?" component={OperatorRequiredCRDEditPage} />
+            <Route path="/bundle/required-crds" component={OperatorRequiredCRDsPage} />
+            <Route path="/bundle/deployments/add" render={props => <OperatorDeploymentEditPage {...props} isNew />} />
+            <Route path="/bundle/deployments/edit/:index/:deployment?" component={OperatorDeploymentEditPage} />
+            <Route path="/bundle/deployments" component={OperatorDeploymentsPage} />
+            <Route path="/bundle/permissions/add" render={props => <OperatorPermissionsEditPage {...props} isNew />} />
             <Route
-              path="/packages/:packageName/:channelName/:operatorVersion/permissions/edit/:index/:serviceAccountName?"
+              path="/bundle/permissions/edit/:index/:serviceAccountName?"
               component={OperatorPermissionsEditPage}
             />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/permissions" component={OperatorPermissionsPage} />
-            
+            <Route path="/bundle/permissions" component={OperatorPermissionsPage} />
+            <Route path="/bundle/package" component={OperatorPackagePage} />
             <Route
-              path="/packages/:packageName/:channelName/:operatorVersion/cluster-permissions/add"
+              path="/bundle/cluster-permissions/add"
               render={props => <OperatorClusterPermissionsEditPage {...props} isNew />}
             />
             <Route
-              path="/packages/:packageName/:channelName/:operatorVersion/cluster-permissions/edit/:index/:serviceAccountName?"
+              path="/bundle/cluster-permissions/edit/:index/:serviceAccountName?"
               component={OperatorClusterPermissionsEditPage}
             />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/cluster-permissions" component={OperatorClusterPermissionsPage} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/install-modes" component={OperatorInstallModesPage} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/yaml" component={OperatorYamlEditorPage} />
-
-            <Route path="/packages/:packageName/:channelName/:operatorVersion/new" render={props => <OperatorBundlePage {...props} isNew />} />
-            <Route path="/packages/:packageName/:channelName/:operatorVersion" component={OperatorBundlePage} />
-
-            <Route path="/packages/:packageName" component={PackageChannelsEditorPage} />
-            <Route path="/packages" exact component={PackageEditorLandingPage} />
-            
-
+            <Route path="/bundle/cluster-permissions" component={OperatorClusterPermissionsPage} />
+            <Route path="/bundle/install-modes" component={OperatorInstallModesPage} />
+            <Route path="/bundle/yaml" component={OperatorYamlEditorPage} />
+            <Route path="/bundle" component={OperatorBundlePage} />
             <Route path="/getting-started" component={GettingStarted} />
             <Route path="/what-is-an-operator" component={WhatIsAnOperator} />
             <Route path="/contribute" component={Contribute} />

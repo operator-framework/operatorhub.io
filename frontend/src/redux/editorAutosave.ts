@@ -1,59 +1,41 @@
 import store from './store';
-import { LOCAL_STORAGE_KEY, AUTOSAVED_STATE } from '../utils/constants';
-import { StoreState } from '.';
+import { AUTOSAVE_FIELDS, LOCAL_STORAGE_KEY } from '../utils/constants';
 
 let lastStateSnapshot: Record<string, any> | null = null;
 
-
-const autoSaveFieldsChanged = (state: StoreState) => {
+const autoSaveFieldsChanged = state => {
   const snapshot = lastStateSnapshot || {}; 
 
-  const changed = AUTOSAVED_STATE.some(definition => {
-    const partialState = state[definition.stateKey];
+  const changed = AUTOSAVE_FIELDS.some(field => {
+    const snapshotValue = snapshot[field];
+    const stateFieldValue = state.editorState[field];
 
-    return definition.fields.some(field => {
-      const snapshotValue = snapshot[field];
-      const stateFieldValue = partialState[field];
-  
-      return snapshotValue !== stateFieldValue;
-    });
+    return snapshotValue !== stateFieldValue;
   });
+
   return changed;
 };
 
-const takeSnapshot = (state: StoreState) =>
-  AUTOSAVED_STATE.reduce((accumulator, definition) => {
-    const partialState = state[definition.stateKey];
+const takeSnapshot = state =>
+  AUTOSAVE_FIELDS.reduce((aggregator, field) => {
+    aggregator[field] = state.editorState[field];
 
-    accumulator[definition.stateKey] = definition.fields.reduce((aggregator, field) => {
-      aggregator[field] = partialState[field];
-  
-      return aggregator;
-    }, {});
-    return accumulator;
+    return aggregator;
   }, {});
 
- 
-
-const saveSnapshot = (state: StoreState) => {
+const saveSnapshot = state => {
   lastStateSnapshot = takeSnapshot(state);
 };
 
-const saveEditorData = () => {
+const saveEditorData = state => {
   let success = true;
 
+  const snapshot = takeSnapshot(state);
+
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(lastStateSnapshot));
-
-  } catch (domException) {
-
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(snapshot));
+  } catch (e) {
     success = false;
-      if (domException.name === 'QuotaExceededError' ||
-          domException.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-        
-            // @TODO: how to recover from out of storage
-
-      }
   }
 
   return success;
@@ -63,9 +45,11 @@ const autoSaveEditor = () => {
   const state = store.getState();
 
   // take snapshot if not existing
-  if (lastStateSnapshot === null || autoSaveFieldsChanged(state)) {
+  if (lastStateSnapshot === null) {
     saveSnapshot(state);
-    saveEditorData();
+  } else if (autoSaveFieldsChanged(state)) {
+    saveEditorData(state);
+    saveSnapshot(state);
   }
 };
 

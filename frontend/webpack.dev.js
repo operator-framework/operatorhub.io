@@ -16,9 +16,9 @@ module.exports = merge(common, {
     port: PORT,
     compress: true,
     inline: true,
+    historyApiFallback: true,
     hot: true,
     overlay: true,
-    historyApiFallback: true,
     open: false,
     setup(app) {
       //
@@ -27,7 +27,7 @@ module.exports = merge(common, {
       // glad this is only dev mode ;)
       //
       app.use((req, res, next) => {
-        const versionRegEx = /v*(\d+\.)(\d+\.)(\d)/;
+        const versionRegEx = /v(\d+\.)(\d+\.)(\d)/;
         if (versionRegEx.test(req.url)) {
           req.url = '/';
         }

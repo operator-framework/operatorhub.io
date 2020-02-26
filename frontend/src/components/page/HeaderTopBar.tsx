@@ -50,7 +50,7 @@ class HeaderTopBar extends React.PureComponent<HeaderTopBarProps, HeaderTopBarSt
   };
 
   onPackageYourOperator = () => {
-    this.props.history.push('/packages');
+    this.props.history.push('/bundle');
   };
 
   onSubmitYourOperator = () => {
@@ -79,17 +79,16 @@ class HeaderTopBar extends React.PureComponent<HeaderTopBarProps, HeaderTopBarSt
     this.props.clearSearch();
   };
 
-  renderSearchForm(type: string) {
-    const id = `search-input-${type}`
+  renderSearchForm() {
     return (
       <div className="form-group has-clear">
         <div className="search-pf-input-group">
           <span className="fa fa-search oh-header__top-bar__search-icon" aria-hidden="true" />
-          <label htmlFor={id} className="sr-only">
+          <label htmlFor="search-input" className="sr-only">
             Search Operator Hub
           </label>
           <input
-            id={id}
+            id="search-input"
             value={this.state.searchValue}
             type="search"
             autoComplete="off"
@@ -126,7 +125,7 @@ class HeaderTopBar extends React.PureComponent<HeaderTopBarProps, HeaderTopBarSt
             <img className="oh-header__top-bar__logo" src={hubLogo} alt="OperatorHub.io" />
           </InternalLink>
           <span className="oh-header__top-bar__spacer" />
-          <form className="oh-header__top-bar__search-form search-pf hidden-xs">{this.renderSearchForm('main')}</form>
+          <form className="oh-header__top-bar__search-form search-pf hidden-xs">{this.renderSearchForm()}</form>
           <DropdownButton
             className="oh-header__top-bar__dropdown"
             title="Contribute"
@@ -149,7 +148,7 @@ class HeaderTopBar extends React.PureComponent<HeaderTopBarProps, HeaderTopBarSt
           </DropdownButton>
         </div>
         <div className="oh-header__top-bar__xs-search">
-          <form className="oh-header__top-bar__search-form search-pf">{this.renderSearchForm('mobile')}</form>
+          <form className="oh-header__top-bar__search-form search-pf">{this.renderSearchForm()}</form>
         </div>
       </div>
     );

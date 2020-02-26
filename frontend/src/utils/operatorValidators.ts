@@ -2,13 +2,11 @@
 import _ from 'lodash-es';
 import { OperatorLink, Operator, OperatorMaintainer, OperatorProvider } from './operatorTypes';
 
-const nameRegExp = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
+const nameRegExp = /^[a-z][a-z-]*[a-z]$/;
 const nameRegExpMessage =
   'This field must begin and end with a lower case character with only dashes or lower case characters between.';
 
 export const versionRegExp = /^([v|V])?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
-
-export const versionNoLeadingVRegExp = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/;
 
 const kubeVersionRegExp = /^([v|V])(0|[1-9])+(alpha|beta)?(0|[1-9])*/;
 const kubeVersionRegExpMessage =
@@ -163,14 +161,7 @@ const nameValidator = (name: string) => {
     return 'This field is required.';
   }
 
-  let versionStart = name.indexOf('.v');
-
-    // recover from case that no "".v" is present just version number!  
-    const match = name.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
-
-    if(match && typeof match.index === 'number'){
-      versionStart = match.index;
-    }
+  const versionStart = name.indexOf('.v');
   if (versionStart < 0) {
     return 'The name must end in a valid semantic version, e.g. v0.0.1';
   }
@@ -237,10 +228,7 @@ export const operatorFieldValidators = {
     version: {
       required: true,
       regex: versionRegExp,
-      regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)',
-      props: {
-        disabled: 'disabled'
-      }
+      regexErrorMessage: 'Must be in semantic version format (e.g 0.0.1 or v0.0.1)'
     },
     replaces: {
       validator: nameValidator,
@@ -462,25 +450,9 @@ export const operatorFieldValidators = {
 
 export const operatorPackageFieldValidators = {
   name: {
-    required: true,
-    regex: nameRegExp,
-    regexErrorMessage: nameRegExpMessage
+    required: true
   },
   channel: {
-    required: true,
-    regex: nameRegExp,
-    regexErrorMessage: nameRegExpMessage
+    required: true
   }
 };
-
-export const simpleNameValidator = {
-  required: true,
-  regex: nameRegExp,
-  regexErrorMessage: nameRegExpMessage
-};
-
-export const pureVersionValidator = {
-  required: true,
-  regex: versionNoLeadingVRegExp,
-  regexErrorMessage: 'The version portion must contain a valid semantic version string.'
-}

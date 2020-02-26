@@ -4,6 +4,4 @@ if ! whoami &> /dev/null; then
     echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/nologin" >> /etc/passwd
   fi
 fi
-
-dockerize -wait tcp://localhost:50051 -timeout 120s
-/usr/bin/node /app/server/dist/server.js "$@"
+/usr/bin/node /app/server/dist/server.js
