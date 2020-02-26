@@ -141,7 +141,7 @@ class OperatorPreviewPage extends React.PureComponent<OperatorPreviewPageProps, 
           </p>
           <h2>Enter your operator&apos;s CSV YAML:</h2>
           <div className="oh-preview-page-yaml">
-            <YamlViewer isPreview onSave={this.previewYAML} editable error={yamlError} saveButtonText="Preview Operator" />
+            <YamlViewer yaml="" isPreview onSave={this.previewYAML} editable error={yamlError} saveButtonText="Preview Operator" />
           </div>
           {operator && (
             <React.Fragment>

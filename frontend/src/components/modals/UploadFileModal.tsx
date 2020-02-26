@@ -97,7 +97,7 @@ class UploadFileModal extends React.PureComponent<UploadFileModalProps, UploadFi
     reader.readAsText(fileToUpload);
   };
 
-  handleDragDropEvent = (e: React.DragEvent, dragOver= false) => {
+  handleDragDropEvent = (e: React.DragEvent, dragOver = false) => {
     e.preventDefault();
     e.stopPropagation();
     this.setState({ dragOver });
@@ -223,7 +223,7 @@ class UploadFileModal extends React.PureComponent<UploadFileModalProps, UploadFi
             Upload
           </button>
         </Modal.Footer>
-        <UploadUrlModal show={uploadUrlShown} onUpload={this.doUploadUrl} onClose={this.hideUploadUrl} />
+        {uploadUrlShown && <UploadUrlModal show={uploadUrlShown} onUpload={this.doUploadUrl} onClose={this.hideUploadUrl} />}
       </Modal>
     );
   }

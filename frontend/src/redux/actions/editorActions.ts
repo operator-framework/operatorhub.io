@@ -1,12 +1,12 @@
 import { reduxConstants } from '../constants';
-import { clearAutosavedOperatorData } from '../../utils/operatorUtils';
+import { Operator } from '../../utils/operatorTypes';
+import { UploadMetadata } from '../../components/uploader';
+import { EditorSectionNames, EDITOR_STATUS } from '../../utils/constants';
 
 /**
  * Update status of single section
- * @param {EditorSectionNames} section
- * @param {EDITOR_STATUS} status
  */
-export const setSectionStatusAction = (section, status) => ({
+export const setSectionStatusAction = (section: EditorSectionNames, status: EDITOR_STATUS) => ({
   type: reduxConstants.SET_EDITOR_SECTION_STATUS,
   section,
   status
@@ -14,40 +14,27 @@ export const setSectionStatusAction = (section, status) => ({
 
 /**
  * Update status of multiple sections at once
- * @param {Record<EditorSectionNames, EDITOR_STATUS>} status
  */
-export const setBatchSectionsStatusAction = status => ({
+export const setBatchSectionsStatusAction = (status: Partial<Record<EditorSectionNames, EDITOR_STATUS>>) => ({
   type: reduxConstants.SET_EDITOR_ALL_SECTIONS_STATUS,
   status
 });
 
-export const storeEditorOperatorAction = operator => ({
+export const storeEditorOperatorAction = (operator: Operator) => ({
   type: reduxConstants.SET_EDITOR_OPERATOR,
   operator
 });
 
 export const resetEditorOperatorAction = () => {
-  clearAutosavedOperatorData();
-
   return {
     type: reduxConstants.RESET_EDITOR_OPERATOR
   };
 };
 
 /**
- * Updates operator package
- * @param {OperatorPackage} operatorPackage
- */
-export const updateOperatorPackageAction = operatorPackage => ({
-  type: reduxConstants.SET_EDITOR_PACKAGE,
-  operatorPackage
-});
-
-/**
  * Update uploads list
- * @param {UploadMetadata} uploads
  */
-export const setUploadsAction = uploads => ({
+export const setUploadsAction = (uploads: UploadMetadata[]) => ({
   type: reduxConstants.SET_EDITOR_UPLOADS,
   uploads
 });
