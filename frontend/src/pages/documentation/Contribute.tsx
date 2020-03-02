@@ -252,10 +252,10 @@ const Contribute: React.FC<ContributePageProps> = ({ history, ...props }) => {
       )
     },
     {
-      title: `How will my Operator show up?`,
+      title: `When will my Operator show up?`,
       content: (
         <p>
-          After review your Operator will be visible on the index of&nbsp;
+          After running automated tests and review your Operator will be visible on the index of&nbsp;
           <InternalLink route="/" history={history} text="OperatorHub.io" />. From there Kubernetes users can follow
           instructions on how to run it on their clusters.
         </p>
