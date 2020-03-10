@@ -6,7 +6,7 @@ interface GenericOperatorChannel<T> {
         version: string
     }[],
     csvFiles: T[]
-} 
+}
 
 interface GenericOperatorPackage<T> {
     name: string,
@@ -49,6 +49,7 @@ export interface NormalizedOperator {
     versionForCompare: string
     replaces: string
     capabilityLevel: string
+    managedBy: string,
     links: OperatorLink[]
     repository: string
     maintainers: OperatorMaintainer[]
@@ -78,6 +79,7 @@ export interface OperatorIndexMetadata {
     imgUrl: string,
     provider: string,
     capabilityLevel: string,
+    managedBy: string,
     description: string,
     categories: string[],
     keywords: string[],

@@ -110,6 +110,13 @@ class OperatorSidePanel extends React.PureComponent<OperatorSidePanelProps, Oper
     return versionString;
   };
 
+  renderPackageFormat = (format: string) => {
+    const formatLabelMap = {
+      OLM: 'Operator Lifecycle Manager (OLM)'
+    };
+
+    return <span className="oh-operator-page__side-panel__format">{formatLabelMap[format] || format}</span>
+  };
 
   renderLinks = (links: OperatorLink[] = []) => {
     const validLinks = links.filter(link => link.url && link.name);
@@ -184,6 +191,7 @@ class OperatorSidePanel extends React.PureComponent<OperatorSidePanelProps, Oper
       name,
       provider,
       capabilityLevel,
+      managedBy,
       links,
       channel,
       channels,
@@ -195,7 +203,7 @@ class OperatorSidePanel extends React.PureComponent<OperatorSidePanelProps, Oper
       categories
     } = operator;
 
-    const activeChannel = _.find(channels, { name: channel });    
+    const activeChannel = _.find(channels, { name: channel });
     const versions = _.get(activeChannel, 'versions', [{name ,version: version}]);
     const currentVersion = _.find(versions, { name: _.get(activeChannel, 'currentCSV') });
     const allowInstall = name === _.get(currentVersion, 'name');
@@ -280,6 +288,7 @@ class OperatorSidePanel extends React.PureComponent<OperatorSidePanelProps, Oper
           {this.renderPropertyItem('Version', this.renderVersion(versions, version, currentVersion))}
           {this.renderPropertyItem(capabilityLevelLabel, this.renderCapabilityLevel(capabilityLevel))}
           {this.renderPropertyItem('Provider', provider)}
+          {this.renderPropertyItem('Package Format', this.renderPackageFormat(managedBy || ''))}
           {this.renderPropertyItem('Links', this.renderLinks(links))}
           {this.renderPropertyItem('Repository', repoLink)}
           {this.renderPropertyItem('Container Image', imageLink)}
