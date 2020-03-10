@@ -126,7 +126,7 @@ export const normalizeOperator = (operator: operatorTypes.Operator) => {
     links: spec ? spec.links : [],
     repository: annotations.repository,
     maintainers: spec ? spec.maintainers : [],
-    managedBy: annotations['app.kubernetes.io/managed-by'],
+    managedBy: annotations['app.kubernetes.io/managed-by'] || 'OLM',
     helmRepoName: annotations['app.kubernetes.io/helm-repo-name'],
     helmRepoUrl: annotations['app.kubernetes.io/helm-repo-url'],
     helmChart: annotations['app.kubernetes.io/helm-chart'],
