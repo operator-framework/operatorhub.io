@@ -98,6 +98,10 @@ export type OperatorSpec = {
     minKubeVersion: string
     keywords: string[]
     maintainers: OperatorMaintainer[]
+    managedBy : string
+    helmRepoName: string
+    helmRepoUrl: string
+    helmChart: string
     provider: OperatorProvider
     labels: Record<string, string>
     selector: {

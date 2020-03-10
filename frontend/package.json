@@ -90,6 +90,7 @@
     "build": "webpack --config webpack.prod.js",
     "build:check": "webpack --config webpack.compile.js",
     "start": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.DEV_MODE='\"true\"'",
+    "local": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.DEV_MODE='\"true\"' --define process.env.DEV_HOST='\"http://localhost:8080\"'",
     "mock": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js --define process.env.MOCK_MODE='\"true\"'",
     "lint": "eslint ./src/",
     "build:bundle-profile": "webpack --config webpack.prod.js --profile --json > stats.json",
