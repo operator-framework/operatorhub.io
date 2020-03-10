@@ -15,14 +15,21 @@ const OperatorTile: React.FC<OperatorTileProps> = ({ operator, ...props }) => {
     return null;
   }
 
-  const { name, displayName, imgUrl, provider, description } = operator;
+  const { name, displayName, imgUrl, provider, description, managedBy } = operator;
   const vendor = provider ? `provided by ${provider}` : null;
+
+  const badge = (
+    <span className="oh-hub-page__tile-badge">
+      {managedBy}
+    </span>
+  );
 
   return (
     <CatalogTile
       id={name}
       title={displayName}
       iconImg={imgUrl || operatorImg}
+      badges={[badge]}
       vendor={vendor}
       description={description}
       {...props}

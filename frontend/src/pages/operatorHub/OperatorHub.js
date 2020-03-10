@@ -28,10 +28,15 @@ const OTHER_CATEGORY = 'Other';
 /**
  * Filter property white list
  */
-const operatorHubFilterGroups = ['provider', 'capabilityLevel'];
+const operatorHubFilterGroups = ['provider', 'capabilityLevel', 'managedBy'];
 
 const operatorHubFilterMap = {
-  capabilityLevel: 'Capability Level'
+  capabilityLevel: 'Capability Level',
+  managedBy: 'Package Format'
+};
+
+const filterLabelMap = {
+  OLM: 'Operator Lifecycle Manager (OLM)'
 };
 
 const ignoredProviderTails = [', Inc.', ', Inc', ' Inc.', ' Inc', ', LLC', ' LLC'];
@@ -592,7 +597,7 @@ class OperatorHub extends React.Component {
             onChange={e => this.onFilterChange(groupName, filterName, e.target.checked)}
             title={label}
           >
-            {label}
+            {filterLabelMap[label] || label}
           </FilterSidePanel.CategoryItem>
         );
       })}

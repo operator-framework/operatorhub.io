@@ -82,6 +82,7 @@ export interface OperatorIndexMetadata {
     imgUrl: string,
     provider: string,
     capabilityLevel: string,
+    managedBy: string,
     description: string,
     categories: string[],
     keywords: string[],
