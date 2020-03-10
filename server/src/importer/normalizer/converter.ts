@@ -8,9 +8,9 @@ import { NormalizedOperator, NormalizedOperatorPackage, NormalizedOperatorChanne
 
 /**
  * Convert single operator bundle into desired output format for use with OperatorHub.io
- * @param operator 
- * @param packageName 
- * @param channelName 
+ * @param operator
+ * @param packageName
+ * @param channelName
  */
 async function normalizeOperator(operator: Operator, packageName: string, channelName: string) {
 
@@ -70,6 +70,10 @@ async function normalizeOperator(operator: Operator, packageName: string, channe
       links: spec.links || [],
       repository: annotations.repository || '',
       maintainers: spec.maintainers || [],
+      managedBy: annotations['app.kubernetes.io/managed-by'],
+      helmRepoName: annotations['app.kubernetes.io/helm-repo-name'],
+      helmRepoUrl: annotations['app.kubernetes.io/helm-repo-url'],
+      helmChart: annotations['app.kubernetes.io/helm-chart'],
       description: annotations.description || '',
       categories: categoriesString.split(',').map(category => category.trim()),
       keywords: spec.keywords || [],
@@ -91,7 +95,7 @@ async function normalizeOperator(operator: Operator, packageName: string, channe
 
 /**
  * Convert package metadata into desired output format
- * @param packageSet 
+ * @param packageSet
  */
 export async function normalizePackages(packageSet: Packages) {
 
@@ -101,7 +105,7 @@ export async function normalizePackages(packageSet: Packages) {
   let currentPackage = packages.next();
 
   while (!currentPackage.done) {
-    const packageData = currentPackage.value;   
+    const packageData = currentPackage.value;
 
     // ensure that all channels are processed before we continue further!
     const normalizedChannels = await Promise.all(packageData.channelsList.map(

@@ -6,7 +6,7 @@ export interface GenericOperatorChannel<T> {
         version: string
     }[],
     csvFiles: T[]
-} 
+}
 
 export interface GenericOperatorPackage<T> {
     name: string,
@@ -52,6 +52,10 @@ export interface NormalizedOperator {
     links: OperatorLink[]
     repository: string
     maintainers: OperatorMaintainer[]
+    managedBy: string
+    helmRepoName: string
+    helmRepoUrl: string
+    helmChart: string
     description: string
     categories: string[]
     keywords: string[]
