@@ -101,7 +101,7 @@ export const getValueError = (value: any, fieldValidator: FieldValidator, operat
         return fieldValidator.contextualValidator(value, operator, fieldValidator);
     }
 
-    if (_.isEmpty(value)) {
+    if (_.isEmpty(value) || (typeof value === "string" && value.trim() === "")) {
         return fieldValidator.required ? 'This field is required' : null;
     }
 
@@ -191,16 +191,16 @@ export const removeEmptyOptionalValuesFromOperator = (operator: Operator) => {
     _.set(clonedOperator, sectionsFields['owned-crds'], ownedCRDs);
 
     const requiredCRDs = _.get(clonedOperator, sectionsFields['required-crds'], []);
-    _.set(clonedOperator,  sectionsFields['required-crds'], requiredCRDs);
+    _.set(clonedOperator, sectionsFields['required-crds'], requiredCRDs);
 
     const deployments = _.get(clonedOperator, sectionsFields.deployments, []);
-    _.set(clonedOperator,  sectionsFields.deployments, deployments);
+    _.set(clonedOperator, sectionsFields.deployments, deployments);
 
- const permissions = _.get(clonedOperator, sectionsFields.permissions, []);
-    _.set(clonedOperator,  sectionsFields.permissions, permissions);
+    const permissions = _.get(clonedOperator, sectionsFields.permissions, []);
+    _.set(clonedOperator, sectionsFields.permissions, permissions);
 
     const clusterPermissions = _.get(clonedOperator, sectionsFields["cluster-permissions"], []);
-    _.set(clonedOperator,  sectionsFields["cluster-permissions"], clusterPermissions);
+    _.set(clonedOperator, sectionsFields["cluster-permissions"], clusterPermissions);
 
     return clonedOperator;
 };

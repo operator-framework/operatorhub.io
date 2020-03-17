@@ -227,7 +227,6 @@ export const operatorFieldValidators = {
         validator: descriptionValidator
       },
       aboutOperator: {
-        required: true,
         validator: descriptionValidator
       },
       prerequisites: {
