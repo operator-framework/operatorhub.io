@@ -1,0 +1,51 @@
+dist: trusty
+
+stages:
+  - lint
+  - build
+  - deploy
+jobs:
+  include:
+    - stage: lint
+      name: lint frontend
+      language: node_js
+      node_js: 12
+      before_script: cd frontend
+      script:
+        - npm install
+        - echo "Works"
+    - name: lint server
+      language: node_js
+      node_js: 12
+      before_script: cd server
+      script:
+        - npm install
+        - echo "Works"
+    - name: build operatorhub.io
+      stage: build
+      services:
+        - docker
+      before_script:
+        - docker info
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
+      script:
+        - >
+          export DOCKER_TAG=$(bash -c '
+          if [[ $TRAVIS_BRANCH == "master" ]]; then
+            echo latest;
+          else
+            echo $TRAVIS_BRANCH;
+          fi
+          ')
+        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG" .
+        - docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG"
+    - name: deployment to OKD
+      deploy:
+        provider: openshift
+        user: edke-openshift
+        password:
+          secure: GrttVRUT2ZwlDsOn9rKt/Qv3l0nzEKQnmSnNMvbwX1Vp7gtyvoHZ3z3JCXPNyMg4+z99aRJqNk4GisaJ/0YIEssWJnXTkkeRvfB9/o+5ToPJfrUFE84F3Zzsjq06xJGz2jNgcbOTAUKbgx8aRk8/J2g0MCZR00Ao4sRrS/2vfgVKuAEHCwbdAsh1kK/eoZoxnPOZwcWyU+1NDpSEKEbMZUbLj26OO2dgq6wY1IRBxK4CSzXCc8POiemqxk1jqbdSj6V7UTOM6UIv0SFH927oDnC/LzDlUWyQjcfxWkzVVsPxCwnss1X/hL19AWAAP6CfQqoMAio+0UfdMIQSSFne82+WfVHPMQKfRfYqz6elfZWYtIClig9gVHMruLYfHfgnmdALrBLBHsyeCdHHNwXKJqkyoPckTo4acWt8V3b84BaUyxYdL2riFDo6bmi6DzKnyMbvl+0sioyb47ovrxidi4HXc3A9TLFnR19EjevgFETZRPS42SnEJB/Tf0mzq85Uii/N0i9/uLH0Gld3sxMNE3cCNn0/hqtyuA2ReC/EBS4GDRbucR824ij9gDkIV1adGtMKFONkmlkPziDAw7DxR/0Rq+mMWVbG6SD+5FSjneY7QOkHyFXMW65eeNfGwM1BcKOYfGprN0/3xPyf5vzt2AXDfmCqmu4k+Map5qXd2+E=
+        app: operatorhub.io
+        domain: operatorhub.io
+        on:
+          repo: Edke/operatorhub.io
