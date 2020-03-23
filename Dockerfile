@@ -1,4 +1,6 @@
-FROM registry.access.redhat.com/ubi8/nodejs-10:latest
+# FROM registry.access.redhat.com/ubi8/nodejs-10:latest
+FROM node:10.19.0-jessie-slim
+RUN apt update && apt install -y git wget
 
 ARG OPERATORS_REPO=https://github.com/operator-framework/community-operators
 ARG OPERATORS_BRANCH=master
