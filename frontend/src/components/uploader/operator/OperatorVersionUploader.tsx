@@ -11,6 +11,7 @@ import * as operatorUtils from '../../../utils/operatorUtils';
 import { EDITOR_STATUS, sectionsFields, EditorSectionNames } from '../../../utils/constants';
 import * as actions from '../../../redux/actions';
 import * as utils from './UploaderUtils';
+import { SecurityObjectTypes } from './UploaderUtils';
 
 import UploaderDropArea from './UploaderDropArea';
 import UploaderObjectList from './UploaderObjectList';
@@ -40,7 +41,6 @@ export type OperatorVersionUploaderProps = {
   uploads: UploadMetadata[]
 } & typeof OperatorVersionUploaderActions;
 
-
 class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploaderProps> {
 
   static propTypes;
@@ -49,8 +49,9 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
   /**
    * Parse uploaded file
    * @param upload upload metadata object
+   * @param processedUploads already processed uploads
    */
-  processUploadedObject = (upload: UploadMetadata) => {
+  processUploadedObject = (upload: UploadMetadata, processedUploads: UploadMetadata[]) => {
     const typeAndName = utils.getObjectNameAndType(upload.data || {});
 
     if (!typeAndName) {
@@ -72,9 +73,9 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
       // } else if (upload.type === 'Package') {
       //   this.processPackageFile(upload.data);
     } else if (upload.type === 'ServiceAccount') {
-      this.processPermissionObject(upload);
+      this.processPermissionObject(upload, processedUploads);
     } else if (utils.securityObjectTypes.includes(upload.type)) {
-      this.processPermissionObject(upload);
+      this.processPermissionObject(upload, processedUploads);
       // effectively CustomResource Template, but type vary...
     } else if (upload.type !== 'Unknown') {
       this.processCrTemplate(upload.data);
@@ -98,16 +99,14 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
     }
 
     // remove empty sections and fix mallformed files
-    const uploads = parsedObjects
+    return parsedObjects
       .filter(object => object !== null)
-      .map(object => {
+      .reduce((uploads, object) => {
         const upload = utils.createtUpload(fileName);
         upload.data = object;
 
-        return this.processUploadedObject(upload);
-      });
-
-    return uploads;
+        return uploads.concat(this.processUploadedObject(upload, uploads));
+      }, []);
   };
 
   /**
@@ -251,38 +250,65 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
    * Checks latest permission related object and decide
    * if we have enough uploaded data to create from it permission record
    */
-  processPermissionObject = (upload: UploadMetadata) => {
+  processPermissionObject = (upload: UploadMetadata, processedUploads: UploadMetadata[]) => {
     const { uploads } = this.props;
+    const allUploads = uploads.concat(...processedUploads).concat(upload);
 
-    const uploadsWithRecent = uploads.concat(upload);
-
-    // ensure that obejcts share namespace
-    const namespace = _.get(upload.data, 'metadata.name');
-
-    if (!namespace) {
-      console.log("Can't identify namespace for which to apply permissions!");
+    const name = _.get(upload.data, 'metadata.name');
+    if (!name) {
+      console.log('Can\'t identify namespace for which to apply permissions!');
       return;
     }
 
-    const serviceAccountUpload = utils.filterPermissionUploads(uploadsWithRecent, 'ServiceAccount', namespace);
-    const roleUpload = utils.filterPermissionUploads(uploadsWithRecent, 'Role', namespace);
-    const roleBindingUpload = utils.filterPermissionUploads(uploadsWithRecent, 'RoleBinding', namespace);
-    const clusterRoleUpload = utils.filterPermissionUploads(uploadsWithRecent, 'ClusterRole', namespace);
-    const clusterRoleBindingUpload = utils.filterPermissionUploads(uploadsWithRecent, 'ClusterRoleBinding', namespace);
+    const hasAllServiceAccounts = (bindingUpload: UploadMetadata) => {
+      const subjects = _.get(bindingUpload.data, 'subjects');
+      return subjects
+        .filter(subject => subject.kind === 'ServiceAccount')
+        .every(subject => allUploads.some(upload => upload.type === 'ServiceAccount' && _.get(upload.data, 'metadata.name') === subject.name));
+    };
 
-    // hurray we have all we need
-    if (serviceAccountUpload) {
-      if (roleUpload && roleBindingUpload) {
-        this.setPermissions(roleUpload.data, roleBindingUpload.data);
+    const processBinding = (kind: SecurityObjectTypes) => (bindingUpload: UploadMetadata) => {
+      const roles = utils.filterPermissionUploads(allUploads, kind, 'metadata.name', _.get(bindingUpload.data, 'roleRef.name'));
+      if (roles.length > 0) {
+        console.log('Processing permissions for role: ', roles[0]);
+        this.setPermissions(roles[0].data, bindingUpload.data);
       }
+    };
 
-      if (clusterRoleUpload && clusterRoleBindingUpload) {
-        this.setPermissions(clusterRoleUpload.data, clusterRoleBindingUpload.data);
-      }
+    switch (upload.type) {
+      case 'ServiceAccount':
+        utils
+          .filterServiceAccountBindings(allUploads, 'RoleBinding', name)
+          .filter(bindingUpload => hasAllServiceAccounts(bindingUpload))
+          .forEach(processBinding('Role'));
 
-      console.log('Processed role / cluster role into permissions');
-    } else {
-      console.log('No ServiceAccount yet. Waiting');
+        utils
+          .filterServiceAccountBindings(allUploads, 'ClusterRoleBinding', name)
+          .filter(bindingUpload => hasAllServiceAccounts(bindingUpload))
+          .forEach(processBinding('ClusterRole'));
+        break;
+      case 'RoleBinding':
+        if (hasAllServiceAccounts(upload)) {
+          processBinding('Role')(upload);
+        }
+        break;
+      case 'ClusterRoleBinding':
+        if (hasAllServiceAccounts(upload)) {
+          processBinding('ClusterRole')(upload);
+        }
+        break;
+      case 'Role':
+        utils
+          .filterPermissionUploads(allUploads, 'RoleBinding', 'roleRef.name', name)
+          .filter(bindingUpload => hasAllServiceAccounts(bindingUpload))
+          .forEach(processBinding('Role'));
+        break;
+      case 'ClusterRole':
+        utils
+          .filterPermissionUploads(allUploads, 'ClusterRoleBinding', 'roleRef.name', name)
+          .filter(bindingUpload => hasAllServiceAccounts(bindingUpload))
+          .forEach(processBinding('ClusterRole'));
+        break;
     }
   };
 
@@ -295,26 +321,17 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
 
     const { roleRef } = roleBindingObject;
     const subjects = roleBindingObject.subjects || [];
-    let serviceAccounts = subjects.filter(subject => subject.kind === 'ServiceAccount');
+    const serviceAccounts = subjects.filter(subject => subject.kind === 'ServiceAccount');
 
     if (roleRef && roleRef.name) {
-      serviceAccounts = serviceAccounts.filter(account => account.name === roleRef.name);
-
-      if (subjects.length !== serviceAccounts.length) {
-        console.log(
-          'Some role binding subject were removed as do not match namespace or are not kind of ServiceAccount',
-          roleBindingObject
-        );
-      }
-
-      const roleName = _.get(roleObject, 'metadata.name');
       const { rules } = roleObject;
 
-      // check namespace to be sure we have correct roles
-      if (roleName === roleRef.name) {
+      serviceAccounts.forEach(serviceAccount => {
+        const serviceAccountName = serviceAccount.name;
+
         const permission = {
-          serviceAccountName: roleName,
-          rules
+          serviceAccountName,
+          rules: [...rules]
         };
 
         // define where to add permission based on kind
@@ -328,9 +345,7 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
         this.validateSection(newOperator, permissionType);
 
         storeEditorOperator(newOperator);
-      } else {
-        console.warn("Can't match role namespace with one defined in role binding.");
-      }
+      });
     } else {
       console.warn(`Role binding does not contain "roleRef" or it does not have name!`, roleBindingObject);
     }
@@ -343,7 +358,7 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
     const { operator, storeEditorOperator, version, showVersionMismatchWarning } = this.props;
 
     const normalizedOperator = normalizeYamlOperator(parsedFile);
-    const clonedOperator = _.cloneDeep(operator);    
+    const clonedOperator = _.cloneDeep(operator);
 
     // only CSV.yaml is used to populate operator in editor. Other files have special roles
     const mergedOperator = _.mergeWith(clonedOperator, normalizedOperator, (objValue, srcValue, key) => {
@@ -371,7 +386,7 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
     });
 
     if (mergedOperator.spec.version !== version) {
-      showVersionMismatchWarning(mergedOperator.spec.version,version);
+      showVersionMismatchWarning(mergedOperator.spec.version, version);
 
       // override version as it has to be defined in channel editor
       mergedOperator.spec.version = version;
@@ -566,8 +581,6 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
 
     setUploads(newUploads);
   };
-
-
 
   render() {
     const { uploads, operator } = this.props;
