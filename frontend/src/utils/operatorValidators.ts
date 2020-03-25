@@ -361,7 +361,7 @@ export const operatorFieldValidators = {
                 regexErrorMessage: pathRegExpMessage
               },
               'x-descriptors': {
-                required: true
+                required: false
               }
             }
           },
@@ -380,7 +380,7 @@ export const operatorFieldValidators = {
                 regexErrorMessage: pathRegExpMessage
               },
               'x-descriptors': {
-                required: true
+                required: false
               }
             }
           }
