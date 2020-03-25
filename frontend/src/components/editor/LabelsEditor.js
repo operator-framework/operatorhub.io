@@ -86,12 +86,19 @@ class LabelsEditor extends React.Component {
     }
   };
 
-  updateOperatorLabel = (operatorLabel, key, value) => {
+  updateOperatorLabel = (operatorLabel, index, key, value) => {
     const { keyField, valueField } = this.props;
 
-    _.set(operatorLabel, keyField, key);
-    _.set(operatorLabel, valueField, value);
-    this.forceUpdate();
+    this.setState(({ labels }) => ({
+      labels: labels.map((label, labelIndex) =>
+        index === labelIndex
+          ? {
+              [keyField]: key,
+              [valueField]: value
+            }
+          : label
+      )
+    }));
   };
 
   removeOperatorLabel = (event, operatorLabel) => {
@@ -130,7 +137,7 @@ class LabelsEditor extends React.Component {
             className="form-control"
             type="text"
             value={operatorLabel[keyField]}
-            onChange={e => this.updateOperatorLabel(operatorLabel, e.target.value, operatorLabel[valueField])}
+            onChange={e => this.updateOperatorLabel(operatorLabel, index, e.target.value, operatorLabel[valueField])}
             onBlur={() => this.onFieldBlur(operatorLabel)}
             placeholder={keyPlaceholder}
             {..._.get(operatorFieldValidators, `${field}.${keyField}.props`)}
@@ -143,7 +150,7 @@ class LabelsEditor extends React.Component {
               className="form-control"
               type="text"
               value={operatorLabel[valueField]}
-              onChange={e => this.updateOperatorLabel(operatorLabel, operatorLabel[keyField], e.target.value)}
+              onChange={e => this.updateOperatorLabel(operatorLabel, index, operatorLabel[keyField], e.target.value)}
               onBlur={() => this.onFieldBlur(operatorLabel)}
               placeholder={valuePlaceholder}
               {..._.get(operatorFieldValidators, `${field}.${valueField}.props`)}

@@ -39,7 +39,7 @@ const pathRegExp = /^([a-z0-9A-Z][a-z0-9A-Z-_]*)((\[[0-9]+\])|\.[a-z0-9A-Z-_]+)*
 const pathRegExpMessage =
   'Path must begin and end with an alphanumeric character with brackets, dashes, underscores, dots, and alphanumerics between.';
 
-const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z]$/;
+const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_./]*[a-z0-9A-Z]$/;
 const labelRegExpMessage =
   'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
 
@@ -165,7 +165,7 @@ const nameValidator = (name: string) => {
 
   let versionStart = name.indexOf('.v');
 
-    // recover from case that no "".v" is present just version number!  
+    // recover from case that no "".v" is present just version number!
     const match = name.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
 
     if(match && typeof match.index === 'number'){
