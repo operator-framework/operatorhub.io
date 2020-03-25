@@ -6,7 +6,7 @@ import { TypeAndName, UploadMetadata } from './UploaderTypes';
 import { Operator, OperatorCrdDescriptor, OperatorOwnedCrd, OperatorCrdResource } from '../../../utils/operatorTypes';
 
 export const securityObjectTypes = ['ClusterRole', 'Role', 'ClusterRoleBinding', 'RoleBinding'];
-type SecurityObjectTypes = 'ClusterRole' | 'Role' | 'ClusterRoleBinding' | 'RoleBinding' | 'ServiceAccount';
+export type SecurityObjectTypes = 'ClusterRole' | 'Role' | 'ClusterRoleBinding' | 'RoleBinding' | 'ServiceAccount';
 
 /**
  * Derive file type from its content
@@ -145,13 +145,32 @@ export const generateDescriptorFromPath = (path: string): OperatorCrdDescriptor 
  * Filter latest object based on defined type and namespace
  * Used for filtering roles / role bindings / service account
  */
-export function filterPermissionUploads(uploads: UploadMetadata[], type: SecurityObjectTypes, namespace: string) {
-  return uploads
-    .filter(up => {
-      const name = _.get(up.data, 'metadata.name');
-      return !up.errored && up.type === type && name === namespace;
-    })
-    .reverse()[0];
+export function filterPermissionUploads(
+  uploads: UploadMetadata[],
+  type: SecurityObjectTypes,
+  path: string,
+  value: string
+) {
+  return uploads.filter(up => {
+    const pathValue = _.get(up.data, path);
+    return !up.errored && up.type === type && pathValue === value;
+  });
+}
+
+export function filterServiceAccountBindings(
+  uploads: UploadMetadata[],
+  bindingType: SecurityObjectTypes,
+  serviceAccountName: string
+) {
+  return uploads.filter(upload => {
+    const subjects = _.get(upload.data, `metadata.subjects`);
+    return (
+      subjects &&
+      !upload.errored &&
+      upload.type === bindingType &&
+      subjects.some(subject => subject.kind === 'ServiceAccount' && subject.name === serviceAccountName)
+    );
+  });
 }
 
 /**
