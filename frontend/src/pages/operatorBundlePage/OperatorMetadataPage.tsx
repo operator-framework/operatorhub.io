@@ -97,13 +97,11 @@ class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, Op
 
     if (metadataErrors) {
       setSectionStatus(EDITOR_STATUS.errors);
-    } else if(modified){
+    } else if (modified) {
       setSectionStatus(EDITOR_STATUS.modified);
-    } else if(status !== EDITOR_STATUS.modified){
+    } else if (status !== EDITOR_STATUS.modified) {
       setSectionStatus(EDITOR_STATUS.all_good);
     }
-
-   
   };
 
   validatePage = () => {
@@ -139,7 +137,7 @@ class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, Op
 
     _.forEach(operatorLabels, operatorLabel => {
       if (!_.isEmpty(operatorLabel.key) || !_.isEmpty(operatorLabel.value)) {
-        _.set(labels, operatorLabel.key, operatorLabel.value);
+        labels[operatorLabel.key] = operatorLabel.value;
       }
     });
     this.updateOperator('spec.labels', labels);
@@ -151,7 +149,7 @@ class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, Op
 
     _.forEach(operatorLabels, operatorLabel => {
       if (!_.isEmpty(operatorLabel.key) || !_.isEmpty(operatorLabel.value)) {
-        _.set(matchLabels, operatorLabel.key, operatorLabel.value);
+        matchLabels[operatorLabel.key] = operatorLabel.value;
       }
     });
     this.updateOperator('spec.selector.matchLabels', matchLabels);
