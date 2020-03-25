@@ -165,7 +165,7 @@ const nameValidator = (name: string) => {
 
   let versionStart = name.indexOf('.v');
 
-    // recover from case that no "".v" is present just version number!  
+    // recover from case that no "".v" is present just version number!
     const match = name.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
 
     if(match && typeof match.index === 'number'){
@@ -360,7 +360,7 @@ export const operatorFieldValidators = {
                 regexErrorMessage: pathRegExpMessage
               },
               'x-descriptors': {
-                required: true
+                required: false
               }
             }
           },
@@ -379,7 +379,7 @@ export const operatorFieldValidators = {
                 regexErrorMessage: pathRegExpMessage
               },
               'x-descriptors': {
-                required: true
+                required: false
               }
             }
           }
