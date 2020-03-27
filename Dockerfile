@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/nodejs-10:latest
+FROM registry.access.redhat.com/ubi8/nodejs-10:1-66
 
 ARG OPERATORS_REPO=https://github.com/operator-framework/community-operators
 ARG OPERATORS_BRANCH=master
