@@ -14,7 +14,7 @@ const kubeVersionRegExp = /^([v|V])(0|[1-9])+(alpha|beta)?(0|[1-9])*/;
 const kubeVersionRegExpMessage =
   'Must start with a v, followed by a version number, and optionally a alpha or beta version';
 
-const kubeGroupVersionRegExp = /^([a-z.]+\/)?([v|V])(0|[1-9])+(alpha|beta)?([0-9])*/;
+const kubeGroupVersionRegExp = /^([a-z0-9.]+\/)?([v|V])(0|[1-9])+(alpha|beta)?([0-9])*/;
 const kubeGroupVersionRegExpMessage =
   'Must start with either API group or a v, followed by a version number, and optionally a alpha or beta version';
 
@@ -39,7 +39,7 @@ const pathRegExp = /^([a-z0-9A-Z][a-z0-9A-Z-_]*)((\[[0-9]+\])|\.[a-z0-9A-Z-_]+)*
 const pathRegExpMessage =
   'Path must begin and end with an alphanumeric character with brackets, dashes, underscores, dots, and alphanumerics between.';
 
-const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_.]*[a-z0-9A-Z]$/;
+const labelRegExp = /^[a-z0-9A-Z][a-z0-9A-Z-_./]*[a-z0-9A-Z]$/;
 const labelRegExpMessage =
   'This field must begin and end with an alphanumeric character with dashes, underscores, dots, and alphanumerics between.';
 
@@ -165,7 +165,7 @@ const nameValidator = (name: string) => {
 
   let versionStart = name.indexOf('.v');
 
-    // recover from case that no "".v" is present just version number!  
+    // recover from case that no "".v" is present just version number!
     const match = name.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
 
     if(match && typeof match.index === 'number'){
@@ -360,7 +360,7 @@ export const operatorFieldValidators = {
                 regexErrorMessage: pathRegExpMessage
               },
               'x-descriptors': {
-                required: true
+                required: false
               }
             }
           },
@@ -379,7 +379,7 @@ export const operatorFieldValidators = {
                 regexErrorMessage: pathRegExpMessage
               },
               'x-descriptors': {
-                required: true
+                required: false
               }
             }
           }

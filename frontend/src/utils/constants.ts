@@ -13,7 +13,7 @@ export const AUTOSAVED_STATE: {stateKey: string, fields: string[]}[]  = [
     stateKey: 'packageEditorState',
     fields: ['packageName', 'channels', 'operatorVersions', 'versionsWithoutChannel']
   }
-];  
+];
 
 
 export const NEW_CRD_NAME = 'add-crd';
@@ -21,10 +21,8 @@ export const NEW_CRD_NAME = 'add-crd';
 export const SPEC_CAPABILITIES = [
   'urn:alm:descriptor:com.tectonic.ui:podCount',
   'urn:alm:descriptor:com.tectonic.ui:endpointList',
-  'urn:alm:descriptor:com.tectonic.ui:label',
   'urn:alm:descriptor:com.tectonic.ui:resourceRequirements',
   'urn:alm:descriptor:com.tectonic.ui:selector:',
-  'urn:alm:descriptor:com.tectonic.ui:namespaceSelector',
   'urn:alm:descriptor:io.kubernetes:',
   'urn:alm:descriptor:io.kubernetes:Service',
   'urn:alm:descriptor:io.kubernetes:ServiceAccount',
@@ -39,7 +37,12 @@ export const SPEC_CAPABILITIES = [
   'urn:alm:descriptor:com.tectonic.ui:number',
   'urn:alm:descriptor:com.tectonic.ui:nodeAffinity',
   'urn:alm:descriptor:com.tectonic.ui:podAffinity',
-  'urn:alm:descriptor:com.tectonic.ui:podAntiAffinity'
+  'urn:alm:descriptor:com.tectonic.ui:podAntiAffinity',
+  'urn:alm:descriptor:com.tectonic.ui:fieldGroup:',
+  'urn:alm:descriptor:com.tectonic.ui:arrayFieldGroup:',
+  'urn:alm:descriptor:com.tectonic.ui:select:',
+  'urn:alm:descriptor:com.tectonic.ui:advanced',
+  'urn:alm:descriptor:com.tectonic.ui:fieldDependency:'
 ];
 
 export const STATUS_CAPABILITIES = [
