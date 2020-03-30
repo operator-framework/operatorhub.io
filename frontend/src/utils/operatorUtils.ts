@@ -6,7 +6,7 @@ import {
   LOCAL_STORAGE_KEY
 } from './constants';
 import * as operatorTypes from './operatorTypes';
-import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from './packageEditorTypes';
+import { PackageEditorChannel, PackageEditorOperatorVersionMetadata } from './packageEditorTypes';
 import { UploadMetadata } from '../components/uploader';
 
 /**
@@ -396,7 +396,7 @@ export interface AutoSavedData {
   },
   packageEditorState: {
     packageName: string,
-    channels: PacakgeEditorChannel[],
+    channels: PackageEditorChannel[],
     operatorVersions: PackageEditorOperatorVersionMetadata[],
     versionsWithoutChannel: string[]
   }
