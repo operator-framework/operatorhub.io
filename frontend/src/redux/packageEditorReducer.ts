@@ -1,6 +1,6 @@
 import satisfies from 'semver/functions/satisfies';
 
-import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../utils/packageEditorTypes';
+import { PackageEntry, PackageEditorChannel, PackageEditorOperatorVersionMetadata } from '../utils/packageEditorTypes';
 import { PackageEditorActions } from './actions';
 import { getAutoSavedOperatorData } from '../utils/operatorUtils';
 import { getChannelVersions } from '../utils/packageEditorUtils';
@@ -9,7 +9,7 @@ import { getChannelVersions } from '../utils/packageEditorUtils';
 export interface PackageEditorState {
   packageName: string,
   uploads: PackageEntry[],
-  channels: PacakgeEditorChannel[],
+  channels: PackageEditorChannel[],
   versionsWithoutChannel: string[],
   operatorVersions: PackageEditorOperatorVersionMetadata[],
   githubUploadShown: boolean
@@ -73,7 +73,7 @@ const packageEditorReducer = (state: PackageEditorState = getInitialState(), act
         }));
 
       } else {
-        // root entry removed 
+        // root entry removed
         uploads = state.uploads.filter(upload => upload.path !== action.path);
       }
 

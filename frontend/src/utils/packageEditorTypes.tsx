@@ -41,7 +41,7 @@ export type PackageEditorOperatorVersionMetadata = {
 };
 
 
-export type PacakgeEditorChannel = {
+export type PackageEditorChannel = {
     name: string,
     isDefault: boolean,
     versions: string[],

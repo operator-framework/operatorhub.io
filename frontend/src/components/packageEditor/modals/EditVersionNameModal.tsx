@@ -5,15 +5,14 @@ import { getValueError } from '../../../utils/operatorValidation';
 import EditNameInChannelModal from './EditNameModal';
 
 export interface EditVersionNameModalProps {
+    headline: string,
     name: string,
     allVersions: string[],
     onConfirm: (name: string, initialName: string) => void
     onClose: () => void
 }
 
-const EditVersionNameModal: React.FC<EditVersionNameModalProps> = ({ name, allVersions, onConfirm, onClose }) => {
-
-    const headline = `${name ?'Edit' : 'Add'} Operator Version Name`;
+const EditVersionNameModal: React.FC<EditVersionNameModalProps> = ({ headline, name, allVersions, onConfirm, onClose }) => {
     const description = 'The semantic version of the Operator. This value should be incremented each time a new Operator is published';
 
     const validator = (value: string) => {
@@ -21,11 +20,11 @@ const EditVersionNameModal: React.FC<EditVersionNameModalProps> = ({ name, allVe
 
         if(error){
             return error;
-        // proceed to validation against other versions only if we have vlaid version   
+        // proceed to validation against other versions only if we have valid version
         } else {
             return allVersions.includes(value) ? 'Version cannot match any other existing operator version.' : null;
         }
-    }    
+    }
 
 
     return (
