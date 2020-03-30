@@ -5,6 +5,14 @@ export const showUploaderErrorConfirmationModalAction = (error: string) => showC
     confirmButtonText: 'OK'
 });
 
+export const showClearOperatorBundleModalAction = (version: string, onConfirm: () => void) => showConfirmationModalAction({
+    title: 'Clear Operator Bundle',
+    heading: `Clear the Operator Bundle Version "${version}"?`,
+    confirmButtonText: 'Clear',
+    cancelButtonText: 'Cancel',
+    onConfirm
+});
+
 export const showClearConfirmationModalAction = (onConfirm: () => void) => showConfirmationModalAction({
     title: 'Clear Content',
     heading: 'Are you sure you want to clear the current content of the editor?',
