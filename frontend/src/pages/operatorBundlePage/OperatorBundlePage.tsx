@@ -17,7 +17,7 @@ import { getUpdatedFormErrors, getVersionEditorRootPath, updateChannelEditorOnEx
 import { sectionsFields, EDITOR_STATUS, VersionEditorParamsMatch } from '../../utils/constants';
 import { ExternalLink } from '../../components/ExternalLink';
 import { fileAnIssue } from '../../utils/documentationLinks';
-import { hideConfirmModalAction, showClearConfirmationModalAction, StoreState, updatePackageOperatorVersionAction, } from '../../redux';
+import { hideConfirmModalAction, showClearOperatorBundleModalAction, StoreState, updatePackageOperatorVersionAction, } from '../../redux';
 import { History } from 'history';
 import { getDefaultOperator } from '../../utils/operatorUtils';
 import { UploadMetadata } from '../../components/uploader';
@@ -25,7 +25,7 @@ import { Operator } from '../../utils/operatorTypes';
 
 const OperatorBundlePageActions = {
   resetEditorOperator: resetEditorOperatorAction,
-  showClearConfirmModal: showClearConfirmationModalAction,
+  showClearConfirmModal: showClearOperatorBundleModalAction,
   hideConfirmModal: hideConfirmModalAction,
   setBatchSectionsStatus: setBatchSectionsStatusAction,
   updatePackageOperatorVersion: updatePackageOperatorVersionAction
@@ -64,7 +64,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
       // do not validate fresh operator
       return;
     }
-    
+
     // iterate over sections to update its state so user see where errors happened
     Object.keys(sectionsFields).forEach(sectionName => {
       const status = sectionStatus[sectionName];
@@ -77,7 +77,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
         updated = fieldWasUpdated(fields);
       } else {
         updated = fields.some(path => fieldWasUpdated(path));
-      }      
+      }
 
       const sectionErrors = getUpdatedFormErrors(cleanedOperator, {}, fields);
 
@@ -90,7 +90,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
       } else if (status === EDITOR_STATUS.errors) {
         updatedSectionsStatus[sectionName] = EDITOR_STATUS.all_good;
       // keep modified status and don't show all good for empty sections
-      } else if(status !== EDITOR_STATUS.modified){        
+      } else if(status !== EDITOR_STATUS.modified){
         updatedSectionsStatus[sectionName] = updated ? EDITOR_STATUS.all_good : EDITOR_STATUS.empty;
       }
     });
@@ -99,7 +99,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
       setBatchSectionsStatus(updatedSectionsStatus);
     }
   }
- 
+
 
   onBackToChannelEditor = (e: React.MouseEvent) => {
     const { operator, history, match, uploads, versions, updatePackageOperatorVersion } = this.props;
@@ -138,8 +138,8 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
   };
 
   clearContents = () => {
-    const { showClearConfirmModal } = this.props;
-    showClearConfirmModal(this.doClearContents);
+    const { match, showClearConfirmModal } = this.props;
+    showClearConfirmModal(match.params.operatorVersion, this.doClearContents);
   };
 
   renderHeader = () => (
