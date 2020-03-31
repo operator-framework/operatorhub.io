@@ -7,6 +7,7 @@ const distFolder = path.resolve(process.cwd(), '../frontend/dist/');
 
 export default function(app: Express) {
   app.get('/', (request: Request, response: Response) => {
+    response.setHeader('Cache-Control', 'no-store');
     response.sendFile(indexFile);
   });
 
