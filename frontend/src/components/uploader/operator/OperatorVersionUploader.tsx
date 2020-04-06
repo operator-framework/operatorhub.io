@@ -223,9 +223,9 @@ class OperatorVersionUploader extends React.PureComponent<OperatorVersionUploade
     const name = _.get(parsedFile, 'metadata.name', `Deployment-${deployments.length + 1}`);
 
     if (parsedFile.spec) {
-      // add name to deployment from operator. If none exists use empty
       const newDeployment = {
-        name: _.get(newOperator, 'metadata.name') || name,
+        // add name to deployment from operator, in case none exists
+        name: name || _.get(newOperator, 'metadata.name'),
         spec: parsedFile.spec
       };
 
