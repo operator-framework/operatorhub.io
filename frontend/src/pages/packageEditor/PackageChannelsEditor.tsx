@@ -29,7 +29,7 @@ import { Operator } from '../../utils/operatorTypes';
 const PackageChannelsEditorPageActions = {
     showRemoveChannelConfirmationModal: actions.showRemoveChannelConfirmationModalAction,
     showRemoveVersionConfirmationModal: actions.showRemoveVersionConfirmationModalAction,
-    showClearConfirmationModal: actions.showClearConfirmationModalAction,
+    showClearConfirmationModal: actions.showClearOperatorPackageModalAction,
     showMissingDefaultChannelConfirmationModal: actions.showMissingDefaultChannelConfirmationModalAction,
     hideConfirmModal: actions.hideConfirmModalAction,
     updatePackageChannel: actions.updatePackageChannelAction,
@@ -384,10 +384,10 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
     };
 
     restartAndClearAll = (e: React.MouseEvent) => {
-        const { history, resetEditor, showClearConfirmationModal, hideConfirmModal } = this.props;
+        const { history, match, resetEditor, showClearConfirmationModal, hideConfirmModal } = this.props;
         e.preventDefault();
 
-        showClearConfirmationModal(() => {
+        showClearConfirmationModal(match.params.packageName, () => {
             hideConfirmModal();
             resetEditor();
             history.push('/packages');
