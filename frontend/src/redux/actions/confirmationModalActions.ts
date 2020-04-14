@@ -13,6 +13,14 @@ export const showClearOperatorBundleModalAction = (version: string, onConfirm: (
     onConfirm
 });
 
+export const showClearOperatorPackageModalAction = (packageName: string, onConfirm: () => void) => showConfirmationModalAction({
+    title: 'Clear Operator Package',
+    heading: `Clear the Operator Package "${packageName}"?`,
+    confirmButtonText: 'Clear',
+    cancelButtonText: 'Cancel',
+    onConfirm
+});
+
 export const showClearConfirmationModalAction = (onConfirm: () => void) => showConfirmationModalAction({
     title: 'Clear Content',
     heading: 'Are you sure you want to clear the current content of the editor?',
