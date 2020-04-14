@@ -167,3 +167,8 @@ noscript {
     padding: 0 30px;
   }
 }
+
+.space-between {
+    display: flex;
+    justify-content: space-between;
+}

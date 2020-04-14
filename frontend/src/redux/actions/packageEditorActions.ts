@@ -1,4 +1,4 @@
-import { PackageEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../utils/packageEditorTypes';
+import { PackageEntry, PackageEditorChannel, PackageEditorOperatorVersionMetadata } from '../../utils/packageEditorTypes';
 
 export type BoundActionCreator<T extends (...args: any) => any> = (...args: Parameters<T>) => void;
 
@@ -35,12 +35,12 @@ export const hideGithubPackageUploadAction = () => ({
   type: 'HIDE_PACKAGE_EDITOR_GITHUB_UPLOAD' as 'HIDE_PACKAGE_EDITOR_GITHUB_UPLOAD'
 });
 
-export const setPackageChannelsAction = (channels: PacakgeEditorChannel[]) => ({
+export const setPackageChannelsAction = (channels: PackageEditorChannel[]) => ({
   type: 'SET_PACKAGE_EDITOR_CHANNELS' as 'SET_PACKAGE_EDITOR_CHANNELS',
   channels
 });
 
-export const updatePackageChannelAction = (name: string, change: Partial<PacakgeEditorChannel>) => ({
+export const updatePackageChannelAction = (name: string, change: Partial<PackageEditorChannel>) => ({
   type: 'UPDATE_PACKAGE_EDITOR_CHANNEL' as 'UPDATE_PACKAGE_EDITOR_CHANNEL',
   name,
   change

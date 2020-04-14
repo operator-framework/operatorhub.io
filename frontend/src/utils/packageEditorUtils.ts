@@ -8,10 +8,10 @@ import { getUpdatedFormErrors, yamlFromOperator } from "../pages/operatorBundleP
 import { sectionsFields, NEW_CRD_NAME } from "./constants";
 import { Operator } from "./operatorTypes";
 import { removeEmptyOptionalValuesFromOperator } from "./operatorValidation";
-import { PackageEditorOperatorVersionCrdMetadata, PackageEditorOperatorVersionMetadata, PacakgeEditorChannel, PackageFileEntry } from "./packageEditorTypes";
+import { PackageEditorOperatorVersionCrdMetadata, PackageEditorOperatorVersionMetadata, PackageEditorChannel, PackageFileEntry } from "./packageEditorTypes";
 import { safeDump } from 'js-yaml';
 
-export const validateChannel = (channel: PacakgeEditorChannel, versions: PackageEditorOperatorVersionMetadata[]) => channel.versions.every(version => {
+export const validateChannel = (channel: PackageEditorChannel, versions: PackageEditorOperatorVersionMetadata[]) => channel.versions.every(version => {
     const versionMetadata = versions.find(versionMeta => versionMeta.version === version);
     return versionMetadata ? versionMetadata.valid : true;
 });
@@ -105,7 +105,7 @@ export const buildVersionName = (name: string, version: string, namePatternWithV
 export const getVersionFromName = (fullName: string) => {
     let versionStart = fullName.indexOf('.v') + 2;
 
-    // recover from case that no "".v" is present just version number!  
+    // recover from case that no "".v" is present just version number!
     const match = fullName.match(/\.[0-9]+\.[0-9]+\.[0-9]+/);
 
     if (match && typeof match.index === 'number') {
@@ -121,7 +121,7 @@ export const getVersionFromName = (fullName: string) => {
 
 export const createPackageBundle = (
     packageName: string,
-    channels: PacakgeEditorChannel[],
+    channels: PackageEditorChannel[],
     versions: PackageEditorOperatorVersionMetadata[],
     showMissingDefaultChannelConfirmationModal: () => any,
     generateAction: HTMLAnchorElement | null) => {
@@ -248,6 +248,6 @@ export function getChannelVersions(operatorVersions: PackageEditorOperatorVersio
             csvEntry = undefined;
         }
     }
-    
+
     return channelVersions;
 }
