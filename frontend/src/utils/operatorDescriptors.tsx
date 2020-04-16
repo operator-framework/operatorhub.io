@@ -103,9 +103,26 @@ export const operatorFieldDescriptions = {
             Operator.
           </React.Fragment>
         ),
-        descriptors: `These are a way to hint UIs with certain inputs or outputs of your Operator that are most important to an end
-          user. If your CRD contains the name of a Secret or ConfigMap that the user must provide, you can specify that
-          here. These items will be linked and highlited in compatible UIs.`
+        descriptors: (
+          <React.Fragment>
+            <p>
+              These are a way to hint UIs with certain inputs or outputs of your Operator that are most important to an end
+              user. If your CRD contains the name of a Secret or ConfigMap that the user must provide, you can specify that
+              here. These items will be linked and highlighted in compatible UIs.
+            </p>
+            <p>
+              Checkout the{' '}
+              <a
+                href="https://github.com/openshift/console/blob/master/frontend/packages/operator-lifecycle-manager/src/components/descriptors/reference/reference.md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                reference
+              </a>{' '}
+              of different specDescriptors and statusDescriptors available with sample code snippets and screenshots.
+            </p>
+          </React.Fragment>
+        )
       },
       required: {
         displayName: 'A human readable version of the CRD name, e.g. etcd Cluster.',

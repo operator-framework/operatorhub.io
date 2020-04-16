@@ -6,7 +6,7 @@ import {
   LOCAL_STORAGE_KEY
 } from './constants';
 import * as operatorTypes from './operatorTypes';
-import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from './packageEditorTypes';
+import { PackageEditorChannel, PackageEditorOperatorVersionMetadata } from './packageEditorTypes';
 import { UploadMetadata } from '../components/uploader';
 
 /**
@@ -126,7 +126,11 @@ export const normalizeOperator = (operator: operatorTypes.Operator) => {
     links: spec ? spec.links : [],
     repository: annotations.repository,
     maintainers: spec ? spec.maintainers : [],
-    description: _.get(annotations, 'description'),
+    managedBy: annotations['app.kubernetes.io/managed-by'] || 'OLM',
+    helmRepoName: annotations['app.kubernetes.io/helm-repo-name'],
+    helmRepoUrl: annotations['app.kubernetes.io/helm-repo-url'],
+    helmChart: annotations['app.kubernetes.io/helm-chart'],
+    description: annotations.description,
     categories: categoriesString && categoriesString.split(',').map(category => category.trim()) || [],
     createdAt: annotations.createdAt && `${annotations.createdAt}`,
     containerImage: annotations.containerImage,
@@ -387,12 +391,12 @@ export const convertExampleYamlToObj = examples => {
 
 export interface AutoSavedData {
   editorState: {
-    uploads: UploadMetadata[], 
+    uploads: UploadMetadata[],
     operator: operatorTypes.Operator
   },
   packageEditorState: {
     packageName: string,
-    channels: PacakgeEditorChannel[],
+    channels: PackageEditorChannel[],
     operatorVersions: PackageEditorOperatorVersionMetadata[],
     versionsWithoutChannel: string[]
   }
