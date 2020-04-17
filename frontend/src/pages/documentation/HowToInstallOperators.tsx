@@ -45,6 +45,9 @@ const HowToInstallOperators: React.FC<HowToInstallOperatorsPageProps> = ({ histo
           </p>
           <p className="oh-documentation-page__code_snippet">
             <code>
+              kubectl create -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/crds.yaml
+            </code>
+            <code>
               kubectl create -f
               https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/olm.yaml
             </code>
