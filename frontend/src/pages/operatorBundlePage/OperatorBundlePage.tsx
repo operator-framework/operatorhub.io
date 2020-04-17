@@ -246,6 +246,7 @@ class OperatorBundlePage extends React.PureComponent<OperatorBundlePageProps, Op
         header={this.renderHeader()}
         buttonBar={this.renderButtonBar()}
         history={history}
+        match={match}
         validatePage={() => true}
       >
         <OperatorVersionUploader version={match.params.operatorVersion} />

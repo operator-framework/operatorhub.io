@@ -167,6 +167,7 @@ class OperatorDeploymentEditPage extends React.PureComponent<OperatorDeploymentE
         lastPage="deployments"
         lastPageTitle="Deployments"
         history={history}
+        match={match}
         versionEditorRootPath={getVersionEditorRootPath(match)}
         validatePage={() => true}
       >

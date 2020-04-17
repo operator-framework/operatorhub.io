@@ -124,6 +124,7 @@ class OperatorPermissionsPage extends React.PureComponent<OperatorPermissionsPag
         versionEditorRootPath={getVersionEditorRootPath(match)}
         secondary
         history={history}
+        match={match}
         section={section as any}
         validatePage={this.validatePage}
         pageErrors={pageHasErrors}

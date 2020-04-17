@@ -53,6 +53,7 @@ const OperatorInstallModesPage: React.FC<OperatorInstallModesPageProps> = ({
       versionEditorRootPath={getVersionEditorRootPath(match)}
       secondary
       history={history}
+      match={match}
       section="install-modes"
       validatePage={() => true}
     >
