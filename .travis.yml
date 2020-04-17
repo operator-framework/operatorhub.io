@@ -1,0 +1,71 @@
+dist: trusty
+
+stages:
+  - lint
+  - build
+  - deploy
+jobs:
+  include:
+    - stage: lint
+      name: lint frontend
+      language: node_js
+      node_js: 12
+      before_script: cd frontend
+      script:
+        - npm install
+        - echo "Works"
+      # if: branch = master
+    - name: lint server
+      language: node_js
+      node_js: 12
+      before_script: cd server
+      script:
+        - npm install
+        - echo "Works"
+      # if: branch = master
+    - name: build image for site
+      stage: build
+      services:
+        - docker
+      before_script:
+        - docker info
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
+      script:
+        - >
+          export DOCKER_TAG=$(bash -c '
+          if [[ $TRAVIS_BRANCH == "master" ]]; then
+            echo latest;
+          else
+            echo $TRAVIS_BRANCH;
+          fi
+          ')
+        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG" -f travis.Dockerfile .
+        - docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG"
+      # if: branch = master
+    - name: build image for registry
+      stage: build
+      services:
+        - docker
+      before_script:
+        # - docker info
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
+      script:
+        - git clone https://github.com/operator-framework/community-operators.git
+        - cd community-operators
+        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog" -f openshift.Dockerfile .
+        - docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog"
+      # if: branch = master
+    - name: deploy to OKD
+      stage: deploy
+      before_script:
+        - wget https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz
+        - tar -xvf openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz
+        - mv openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit bin
+        - wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv3.5.4/kustomize_v3.5.4_linux_amd64.tar.gz
+        - tar -xvf kustomize_v3.5.4_linux_amd64.tar.gz
+        - mv kustomize bin
+      script:
+        - ./bin/oc login --token="$OPENSHIFT_TOKEN" --server="$OPENSHIFT_SERVER"
+        - ./bin/kustomize build k8s/dev
+        - ./bin/kustomize build k8s/dev | ./bin/oc apply -f -
+        - ./bin/oc rollout status -w deploy/operatorhubio

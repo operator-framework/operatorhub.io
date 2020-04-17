@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # annotations:
+  # openshift.io/generated-by: OpenShiftNewApp
+  # labels:
+  # app: operatorhubio
+  # external-exposed: "true"
+  name: operatorhubio
+  creationTimestamp: null
+spec:
+  replicas: 1
+  selector:
+    {}
+    # matchLabels:
+    # app: site
+  # strategy:
+  #   activeDeadlineSeconds: 21600
+  #   resources:
+  #     limits:
+  #       cpu: "2"
+  #       memory: 2Gi
+  #   rollingParams:
+  #     intervalSeconds: 1
+  #     maxSurge: 25%
+  #     maxUnavailable: 0%
+  #     timeoutSeconds: 600
+  #     updatePeriodSeconds: 1
+  #   type: Rolling
+  template:
+    metadata:
+      creationTimestamp: null
+      # labels:
+      # app: operatorhubio
+      # deploymentconfig: operatorhubio
+      # external-exposed: "true"
+      # deployment-run-id: ${run_id}
+    spec:
+      containers:
+        - name: catalog
+          image: catalog
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 50051
+              name: grpc
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - grpc_health_probe
+                - -addr=localhost:50051
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - grpc_health_probe
+                - -addr=localhost:50051
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: 1Gi
+            requests:
+              cpu: "0.5"
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - name: site
+          image: site
+          imagePullPolicy: Always
+          args:
+            - --registry=localhost:50051
+            - --log=1
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: 1Gi
+            requests:
+              cpu: "0.5"
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  # test: false
+status: {}
