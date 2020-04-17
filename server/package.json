@@ -35,6 +35,7 @@
         "server": "node ./dist/server.js",
         "gents": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./proto --ts_out=service=true:./proto --grpc_out=./proto --plugin=./node_modules/.bin/protoc_gen-ts ./registry.proto",
         "tsc": "tsc -p .",
+        "lint": "eslint ./src/",
         "watch": "tsc -p . -w"
     }
 }

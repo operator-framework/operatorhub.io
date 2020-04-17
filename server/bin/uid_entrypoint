@@ -6,5 +6,4 @@ if ! whoami &> /dev/null; then
 fi
 
 dockerize -wait tcp://localhost:50051 -timeout 120s
-#/usr/bin/node /app/server/dist/server.js "$@"
-/usr/bin/local/node /app/server/dist/server.js "$@"
+nodejs  /app/server/dist/server.js "$@"
