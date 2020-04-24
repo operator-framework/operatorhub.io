@@ -244,6 +244,7 @@ class OperatorMetadataPage extends React.Component<OperatorMetadataPageProps, Op
         description={operatorObjectDescriptions.metadata.description}
         versionEditorRootPath={getVersionEditorRootPath(match)}
         secondary
+        match={match}
         history={history}
         section="metadata"
         pageErrors={pageErrors}

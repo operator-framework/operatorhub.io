@@ -143,6 +143,7 @@ class OperatorYamlEditorPage extends React.PureComponent<OperatorYamlEditorPageP
         header={this.renderHeader()}
         buttonBar={this.renderButtonBar()}
         history={history}
+        match={match}
         validatePage={() => true}
       >
         <YamlViewer

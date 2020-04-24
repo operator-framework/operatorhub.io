@@ -112,6 +112,7 @@ export type OperatorDeploymentsPageProps = {
           versionEditorRootPath={getVersionEditorRootPath(match)}
           secondary
           history={history}
+          match={match}
           section="deployments"
           validatePage={this.validatePage}
           pageErrors={pageHasErrors}

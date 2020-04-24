@@ -20,6 +20,7 @@ export type PackageEditorPageWrapperProps = {
   breadcrumbs: BreadcrumbsItem[]
   pageId?: string,
   className?: string,
+  onPackageLeave?: (path: string) => boolean
 } & typeof PackageEditorPageWrapperActions;
 
 interface PackageEditorPageWrapperState {
@@ -92,7 +93,8 @@ class PackageEditorPageWrapper extends React.PureComponent<PackageEditorPageWrap
       pageId,
       buttonBar,
       breadcrumbs,
-      className
+      className,
+      onPackageLeave
     } = this.props;
     const { keywordSearch, headerHeight, titleHeight } = this.state;
 
@@ -103,6 +105,7 @@ class PackageEditorPageWrapper extends React.PureComponent<PackageEditorPageWrap
           <PackageEditorBreadcrumbs
             history={history}
             items={breadcrumbs}
+            onPackageLeave={onPackageLeave}
           />
         }
         history={history}
