@@ -11,16 +11,18 @@ export interface EditorBreadcrumbsProps {
     sectionSubPath?: string
     sectionLabel?: string
     onEditorExit: () => void,
+    onPackageLeave: (path: string) => boolean
 }
 
 const EditorBreadcrumbs: React.FC<EditorBreadcrumbsProps> = ({
-    history, 
+    history,
     sectionSubPath,
     currentLabel,
     sectionLabel,
     versionEditorRootPath,
-    onEditorExit
-}) => { 
+    onEditorExit,
+    onPackageLeave
+}) => {
     const items: BreadcrumbsItem[] = [];
 
     // add middleware items which defines package / channel / version
@@ -53,6 +55,7 @@ const EditorBreadcrumbs: React.FC<EditorBreadcrumbsProps> = ({
         <PackageEditorBreadcrumbs
             history={history}
             items={items}
+            onPackageLeave={onPackageLeave}
         />
     );
 };

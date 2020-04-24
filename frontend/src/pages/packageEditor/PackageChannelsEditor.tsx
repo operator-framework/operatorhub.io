@@ -383,6 +383,18 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
         history.push(path);
     };
 
+    onPackageLeave = (path: string) => {
+        const { history, match, resetEditor, showClearConfirmationModal, hideConfirmModal } = this.props;
+
+        showClearConfirmationModal(match.params.packageName, () => {
+            hideConfirmModal();
+            resetEditor();
+            history.push(path);
+        });
+
+        return false;
+    };
+
     restartAndClearAll = (e: React.MouseEvent) => {
         const { history, match, resetEditor, showClearConfirmationModal, hideConfirmModal } = this.props;
         e.preventDefault();
@@ -460,6 +472,7 @@ class PackageChannelsEditorPage extends React.PureComponent<PackageChannelsEdito
                     subpath: packageName,
                     label: packageName
                 }]}
+                onPackageLeave={this.onPackageLeave}
             >
                 <div className="oh-package-channels-editor">
                     <div className="oh-package-channels-editor__title">

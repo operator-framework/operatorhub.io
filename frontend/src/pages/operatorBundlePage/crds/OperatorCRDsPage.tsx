@@ -144,6 +144,7 @@ class OperatorCRDsPage extends React.PureComponent<OperatorCRDsPageProps> {
         description={description}
         secondary
         history={history}
+        match={match}
         section={objectPage as any}
         validatePage={this.validatePage}
         pageErrors={pageHasErrors}

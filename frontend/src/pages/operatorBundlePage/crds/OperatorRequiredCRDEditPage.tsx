@@ -201,6 +201,7 @@ class OperatorRequiredCRDEditPage extends React.PureComponent<OperatorRequiredCR
         lastPage="required-crds"
         lastPageTitle="Required CRDs"
         history={history}
+        match={match}
         versionEditorRootPath={getVersionEditorRootPath(match)}
         validatePage={() => true}
       >

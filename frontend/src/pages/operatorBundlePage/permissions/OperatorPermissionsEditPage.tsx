@@ -169,6 +169,7 @@ class OperatorPermissionsEditPage extends React.PureComponent<OperatorPermission
         lastPage={objectPage}
         lastPageTitle={objectsTitle}
         history={history}
+        match={match}
         versionEditorRootPath={getVersionEditorRootPath(match)}
         validatePage={() => true}
       >

@@ -401,6 +401,7 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
         lastPage="owned-crds"
         lastPageTitle="Owned CRDs"
         history={history}
+        match={match}
         versionEditorRootPath={getVersionEditorRootPath(match)}
         validatePage={() => true}
       >

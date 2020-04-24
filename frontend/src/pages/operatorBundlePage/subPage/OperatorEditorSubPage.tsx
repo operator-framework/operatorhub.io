@@ -4,11 +4,20 @@ import { connect } from 'react-redux';
 import _ from 'lodash-es';
 import { History } from 'history';
 import { bindActionCreators } from 'redux';
+import { match } from 'react-router';
 
 import { noop, debounce } from '../../../common/helpers';
 import Page from '../../../components/page/Page';
 import { operatorFieldDescriptions } from '../../../utils/operatorDescriptors';
-import { setSectionStatusAction, storeKeywordSearchAction, showConfirmationModalAction, updatePackageOperatorVersionAction } from '../../../redux/actions';
+import {
+  setSectionStatusAction,
+  storeKeywordSearchAction,
+  showConfirmationModalAction,
+  updatePackageOperatorVersionAction,
+  resetPackageEditorAction,
+  showClearOperatorPackageModalAction,
+  hideConfirmModalAction
+} from '../../../redux/actions';
 import { EDITOR_STATUS, EditorSectionNames } from '../../../utils/constants';
 import EditorButtonBar from './EditorButtonBar';
 import EditorBreadcrumbs from './EditorBreadCrumbs';
@@ -19,6 +28,9 @@ const OperatorEditorSubPageActions = {
   storeKeywordSearch: storeKeywordSearchAction,
   setSectionStatus: setSectionStatusAction,
   updatePackageOperatorVersion: updatePackageOperatorVersionAction,
+  showResetPackageConfirmationModal: showClearOperatorPackageModalAction,
+  hideConfirmModal: hideConfirmModalAction,
+  resetPackage: resetPackageEditorAction,
   showPageErrorsMessage: () =>
     showConfirmationModalAction({
       title: 'Errors',
@@ -28,7 +40,8 @@ const OperatorEditorSubPageActions = {
 };
 
 export type OperatorEditorSubPageProps = {
-  history: History
+  history: History,
+  match: match<{packageName: string}>
   versionEditorRootPath: string,
   title?: React.ReactElement | string
   description?: React.ReactNode
@@ -147,6 +160,18 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     updateChannelEditorOnExit(operator, uploads, version, updatePackageOperatorVersion, versionMetadata && versionMetadata.namePatternWithV);
   };
 
+  onPackageLeave = (path: string) => {
+    const { history, match, resetPackage, showResetPackageConfirmationModal, hideConfirmModal } = this.props;
+
+    showResetPackageConfirmationModal(match.params.packageName, () => {
+      hideConfirmModal();
+      resetPackage();
+      history.push(path);
+    });
+
+    return false;
+  };
+
   render() {
     const {
       history,
@@ -166,7 +191,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
     } = this.props;
     const { keywordSearch, headerHeight, titleHeight } = this.state;
 
-    return ( 
+    return (
       <Page
         className="oh-page-operator-editor"
         toolbarContent={
@@ -177,6 +202,7 @@ class OperatorEditorSubPage extends React.PureComponent<OperatorEditorSubPagePro
             currentLabel={title}
             versionEditorRootPath={versionEditorRootPath}
             onEditorExit={this.onBackToChannelEditor}
+            onPackageLeave={this.onPackageLeave}
           />
         }
         history={history}

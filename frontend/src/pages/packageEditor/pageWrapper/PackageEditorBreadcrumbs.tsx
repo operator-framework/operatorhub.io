@@ -6,30 +6,33 @@ import { Breadcrumb } from 'patternfly-react';
 export interface BreadcrumbsItem {
     subpath: string,
     label: string | React.ReactElement,
-    onClick?: () => void
+    onClick?: () => boolean | void
 }
-
-const BaseItems: BreadcrumbsItem[] = [
-    {
-        subpath: '/',
-        label: 'Home'
-    },
-    {
-        subpath: '/packages',
-        label: <span>Packages<span className="oh-beta-label">BETA</span></span>
-    }
-]
 
 export interface PackageEditorBreadcrumbsProps {
     history: History,
-    items: BreadcrumbsItem[]
+    items: BreadcrumbsItem[],
+    onPackageLeave?: (path: string) => boolean
 }
 
 const PackageEditorBreadcrumbs: React.FC<PackageEditorBreadcrumbsProps> = ({
     history,
-    items
-
+    items,
+    onPackageLeave
 }) => {
+    const BaseItems: BreadcrumbsItem[] = [
+        {
+            subpath: '/',
+            label: 'Home',
+            onClick: () => onPackageLeave && onPackageLeave('/')
+        },
+        {
+            subpath: '/packages',
+            label: <span>Packages<span className="oh-beta-label">BETA</span></span>,
+            onClick: () => onPackageLeave && onPackageLeave('/packages')
+        }
+    ];
+
     // start from packages
     let currentPath = BaseItems[1].subpath;
 
@@ -39,7 +42,7 @@ const PackageEditorBreadcrumbs: React.FC<PackageEditorBreadcrumbsProps> = ({
 
         aggregator.push({
             ...item,
-            subpath: currentPath           
+            subpath: currentPath
         });
 
         return aggregator;
@@ -57,7 +60,9 @@ const PackageEditorBreadcrumbs: React.FC<PackageEditorBreadcrumbsProps> = ({
                             onClick={e => {
                                 e.preventDefault();
 
-                                item.onClick && item.onClick();                                
+                                if (item.onClick && item.onClick() === false) {
+                                    return;
+                                }
                                 !active && history.push(item.subpath);
                             }}
                             href={item.subpath}
