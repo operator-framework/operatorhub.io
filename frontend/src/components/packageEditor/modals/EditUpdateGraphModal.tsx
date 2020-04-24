@@ -65,18 +65,18 @@ class EditUpgradeGraphModal extends React.PureComponent<EditUpgradeGraphModalPro
                 skips: null,
                 skipRange: null
             },
-            useAsDefault: false
+            useAsDefault: true
         };
     }
 
     componentDidMount() {
-        const { name, replaces, skips, skipRange, currentVersion, versions } = this.props;
+        const { name, mode, replaces, skips, skipRange, currentVersion, versions } = this.props;
 
         // get versions out of full names so we can order and compare them
         const derivedReplaces = replaces && getVersionFromName(replaces) || '';
         const derivedSkips = skips && skips.map(skip => getVersionFromName(skip)).filter(skip => skip !== null) as string[] || [];
 
-        const currentVersionIndex = currentVersion ? versions.indexOf(currentVersion) : -1;
+        const currentVersionIndex = currentVersion && mode == EditUpdateGraphModalMode.Edit ? versions.indexOf(currentVersion) : -1;
         const possibleReplaces = versions.slice(currentVersionIndex + 1);
 
         const replacesIndex = derivedReplaces ? possibleReplaces.indexOf(derivedReplaces) : possibleReplaces.length;
@@ -307,7 +307,7 @@ class EditUpgradeGraphModal extends React.PureComponent<EditUpgradeGraphModalPro
                         <div>
                             {
                                 (mode == EditUpdateGraphModalMode.Add || mode == EditUpdateGraphModalMode.Duplicate) &&
-                                <Checkbox value={useAsDefault} onChange={this.useAsDefaultChanged}>
+                                <Checkbox value={useAsDefault} onChange={this.useAsDefaultChanged} defaultChecked={useAsDefault}>
                                     Set as Default Version (current CSV)
                                 </Checkbox>
                             }
