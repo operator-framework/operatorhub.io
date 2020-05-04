@@ -5,7 +5,7 @@ import compareVersions from 'compare-versions';
 
 import ChannelEditorChannelIcon from './ChannelEditorChannelIcon';
 import PackageUploaderSortIcon from '../../uploader/package/PackageUploaderSortIcon';
-import { PacakgeEditorChannel, PackageEditorOperatorVersionMetadata, PackageEditorUpdatePath } from '../../../utils/packageEditorTypes';
+import { PackageEditorChannel, PackageEditorOperatorVersionMetadata, PackageEditorUpdatePath } from '../../../utils/packageEditorTypes';
 import UploaderStatusIcon, { IconStatus } from '../../uploader/UploaderStatusIcon';
 import { validateChannel, getVersionFromName } from '../../../utils/packageEditorUtils';
 import UpdatePath from './VersionUpdatePath';
@@ -14,19 +14,19 @@ import UpdatePath from './VersionUpdatePath';
 
 export type ChannelEditorChannelProps = {
     packageName: string,
-    channel: PacakgeEditorChannel,
+    channel: PackageEditorChannel,
     versions: PackageEditorOperatorVersionMetadata[],
     versionsWithoutChannel: string[],
     editChannelName: (channelName: string) => void
-    addOperatorVersion: (channel: PacakgeEditorChannel) => void
+    addOperatorVersion: (channel: PackageEditorChannel) => void
     setChannelAsDefault: (channelName: string) => void
     removeChannel: (channelName: string) => void
     goToVersionEditor: (versionPath: string, versionName: string) => void
-    duplicateVersion: (channel: PacakgeEditorChannel, version: string) => void
-    editVersion: (channel: PacakgeEditorChannel, version: string) => void
-    setVersionAsDefault: (channel: PacakgeEditorChannel, version: string) => void
-    editUpdateGraph: (channel: PacakgeEditorChannel, version: string) => void
-    deleteVersion: (channel: PacakgeEditorChannel, version: string) => void
+    duplicateVersion: (channel: PackageEditorChannel, version: string) => void
+    editVersion: (channel: PackageEditorChannel, version: string) => void
+    setVersionAsDefault: (channel: PackageEditorChannel, version: string) => void
+    editUpdateGraph: (channel: PackageEditorChannel, version: string) => void
+    deleteVersion: (channel: PackageEditorChannel, version: string) => void
 };
 
 
@@ -63,7 +63,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         });
     }
 
-    sortVersions = (sorting: 'asc' | 'desc') => (a: string, b: string) => {        
+    sortVersions = (sorting: 'asc' | 'desc') => (a: string, b: string) => {
         const result = compareVersions(a, b);
 
         return sorting === 'asc' ? result : result * -1;
@@ -238,7 +238,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         const graphIds = new Set<string>();
 
         updateGraph = updateGraph
-            .filter(path => path.distance)    
+            .filter(path => path.distance)
             // deduplicate paths - same path might be created by skip/replaces/skipRange
             .filter(path => {
                 if(graphIds.has(path.id)){
@@ -248,7 +248,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
                     graphIds.add(path.id);
                     return true;
                 }
-            })      
+            })
             .map((path, index) => ({
                 ...path,
                 index
@@ -281,7 +281,7 @@ class ChannelEditorChannel extends React.PureComponent<ChannelEditorChannelProps
         const hasDefaultVersion = channel.currentVersionFullName !== '';
         // added extraneous versions without channel so user does see them in editor!
         const versionsWithExtraneous = new Set(channel.versions.concat(versionsWithoutChannel));
-        // remove duplicities and sort 
+        // remove duplicities and sort
         const sortedChannelVersions = [...versionsWithExtraneous].sort(this.sortVersions(sorting));
 
         const updateGraph = expanded ? this.buildUpdateGraph(versions, sortedChannelVersions, versionsWithoutChannel) : [];

@@ -129,13 +129,13 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
     // get existing errors and revalidate CRDs fields
     const errors = getUpdatedFormErrors(updatedOperator, formErrors, crdsField);
     const crdErrors = (_.get(errors, crdsField) || []).find(error => error.index === this.crdIndex) || null;
-    
+
     // expand descriptor editors if errors are detected
     specDescriptorsExpandedByError = containsErrors(_.get(crdErrors, 'errors.specDescriptors', null));
     statusDescriptorsExpandedByError = containsErrors(_.get(crdErrors, 'errors.statusDescriptors', null));
-    
+
     this.updateSectionStatus(errors, true);
-    storeEditorFormErrors(errors);    
+    storeEditorFormErrors(errors);
 
     this.setState({ crdTemplate, specDescriptorsExpandedByError, statusDescriptorsExpandedByError });
 
@@ -401,6 +401,7 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
         lastPage="owned-crds"
         lastPageTitle="Owned CRDs"
         history={history}
+        match={match}
         versionEditorRootPath={getVersionEditorRootPath(match)}
         validatePage={() => true}
       >
@@ -420,7 +421,7 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
             field={`${crdsField}.resources`}
           />
           <div className="oh_operator-editor__crd-descriptors">
-            <h3>SpecDescriptors, StatusDescriptors, and ActionDescriptors</h3>
+            <h3>SpecDescriptors and StatusDescriptors</h3>
             <p>{_.get(operatorFieldDescriptions, `${crdsField}.descriptors`)}</p>
             <DescriptorsEditor
               descriptors={specDescriptors}

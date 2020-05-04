@@ -5,7 +5,7 @@ import { safeLoad } from 'js-yaml';
 import satisfies from 'semver/functions/satisfies';
 
 import PackageUploaderDropArea from './PackageUploaderDropArea';
-import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PacakgeEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
+import { PackageEntry, PackageFileEntry, PackageDirectoryEntry, PackageEditorChannel, PackageEditorOperatorVersionMetadata } from '../../../utils/packageEditorTypes';
 import { StoreState } from '../../../redux';
 import PackageUploaderObjectList from './PackageUploaderObjectList';
 
@@ -182,7 +182,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
         const { uploads, removePackageUpload, onUploadChangeCallback } = this.props;
         e.preventDefault();
 
-        // ensure, that we notify page to disable create button if no upload left 
+        // ensure, that we notify page to disable create button if no upload left
         // might become more complex validation later
         if (uploads.length === 1) {
             onUploadChangeCallback(false);
@@ -235,7 +235,7 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
     convertUploadsToChannelsAndVersions = () => {
         const { uploads, setPackageChannels, setPackageOperatorVersions } = this.props;
 
-        const channels: PacakgeEditorChannel[] = [];
+        const channels: PackageEditorChannel[] = [];
 
         // get package file
         const pkg = uploads.find(upload => upload.objectType === 'Package') as PackageFileEntry | undefined;

@@ -38,7 +38,7 @@ export type  OperatorRequiredCRDEitPageProps = {
 
 
 class OperatorRequiredCRDEditPage extends React.PureComponent<OperatorRequiredCRDEitPageProps> {
- 
+
   static propTypes;
   static defaultProps;
 
@@ -160,7 +160,7 @@ class OperatorRequiredCRDEditPage extends React.PureComponent<OperatorRequiredCR
 
     // update the operator's version of this CRD
     const existingCRDs = _.get(operator, crdsField);
-    const crd = existingCRDs[this.crdIndex];
+    const crd = existingCRDs && existingCRDs[this.crdIndex];
 
     const errors = (this.isNewCRD ? this.touchedFields[field] && crdErrors : crdErrors) || {};
 
@@ -201,6 +201,7 @@ class OperatorRequiredCRDEditPage extends React.PureComponent<OperatorRequiredCR
         lastPage="required-crds"
         lastPageTitle="Required CRDs"
         history={history}
+        match={match}
         versionEditorRootPath={getVersionEditorRootPath(match)}
         validatePage={() => true}
       >
