@@ -215,6 +215,10 @@ export type NormalizedOperatorPreview = {
     links: OperatorLink[]
     repository: string
     maintainers: OperatorMaintainer[]
+    managedBy?: string
+    helmRepoName?: string
+    helmRepoUrl?: string
+    helmChart?: string
     categories: string[]
     createdAt: string
     containerImage: string
