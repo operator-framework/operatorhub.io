@@ -11,7 +11,7 @@
         "express-force-ssl": "~0.3.2",
         "fs-extra": "~8.1.0",
         "google-protobuf": "~3.8.0",
-        "grpc": "~1.22.2",
+        "grpc": "^1.24.2",
         "js-yaml": "^3.13.1",
         "lodash": "~4.17.15",
         "self-signed-https": "~1.0.5",
