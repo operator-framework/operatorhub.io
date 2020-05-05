@@ -30,19 +30,19 @@ export async function importDataAndPrepareForStartup(){
         if(USE_REGISTRY){
             console.log(`Importing data from operator registry at address ${REGISTRY_ADDRESS}`);
             operatorsIndexRaw = await importData();
-
+            
         } else {
             console.log('Parsing  data from local copy of communuity operators repo');
             operatorsIndexRaw = await loadOperators();
         }
-
+        
     } catch(e){
-        healthy = false;
+        healthy = false;        
     }
 
     operatorsIndex = operatorsIndexRaw.map((operatorPackage): OperatorIndexMetadata | null => {
         const defaultOperator = getDefaultOperatorForPackage(operatorPackage);
-
+    
         if (defaultOperator) {
             return {
                 name: defaultOperator.name,
@@ -50,7 +50,6 @@ export async function importDataAndPrepareForStartup(){
                 imgUrl: defaultOperator.thumbUrl,
                 provider: defaultOperator.provider,
                 capabilityLevel: defaultOperator.capabilityLevel,
-                managedBy: defaultOperator.managedBy,
                 description: defaultOperator.description,
                 categories: defaultOperator.categories,
                 keywords: defaultOperator.keywords,
@@ -59,7 +58,7 @@ export async function importDataAndPrepareForStartup(){
         } else {
             console.error(`Minimal index builder > Cannot find default operator for package "${operatorPackage.name}"`);
         }
-
+    
         return null;
     }).filter(operator => operator !== null) as OperatorIndexMetadata[];
 

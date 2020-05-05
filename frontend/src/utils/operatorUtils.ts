@@ -126,11 +126,7 @@ export const normalizeOperator = (operator: operatorTypes.Operator) => {
     links: spec ? spec.links : [],
     repository: annotations.repository,
     maintainers: spec ? spec.maintainers : [],
-    managedBy: annotations['app.kubernetes.io/managed-by'] || 'OLM',
-    helmRepoName: annotations['app.kubernetes.io/helm-repo-name'],
-    helmRepoUrl: annotations['app.kubernetes.io/helm-repo-url'],
-    helmChart: annotations['app.kubernetes.io/helm-chart'],
-    description: annotations.description,
+    description: _.get(annotations, 'description'),
     categories: categoriesString && categoriesString.split(',').map(category => category.trim()) || [],
     createdAt: annotations.createdAt && `${annotations.createdAt}`,
     containerImage: annotations.containerImage,
@@ -391,7 +387,7 @@ export const convertExampleYamlToObj = examples => {
 
 export interface AutoSavedData {
   editorState: {
-    uploads: UploadMetadata[],
+    uploads: UploadMetadata[], 
     operator: operatorTypes.Operator
   },
   packageEditorState: {
