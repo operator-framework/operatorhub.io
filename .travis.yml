@@ -8,6 +8,8 @@ stages:
     if: branch = master AND type IN (push, api)
   - name: deploy
     if: branch IN (master, dev) AND type IN (push, api)
+  - name: invalidate cache
+    if: branch = master AND type IN (push, api)
 
 jobs:
   include:
@@ -78,4 +80,8 @@ jobs:
     - name: deploy to PROD cluster
       stage: deploy
       script: ./deploy.sh prod
+      if: branch = master
+    - name: invalidate Akamai cache
+      stage: invalidate cache
+      script: ./invalidate.sh
       if: branch = master
