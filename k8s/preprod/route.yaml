@@ -2,13 +2,15 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   annotations:
-    kubernetes.io/tls-acme: "true"
-  creationTimestamp: 2020-03-31T12:24:02Z
+    openshift.io/host.generated: "true"
+  creationTimestamp: null
   name: operatorhubio
 spec:
-  host: preprod.operatorhub.io
   port:
     targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
   to:
     kind: Service
     name: operatorhubio
