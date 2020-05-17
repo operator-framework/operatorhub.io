@@ -76,7 +76,7 @@ jobs:
     - name: deploy to DEV cluster
       stage: deploy
       script: ./deploy.sh dev
-      if: branch IN (dev, cicd-fix-deployment)
+      if: branch = dev
     - name: deploy to PROD cluster
       stage: deploy
       script: ./deploy.sh prod
