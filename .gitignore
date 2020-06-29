@@ -33,3 +33,9 @@ server/data/community-operators
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# k8s
+manifest.yaml
+
+# CI tooling
+/bin/*
