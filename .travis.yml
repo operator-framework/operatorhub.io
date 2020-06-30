@@ -63,10 +63,10 @@ jobs:
       script:
         - git clone https://github.com/operator-framework/community-operators.git
         - cd community-operators
-        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog" -f openshift.Dockerfile .
+        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster" -f openshift-ms.Dockerfile .
         - >
           if [[ $TRAVIS_BRANCH == "master" ]] || [[ $TRAVIS_BRANCH == "dev" ]]; then
-            docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog"
+            docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster"
           else
             echo "Image pushed only on master or dev branch"
           fi

@@ -4,23 +4,24 @@ set -e
 
 ENVIRO=$1
 
-if [[ ! "$ENVIRO" =~ ^(pica|dev|preprod|prod)$ ]]; then
+if [[ ! "$ENVIRO" =~ ^(dev|preprod|prod)$ ]]; then
     echo "Invalid environment $ENVIRO, only dev, preprod and prod supported"
     exit
 fi
 
 mkdir -p bin
-if ! ./bin/oc >/dev/null ; then
-    echo Installing openshift origin client
-    wget https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz
-    tar -xvf openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz
+if ! ./bin/oc > /dev/null 2>&1 ; then
+    echo openshift origin client not found, installing
+    curl -#L -o openshift.tar.gz https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz
+    tar -xvf openshift.tar.gz --wildcards '*oc'
     mv openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit/oc bin/
+    rm -rd openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit*
 fi
 
-if ! ./bin/kustomize >/dev/null; then
-    echo Installing kustomize
-    wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv3.5.4/kustomize_v3.5.4_linux_amd64.tar.gz
-    tar -xvf kustomize_v3.5.4_linux_amd64.tar.gz
+if ! ./bin/kustomize > /dev/null 2>&1 ; then
+    echo kustomize binary not found, installing
+    curl -L# -o kustomize.tar.gz https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv3.5.4/kustomize_v3.5.4_linux_amd64.tar.gz
+    tar -xvf kustomize.tar.gz
     mv kustomize bin
 fi
 

@@ -13,4 +13,4 @@ images:
     newTag: dev
   - name: catalog
     newName: quay.io/operator-framework/operatorhubio
-    newTag: catalog
+    newTag: catalog-buster

@@ -7,10 +7,12 @@ bases:
   - ../base
 resources:
   - route.yaml
+patchesStrategicMerge:
+  - patch-deploy-replicas.yaml
 images:
   - name: site
     newName: quay.io/operator-framework/operatorhubio
     newTag: v3
   - name: catalog
     newName: quay.io/operator-framework/operatorhubio
-    newTag: catalog
+    newTag: catalog-buster
