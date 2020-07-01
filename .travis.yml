@@ -3,13 +3,18 @@ dist: trusty
 stages:
   # - lint
   - name: build
-    if: branch IN (master, dev)
-  - name: deploy_preprod
-    if: branch = master AND type IN (push, api)
+    if: branch IN (master2, dev)
+  # - name: deploy_preprod
+  #   if: branch = master2 AND type IN (push, api)
   - name: deploy
-    if: branch IN (master, dev) AND type IN (push, api)
-  - name: invalidate cache
-    if: branch = master AND type IN (push, api)
+    if: branch IN (master2, dev) AND type IN (push, api)
+  # - name: invalidate cache
+  #   if: branch = master2 AND type IN (push, api)
+
+language: node_js
+
+node_js:
+  - "11"
 
 jobs:
   include:
@@ -30,29 +35,14 @@ jobs:
     #     - npm install
     #     - npm run lint || echo "linting currently disabled"
     #   if: branch =~ /(master|dev)/
-    - name: build image for site
-      stage: build
-      services:
-        - docker
-      before_script:
-        - docker info
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
-      script:
-        - >
-          export DOCKER_TAG=$(bash -c '
-          if [[ $TRAVIS_BRANCH == "master" ]]; then
-            echo v3;
-          else
-            echo $TRAVIS_BRANCH;
-          fi
-          ')
-        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG" -f travis.Dockerfile .
-        - >
-          if [[ $TRAVIS_BRANCH == "master" ]] || [[ $TRAVIS_BRANCH == "dev" ]]; then
-            docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG"
-          else
-            echo "Image pushed only on master or dev branch"
-          fi
+    # - name: build image for site
+    #   stage: build
+    #   services:
+    #     - docker
+    #   before_script:
+    #     - docker info
+    #     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
+    #   script:
     - name: build image for catalog
       stage: build
       services:
@@ -64,24 +54,47 @@ jobs:
         - git clone https://github.com/operator-framework/community-operators.git
         - cd community-operators
         - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster" -f openshift-ms.Dockerfile .
+        - docker run -d -p 50051:50051 --name registry $DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster
+        - docker ps
+        - cd ../server
+        - npm install
+        - npm run build-only
+        - rm -rd node_modules
+        - cd ..
         - >
-          if [[ $TRAVIS_BRANCH == "master" ]] || [[ $TRAVIS_BRANCH == "dev" ]]; then
-            docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster"
+          export DOCKER_TAG=$(bash -c '
+          if [[ $TRAVIS_BRANCH == "master" ]]; then
+            echo v3;
           else
-            echo "Image pushed only on master or dev branch"
+            echo $TRAVIS_BRANCH;
           fi
-    - name: test deployment in PREPROD cluster
-      stage: deploy_preprod
-      script: ./deploy.sh preprod
-    - name: deploy to DEV cluster
-      stage: deploy
-      script: ./deploy.sh dev
-      if: branch = dev
-    - name: deploy to PROD cluster
-      stage: deploy
-      script: ./deploy.sh prod
-      if: branch = master
-    - name: invalidate Akamai cache
-      stage: invalidate cache
-      script: ./invalidate.sh
-      if: branch = master
+          ')
+        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG" -f travis.Dockerfile .
+        # - >
+        #   if [[ -z $TRAVIS_PULL_REQUEST_BRANCH ]] && [[ $TRAVIS_BRANCH == "master2" || $TRAVIS_BRANCH == "dev" ]]; then
+        #     docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG"
+        #   else
+        #     echo "Image pushed only on push to master or dev branch"
+        #   fi
+        - >
+          if [[ $TRAVIS_BRANCH == "master2" ]] || [[ $TRAVIS_BRANCH == "dev" ]]; then
+            docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG"
+          else
+            echo "Image pushed only on push to master or dev branch"
+          fi
+
+    # - name: test deployment in PREPROD cluster
+    #   stage: deploy_preprod
+    #   script: ./deploy.sh preprod
+    # - name: deploy to DEV cluster
+    #   stage: deploy
+    #   script: ./deploy.sh dev
+    #   if: branch = dev
+    # - name: deploy to PROD cluster
+    #   stage: deploy
+    #   script: ./deploy.sh prod
+    #   if: branch = master2
+    # - name: invalidate Akamai cache
+    #   stage: invalidate cache
+    #   script: ./invalidate.sh
+    #   if: branch = master2
