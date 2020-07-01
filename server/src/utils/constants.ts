@@ -5,7 +5,7 @@ import { LogLevel } from '../importer/types';
 
 
 const process_args = argv
-    .option([      
+    .option([
         {
             name: "port",
             short: "p",
@@ -33,6 +33,20 @@ const process_args = argv
             type: "number",
             description: "Defines log level where 0=debug, 1=log, 2=warn and 3=error",
             example: "... -l 2 or --log=2"
+        },
+        {
+            name: "usecache",
+            short: "uc",
+            type: "boolean",
+            description: "Use cache",
+            example: "... --usecache"
+        },
+        {
+            name: "buildonly",
+            short: "bo",
+            type: "boolean",
+            description: "Build data only and terminate",
+            example: "... --buildonly"
         }
     ])
     .version('1.0')
@@ -45,7 +59,8 @@ const env = process.env || {};
 export const serverPort = env.PORT || process_args.options.port || 8080;
 export const secureServerPort = env.SECUREPORT || process_args.options.secureport || 8443;
 
-
+export const BUILD_ONLY = process_args.options.buildonly || false;
+export const USE_CACHE = process_args.options.usecache || false
 export const USE_REGISTRY = !!env.REGISTRY || !!process_args.options.registry || false;
 export const REGISTRY_ADDRESS = env.REGISTRY || process_args.options.registry || 'localhost:50051';
 export const LOG_LEVEL = env.LOG_LEVEL && parseInt(env.LOG_LEVEL) || process_args.options.log || LogLevel.warn;
