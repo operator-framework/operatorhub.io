@@ -5,12 +5,11 @@ commonLabels:
   app: operatorhubio
 bases:
   - ../base
+patchesStrategicMerge:
+  - patch-deploy-replicas.yaml
 resources:
   - route.yaml
 images:
   - name: site
     newName: quay.io/operator-framework/operatorhubio
-    newTag: v3
-  - name: catalog
-    newName: quay.io/operator-framework/operatorhubio
-    newTag: catalog
+    newTag: v4
