@@ -11,6 +11,11 @@ stages:
   - name: invalidate cache
     if: branch = master AND type IN (push, api)
 
+language: node_js
+
+node_js:
+  - "11"
+
 jobs:
   include:
     # - stage: lint
@@ -35,40 +40,32 @@ jobs:
       services:
         - docker
       before_script:
-        - docker info
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
       script:
+        - git clone https://github.com/operator-framework/community-operators.git
+        - cd community-operators
+        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster" -f openshift-ms.Dockerfile .
+        - docker run -d -p 50051:50051 --name registry $DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster
+        - docker ps
+        - cd ../server
+        - npm install
+        - npm run build-only
+        - rm -rd node_modules
+        - cd ..
         - >
           export DOCKER_TAG=$(bash -c '
           if [[ $TRAVIS_BRANCH == "master" ]]; then
-            echo v3;
+            echo v4;
           else
             echo $TRAVIS_BRANCH;
           fi
           ')
         - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG" -f travis.Dockerfile .
         - >
-          if [[ $TRAVIS_BRANCH == "master" ]] || [[ $TRAVIS_BRANCH == "dev" ]]; then
+          if [[ -z $TRAVIS_PULL_REQUEST_BRANCH ]] && [[ $TRAVIS_BRANCH == "master" || $TRAVIS_BRANCH == "dev" ]]; then
             docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG"
           else
-            echo "Image pushed only on master or dev branch"
-          fi
-    - name: build image for catalog
-      stage: build
-      services:
-        - docker
-      before_script:
-        # - docker info
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
-      script:
-        - git clone https://github.com/operator-framework/community-operators.git
-        - cd community-operators
-        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster" -f openshift-ms.Dockerfile .
-        - >
-          if [[ $TRAVIS_BRANCH == "master" ]] || [[ $TRAVIS_BRANCH == "dev" ]]; then
-            docker push "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster"
-          else
-            echo "Image pushed only on master or dev branch"
+            echo "Image pushed only on push to master or dev branch"
           fi
     - name: test deployment in PREPROD cluster
       stage: deploy_preprod

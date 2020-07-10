@@ -3,4 +3,4 @@ kind: Deployment
 metadata:
   name: operatorhubio
 spec:
-  replicas: 2
+  replicas: 3
