@@ -11,6 +11,3 @@ images:
   - name: site
     newName: quay.io/operator-framework/operatorhubio
     newTag: dev
-  - name: catalog
-    newName: quay.io/operator-framework/operatorhubio
-    newTag: catalog-buster
