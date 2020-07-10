@@ -1,10 +1,10 @@
-
-import {importData} from '../importer/client'
+import { readJson } from 'fs-extra';
+import { importData } from '../importer/client'
 
 import { getDefaultOperatorForPackage } from './utils';
 import { NormalizedOperatorPackage, OperatorIndexMetadata } from '../sharedTypes';
 import { loadOperators } from '../importer/legacy/loader';
-import { USE_REGISTRY, REGISTRY_ADDRESS } from './constants';
+import { BUILD_ONLY, USE_CACHE, USE_REGISTRY, REGISTRY_ADDRESS } from './constants';
 
 let operatorsIndexRaw: ReadonlyArray<NormalizedOperatorPackage>;
 let operatorsIndex: OperatorIndexMetadata[];
@@ -26,11 +26,19 @@ export function getHealthState(){
 export async function importDataAndPrepareForStartup(){
 
     // catch health state after import
-    try{
-        if(USE_REGISTRY){
+    try {
+        if (USE_CACHE) {
+            console.log(`Loading data from cache`);
+            operatorsIndexRaw = await readJson('./cache/operators.json', { throws: false })
+        }
+        else if (USE_REGISTRY) {
             console.log(`Importing data from operator registry at address ${REGISTRY_ADDRESS}`);
             operatorsIndexRaw = await importData();
-            
+
+            if (BUILD_ONLY) {
+                console.log('JSON file cache/operators.json saved, terminating gracefully');
+                process.exit(0)
+            }
         } else {
             console.log('Parsing  data from local copy of communuity operators repo');
             operatorsIndexRaw = await loadOperators();

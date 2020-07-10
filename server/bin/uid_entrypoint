@@ -5,7 +5,10 @@ if ! whoami &> /dev/null; then
   fi
 fi
 
-dockerize -wait tcp://localhost:50051 -timeout 120s
+if [[ "$@" == *"--registry"* ]]; then
+  dockerize -wait tcp://localhost:50051 -timeout 120s
+fi
+
 if node --version >/dev/null ; then
   node /app/server/dist/server.js "$@"		￼
 else
