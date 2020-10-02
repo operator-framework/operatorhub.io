@@ -30,7 +30,7 @@ const Footer: React.FC<FooterProps> = ({ history, visible, ...props }) => (
     <div className="oh-footer__contents">
       <div className="oh-footer__contents__inner">
         <div className="oh-footer__contents-left">
-          <img className="oh-footer__contents-left__logo" src={frameworkLogo} alt="Operator Framework" />
+          <a href="https://operatorframework.io"><img className="oh-footer__contents-left__logo" src={frameworkLogo} alt="Operator Framework" /></a>
           <div className="oh-footer__contents-left__text">
             The Operator Framework is an open source toolkit to manage Kubernetes native applications, called Operators,
             in an effective, automated, and scalable way.
