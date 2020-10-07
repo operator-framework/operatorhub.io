@@ -43,14 +43,15 @@ jobs:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
         - pip install --user ansible jmespath
       script:
-        - git clone https://github.com/operator-framework/community-operators.git
-        - cd community-operators
-        - rm -rf upstream-community-operators
-        - time ansible-pull -U https://github.com/J0zi/operator-test-playbooks -C upstream-community -i localhost, local.yml --tags reset_tools,app_registry -e run_upstream=true -e index_export_parallel=true -e bundle_index_image=quay.io/operatorhubio/catalog:latest -e bundle_export_dir_app_registry="$PWD/upstream-community-operators"
-        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster" -f openshift-ms.Dockerfile .
-        - docker run -d -p 50051:50051 --name registry $DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster
+#        - git clone https://github.com/operator-framework/community-operators.git
+#        - cd community-operators
+#        - rm -rf upstream-community-operators
+#        - time ansible-pull -U https://github.com/J0zi/operator-test-playbooks -C upstream-community -i localhost, local.yml --tags reset_tools,app_registry -e run_upstream=true -e index_export_parallel=true -e bundle_index_image=quay.io/operatorhubio/catalog:latest -e bundle_export_dir_app_registry="$PWD/upstream-community-operators"
+#        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster" -f openshift-ms.Dockerfile .
+#        - docker run -d -p 50051:50051 --name registry $DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster
+        - docker run -d -p 50051:50051 --name registry quay.io/operator-framework/upstream-community-operators
         - docker ps
-        - cd ../server
+        - cd server
         - npm install
         - npm run build-only
         - rm -rd node_modules
