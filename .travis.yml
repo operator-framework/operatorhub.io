@@ -11,6 +11,9 @@ stages:
   - name: invalidate cache
     if: branch = master AND type IN (push, api)
 
+python:
+  - "3.8"
+
 language: node_js
 
 node_js:
@@ -42,12 +45,9 @@ jobs:
       before_script:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
       script:
-        - git clone https://github.com/operator-framework/community-operators.git
-        - cd community-operators
-        - docker build -t "$DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster" -f openshift-ms.Dockerfile .
-        - docker run -d -p 50051:50051 --name registry $DOCKER_REGISTRY/$DOCKER_IMAGE:catalog-buster
+        - docker run -d -p 50051:50051 --name registry $OHIO_REGISTRY_IMAGE
         - docker ps
-        - cd ../server
+        - cd server
         - npm install
         - npm run build-only
         - rm -rd node_modules
