@@ -49,3 +49,5 @@ USER 1001
 WORKDIR ${APP_ROOT}/server
 ENTRYPOINT [ "/app/server/bin/uid_entrypoint" ]
 EXPOSE 8080
+
+
