@@ -1,5 +1,12 @@
 dist: trusty
 
+notifications:
+  email:
+    recipients:
+      - operatorhubio-admin@googlegroups.com
+    on_success: never
+    on_failure: always
+
 stages:
   # - lint
   - name: build
