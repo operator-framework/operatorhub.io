@@ -1,0 +1,44 @@
+name: Build server and site images
+
+on:
+  pull_request:
+    branches:
+      - master
+      - dev
+
+env:
+  OHIO_REGISTRY_IMAGE: quay.io/operator-framework/upstream-community-operators:latest
+
+jobs:
+  build:
+    name: Build site image
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+      - name: Setup environment using Docker
+        run: |
+          docker run -d -p 50051:50051 --name registry $OHIO_REGISTRY_IMAGE
+          docker ps
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build server app using Nodejs
+        run: |
+          docker ps
+          cd server
+          npm install
+          npm run build-only
+          rm -rd node_modules
+
+      - name: Build site image
+        run: |
+          docker build -t test -f travis.Dockerfile .
