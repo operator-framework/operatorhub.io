@@ -1,0 +1,106 @@
+name: Build, push and deploy site
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+
+env:
+  OHIO_SITE_IMAGE: quay.io/operator-framework/operatorhubio
+  OHIO_REGISTRY_IMAGE: quay.io/operator-framework/upstream-community-operators:latest
+  SOURCE_BRANCH: ${{ github.ref }}
+
+jobs:
+  build:
+    name: Build site image
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+      - name: Setup environment using Docker
+        run: |
+          docker run -d -p 50051:50051 --name registry $OHIO_REGISTRY_IMAGE
+          docker ps
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build server app using Nodejs
+        run: |
+          docker ps
+          cd server
+          npm install
+          npm run build-only
+          rm -rd node_modules
+
+      - name: Build site image
+        run: |
+          export OHIO_SITE_TAG=$(bash -c '
+          if [[ $SOURCE_BRANCH == "refs/heads/master" ]]; then
+            echo v4;
+          else
+            echo $SOURCE_BRANCH | cut -d "/" -f 3;
+          fi
+          ')
+          docker build -t "$OHIO_SITE_IMAGE:$OHIO_SITE_TAG" -f travis.Dockerfile .
+
+      - name: Push new site image
+        if: ${{ github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master' }}
+        run: |
+          export OHIO_SITE_TAG=$(bash -c '
+          if [[ $SOURCE_BRANCH == "refs/heads/master" ]]; then
+            echo v4;
+          else
+            echo $SOURCE_BRANCH | cut -d "/" -f 3;
+          fi
+          ')
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
+          docker push "$OHIO_SITE_IMAGE:$OHIO_SITE_TAG"
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+
+  deploy:
+    name: Deploy site
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+      OPENSHIFT_TOKEN_DEV: ${{ secrets.OPENSHIFT_TOKEN_DEV }}
+      OPENSHIFT_TOKEN_PREPROD: ${{ secrets.OPENSHIFT_TOKEN_PREPROD }}
+      OPENSHIFT_TOKEN_PROD: ${{ secrets.OPENSHIFT_TOKEN_PROD }}
+      AKAMAI_SECRETS: ${{ secrets.AKAMAI_SECRETS }}
+      AKAMAI_APPCODES: ${{ secrets.AKAMAI_APPCODES }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to DEV
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        run: |
+          ./deploy.sh dev
+
+      - name: Deploy to PREPROD
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          ./deploy.sh preprod
+
+      - name: Deploy to PROD
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          ./deploy.sh prod
+
+      - name: Invalidate Akamai cache
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          ./invalidate.sh
