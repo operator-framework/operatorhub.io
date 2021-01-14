@@ -6,6 +6,8 @@ on:
       - master
       - dev
 
+  workflow_dispatch:
+
 env:
   OHIO_SITE_IMAGE: quay.io/operator-framework/operatorhubio
   OHIO_REGISTRY_IMAGE: quay.io/operator-framework/upstream-community-operators:latest
