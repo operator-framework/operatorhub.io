@@ -143,7 +143,7 @@ export const createPackageBundle = (
             currentCSV: channel.currentVersionFullName
         }))
     };
-    const pkgFolder = zip.folder(packageName);
+    const pkgFolder : any = zip.folder(packageName);
     pkgFolder.file(`${packageName}.package.yaml`, safeDump(packageFileObject));
 
     versions.forEach(operatorVersion => {

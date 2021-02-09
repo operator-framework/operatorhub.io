@@ -17,6 +17,7 @@ export type PackageEditorPageWrapperProps = {
   history: History
   header: React.ReactNode
   buttonBar: React.ReactNode
+  children?: React.ReactNode
   breadcrumbs: BreadcrumbsItem[]
   pageId?: string,
   className?: string,

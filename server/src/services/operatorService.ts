@@ -31,7 +31,7 @@ export function fetchOperator(request: Request, response: Response) {
             // inject channel data here to reduce imported index size 
             // would lead to redundant repeated values in index
             const channelsMetadata = getChannelMetadataList(operatorPackage);
-            const operator = getOperator(operatorPackage, channel, name);
+            const operator = getOperator(operatorPackage, channel as string, name as string);
             
             if (operator) {
                 response.send({
