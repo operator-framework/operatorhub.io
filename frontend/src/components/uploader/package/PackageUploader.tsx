@@ -70,12 +70,12 @@ class OperatorPackageUploader extends React.PureComponent<OperatorPackageUploade
         };
 
         try {
-            let content = metadata.parsedContent = safeLoad(data);
+            let content : any = metadata.parsedContent = safeLoad(data);
 
             // partial implementation (copied over...)
             // @see UploaderUtils -> getObjectNameAndType method for complete
             // identification of Kube objects
-            if (content.kind && content.apiVersion && content.metadata) {
+            if (content.kind && content.apiVersion && content.metadata ) {
 
                 const type = content.kind;
                 const { name } = content.metadata;
