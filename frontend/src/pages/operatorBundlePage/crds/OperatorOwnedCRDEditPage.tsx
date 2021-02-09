@@ -267,7 +267,7 @@ class OperatorOwnedCRDEditPage extends React.PureComponent<OperatorOwnedCRDEditP
     let crdTemplateYamlError = '';
 
     try {
-      const template = safeLoad(yaml);
+      const template : any = safeLoad(yaml);
       const updatedOperator = this.updateAlmTemplates(_.cloneDeep(operator), template);
 
       storeEditorOperator(updatedOperator);

@@ -27,6 +27,8 @@ frontend/dist
 
 server/data/community-operators
 
+server/community-operators/
+
 # misc
 .DS_Store
 
