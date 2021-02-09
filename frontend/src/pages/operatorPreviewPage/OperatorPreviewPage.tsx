@@ -87,7 +87,7 @@ class OperatorPreviewPage extends React.PureComponent<OperatorPreviewPageProps, 
     }
 
     try {
-      const yamlOperator = safeLoad(yaml);
+      const yamlOperator : any = safeLoad(yaml);
       const operator = normalizeOperator(yamlOperator);
       this.setState({ operator, yamlError: '' });
 
