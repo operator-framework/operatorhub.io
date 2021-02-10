@@ -1,7 +1,7 @@
 export const operatorsFramework = 'https://github.com/operator-framework';
 export const operatorsRepo = `${operatorsFramework}/community-operators`;
 export const contributions = `${operatorsRepo}/tree/master/upstream-community-operators`;
-export const operatorsRepoBeforePR = `${operatorsRepo}#before-submitting-a-pr`;
+export const operatorsRepoBeforePR = `${operatorsRepo}/blob/master/docs/contributing-via-pr.md`;
 export const operatorsRepoRequirements = `${operatorsRepo}#know-what-to-contribute`;
 export const operatorSdk = `${operatorsFramework}/operator-sdk`;
 export const operatorCourier = `${operatorsFramework}/operator-courier`;
