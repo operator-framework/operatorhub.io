@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - dev
 
 env:
   OHIO_REGISTRY_IMAGE: quay.io/operator-framework/upstream-community-operators:latest

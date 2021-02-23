@@ -2,9 +2,10 @@ name: Build, push and deploy site
 
 on:
   push:
+    tags:
+      - '*'
     branches:
       - master
-      - dev
 
   workflow_dispatch:
 
@@ -46,7 +47,7 @@ jobs:
       - name: Build site image
         run: |
           export OHIO_SITE_TAG=$(bash -c '
-          if [[ $SOURCE_BRANCH == "refs/heads/master" ]]; then
+          if [[ $SOURCE_BRANCH == *"refs/tags"* ]]; then
             echo v4;
           else
             echo $SOURCE_BRANCH | cut -d "/" -f 3;
@@ -55,10 +56,10 @@ jobs:
           docker build -t "$OHIO_SITE_IMAGE:$OHIO_SITE_TAG" -f travis.Dockerfile .
 
       - name: Push new site image
-        if: ${{ github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master' }}
+        if: ${{ contains(github.ref, 'refs/tags') || github.ref == 'refs/heads/master' }}
         run: |
           export OHIO_SITE_TAG=$(bash -c '
-          if [[ $SOURCE_BRANCH == "refs/heads/master" ]]; then
+          if [[ $SOURCE_BRANCH == *"refs/tags"* ]]; then
             echo v4;
           else
             echo $SOURCE_BRANCH | cut -d "/" -f 3;
@@ -88,21 +89,21 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Deploy to DEV
-        if: ${{ github.ref == 'refs/heads/dev' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           ./deploy.sh dev
 
       - name: Deploy to PREPROD
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ contains(github.ref, 'refs/tags') }}
         run: |
           ./deploy.sh preprod
 
       - name: Deploy to PROD
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ contains(github.ref, 'refs/tags') }}
         run: |
           ./deploy.sh prod
 
       - name: Invalidate Akamai cache
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ contains(github.ref, 'refs/tags') }}
         run: |
           ./invalidate.sh
