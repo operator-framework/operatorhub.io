@@ -25,7 +25,11 @@ jobs:
     steps:
       - name: Setup environment using Docker
         run: |
-          docker run -d -p 50051:50051 --name registry $OHIO_REGISTRY_IMAGE
+          if [[ $SOURCE_BRANCH == *"refs/tags"* ]]; then
+            docker run -d -p 50051:50051 --name registry $OHIO_REGISTRY_IMAGE:latest
+          else
+            docker run -d -p 50051:50051 --name registry $OHIO_REGISTRY_IMAGE:dev
+          fi
           docker ps
 
       - name: Checkout code
