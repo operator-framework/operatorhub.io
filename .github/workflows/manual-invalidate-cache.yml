@@ -1,0 +1,15 @@
+name: Manually invalidate Akamai cache
+
+on:
+  workflow_dispatch:
+
+jobs:
+  invalidate-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Invalidate Akamai cache
+        run: |
+          ./invalidate.sh
