@@ -6,6 +6,9 @@ on:
 jobs:
   invalidate-cache:
     runs-on: ubuntu-latest
+    env:
+      AKAMAI_SECRETS: ${{ secrets.AKAMAI_SECRETS }}
+      AKAMAI_APPCODES: ${{ secrets.AKAMAI_APPCODES }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
