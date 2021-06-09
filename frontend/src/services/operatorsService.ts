@@ -87,7 +87,7 @@ export const fetchLatestOlmVersion = () => (dispatch: IDispatch) => {
   axios
     .get(latestOlmVersionRequest)
     .then(response => {
-      const latestRelease = response.data.filter(release => release.target_commitish === 'master')[0];
+      const latestRelease = response.data.filter(release => release.draft !== true)[0];
 
       if (latestRelease && latestRelease.tag_name) {
         dispatch({
