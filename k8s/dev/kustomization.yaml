@@ -10,4 +10,4 @@ resources:
 images:
   - name: site
     newName: quay.io/operator-framework/operatorhubio
-    newTag: dev
+    newTag: master
