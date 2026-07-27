@@ -10,7 +10,10 @@ if [[ ! "$ENVIRO" =~ ^(dev|preprod|prod)$ ]]; then
 fi
 
 mkdir -p bin
-if ! /usr/local/bin/oc > /dev/null 2>&1 ; then
+# Binaries are installed under ./bin; ensure they are resolvable for later steps.
+export PATH="$(pwd)/bin:${PATH}"
+
+if ! command -v oc > /dev/null 2>&1 ; then
     echo openshift origin client not found, installing
     curl -#L -o openshift.tar.gz https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz
     tar -xvf openshift.tar.gz --wildcards '*oc'
@@ -18,7 +21,7 @@ if ! /usr/local/bin/oc > /dev/null 2>&1 ; then
     rm -rd openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit*
 fi
 
-if ! /usr/local/bin/kustomize > /dev/null 2>&1 ; then
+if ! command -v kustomize > /dev/null 2>&1 ; then
     echo kustomize binary not found, installing
     curl -L# -o kustomize.tar.gz https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv3.5.4/kustomize_v3.5.4_linux_amd64.tar.gz
     tar -xvf kustomize.tar.gz
