@@ -15,7 +15,7 @@
         "js-yaml": "^3.13.1",
         "lodash": "^4.17.21",
         "self-signed-https": "~1.0.5",
-        "sharp": "^0.23.0"
+        "sharp": "^0.35.0"
     },
     "devDependencies": {
         "@improbable-eng/grpc-web": "^0.11.0",
