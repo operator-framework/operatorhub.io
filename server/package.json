@@ -7,7 +7,7 @@
         "@types/argv": "0.0.4",
         "argv": "0.0.2",
         "compression": "~1.7.4",
-        "express": "~4.17.1",
+        "express": "~5.2.1",
         "express-force-ssl": "~0.3.2",
         "fs-extra": "~8.1.0",
         "google-protobuf": "~3.8.0",
